@@ -370,18 +370,20 @@
 
 prmptl  =       25              ; Prompt position
 
-        GBLA    $prmod
-$prmod  SETA    0               ; the modification to prmptl for nice printing
 
         IF cf8key=1
-$prmod  SETA    ($prmod + 3)    ; CR/LF text
+prmod1  =       3               ; CR/LF text
+        ELSE
+prmod1  =       0
         ENDIF
 
         IF stamp=1
-$prmod  SETA    ($prmod + 5)    ; Date/Exec text
+prmod2  =       5               ; Date/Exec text
+        ELSE
+prmod2  =       0
         ENDIF
 
-        LDA     #(PRMPTL - 1 + $prmod)  ; plus any modifications
+        LDA     #(PRMPTL - 1 + prmod1 + prmod2)  ; plus any modifications
 
         JMP     wipeTA                  ; and clear the rest of the line
 

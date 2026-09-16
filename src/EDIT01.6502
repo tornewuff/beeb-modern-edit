@@ -21,7 +21,7 @@
         EQUB    &02
         EQUB    "Edit"
         EQUB    null
-        EQUB    "$vers"
+        EQUB    vers
 .copyri
         EQUB    null
         EQUB    "(C)1984 Acorn"

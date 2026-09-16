@@ -450,7 +450,7 @@
         RTS
 .BIGMET
         JSR     VSTRNG
-        EQUB    "The Acorn Screen Editor © 1984 Acorn Computers Ver $vers"
+        EQUB    "The Acorn Screen Editor © 1984 Acorn Computers Ver ", vers
 
         IF mouse = 1
         EQUB    "m"

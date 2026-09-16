@@ -925,10 +925,10 @@ NOCMDS  =       ( * - CMDS )
                                 ; and nulls replaced with 'clterm'
 
 .defhdr
-        EQUB    "$dhtext"
+        EQUB    dhtext
 
 .defftr
-        EQUB    "$dftext"
+        EQUB    dftext
 
         ELSE
 .DEFHDR

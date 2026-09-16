@@ -246,14 +246,11 @@ trnlst  =       stracc          ; table of translateable characters
 
         IF cf8key=1
 
-        GBLS    $dhtext         ; default header text
-        GBLS    $dftext         ; default footer text
+dhtext  =       ".he␀.en␀"                      ; default header text
+dftext  =       ".fo␀.ce␀Page .r0␀.ff.en␀"      ; default footer text
 
-$dhtext SETS    ".he␀.en␀"
-$dftext SETS    ".fo␀.ce␀Page .r0␀.ff.en␀"
-
-dhsize  =       :LEN: "$dhtext"
-dfsize  =       :LEN: "$dftext"
+dhsize  =       LEN(dhtext)
+dfsize  =       LEN(dftext)
 
 .dhbuff SKIP    dhsize          ; Header buffer
 .dfbuff SKIP    dfsize          ; Footer buffer

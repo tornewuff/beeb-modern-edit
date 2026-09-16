@@ -5,8 +5,7 @@ ORG     =       &B800   ; Object destination address
 
         ; ------------------------------------------------------------ ;
 
-        GBLS    $vers
-$vers   SETS    "1.24"  ; No more than 4 characters please
+vers    =       "1.24"  ; No more than 4 characters please
 
 phil    =       0       ; assemble with phil's version of "cursor editing"
 mouse   =       0       ; assemble with MOUSE options
@@ -26,8 +25,3 @@ extgf   =       0       ; extended FIND/REPLACE texts
 
 reladd  =       0       ; relocation address provided
 reladr  =       &B800   ; relocation address
-
-        ; ------------------------------------------------------------ ;
-
-        GBLL    $fix100 ; 'EDIT04'
-$fix100 SETL    1=1     ; allow single state printing
