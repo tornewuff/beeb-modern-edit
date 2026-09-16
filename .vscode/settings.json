@@ -1,5 +1,8 @@
 {
   "[baron]": {
     "editor.tabSize": 8
-  }
+  },
+  "baron.sourceFiles": [
+    "src/main.6502"
+  ]
 }
