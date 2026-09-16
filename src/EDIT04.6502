@@ -1,80 +1,80 @@
                 ; the formatter -> EDIT04
-PRINTH
+.PRINTH
         JMP         PRINHL        ; help on print
-PRINT
+.PRINT
         JSR     MKREFUSE
-        LDXIM   &FF
+        LDX     #&FF
         STX     PWTFLG
         STX     PRTFLG        ; bit 7 printer, bit 6 pay attention to bold/underlining
         STX     LINEOT        ; set needs header flag
         TXS
         JSR     PROMPT
-        =       "Screen, Printer, Help ?",&EA
-PRINTL
+        EQUB    "Screen, Printer, Help ?",&EA
+.PRINTL
         JSR     GETRESP
-        CMPIM   "h"
+        CMP     #'h'
         BEQ     PRINTH
-        CMPIM   "s"
+        CMP     #'s'
         BEQ     PRINTS
-        CMPIM   "p"
+        CMP     #'p'
         BNE     PRINTL
         CLR     PRTFLG        ; 0 for printer
-PRINTS
+.PRINTS
         JSR     PROMPT
-        =       "Continuous, Paged ?",&EA
-PRINTM
+        EQUB    "Continuous, Paged ?",&EA
+.PRINTM
         JSR     GETRESP
-        CMPIM   "c"
+        CMP     #'c'
         BEQ     PRINTC
-        CMPIM   "p"
+        CMP     #'p'
         BNE     PRINTM
         CLR     PWTFLG        ; 0 for paged output
-PRINTC
+.PRINTC
         JSR     MEMSTATE
         LDA     TSTART
         STA     ADDR
         LDA     TSTART+1
         STA     ADDR+1
-        LDAIM   "."
+        LDA     #'.'
         STA     CTLCHA
-        LDXIM   0
-CLRREG
-        CLRAX   noregs        ; clears noregs, tablst, maclst
+        LDX     #0
+.CLRREG
+        CLR     noregs,X      ; clears noregs, tablst, maclst
         INX
         TXA
-        STAAX   trnlst        ; init translation
+        STA     trnlst,X      ; init translation
         BNE     clrreg
 
-        [ cf8key=1
+        IF cf8key=1
         PHX                     ; set X to correct offset
         SEC
-        LDAIM   cr
-        SBCZ    clterm
+        LDA     #cr
+        SBC     clterm
         CLC
-        ADCIM   lf
+        ADC     #lf
         TAX
-        ]
+        ENDIF
 
-        LDAIM   " "
+        LDA     #' '
 
-        [ cf8key=1
-        STAAX   trnlst
+        IF cf8key=1
+        STA     trnlst,X
         PLX
-        |
+        ELSE
         STA     trnlst + lf + (cr - termin)
-        ]
+        ENDIF
 
-        LDAIM   &09
+        LDA     #&09
         STA     TABCHA
         DEA                   ; to 8
         CLC
-DEFTAB
-        STAAX   TABLST
+.DEFTAB
+        STA     TABLST,X
         INX
-        ADCIM   8        ; carry clear
-        CMPIM   100
+        ADC     #8       ; carry clear
+        CMP     #100
         BCC     DEFTAB
-        LDAIM   2
+        LDA     #2
         STA     BRKACTION
         DEA
         STA     PAGE        ; A=1
@@ -88,36 +88,36 @@ DEFTAB
         CLR     FILL        ; enable justification
         CLR     OFFSET        ; no page offset
         CLR     LINFED        ; no overprinting
-        LDAIM   58
+        LDA     #58
         STA     LINEDW        ; lines per page
-        LDAIM   76
+        LDA     #76
         STA     LEN        ; characters per line
         JSR     VSTRNG
-        =       26,12,&EA
+        EQUB    26,12,&EA
         BIT     PRTFLG
         BMI     PATCHA
-        LDXIM   0        ; just for jes's code, set and reset printer type
-        LDAIM   5
+        LDX     #0       ; just for jes's code, set and reset printer type
+        LDA     #5
         JSR     OSBYTE
         JSR     OSBYTE
-        LDAIM   2
+        LDA     #2
         JSR     OSWRCH
-PATCHA
+.PATCHA
         BIT     PWTFLG
         BMI     CHAINB
         BIT     PRTFLG
         BPL     CHAINB
-        LDAIM   14
+        LDA     #14
         JSR     OSWRCH        ; page mode if screen and page wait
-CHAINB
-        [ cf8key=1
-        LDAZ    clterm
-        |
-        LDAIM   termin
-        ]
-        STAI    GS
+.CHAINB
+        IF cf8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
+        STA     (GS)
 
-        [ cf8key=1
+        IF cf8key=1
                                 ; Copy initial header and footer texts
                                 ; into their respective buffers, changing
                                 ; any nulls into the 'clterm' value
@@ -125,68 +125,68 @@ CHAINB
                                 ; AX can be corrupted since X is loaded
                                 ; with an immediate value straight after
 
-        LDXIM   (dhsize - 1)    ; size of header
-mhlp
-        LDAAX   defhdr          ; default header
+        LDX     #(dhsize - 1)   ; size of header
+.mhlp
+        LDA     defhdr,X        ; default header
         BNE     nhchan
 
-        LDAZ    clterm
-nhchan
-        STAAX   dhbuff          ; and into the buffer
+        LDA     clterm
+.nhchan
+        STA     dhbuff,X        ; and into the buffer
 
         DEX
         BPL     mhlp            ; move header loop
 
-        LDXIM   (dfsize - 1)    ; size of footer
-mflp
-        LDAAX   defftr          ; default footer
+        LDX     #(dfsize - 1)   ; size of footer
+.mflp
+        LDA     defftr,X        ; default footer
         BNE     nfchan
 
-        LDAZ    clterm
-nfchan
-        STAAX   dfbuff          ; and into the buffer
+        LDA     clterm
+.nfchan
+        STA     dfbuff,X        ; and into the buffer
 
         DEX
         BPL     mflp            ; move footer loop
 
 
-        LDAIM   :LSB: dhbuff
+        LDA     #<dhbuff
         STA     pageeh
         STA     pageoh
-        LDAIM   :MSB: dhbuff
+        LDA     #>dhbuff
         STA     pageeh + 1
         STA     pageoh + 1
 
-        LDAIM   :LSB: dfbuff
+        LDA     #<dfbuff
         STA     pageef
         STA     pageof
-        LDAIM   :MSB: dfbuff
+        LDA     #>dfbuff
         STA     pageef + 1
         STA     pageof + 1
-        |
-        LDAIM   DEFHDR
+        ELSE
+        LDA     #DEFHDR
         STA     PAGEEH
         STA     PAGEOH
-        LDAIM   :MSB: DEFHDR
+        LDA     #>DEFHDR
         STA     PAGEEH+1
         STA     PAGEOH+1
-        LDAIM   DEFFTR
+        LDA     #DEFFTR
         STA     PAGEEF
         STA     PAGEOF
-        LDAIM   :MSB: DEFFTR
+        LDA     #>DEFFTR
         STA     PAGEEF+1
         STA     PAGEOF+1        ; initial header and footer info
-        ]
+        ENDIF
 
-        LDXIM   maxMAC
-CHAINC
-        CLRAX   MACLST-1
+        LDX     #maxMAC
+.CHAINC
+        CLR     MACLST-1,X
         DEX
         BNE     CHAINC
-FINE
+.FINE
         CLR     CENTRE        ; turn centre off
         CLR     RFLUSH        ; turn right-flush off
-        LDAIM   &FF
+        LDA     #&FF
         STA     TINDEN        ; no temp indent
         LDA     PUNDRL
         STA     UNDERL
@@ -195,67 +195,67 @@ FINE
         STA     BOLD
         STA     BOLDRQ        ; bold required?
         BRA     CTLIN
-LASLEN
+.LASLEN
         JSR     ROUTBP
         BIT     PRTFLG        ; print exit
         BPL     DODWN
         JSR     STRIMO
-        =       "Print done. ",&EA
+        EQUB    "Print done. ",&EA
         JSR     INKEYS
-DODWN
+.DODWN
         JSR     VSTRNG
-        =       3,15,&EA
+        EQUB    3,15,&EA
         JSR     CLOSEX
         LDX     GS
         LDY     GS+1
         JMP     EDITGS
-CTLLMT
-        LDYIM   3        ; found built in cmd
+.CTLLMT
+        LDY     #3       ; found built in cmd
         JSR     CTLLDO
-CTLLMX
+.CTLLMX
         JSR     SPACEY
         DEY
         CLC
         JSR     YADP
-        LDAI    ADDR
+        LDA     (ADDR)
         CMP     CTLCHA
         BEQ     CTLIN1
-        LDYIM   0
-CLCTLI
+        LDY     #0
+.CLCTLI
         JSR     ROUTCO
         SEC
         JSR     YADP
-CTLIN
+.CTLIN
         LDA     ADDR+1
         STA     XEFF        ; set nojust(local) by <>
-        CMPIM   /CTLIN
+        CMP     #>CTLIN
         BCS     CTLIN1
         LDX     ADDR
         CPX     GS
         SBC     GS+1
         BCS     LASLEN
-CTLIN1
-        LDAI    ADDR
+.CTLIN1
+        LDA     (ADDR)
         CMP     CTLCHA
         BNE     LINLYX
-        LDXIM   0        ; main control scan
-        LDYIM   2
-        LDAIY   ADDR
+        LDX     #0       ; main control scan
+        LDY     #2
+        LDA     (ADDR),Y
         STA     TEMP+1
         DEY
-        LDAIY   ADDR
-CTLLLP
-        CMPAX   CMDS
+        LDA     (ADDR),Y
+.CTLLLP
+        CMP     CMDS,X
         BNE     CTLLLL
-        LDYAX   CMDS+1
+        LDY     CMDS+1,X
         CPY     TEMP+1
         BEQ     CTLLMT
-CTLLLL
+.CTLLLL
         INX
         INX
         INX
         INX
-        CPXIM   NOCMDS
+        CPX     #NOCMDS
         BNE     CTLLLP
         JSR     MACCHK
         BCC     LINLYX
@@ -265,13 +265,13 @@ CTLLLL
         PHA
         LDA     CTLCHA
         PHA
-        LDAI    BUFF
+        LDA     (BUFF)
         STA     CTLCHA
         LDA     BUFF
         STA     ADDR
         LDA     BUFF+1
         STA     ADDR+1
-        LDYIM   2
+        LDY     #2
         JSR     CLCTLI
         PLA
         STA     CTLCHA
@@ -279,14 +279,14 @@ CTLLLL
         STA     ADDR+1
         PLA
         STA     ADDR
-        LDYIM   3
+        LDY     #3
         BRA     CTLLMX
-LINLYX
+.LINLYX
         LDA     LINEOT
         INA
         BNE     NOHDR
         JSR     DOHDR
-NOHDR
+.NOHDR
         LDA     LEN
         LDY     TINDEN
         INY
@@ -294,38 +294,38 @@ NOHDR
         BEQ     SBCLEN
         SBC     TINDEN        ; take off temp indent
         BRA     GOTLEN
-SBCLEN
+.SBCLEN
         SBC     INDENT        ; so take off indent
-GOTLEN
+.GOTLEN
         STA     JUSLEN
-        LDYIM   0
-        LDXIM   0
+        LDY     #0
+        LDX     #0
         CLR     SPACES        ; initialize spaces encountered
         CLR     LASTTAB        ; initialize start of spacing out
-LINLEN
-        CPYIM   250
+.LINLEN
+        CPY     #250
         BCS     LENFNE
         JSR     IGNCTL        ; main char count
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     LENFNE
         CMP     TABCHA
         BNE     NOTTAB
         TXA
-        LDXIM   &FF
-LOKTAB
+        LDX     #&FF
+.LOKTAB
         INX
         PHA
-        LDAAX   TABLST
+        LDA     TABLST,X
         BEQ     NOTAB
         PLA
-        CMPAX   TABLST
+        CMP     TABLST,X
         BCS     LOKTAB
         PHA
-        LDAAX   TABLST
+        LDA     TABLST,X
         PLX
         INY
         CMP     JUSLEN
@@ -335,48 +335,48 @@ LOKTAB
         STX     LASTTAB
         CLR     SPACES
         BRA     NOSP2
-NOTAB
+.NOTAB
         PLX
-        LDAIM   " "
-NOTTAB
-        CMPIM   " "
+        LDA     #' '
+.NOTTAB
+        CMP     #' '
         BNE     NOSP
         STX     LASTSP
         INC     SPACES
-NOSP
+.NOSP
         INX
         INY
-NOSP2
+.NOSP2
         CPX     JUSLEN
         BCC     LINLEN
-NOTAB2
+.NOTAB2
         JSR     IGNCTL
-        CMPIM   " "
+        CMP     #' '
         BEQ     LENFNA
         CMP     TABCHA
         BEQ     LENFNA
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     LENFNA
         LDA     SPACES
         BEQ     LENFNA
         LDX     LASTSP
         DEC     SPACES
-LENFNA
+.LENFNA
         DEX
         CLR     XEFF
-LENFNE
+.LENFNE
         INX
         STX     COUNT        ; X, Y free
         BIT     PRTFLG
         BPL     DODW
         JSR     DOSCRE
         BRA     LINCTL
-DODW
-        LDAIM   &40
+.DODW
+        LDA     #&40
         TSB     PRTFLG        ; no underline first time
         LDA     UNDERL
         PHA
@@ -385,275 +385,275 @@ DODW
         STA     UNDERL
         BIT     UNDRRQ
         BPL     LINCTL
-        LDAIM   &40        ; now do underline
+        LDA     #&40       ; now do underline
         TRB     PRTFLG
         JSR     DOSCRE
         CLR     UNDERL
-LINCTL
+.LINCTL
         BIT     LINFED
         BMI     FINSEN
         LDX     VSPACE
-LINSCT
+.LINSCT
         JSR     LFWRCH        ; ready for next line
         LDA     LINEOT
         INA
         BEQ     FINSEN
         DEX
         BNE     LINSCT
-FINSEN
+.FINSEN
         CLR     LINFED        ; back on, for next line
         JSR     SPACEY
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     NICEDL
         DEY
-NICEDL
+.NICEDL
         CLC
         JSR     YADP
         JMP     FINE
-SPACEY
-        LDAIY   ADDR
+.SPACEY
+        LDA     (ADDR),Y
         INY
         BEQ     SPACER
-        CMPIM   " "
+        CMP     #' '
         BEQ     SPACEY
-SPACER
+.SPACER
         RTS
-IGNCTL
-        LDAIY   ADDR        ; count routine
+.IGNCTL
+        LDA     (ADDR),Y    ; count routine
         CMP     CTLCHA
         BNE     NOCTRL
         INY
-        LDAIY   ADDR
-        CMPIM   "b"
+        LDA     (ADDR),Y
+        CMP     #'b'
         BEQ     WSCTRB
-        CMPIM   "o"
+        CMP     #'o'
         BEQ     WSCTRO
-        CMPIM   "r"
+        CMP     #'r'
         BEQ     WSCTRR
-        CMPIM   "e"
+        CMP     #'e'
         BNE     NORECG
-WSCTRB
+.WSCTRB
         INY
-        LDAIY   ADDR
-        CMPIM   "b"
+        LDA     (ADDR),Y
+        CMP     #'b'
         BEQ     WSCTRL
-        CMPIM   "u"
+        CMP     #'u'
         BNE     NORECF
-WSCTRL
+.WSCTRL
         INY
         BRA     IGNCTL
-WSCTRO
+.WSCTRO
         INY
-        LDAIY   ADDR
-        CMPIM   "n"
+        LDA     (ADDR),Y
+        CMP     #'n'
         BEQ     WSCTON
-        CMPIM   "c"
+        CMP     #'c'
         BNE     NORECF
         INX
-WSCTON
+.WSCTON
         PHX
         INY
         JSR     GETNO
         PLX
         BRA     IGNCTL
-WSCTRR
+.WSCTRR
         INY
-        LDAIY   ADDR
-        CMPIM   "0"
+        LDA     (ADDR),Y
+        CMP     #'0'
         BCC     NORECF
-        CMPIM   &3A
+        CMP     #&3A
         BCS     NORECF
         JSR     DECCON
         BRA     WSCTRL
-NORECF
+.NORECF
         DEY
-NORECG
+.NORECG
         DEY
-        LDAIY   ADDR
-NOCTRL
+        LDA     (ADDR),Y
+.NOCTRL
         RTS
-WASCTL
+.WASCTL
         INY
-CHKCTL
-        LDAIY   ADDR        ; print routine
+.CHKCTL
+        LDA     (ADDR),Y    ; print routine
         CMP     CTLCHA
         BNE     NOCTRL
         INY
-        LDAIY   ADDR
-        CMPIM   "b"
+        LDA     (ADDR),Y
+        CMP     #'b'
         BEQ     WASCTB
-        CMPIM   "o"
+        CMP     #'o'
         BEQ     WASCTO
-        CMPIM   "r"
+        CMP     #'r'
         BEQ     WASCTR
-        CMPIM   "e"
+        CMP     #'e'
         BNE     NORECG
         INY
-        LDAIY   ADDR
-        CMPIM   "b"
+        LDA     (ADDR),Y
+        CMP     #'b'
         BEQ     WASCTEB
-        CMPIM   "u"
+        CMP     #'u'
         BNE     NORECF
         CLR     PUNDRL
         CLR     UNDERL
         BRA     WASCTL
-WASCTEB
+.WASCTEB
         CLR     PBOLD
         CLR     BOLD
         BRA     WASCTL
-WASCTB
+.WASCTB
         INY
-        LDAIY   ADDR
-        CMPIM   "b"
+        LDA     (ADDR),Y
+        CMP     #'b'
         BEQ     WASCTA
-        CMPIM   "u"
+        CMP     #'u'
         BNE     NORECF
-        LDAIM   &FF
+        LDA     #&FF
         STA     UNDERL
         STA     PUNDRL
         STA     UNDRRQ
         BRA     WASCTL
-WASCTA
-        LDAIM   &FF
+.WASCTA
+        LDA     #&FF
         STA     PBOLD
         STA     BOLDRQ
         STA     BOLD
         BRA     WASCTL
-WASCTO
+.WASCTO
         INY
-        LDAIY   ADDR
-        CMPIM   "n"
+        LDA     (ADDR),Y
+        CMP     #'n'
         BEQ     WASCON
-        CMPIM   "c"
+        CMP     #'c'
         BNE     NORECF
         INX
-WASCON
+.WASCON
         PHX
         INY
         JSR     GETNO
-        LDAIM   1
+        LDA     #1
         JSR     OSWRCH
         TXA
         JSR     OSWRCH
         PLX
         BRA     CHKCTL
-WASCTR
+.WASCTR
         INY
-        LDAIY   ADDR
-        CMPIM   "0"
+        LDA     (ADDR),Y
+        CMP     #'0'
         BCC     NORECF
-        CMPIM   &3A
+        CMP     #&3A
         BCS     NORECF
         JSR     DECCON
         PHX
         LDX     TEMP
-OUTCON
-        LDAAX   BUFF
+.OUTCON
+        LDA     BUFF,X
         JSR     FMWRCH        ; ul!!
         DEX
         BPL     OUTCON
         PLX
         JMP     WASCTL
-CTLLDO
-        LDAIM   &FF
-        JMIX    CMDS+2
-ROUTAF
+.CTLLDO
+        LDA     #&FF
+        JMP     (CMDS+2,X)
+.ROUTAF
         JSR     GETNO
-        ANDIM   15
-        ASLA
+        AND     #15
+        ASL     A
         TAX
-        LDAAX   NOREGS+1
-        ANDIM   15
-        STAAX   NOREGS+1
+        LDA     NOREGS+1,X
+        AND     #15
+        STA     NOREGS+1,X
         INY            ; skip some delimter
         PHX
         JSR     GETNO
         PLX
-        ASLA
-        ASLA
-        ASLA
-        ASLA
-        ORAAX   NOREGS+1
-        STAAX   NOREGS+1
+        ASL     A
+        ASL     A
+        ASL     A
+        ASL     A
+        ORA     NOREGS+1,X
+        STA     NOREGS+1,X
         RTS
-ROUTAN
+.ROUTAN
         JSR     GETNO
-        ANDIM   15
-        ASLA
+        AND     #15
+        ASL     A
         PHA
-        LDAIY   ADDR
+        LDA     (ADDR),Y
         INY            ; skip delimter
         PHA
         JSR     GETNO
         PLA
-        CMPIM   "+"
+        CMP     #'+'
         BEQ     ADDREG
-        CMPIM   "-"
+        CMP     #'-'
         BEQ     SUBREG
-        CMPIM   "="
+        CMP     #'='
         BEQ     MOVREG
         TXA
         PLX
-        STAAX   NOREGS
-        LDAAX   NOREGS+1
-        ANDIM   &F0
-        STAAX   NOREGS+1
+        STA     NOREGS,X
+        LDA     NOREGS+1,X
+        AND     #&F0
+        STA     NOREGS+1,X
         RTS
-ADDREG
+.ADDREG
         CLC
         STX     BUFF
         PLX
-        LDAAX   NOREGS
+        LDA     NOREGS,X
         ADC     BUFF
-        STAAX   NOREGS
-        LDAAX   NOREGS+1
-        ADCIM   0
-        STAAX   NOREGS+1
+        STA     NOREGS,X
+        LDA     NOREGS+1,X
+        ADC     #0
+        STA     NOREGS+1,X
         RTS
-SUBREG
+.SUBREG
         STX     BUFF
         PLX
-        LDAAX   NOREGS
+        LDA     NOREGS,X
         SBC     BUFF
-        STAAX   NOREGS
-        LDAAX   NOREGS+1
-        SBCIM   0
-        STAAX   NOREGS+1
+        STA     NOREGS,X
+        LDA     NOREGS+1,X
+        SBC     #0
+        STA     NOREGS+1,X
         RTS
-MOVREG
+.MOVREG
         TXA
-        ANDIM   15
-        ASLA
+        AND     #15
+        ASL     A
         TAX
-        LDAAX   NOREGS+1
-        ANDIM   15
+        LDA     NOREGS+1,X
+        AND     #15
         STA     BUFF
-        LDAAX   NOREGS
+        LDA     NOREGS,X
         PLX
-        STAAX   NOREGS
-        LDAAX   NOREGS+1
-        ANDIM   &F0
+        STA     NOREGS,X
+        LDA     NOREGS+1,X
+        AND     #&F0
         ORA     BUFF
-        STAAX   NOREGS+1
+        STA     NOREGS+1,X
         RTS
-ROUTBL
+.ROUTBL
         STA     BOLD
         STA     BOLDRQ
         RTS
-ROUTCC
-        LDAIY   ADDR
+.ROUTCC
+        LDA     (ADDR),Y
         STA     CTLCHA
         INY
         RTS
-ROUTCE
+.ROUTCE
         STA     CENTRE
         CLR     RFLUSH        ; can't have both
         RTS
-ROUTCH
+.ROUTCH
         LDA     ADDR
         STA     TEMP
         LDA     ADDR+1
@@ -668,31 +668,31 @@ ROUTCH
         JSR     PASGO
         STX     GS
         STY     GS+1
-        LDXIM   &FF
+        LDX     #&FF
         TXS
         JMP     CHAINB
-MACCHK
+.MACCHK
         STA     TEMP        ; check for macro: A=lo, TEMP+1=hi
-        LDXIM   -2
-MACCHL
+        LDX     #-2
+.MACCHL
         INX
         INX
-        CPXIM   MAXMAC
+        CPX     #MAXMAC
         BCS     MACCHX
-        LDAAX   MACLST
+        LDA     MACLST,X
         STA     BUFF
-        LDAAX   MACLST+1
+        LDA     MACLST+1,X
         STA     BUFF+1
         BEQ     MACCHZ
         PHY
-        LDYIM   3
-MACSPC
-        LDAIY   BUFF
+        LDY     #3
+.MACSPC
+        LDA     (BUFF),Y
         INY
-        CMPIM   " "
+        CMP     #' '
         BEQ     MACSPC
         STA     BUFF+2
-        LDAIY   BUFF
+        LDA     (BUFF),Y
         PLY
         CMP     TEMP+1
         BNE     MACCHL
@@ -700,82 +700,82 @@ MACSPC
         CMP     TEMP
         BNE     MACCHL
         RTS            ; found CS,EQ
-MACCHX
+.MACCHX
         CLC            ; not found, no space CC,NE
         TXA
-MACCHZ
+.MACCHZ
         RTS            ; not found, at space CC,EQ
-DMEXIT
+.DMEXIT
         DEY
         RTS
-ROUTDM
+.ROUTDM
         JSR     SPACEY
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     DMEXIT
         CMP     CTLCHA
         BEQ     DMEXIT
         STA     TEMP+1
-        LDAIY   ADDR
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        LDA     (ADDR),Y
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     DMEXIT
         JSR     MACCHK
         BNE     DMEXIT
         LDA     ADDR
-        STAAX   MACLST
+        STA     MACLST,X
         LDA     ADDR+1
-        STAAX   MACLST+1
+        STA     MACLST+1,X
         BRA     SKIPEN
-ROUTDS
-        LDAIM   2
+.ROUTDS
+        LDA     #2
         STA     VSPACE
         RTS
-ROUTOF
+.ROUTOF
         LDA     ADDR
         STA     PAGEOF
         LDA     ADDR+1
         STA     PAGEOF+1
         BRA     SKIPEN
-ROUTOH
+.ROUTOH
         LDA     ADDR
         STA     PAGEOH
         LDA     ADDR+1
         STA     PAGEOH+1
         BRA     SKIPEN
-ROUTFO
+.ROUTFO
         LDA     ADDR
         STA     PAGEOF
         LDA     ADDR+1
         STA     PAGEOF+1
-ROUTEF
+.ROUTEF
         LDA     ADDR
         STA     PAGEEF
         LDA     ADDR+1
         STA     PAGEEF+1
-ROUTIG
+.ROUTIG
         BRA     SKIPEN
-ROUTHE
+.ROUTHE
         LDA     ADDR
         STA     PAGEOH
         LDA     ADDR+1
         STA     PAGEOH+1
-ROUTEH
+.ROUTEH
         LDA     ADDR
         STA     PAGEEH
         LDA     ADDR+1
         STA     PAGEEH+1
-SKIPEN
+.SKIPEN
         CLC
         JSR     YADP
-SKIPEM
-        LDAI    ADDR
+.SKIPEM
+        LDA     (ADDR)
         INC     ADDR
         BNE     SKIPEK
         PHA
@@ -786,106 +786,106 @@ SKIPEM
         SBC     GS+1
         BCS     SKIPEX
         PLA
-SKIPEK
+.SKIPEK
         CMP     CTLCHA
         BNE     SKIPEM
-        LDAI    ADDR
-        CMPIM   "e"
+        LDA     (ADDR)
+        CMP     #'e'
         BNE     SKIPEM
-        LDYIM   1
-        LDAIY   ADDR
-        CMPIM   "n"
+        LDY     #1
+        LDA     (ADDR),Y
+        CMP     #'n'
         BNE     SKIPEM
         INY
-SKIPEX
+.SKIPEX
         RTS
-ROUTEN
+.ROUTEN
         TSX
-        CPXIM   &FD
+        CPX     #&FD
         BCS     SKIPEX        ; check for possible to do it
         PLA
         PLA
         RTS            ; return a macro level
-ROUTEP
+.ROUTEP
         JSR     ROUTBP
         LDA     PAGE
-        LSRA
+        LSR     A
         BCS     ROUTEP
         RTS
-ROUTFF
+.ROUTFF
         LDA     PWTFLG
         BMI     NOWAIT
         LDA     PRTFLG
         BPL     PRTWAT
         JSR     INKEY
-NOWAIT
-        LDAIM   12
+.NOWAIT
+        LDA     #12
         JMP     OSWRCH
-PRTWAT
+.PRTWAT
         JSR     NOWAIT
         JMP     INKEY
-ROUTIC
+.ROUTIC
         PHY
         JSR     CLOSEX
         PLY
         RTS
-ROUTIN
+.ROUTIN
         LDX     INDENT
         JSR     MODNO
         STX     INDENT
         RTS
-ROUTIO
+.ROUTIO
         CLC
         JSR     YADP
         JSR     CLOSEX
         LDX     ADDR
         LDY     ADDR+1
-        LDAIM   &80
+        LDA     #&80
         JSR     OSFIND
         STA     INDEXH
-        LDYIM   0
-ROUTCO
-        [ cf8key=1
-        LDAZ    clterm
-        |
-        LDAIM   termin
-        ]
+        LDY     #0
+.ROUTCO
+        IF cf8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
         BRA     SKIPL1
-SKIPLP
+.SKIPLP
         INY
         BNE     SKIPL1
         INC     ADDR+1
-SKIPL1
-        CMPIY   ADDR
+.SKIPL1
+        CMP     (ADDR),Y
         BNE     SKIPLP
         RTS
-ROUTIX
+.ROUTIX
         STA     DOINDX
         CLC
         JSR     YADP
         LDA     LINEOT
         PHA
-        LDAIM   &FD
+        LDA     #&FD
         STA     LINEOT
         JSR     CTLIN
         PLA
         STA     LINEOT
         CLR     DOINDX
         RTS
-ROUTJU
+.ROUTJU
         CLR     FILL
         RTS
-ROUTLL
+.ROUTLL
         LDX     LEN
         JSR     MODNO
         STA     LEN
         RTS
-ROUTLS
+.ROUTLS
         LDX     VSPACE
         JSR     MODNO
         STX     VSPACE
         RTS
-ROUTLV
+.ROUTLV
         JSR     GETNO
         CMP     LINEOT
         BEQ     OKAYLV
@@ -893,7 +893,5 @@ ROUTLV
         PHA
         JSR     ROUTBP
         PLA
-OKAYLV
+.OKAYLV
         JMP     ALINES
-
-        LNK     EDIT05

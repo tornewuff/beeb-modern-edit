@@ -1,34 +1,34 @@
-        TTL                             > EDIT05
-ROUTNE
+        ;                               > EDIT05
+.ROUTNE
         JSR     GETNO
         CMP     LINEOT
         BEQ     OKAY
         BCC     OKAY
-ROUTBP
+.ROUTBP
         LDA     LINEOT
         BRA     ALINES
-ROUTNJ
+.ROUTNJ
         STA     FILL
-OKAY
+.OKAY
         RTS
-ROUTNN
+.ROUTNN
         STA     LINFED
         RTS
-ROUTOP
+.ROUTOP
         JSR     ROUTBP
         LDA     PAGE
-        LSRA
+        LSR     A
         BCC     ROUTOP
         RTS
-ROUTOS
+.ROUTOS
         CLC
         JSR     YADP
         LDX     ADDR
         LDY     ADDR+1
         JSR     OSCLI
-        LDYIM   0
+        LDY     #0
         JMP     ROUTCO
-ROUTPL
+.ROUTPL
         LDX     LINEDW
         JSR     MODNO
         TXA
@@ -38,120 +38,120 @@ ROUTPL
         INX
         BEQ     WZERO
         STA     LINEOT
-WZERO
+.WZERO
         RTS
-ROUTPO
+.ROUTPO
         LDX     OFFSET
         JSR     MODNO
         STA     OFFSET
         RTS
-ROUTRF
+.ROUTRF
         STA     RFLUSH
         CLR     CENTRE        ; can't have both
         RTS
-ROUTSP
+.ROUTSP
         JSR     GETNO
-ALINES
+.ALINES
         TAX
         BEQ     ALINEX
         PHY
-        CMPIM   &FF
+        CMP     #&FF
         BNE     ALINEL
         JSR     DOHDR
         LDX     LINEOT
-ALINEL
+.ALINEL
         LDA     LINEOT
         INA
         BNE     ALINET
         PHX
         JSR     DOHDR
         PLX
-ALINET
+.ALINET
 
-        LDAIM   cr              ; ++++
+        LDA     #cr             ; ++++
         JSR     oswrch
         JSR     lfwrch
 
         DEX
         BNE     ALINEL
         PLY
-ALINEX
+.ALINEX
         RTS
-ROUTSS
-        LDAIM   1
+.ROUTSS
+        LDA     #1
         STA     VSPACE
         RTS
-ROUTTA
+.ROUTTA
         CLR     LASTTAB
-SETTAB
+.SETTAB
         JSR     GETNO
         LDX     LASTTAB
-        STAAX   TABLST
-        CLRAX   TABLST+1
+        STA     TABLST,X
+        CLR     TABLST+1,X
         INC     LASTTAB
         JSR     SPACEY
-        CMPIM   ","
+        CMP     #','
         BEQ     SETTAB
         DEY
         RTS
-ROUTTC
-        LDAIY   ADDR
+.ROUTTC
+        LDA     (ADDR),Y
         STA     TABCHA
         INY
         RTS
-ROUTTI
+.ROUTTI
         LDX     TINDEN
-        CPXIM   &FF
+        CPX     #&FF
         BNE     ROUSTI
         LDX     INDENT        ; if no temp indent then use INDENT as base
-ROUSTI
+.ROUSTI
         JSR     MODNO
         STX     TINDEN
         RTS
-ROUTTR
-        LDAIY   ADDR
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+.ROUTTR
+        LDA     (ADDR),Y
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     SETTRX
         TAX
         INY
-        LDAIY   ADDR
+        LDA     (ADDR),Y
         DEY
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     SETTRX
         INY
         INY
-        STAAX   TRNLST
-SETTRX
+        STA     TRNLST,X
+.SETTRX
         RTS
-ROUTUL
+.ROUTUL
         STA     UNDERL
         STA     UNDRRQ
         RTS
-YADP
+.YADP
         TYA
         ADC     ADDR
         STA     ADDR
         BCC     ENDADD
         INC     ADDR+1
-ENDADD
+.ENDADD
         RTS
-MODNO
+.MODNO
         JSR     SPACEY
-        CMPIM   "-"
+        CMP     #'-'
         BEQ     SUBNO
-        CMPIM   "+"
+        CMP     #'+'
         BEQ     ADDNO
         DEY
-        LDXIM   0
-ADDNO
+        LDX     #0
+.ADDNO
         PHX
         JSR     GETNO
         PLX
@@ -159,11 +159,11 @@ ADDNO
         STX     TEMP
         ADC     TEMP
         BCC     ADDNOX
-        LDAIM   0
-ADDNOX
+        LDA     #0
+.ADDNOX
         TAX
         RTS
-SUBNO
+.SUBNO
         PHX
         JSR     GETNO
         STA     TEMP
@@ -171,29 +171,29 @@ SUBNO
         SEC
         SBC     TEMP
         BCS     ADDNOX
-        LDAIM   0
+        LDA     #0
         TAX
         RTS
-GETNO
-        LDXIM   0
+.GETNO
+        LDX     #0
         JSR     SPACEY
         DEY
-NUMLOP
-        LDAIY   ADDR
-        CMPIM   "0"
+.NUMLOP
+        LDA     (ADDR),Y
+        CMP     #'0'
         BCC     ENDNO
-        CMPIM   &3A
+        CMP     #&3A
         BCS     ENDNUM        ; not a decimal digit
-        ANDIM   &0F
+        AND     #&0F
         PHA
         TXA
-        ASLA
-        ASLA
+        ASL     A
+        ASL     A
         STA     TEMP
         TXA
         CLC
         ADC     TEMP
-        ASLA
+        ASL     A
         STA     TEMP
         PLA
         CLC
@@ -201,30 +201,30 @@ NUMLOP
         TAX
         INY
         BRA     NUMLOP
-ENDNUM
+.ENDNUM
         CLC
-ENDNO
+.ENDNO
         TXA
         RTS
-DOHDR
+.DOHDR
         LDX     PAGEEH
         LDY     PAGEEH+1
         LDA     PAGE
-        LSRA
+        LSR     A
         BCC     DOHDR1
         LDX     PAGEOH
         LDY     PAGEOH+1
-DOHDR1
+.DOHDR1
         DEC     LINEOT
         JSR     MACRO
         LDA     LINEDW
         STA     LINEOT
-        LDAIM   1
+        LDA     #1
         STA     LINENO
-        LDAIM   15
+        LDA     #15
         TRB     LINENO+1; leave format alone!
         RTS
-MACRO
+.MACRO
         LDA     ADDR
         PHA
         LDA     ADDR+1
@@ -264,13 +264,13 @@ MACRO
         CLR     PBOLD
         CLR     PUNDRL
         CLR     INDENT
-        LDAIM   1
+        LDA     #1
         STA     VSPACE
         STX     ADDR
         STY     ADDR+1
-        LDAI    ADDR
+        LDA     (ADDR)
         STA     CTLCHA
-        LDYIM   3
+        LDY     #3
         CLC
         JSR     YADP; skip definition
         JSR     FINE
@@ -309,150 +309,150 @@ MACRO
         PLA
         STA     ADDR
         RTS
-VDUBIT
+.VDUBIT
         TAY
-        LDAAY   TRNLST
+        LDA     TRNLST,Y
         STA     SCRATCH
         JSR     XYSCRATCH
-        LDAIM   10
+        LDA     #10
         JMP     OSWORD
-DOVDU
+.DOVDU
         BIT     BOLD
         BPL     VDUNBL
 ; bold character
         PHY
         PHX
         JSR     VDUBIT
-        LDXIM   7
-VDUBLD
-        LDAAX   SCRATCH+1
-        LSRA
-        ORAAX   SCRATCH+1
-        STAAX   SCRATCH+1
+        LDX     #7
+.VDUBLD
+        LDA     SCRATCH+1,X
+        LSR     A
+        ORA     SCRATCH+1,X
+        STA     SCRATCH+1,X
         DEX
         BPL     VDUBLD
         BIT     UNDERL
         BPL     VDUDON
 ; both bold and underline
         BRA     VDUUND
-VDUNBL
+.VDUNBL
         BIT     UNDERL
         BPL     WRCHA
 ; underline character
         PHY
         PHX
         JSR     VDUBIT
-VDUUND
+.VDUUND
         LDA     SCRATCH+8
-        LSRA
-        RORA
+        LSR     A
+        ROR     A
         ORA     SCRATCH+8
-        ROLA
-        EORIM   &FF
+        ROL     A
+        EOR     #&FF
         TSB     SCRATCH+8
-VDUDON
-        LDAIM   23
+.VDUDON
+        LDA     #23
         JSR     OSWRCH
-        LDAIM   32
+        LDA     #32
         JSR     OSWRCH
-        LDXIM   1
-VDUPRG
-        LDAAX   SCRATCH
+        LDX     #1
+.VDUPRG
+        LDA     SCRATCH,X
         JSR     OSWRCH
         INX
-        CPXIM   9
+        CPX     #9
         BNE     VDUPRG
         JSR     VSTRNG
-        =       32,23,32,0,0,0,0,0,0,0,0,&EA
+        EQUB    32,23,32,0,0,0,0,0,0,0,0,&EA
         PLX
         PLY
         RTS
-ESCAP
-        LDAIM   &7E
+.ESCAP
+        LDA     #&7E
         JSR     OSBYTE
         JMP     DODWN
 
-fmwrch
+.fmwrch
         BIT     ESCFLG
         BMI     ESCAP        ; must not go via SENTRY,
                              ; because of marked mode (SWOPCH)
         BIT     DOINDX
         BMI     DOINDE
 
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin        ; changed from CMPIM " "; BCC WRCHA
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin       ; changed from CMPIM " "; BCC WRCHA
+        ENDIF
         BEQ     wrchen
 
         BIT     PRTFLG
         BMI     DOVDU
         BVS     NOULA
 
-        LDAIM   " "
+        LDA     #' '
         BIT     UNDERL
         BPL     NOULA
-        LDAIM   "_"
-NOULA
+        LDA     #'_'
+.NOULA
         PHA
 
-        LDAIM   &20
+        LDA     #&20
         BIT     PRTFLG
         BNE     NOBBLE
         BIT     BOLD
         BMI     NOBBLE
 
-        LDAIM   " "
+        LDA     #' '
         JSR     OSWRCH
         PLA
         RTS
 
-NOBBLE
+.NOBBLE
         PLA
-WRCHA
+.WRCHA
         PHY
         TAY
-        LDAAY   TRNLST
+        LDA     TRNLST,Y
         PLY
-        [ cf8key=1
-wrch
-        JMI     &020E
-wrchen
-        LDAIM   cr
+        IF cf8key=1
+.wrch
+        JMP     (&020E)
+.wrchen
+        LDA     #cr
         BRA     wrch
-        |
-        [ termin=cr
-wrchen
-wrch
-        JMI     &20E
-        |
-wrch
-        JMI     &20E
-wrchen
-        LDAIM   cr
+        ELSE
+        IF termin=cr
+.wrchen
+.wrch
+        JMP     (&20E)
+        ELSE
+.wrch
+        JMP     (&20E)
+.wrchen
+        LDA     #cr
         BRA     wrch
-        ]
-        ]
-DOINDE
+        ENDIF
+        ENDIF
+.DOINDE
         PHY
         TAY
-        LDAAY   TRNLST
+        LDA     TRNLST,Y
         LDY     INDEXH
         BEQ     DOINDF
         JSR     OSBPUT
-DOINDF
+.DOINDF
         PLY
         RTS
 
-lfwrch
+.lfwrch
         BIT     doindX
         BMI     writeX
-        LDAIM   lf        ; write a real line feed
+        LDA     #lf       ; write a real line feed
         INC     lineno
         BNE     fmwrca
         INC     lineno + 1
-fmwrca
+.fmwrca
         DEC     lineot
         BNE     wrch
         JSR     oswrch
@@ -461,26 +461,26 @@ fmwrca
         LDX     pageef
         LDY     pageef + 1
         LDA     page
-        LSRA
+        LSR     A
         BCC     doftr1
         LDX     pageof
         LDY     pageof + 1
-doftr1
+.doftr1
         DEC     lineot
         DEC     lineot
         JSR     macro
-        LDAIM   &FF
+        LDA     #&FF
         STA     lineot        ; set needs header
         INC     page
         BNE     HI
         INC     page + 1
-HI
+.HI
         PLY
         PLX
-writeX
+.writeX
         RTS
-write
-        LDAIM   &20
+.write
+        LDA     #&20
         TSB     prtflg
         LDA     bold
         PHA
@@ -489,13 +489,13 @@ write
         STA     BOLD
         BIT     BOLDRQ
         BPL     WRITEX
-        LDAIM   &20
+        LDA     #&20
         TRB     PRTFLG
         JSR     DOSCRE
-        LDAIM   &20
+        LDA     #&20
         TSB     PRTFLG
         RTS
-DOSCRE
+.DOSCRE
         LDA     OFFSET
         JSR     SCMVTO
         CLR     DIFF
@@ -505,12 +505,12 @@ DOSCRE
         LDA     JUSLEN
         SBC     COUNT
         STA     DIFF
-SCREEA
+.SCREEA
         LDA     TINDEN
-        CMPIM   &FF
+        CMP     #&FF
         BNE     SCREEB
         LDA     INDENT
-SCREEB
+.SCREEB
         JSR     SCMVTO
         LDA     CENTRE
         BPL     SCREED
@@ -519,83 +519,83 @@ SCREEB
         INA
         SBC     COUNT
         JSR     MOVE
-SCREED
+.SCREED
         BIT     RFLUSH
         BPL     SCREEQ
         SEC
         LDA     JUSLEN
-        ADCIM   1
+        ADC     #1
         SBC     COUNT
         JSR     SCMVTO
-SCREEQ
-        LDYIM   0
-        LDXIM   0
+.SCREEQ
+        LDY     #0
+        LDX     #0
         LDA     SPACES
         BEQ     SCREEE
-        LSRA
+        LSR     A
         STA     L
-        LDAIM   0
+        LDA     #0
         BIT     FILL
         BMI     SENA
         LDA     DIFF
-SENA
-        LDXIM   1
-DODIV
+.SENA
+        LDX     #1
+.DODIV
         CMP     SPACES
         BCC     DONDIV
         INX
         SBC     SPACES
         BCS     DODIV
-DONDIV
+.DONDIV
         STX     Q
         STA     DIFF
-        LDXIM   0
-SCREEE
+        LDX     #0
+.SCREEE
         JSR     CHKCTL
 
-        CMPIM   cr              ; ++++
+        CMP     #cr             ; ++++
         BEQ     SCREEG
 
         CMP     TABCHA
         BNE     SCREES
         TXA
-        LDXIM   &FF
-SCRTAB
+        LDX     #&FF
+.SCRTAB
         INX
         PHA
-        LDAAX   TABLST
+        LDA     TABLST,X
         BEQ     SCRNTB
         PLA
-        CMPAX   TABLST
+        CMP     TABLST,X
         BCS     SCRTAB
         SEC
-        SBCAX   TABLST
-        EORIM   &FF
+        SBC     TABLST,X
+        EOR     #&FF
         INA
         PHX
         JSR     SCMVTO
         PLX
-        LDAAX   TABLST
+        LDA     TABLST,X
         TAX
         DEX
         BRA     NOUL
-SCRNTB
+.SCRNTB
         PLX
-        LDAIM   " "
-SCREES
-        CMPIM   " "
+        LDA     #' '
+.SCREES
+        CMP     #' '
         BNE     SCREEF
         CPX     LASTTAB
         BCC     SCREEF
         PHX
         LDX     Q
-SCRJUS
+.SCRJUS
         DEX
         BEQ     NOMOV
-        LDAIM   " "
+        LDA     #' '
         JSR     FMWRCH
         BRA     SCRJUS
-NOMOV
+.NOMOV
         PLX
         SEC
         LDA     L
@@ -604,138 +604,138 @@ NOMOV
         BCS     ENDJUS
         ADC     SPACES
         STA     L
-        LDAIM   " "
+        LDA     #' '
         JSR     FMWRCH
-ENDJUS
-        LDAIM   " "
-SCREEF
+.ENDJUS
+        LDA     #' '
+.SCREEF
         JSR     FMWRCH
-NOUL
+.NOUL
         INY
         INX
         CPX     COUNT
         BCC     SCREEE
 
-        LDAIM   cr              ; ++++
-screeG
+        LDA     #cr             ; ++++
+.screeG
         JMP     fmwrch
 
-closeX
+.closeX
         LDY     INDEXH
         BEQ     CLOSEE
         CLR     INDEXH
-        LDAIM   &00
+        LDA     #&00
         JSR     OSFIND        ; close index file
-closee
+.closee
         RTS
 
-SCMVTO
-        ASLA
-MOVE
-        LSRA
+.SCMVTO
+        ASL     A
+.MOVE
+        LSR     A
         BEQ     MOVEX
         TAX
-        LDAIM   9
+        LDA     #9
         BIT     PRTFLG
         BMI     MLOOP
-        LDAIM   " "
-MLOOP
+        LDA     #' '
+.MLOOP
         BIT     DOINDX
         BPL     MLOOPA
-        LDAIM   " "
+        LDA     #' '
         JSR     DOINDE
         BRA     MLOOPB
-MLOOPA
+.MLOOPA
         JSR     OSWRCH
-MLOOPB
+.MLOOPB
         DEX
         BNE     MLOOP
-MOVEX
+.MOVEX
         RTS
-INKEYS
+.INKEYS
         JSR     STRIMO
-        =       "Press SHIFT to continue",&EA
-INKEY
+        EQUB    "Press SHIFT to continue",&EA
+.INKEY
         PHX
         PHY
-INKEYL
+.INKEYL
         JSR     ESCTST
-        LDXIM   &FF
-        LDYIM   &FF
-        LDAIM   &81
+        LDX     #&FF
+        LDY     #&FF
+        LDA     #&81
         JSR     OSBYTE
-        CPXIM   &FF
+        CPX     #&FF
         BNE     INKEYL
-        LDAIM   15
-        LDXIM   &FF
+        LDA     #15
+        LDX     #&FF
         JSR     OSBYTE
         PLY
         PLX
         RTS
-DECCON
+.DECCON
         PHX            ; reg in A to print buff. INX by # chars
         PHY
-        ANDIM   15
-        ASLA
+        AND     #15
+        ASL     A
         TAX
-        LDAAX   NOREGS
+        LDA     NOREGS,X
         STA     TEMP
-        LDAAX   NOREGS+1
+        LDA     NOREGS+1,X
         TAX
-        ANDIM   15
+        AND     #15
         STA     TEMP+1
         ORA     TEMP
         PHP
         TXA
-        LSRA
-        LSRA
-        LSRA
-        LSRA
+        LSR     A
+        LSR     A
+        LSR     A
+        LSR     A
         PLP
         BNE     NMLTST
-        CMPIM   8
+        CMP     #8
         BCC     DECANY
-        LDAIM   0
+        LDA     #0
         BRA     DECANY
-NMLTST
-        CMPIM   8
+.NMLTST
+        CMP     #8
         BCS     ROMAN
-DECANY
+.DECANY
         PHA
-        LDXIM   4
-        LDAIM   "0"
+        LDX     #4
+        LDA     #'0'
         STA     BUFF+5
         STA     BUFF+6
         STA     BUFF+7
-NUMLAP
-        LDAIM   "0"
-        STAAX   BUFF
+.NUMLAP
+        LDA     #'0'
+        STA     BUFF,X
         SEC
-NUMLP
+.NUMLP
         LDA     TEMP
-        SBCAX   WOPTBL
+        SBC     WOPTBL,X
         TAY
         LDA     TEMP+1
-        SBCAX   WOPTBH
+        SBC     WOPTBH,X
         BCC     OUTNUM
         STY     TEMP
         STA     TEMP+1
-        INCAX   BUFF
+        INC     BUFF,X
         BNE     NUMLP
-OUTNUM
+.OUTNUM
         DEX
         BPL     NUMLAP
         PLA
         STA     TEMP
-        LDXIM   8
-LZB
+        LDX     #8
+.LZB
         DEX
         CPX     TEMP
         BEQ     LASTZ
-        LDAAX   BUFF
-        ANDIM   15
+        LDA     BUFF,X
+        AND     #15
         BEQ     LZB
-LASTZ
+.LASTZ
         STX     TEMP
         PLY
         PLA
@@ -743,202 +743,200 @@ LASTZ
         ADC     TEMP
         TAX
         RTS
-ROMAN
+.ROMAN
         PHA
-        CMPIM   10
+        CMP     #10
         BCS     AAA
-        LDAIM   &FF
+        LDA     #&FF
         PHA
-        LDXIM   12
-ROMANL
+        LDX     #12
+.ROMANL
         SEC
         LDA     TEMP
-        SBCAX   NUMERL
+        SBC     NUMERL,X
         TAY
         LDA     TEMP+1
-        SBCAX   NUMERH
+        SBC     NUMERH,X
         BCC     ROMANO
         STY     TEMP
         STA     TEMP+1
         TXA
-        ASLA
+        ASL     A
         TAY
-        LDAAY   CHARS
+        LDA     CHARS,Y
         PHA
-        LDAAY   CHARS+1
-        CMPIM   " "
+        LDA     CHARS+1,Y
+        CMP     #' '
         BEQ     ROMANL
         PHA
         BRA     ROMANL
-ROMANO
+.ROMANO
         DEX
         BPL     ROMANL
-ROMANG
+.ROMANG
         PLA
         INX
-        STAAX   BUFF
-        CMPIM   &FF
+        STA     BUFF,X
+        CMP     #&FF
         BNE     ROMANG
         DEX
-CASECH
+.CASECH
         PLA
-        ANDIM   1
+        AND     #1
         BEQ     LASTZ
         STX     TEMP
-CASELP
-        LDAAX   BUFF
-        ORAIM   &20
-        STAAX   BUFF
+.CASELP
+        LDA     BUFF,X
+        ORA     #&20
+        STA     BUFF,X
         DEX
         BPL     CASELP
         LDX     TEMP
         BRA     LASTZ
-AAA
+.AAA
         LDA     TEMP
         BNE     AAADEC
         DEC     TEMP+1
-AAADEC
+.AAADEC
         DEC     TEMP
-        LDYIM   0
-AAALOP
+        LDY     #0
+.AAALOP
         LDA     TEMP
         SEC
-AAALOQ
+.AAALOQ
         INY
-        SBCIM   26
+        SBC     #26
         BCS     AAALOQ
         STA     TEMP
         LDA     TEMP+1
         BEQ     AAAGOT
         DEC     TEMP+1
         BRA     AAALOP
-AAAGOT
+.AAAGOT
         LDA     TEMP
-        ADCIM   26+"A"
-        LDXIM   0
-AAALON
-        STAAX   BUFF
+        ADC     #26+'A'
+        LDX     #0
+.AAALON
+        STA     BUFF,X
         INX
         DEY
         BNE     AAALON
         DEX
         BRA     CASECH
-NUMERL
-        =       1,4,5,9,10,40,50,90,100,400,500,900,1000
-NUMERH
-        =       /1,/4,/5,/9,/10,/40,/50,/90,/100,/400,/500,/900,/1000
-CHARS
-        =       "I IVV IXX XLL XCC CDD DMM "
-CMDS
-        =       "af"
-        &       ROUTAF
-        =       "an"
-        &       ROUTAN
-        =       "bl"
-        &       ROUTBL
-        =       "bp"
-        &       ROUTBP
-        =       "cc"
-        &       ROUTCC
-        =       "ce"
-        &       ROUTCE
-        =       "ch"
-        &       ROUTCH
-        =       "co"
-        &       ROUTCO
-        =       "dm"
-        &       ROUTDM
-        =       "ds"
-        &       ROUTDS
-        =       "ef"
-        &       ROUTEF
-        =       "eh"
-        &       ROUTEH
-        =       "en"
-        &       ROUTEN
-        =       "ep"
-        &       ROUTEP
-        =       "ff"
-        &       ROUTFF
-        =       "fo"
-        &       ROUTFO
-        =       "he"
-        &       ROUTHE
-        =       "ic"
-        &       ROUTIC
-        =       "ig"
-        &       ROUTIG
-        =       "in"
-        &       ROUTIN
-        =       "io"
-        &       ROUTIO
-        =       "ix"
-        &       ROUTIX
-        =       "ju"
-        &       ROUTJU
-        =       "ll"
-        &       ROUTLL
-        =       "ls"
-        &       ROUTLS
-        =       "lv"
-        &       ROUTLV
-        =       "ne"
-        &       ROUTNE
-        =       "nj"
-        &       ROUTNJ
-        =       "nn"
-        &       ROUTNN
-        =       "of"
-        &       ROUTOF
-        =       "oh"
-        &       ROUTOH
-        =       "op"
-        &       ROUTOP
-        =       "os"
-        &       ROUTOS
-        =       "pl"
-        &       ROUTPL
-        =       "po"
-        &       ROUTPO
-        =       "rf"
-        &       ROUTRF
-        =       "sp"
-        &       ROUTSP
-        =       "ss"
-        &       ROUTSS
-        =       "ta"
-        &       ROUTTA
-        =       "tc"
-        &       ROUTTC
-        =       "ti"
-        &       ROUTTI
-        =       "tr"
-        &       ROUTTR
-        =       "ul"
-        &       ROUTUL
-NOCMDS  *       ( . - CMDS )
+.NUMERL
+        EQUB    LO({1,4,5,9,10,40,50,90,100,400,500,900,1000})
+.NUMERH
+        EQUB    HI({1,4,5,9,10,40,50,90,100,400,500,900,1000})
+.CHARS
+        EQUB    "I IVV IXX XLL XCC CDD DMM "
+.CMDS
+        EQUB    "af"
+        EQUW    ROUTAF
+        EQUB    "an"
+        EQUW    ROUTAN
+        EQUB    "bl"
+        EQUW    ROUTBL
+        EQUB    "bp"
+        EQUW    ROUTBP
+        EQUB    "cc"
+        EQUW    ROUTCC
+        EQUB    "ce"
+        EQUW    ROUTCE
+        EQUB    "ch"
+        EQUW    ROUTCH
+        EQUB    "co"
+        EQUW    ROUTCO
+        EQUB    "dm"
+        EQUW    ROUTDM
+        EQUB    "ds"
+        EQUW    ROUTDS
+        EQUB    "ef"
+        EQUW    ROUTEF
+        EQUB    "eh"
+        EQUW    ROUTEH
+        EQUB    "en"
+        EQUW    ROUTEN
+        EQUB    "ep"
+        EQUW    ROUTEP
+        EQUB    "ff"
+        EQUW    ROUTFF
+        EQUB    "fo"
+        EQUW    ROUTFO
+        EQUB    "he"
+        EQUW    ROUTHE
+        EQUB    "ic"
+        EQUW    ROUTIC
+        EQUB    "ig"
+        EQUW    ROUTIG
+        EQUB    "in"
+        EQUW    ROUTIN
+        EQUB    "io"
+        EQUW    ROUTIO
+        EQUB    "ix"
+        EQUW    ROUTIX
+        EQUB    "ju"
+        EQUW    ROUTJU
+        EQUB    "ll"
+        EQUW    ROUTLL
+        EQUB    "ls"
+        EQUW    ROUTLS
+        EQUB    "lv"
+        EQUW    ROUTLV
+        EQUB    "ne"
+        EQUW    ROUTNE
+        EQUB    "nj"
+        EQUW    ROUTNJ
+        EQUB    "nn"
+        EQUW    ROUTNN
+        EQUB    "of"
+        EQUW    ROUTOF
+        EQUB    "oh"
+        EQUW    ROUTOH
+        EQUB    "op"
+        EQUW    ROUTOP
+        EQUB    "os"
+        EQUW    ROUTOS
+        EQUB    "pl"
+        EQUW    ROUTPL
+        EQUB    "po"
+        EQUW    ROUTPO
+        EQUB    "rf"
+        EQUW    ROUTRF
+        EQUB    "sp"
+        EQUW    ROUTSP
+        EQUB    "ss"
+        EQUW    ROUTSS
+        EQUB    "ta"
+        EQUW    ROUTTA
+        EQUB    "tc"
+        EQUW    ROUTTC
+        EQUB    "ti"
+        EQUW    ROUTTI
+        EQUB    "tr"
+        EQUW    ROUTTR
+        EQUB    "ul"
+        EQUW    ROUTUL
+NOCMDS  =       ( * - CMDS )
 
 
-        [ cf8key=1
+        IF cf8key=1
                                 ; before printing, defaults are copied
                                 ; into private workspace buffer
                                 ; and nulls replaced with 'clterm'
 
-defhdr
-        =       "$dhtext"
+.defhdr
+        EQUB    "$dhtext"
 
-defftr
-        =       "$dftext"
+.defftr
+        EQUB    "$dftext"
 
-        |
-DEFHDR
-        =       ".he",termin
-        =       ".en",termin
-DEFFTR
-        =       ".fo",termin
-        =       ".ce",termin
-        =       "Page .r0",termin
-        =       ".ff.en",termin
-        ]
-
-        LNK         EDIT06
+        ELSE
+.DEFHDR
+        EQUB    ".he",termin
+        EQUB    ".en",termin
+.DEFFTR
+        EQUB    ".fo",termin
+        EQUB    ".ce",termin
+        EQUB    "Page .r0",termin
+        EQUB    ".ff.en",termin
+        ENDIF

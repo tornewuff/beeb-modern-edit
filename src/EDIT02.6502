@@ -23,38 +23,38 @@
         ;           screen (thus Y-coord of status line is pagelength + 1).
         ;  scrim  (screen image) holds maximum cursorX position written to each
         ;         line on the screen (including the CR, if any)
-EDIT
+.EDIT
         JSR     editmd
 
-        [ stamp = 1
+        IF stamp = 1
         JSR     nstamp
-        ]
-EDITin
+        ENDIF
+.EDITin
         LDX     tstart          ; Initialize pointers to reflect empty buffer.
         LDY     tstart + 1
-EDITgt
+.EDITgt
         STZ     modflg          ; Re-entry point for Tload. XY = End of file.
-EDITgs
+.EDITgs
         JSR     EDITtd          ; Re-entry from OLDSTA, newmode
-EDITco
-        LDXIM &FF               ; Re-entry point for brk-handler.
+.EDITco
+        LDX     #&FF            ; Re-entry point for brk-handler.
         TXS
         STZ     BRKact
         JSR     inited
-        LDAIM   thelot
+        LDA     #thelot
         STA     update
 
-EDITlo                          ; Update screen to reflect previous command.
+.EDITlo                         ; Update screen to reflect previous command.
 
         JSR     SCRNUD
         JSR     CSRSCR
         JSR     CURON
 
-        [ curtyp=1
+        IF curtyp=1
         JSR     curupd          ; update the cursor to relevant state
-        ]
+        ENDIF
 
-        LDAIM   FULLSC
+        LDA     #FULLSC
         STA     UPDATE
         ; Read a char, and branch depending on its value
         ;   &00 - &7F     is ASCII input to be entered as text
@@ -66,93 +66,93 @@ EDITlo                          ; Update screen to reflect previous command.
         JSR     EDRDCH
         TAX
         BPL     EDITTE
-        CMPIM   &B0
+        CMP     #&B0
         BCS     EDITTE
 
-        [ phil = 0
+        IF phil = 0
         LDX     CURSED
         BNE     EDITTE
         TAX
-        |
+        ELSE
         TAX
         LDA     CURSED
         BEQ     PHIL1
         TXA
-        ANDIM   &F
-        CMPIM   &A
+        AND     #&F
+        CMP     #&A
         TXA
         BCC     EDITTE
-phil1
-        ]
+.phil1
+        ENDIF
 
         LDA     TUTMOD
-        ANDIM   7
-        CMPIM   5
+        AND     #7
+        CMP     #5
         BNE     GOMAN
-        CPXIM   &9C
+        CPX     #&9C
         BCS     GOMAN
-        CPXIM   &90
+        CPX     #&90
         BCS     DEFVAL
-        CPXIM   &8A
+        CPX     #&8A
         BCS     GOMAN
-DEFVAL
+.DEFVAL
         TXA
         PHA
-        ASLA
+        ASL     A
         TAY
         JSR     VSTRNG
-        =       26,30,31,0,8,&EA
-        LDAAY   TXTTAB
+        EQUB    26,30,31,0,8,&EA
+        LDA     TXTTAB,Y
         STA     STRING
-        LDAAY   TXTTAB + 1
+        LDA     TXTTAB + 1,Y
         STA     STRING + 1
-TUTLIN
-        LDYIM   &00
+.TUTLIN
+        LDY     #&00
         JSR     osnewl
-TUTOUT
-        LDAI    STRING
+.TUTOUT
+        LDA     (STRING)
         INC     STRING
         BNE     TUTINC
         INC     STRING + 1
-TUTINC
-        CMPIM   cr
+.TUTINC
+        CMP     #cr
         BEQ     NEEDWP
-        CMPIM   &EA
+        CMP     #&EA
         BEQ     TUTDON
         JSR     OSWRCH
         INY
         BRA     TUTOUT
-NEEDWP
-        LDAIM   " "
-TUTWIP
-        CPYIM   54
+.NEEDWP
+        LDA     #' '
+.TUTWIP
+        CPY     #54
         BCS     TUTLIN
         JSR     OSWRCH
         INY
         BRA     TUTWIP
-TUTDON
+.TUTDON
         JSR     DECWIN
         JSR     CSRSCR
         PLX
-GOMAN
+.GOMAN
         TXA
-        ASLA
+        ASL     A
         TAX
         JSR     IADDRS
         JMP     EDITlo
-IADDRS
-        JMIX    EDCTBL
-EDITTE
+.IADDRS
+        JMP     (EDCTBL,X)
+.EDITTE
         JSR     EDTEXT
         JMP     EDITlo
-EDTEXT
+.EDTEXT
         ; Entry - A holds ASCII char to be treated as text input
         ; Exit  - appropraite action taken depending on current
         ;        'mode' (insert, overtype, csr-edit).
-        CMPIM   DELETE
+        CMP     #DELETE
         BEQ     ECHRDE
         CLR     OLDSTA + 3
-        CMPIM   cr
+        CMP     #cr
         BNE     ECHRCO
         JSR     TESTIF ;In insert mode put in the CR
         BNE     ECHRCR
@@ -160,13 +160,13 @@ EDTEXT
         BCS     ECHRCR
         CLR     SCRNX
         JMP     CURDWN ;in overtype mode CR is start of line
-ECHRCR
-        [ cf8key=1
-        LDAZ    clterm
-        |
-        LDAIM   termin
-        ]
-ECHRCO
+.ECHRCR
+        IF cf8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
+.ECHRCO
         ; Insert character into text.
         PHA
         JSR     ADDVIR
@@ -174,65 +174,65 @@ ECHRCO
         JSR     TESTIF
         BNE     ECHRMV
         LDY     SCRNX
-        LDAIY   GE
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        LDA     (GE),Y
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BNE     ECHRCH
-ECHRMV
-        LDXIM 1
+.ECHRMV
+        LDX     #1
         LDA     SCRNX
         JSR     INSRTX
-ECHRCH
+.ECHRCH
         PLA
         LDY     SCRNX
-        STAIY   GE
+        STA     (GE),Y
         ; Write char to screen (cursor OK), wiping tail for TERMIN.
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BNE     ECHRNT
         JSR     PASWCR
         LDA     SCRNX
         LDY     SCRNY
         JSR     WIPETA
-EHRCSU
+.EHRCSU
         CLR     SCRNX
         JSR     CURDWN
-ECHRUP
+.ECHRUP
         LDA     UPDATE
         BEQ     ECHREL
         JSR     SCRNUD
-ECHREL
-        LDAIM   CSRONW
+.ECHREL
+        LDA     #CSRONW
         STA     UPDATE
         JMP     MODIFY
-ECHRNT
+.ECHRNT
         JSR     PASWRC
         JSR     CURRT
-ECHRN0
+.ECHRN0
         LDA     UPDATE
         BEQ     ECHRN1
         JSR     SCRNUD
-ECHRN1
-        LDAIM   CSRTOC
+.ECHRN1
+        LDA     #CSRTOC
         STA     UPDATE
         JMP     MODIFY
-ECHRDE
+.ECHRDE
         ; Delete virtual space implies csrleft. Can't delete start of file.
         JSR     VSCOUN
         BEQ     EDELST
         JMP     CURLT
-EDELST
+.EDELST
         LDA     SCRNX
         BNE     EDELCO
         JSR     STARTTEST
         BCS     DELABX
-EDELCO
+.EDELCO
         ; Get char to be deleted under cursor. In absence of VS check,
         ; this will give TERMIN delete when past end of line.
         JSR     CURLT
@@ -240,81 +240,81 @@ EDELCO
         CMP     SCRNX
         BCS     EDELMT
         STA     SCRNX
-EDELMT
+.EDELMT
         ; Branch on text-entry mode (insert/overtype).
         LDY     SCRNX
         JSR     TESTIF
         BNE     EDELSL
-        LDAIY   GE
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        LDA     (GE),Y
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     DELABX
-        LDAIM   SPACE
-        STAIY   GE
-        LDAIM   CSRTOC
+        LDA     #SPACE
+        STA     (GE),Y
+        LDA     #CSRTOC
         STA     UPDATE
         JMP     MODIFY
-EDELSL
-        LDAIY   GE
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+.EDELSL
+        LDA     (GE),Y
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BEQ     EDELS2
         LDA     CURRLE
         CMP     PAGEWI
         BEQ     EDELS2
         JSR     EDEL1
         BRA     ECHRN0
-EDELS2
+.EDELS2
         JSR     EDEL1
         BRA     ECHRUP
-DELLIX
+.DELLIX
         JSR     DELABV
-DELLIN
+.DELLIN
         CLR     SCRNX
-        LDAI    GE
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        LDA     (GE)
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BNE     DELLIX
         JSR     LENGTH
         STA     CURRLE
         JSR     DELABV
         JMP     ECHREL
-DELABV
+.DELABV
         JSR     ENDTES
         BCC     DELABY
         LDA     SCRNX
         CMP     CURRLE
         BCC     DELABY
-DELABX
+.DELABX
         RTS
-DELABY
+.DELABY
         LDA     CURRLE
         CMP     SCRNX
         BCC     DELABX
-        LDYIM   CSRTOC
+        LDY     #CSRTOC
         STY     UPDATE
         CMP     PAGEWI
         BEQ     EDEL0
         LDY     SCRNX
-        LDAIY   GE
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        LDA     (GE),Y
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
         BNE     EDEL1
-EDEL0
+.EDEL0
         INC     UPDATE
-EDEL1
+.EDEL1
         ; Shift up start of line 'over' deleted character.
         JSR     MODIFY
         CLC
@@ -324,484 +324,480 @@ EDEL1
         STA     ADDR
         LDA     GE + 1
         STA     TEMP + 1
-        ADCIM   0
+        ADC     #0
         STA     ADDR + 1
         INC     GE
         BNE     EDELNH
         INC     GE + 1
-EDELNH
+.EDELNH
         LDY     SCRNX
         BRA     EDELDY
-EDELLP
-        LDAIY   TEMP
-        STAIY   GE
-EDELDY
+.EDELLP
+        LDA     (TEMP),Y
+        STA     (GE),Y
+.EDELDY
         DEY
         BPL     EDELLP
         LDX     MARKX
-EDELMK
+.EDELMK
         DEX
         BMI     DELABX
-        LDYAX   SMATLO
+        LDY     SMATLO,X
         CPY     ADDR
-        LDAAX   SMATHI
+        LDA     SMATHI,X
         SBC     ADDR + 1
         BCS     EDELMK
-        INCAX   SMATLO
+        INC     SMATLO,X
         BNE     EDELMK
-        INCAX   SMATHI
+        INC     SMATHI,X
         BRA     EDELMK
 
-EDCTBL
-        &       EDITli          ; f0
-        &       EDstar          ; f1
-        &       LOADfi          ; f2
-        &       SAVEfi          ; f3
-        &       findre          ; f4
-        &       globre          ; f5
-        &       setmar          ; f6
-        &       mkCPY           ; f7
-        &       print           ; f8
-        &       oldtex          ; f9
-        &       tabkey          ; f10
-        &       delabv          ; copy
-        &       curLT           ; left
-        &       curRT           ; right
-        &       curDWN          ; down
-        &       curUP           ; up
+.EDCTBL
+        EQUW    EDITli          ; f0
+        EQUW    EDstar          ; f1
+        EQUW    LOADfi          ; f2
+        EQUW    SAVEfi          ; f3
+        EQUW    findre          ; f4
+        EQUW    globre          ; f5
+        EQUW    setmar          ; f6
+        EQUW    mkCPY           ; f7
+        EQUW    print           ; f8
+        EQUW    oldtex          ; f9
+        EQUW    tabkey          ; f10
+        EQUW    delabv          ; copy
+        EQUW    curLT           ; left
+        EQUW    curRT           ; right
+        EQUW    curDWN          ; down
+        EQUW    curUP           ; up
         ;
-        &       crtogg          ; shift-f0
-        &       IOtogg          ; shift-f1
-        &       insrtf          ; shift-f2
-        &       scmclr          ; shift-f3
-        &       retlan          ; shift-f4
-        &       getmod          ; shift-f5
-        &       clearm          ; shift-f6
-        &       mkmve           ; shift-f7
-        &       mkdel           ; shift-f8
-        &       newtex          ; shift-f9
-        &       tabctl          ; shift-f10
-        &       allowc          ; shift-copy
-        &       wordle          ; shift-left
-        &       wordri          ; shift-right
-        &       pagedn          ; shift-down
-        &       pageup          ; shift-up
+        EQUW    crtogg          ; shift-f0
+        EQUW    IOtogg          ; shift-f1
+        EQUW    insrtf          ; shift-f2
+        EQUW    scmclr          ; shift-f3
+        EQUW    retlan          ; shift-f4
+        EQUW    getmod          ; shift-f5
+        EQUW    clearm          ; shift-f6
+        EQUW    mkmve           ; shift-f7
+        EQUW    mkdel           ; shift-f8
+        EQUW    newtex          ; shift-f9
+        EQUW    tabctl          ; shift-f10
+        EQUW    allowc          ; shift-copy
+        EQUW    wordle          ; shift-left
+        EQUW    wordri          ; shift-right
+        EQUW    pagedn          ; shift-down
+        EQUW    pageup          ; shift-up
         ;
-        &       EDITlo          ; ctrl-f0
-        &       EDITlo          ; ctrl-f1
-        &       EDITlo          ; ctrl-f2
-        &       EDITlo          ; ctrl-f3
-        &       EDITlo          ; ctrl-f4
-        &       EDITlo          ; ctrl-f5
-        &       tsmcsr          ; ctrl-f6
-        &       bsmcsr          ; ctrl-f7
-        [ cf8key=1
-        &       cf8swt          ; ctrl-f8
-        |
-        &       EDITlo          ; ctrl-f8
-        ]
-        &       EDITlo          ; ctrl-f9
-        &       EDITlo          ; ctrl-f10
-        &       dellin          ; ctrl-copy
-        &       curst           ; ctrl-left
-        &       curend          ; ctrl-right
-        &       curedf          ; ctrl-down
-        &       stfile          ; ctrl-up
+        EQUW    EDITlo          ; ctrl-f0
+        EQUW    EDITlo          ; ctrl-f1
+        EQUW    EDITlo          ; ctrl-f2
+        EQUW    EDITlo          ; ctrl-f3
+        EQUW    EDITlo          ; ctrl-f4
+        EQUW    EDITlo          ; ctrl-f5
+        EQUW    tsmcsr          ; ctrl-f6
+        EQUW    bsmcsr          ; ctrl-f7
+        IF cf8key=1
+        EQUW    cf8swt          ; ctrl-f8
+        ELSE
+        EQUW    EDITlo          ; ctrl-f8
+        ENDIF
+        EQUW    EDITlo          ; ctrl-f9
+        EQUW    EDITlo          ; ctrl-f10
+        EQUW    dellin          ; ctrl-copy
+        EQUW    curst           ; ctrl-left
+        EQUW    curend          ; ctrl-right
+        EQUW    curedf          ; ctrl-down
+        EQUW    stfile          ; ctrl-up
 
-TXTTAB
-        &       F0
-        &       F1
-        &       F2
-        &       F3
-        &       F4
-        &       F5
-        &       F6
-        &       F7
-        &       F8
-        &       F9
-        &       F9
-        &       F9
-        &       F9
-        &       F9
-        &       F9
-        &       F9
-        &       SHFF0
-        &       SHFF1
-        &       SHFF2
-        &       SHFF3
-        &       SHFF4
-        &       SHFF5
-        &       SHFF6
-        &       SHFF7
-        &       SHFF8
-        &       SHFF9
-        &       SHFTAB
-        &       SHFCOP
-BIGMES
+.TXTTAB
+        EQUW    F0
+        EQUW    F1
+        EQUW    F2
+        EQUW    F3
+        EQUW    F4
+        EQUW    F5
+        EQUW    F6
+        EQUW    F7
+        EQUW    F8
+        EQUW    F9
+        EQUW    F9
+        EQUW    F9
+        EQUW    F9
+        EQUW    F9
+        EQUW    F9
+        EQUW    F9
+        EQUW    SHFF0
+        EQUW    SHFF1
+        EQUW    SHFF2
+        EQUW    SHFF3
+        EQUW    SHFF4
+        EQUW    SHFF5
+        EQUW    SHFF6
+        EQUW    SHFF7
+        EQUW    SHFF8
+        EQUW    SHFF9
+        EQUW    SHFTAB
+        EQUW    SHFCOP
+.BIGMES
         JSR VSTRNG
-        =       "┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐"
-        =       "│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │"
-        =       "│Returns│Over   │ file  │Margins│Languag│ Mode  │ Marks │Move   │Delete │text  │"
-        =       "├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤"
-        =       "│ Goto  │Command│ Load  │ Save  │Find   │Global │ Mark  │Marked │ Print │ Old  │"
-        =       "│ line  │line   │ file  │ file  │String │Replace│ Place │Copy   │ text  │ text │"
-        =       "└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┘"
+        EQUB    "┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐"
+        EQUB    "│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │"
+        EQUB    "│Returns│Over   │ file  │Margins│Languag│ Mode  │ Marks │Move   │Delete │text  │"
+        EQUB    "├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤"
+        EQUB    "│ Goto  │Command│ Load  │ Save  │Find   │Global │ Mark  │Marked │ Print │ Old  │"
+        EQUB    "│ line  │line   │ file  │ file  │String │Replace│ Place │Copy   │ text  │ text │"
+        EQUB    "└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┘"
         NOP
         RTS
-BIGMET
+.BIGMET
         JSR     VSTRNG
-        =       "The Acorn Screen Editor © 1984 Acorn Computers Ver $vers"
+        EQUB    "The Acorn Screen Editor © 1984 Acorn Computers Ver $vers"
 
-        [ mouse = 1
-        =       "m"
-        |
-        =       " "
-        ]
+        IF mouse = 1
+        EQUB    "m"
+        ELSE
+        EQUB    " "
+        ENDIF
 
-        =       "┌───┐Shift: screen up   "      ; EOL 1
+        EQUB    "┌───┐Shift: screen up   "      ; EOL 1
 
-        [ syzygy=1      ; "a SYZYGY prog"
+        IF syzygy=1     ; "a SYZYGY prog"
 
-        =       "      a"
-        =       23,32,&00,&01,&01,&01,&00,&01,&01,&01,32
-        =       23,32,&F4,&14,&04,&F3,&10,&10,&10,&E7,32
-        =       23,32,&5F,&41,&42,&C4,&48,&50,&50,&9F,32
-        =       23,32,&44,&45,&45,&3C,&04,&04,&04,&79,32
-        =       23,32,&F4,&14,&14,&F3,&10,&10,&10,&E7,32
-        =       23,32,&40,&40,&40,&C0,&40,&40,&40,&80,32
-        =       23,32,&00,&00,&00,&00,&00,&00,&00,&00
-        =       "prog "
-        |
-        =       "                  "
-        ]
+        EQUB    "      a"
+        EQUB    23,32,&00,&01,&01,&01,&00,&01,&01,&01,32
+        EQUB    23,32,&F4,&14,&04,&F3,&10,&10,&10,&E7,32
+        EQUB    23,32,&5F,&41,&42,&C4,&48,&50,&50,&9F,32
+        EQUB    23,32,&44,&45,&45,&3C,&04,&04,&04,&79,32
+        EQUB    23,32,&F4,&14,&14,&F3,&10,&10,&10,&E7,32
+        EQUB    23,32,&40,&40,&40,&C0,&40,&40,&40,&80,32
+        EQUB    23,32,&00,&00,&00,&00,&00,&00,&00,&00
+        EQUB    "prog "
+        ELSE
+        EQUB    "                  "
+        ENDIF
 
-        =       "             Descriptive Mode "
+        EQUB    "             Descriptive Mode "
 
-        [ cf8key=1
-        =       "CR/LF"
-        |
-        [ termin=lf
-        =       "(LF) "
-        |
-        =       "     "
-        ]
-        ]
+        IF cf8key=1
+        EQUB    "CR/LF"
+        ELSE
+        IF termin=lf
+        EQUB    "(LF) "
+        ELSE
+        EQUB    "     "
+        ENDIF
+        ENDIF
 
-        =       "   │ ⭡ │Control: text start"  ; EOL 2
+        EQUB    "   │ ⭡ │Control: text start"  ; EOL 2
 
-        =       "TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  "  ; EOL 3
+        EQUB    "TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  "  ; EOL 3
 
-        =       "COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         "  ; EOL 4
+        EQUB    "COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         "  ; EOL 4
 
-        =       "shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  "  ; EOL 5
+        EQUB    "shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  "  ; EOL 5
 
-        =       "       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down "  ; EOL 6
+        EQUB    "       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down "  ; EOL 6
 
-        =       "control COPY deletes the current line to next new line  └───┘Control: text end  "  ; EOL 7
+        EQUB    "control COPY deletes the current line to next new line  └───┘Control: text end  "  ; EOL 7
         NOP
         RTS
 
-f0
-        =       "f0",cr
-        [ shortm=0
-        =       "The cursor can be moved to a new line.",cr
-        =       "For this operation lines are character sequences",cr
-        =       "ended by RETURN (|M).",cr,&EA
-        |
-        =       "Move the cursor to a new line",cr
-        =       "Lines are character sequences ended by RETURN (|M)",cr
-        =       cr
+.f0
+        EQUB    "f0",cr
+        IF shortm=0
+        EQUB    "The cursor can be moved to a new line.",cr
+        EQUB    "For this operation lines are character sequences",cr
+        EQUB    "ended by RETURN (|M).",cr,&EA
+        ELSE
+        EQUB    "Move the cursor to a new line",cr
+        EQUB    "Lines are character sequences ended by RETURN (|M)",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-shff0
-        =       "shf-f0",cr
-        [ shortm=0
-        =       "The ends of lines can be shown as a special",cr
-        =       "character so that they can be seen clearly.",cr
-        =       "This alters with each press of shf-f0.",cr,&EA
-        |
-        =       "Highlight the end of line character",cr
-        =       "This is a toggled function",cr
-        =       cr
+.shff0
+        EQUB    "shf-f0",cr
+        IF shortm=0
+        EQUB    "The ends of lines can be shown as a special",cr
+        EQUB    "character so that they can be seen clearly.",cr
+        EQUB    "This alters with each press of shf-f0.",cr,&EA
+        ELSE
+        EQUB    "Highlight the end of line character",cr
+        EQUB    "This is a toggled function",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-F1
-        =       "f1",cr
-        [ shortm=0
-        =       "Commands to the computer's operating system can be",cr
-        =       "given. The result is seen at once. Extra commands",cr
-        =       "can be entered until RETURN by itself is typed.",cr,&EA
-        |
-        =       "Commands can be sent to the Command Line Interpreter",cr
-        =       "The function is terminated by RETURN only",cr
-        =       cr
+.F1
+        EQUB    "f1",cr
+        IF shortm=0
+        EQUB    "Commands to the computer's operating system can be",cr
+        EQUB    "given. The result is seen at once. Extra commands",cr
+        EQUB    "can be entered until RETURN by itself is typed.",cr,&EA
+        ELSE
+        EQUB    "Commands can be sent to the Command Line Interpreter",cr
+        EQUB    "The function is terminated by RETURN only",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-SHFF1
-        =       "shf-f1",cr
-        [ shortm=0
-        =       "Changes between Insert and Over. In Insert mode the",cr
-        =       "text typed is inserted causing the existing text to",cr
-        =       "move. In Over mode the text is typed over old text.",cr,&EA
-        |
-        =       "Toggle Insert/Over mode",cr
-        =       cr
-        =       cr
+.SHFF1
+        EQUB    "shf-f1",cr
+        IF shortm=0
+        EQUB    "Changes between Insert and Over. In Insert mode the",cr
+        EQUB    "text typed is inserted causing the existing text to",cr
+        EQUB    "move. In Over mode the text is typed over old text.",cr,&EA
+        ELSE
+        EQUB    "Toggle Insert/Over mode",cr
+        EQUB    cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-F2
-        =       "f2",cr
-        [ shortm=0
-        =       "A text file will be loaded, erasing the current text.",cr
-        =       "RETURN uses the name at the start of text after a '>'",cr
-        =       "COPY, RETURN to use the current file name.",cr,&EA
-        |
-        =       "Load file, erasing the current text",cr
-        =       "RETURN uses the name at the start of text after a '>'",cr
-        =       "COPY RETURN to use the current file name",cr
+.F2
+        EQUB    "f2",cr
+        IF shortm=0
+        EQUB    "A text file will be loaded, erasing the current text.",cr
+        EQUB    "RETURN uses the name at the start of text after a '>'",cr
+        EQUB    "COPY, RETURN to use the current file name.",cr,&EA
+        ELSE
+        EQUB    "Load file, erasing the current text",cr
+        EQUB    "RETURN uses the name at the start of text after a '>'",cr
+        EQUB    "COPY RETURN to use the current file name",cr
         NOP
-        ]
+        ENDIF
 
-SHFF2
-        =       "shf-f2",cr
-        [ shortm=0
-        =       "A text file will be loaded at the current cursor.",cr
-        =       "RETURN uses the name at the start of text after a '>'",cr
-        =       "COPY, RETURN to use the current file name.",cr,&EA
-        |
-        =       "Insert file to current cursor position",cr
-        =       "RETURN uses the name at the start of text after a '>'",cr
-        =       "COPY RETURN to use the current file name",cr
+.SHFF2
+        EQUB    "shf-f2",cr
+        IF shortm=0
+        EQUB    "A text file will be loaded at the current cursor.",cr
+        EQUB    "RETURN uses the name at the start of text after a '>'",cr
+        EQUB    "COPY, RETURN to use the current file name.",cr,&EA
+        ELSE
+        EQUB    "Insert file to current cursor position",cr
+        EQUB    "RETURN uses the name at the start of text after a '>'",cr
+        EQUB    "COPY RETURN to use the current file name",cr
         NOP
-        ]
+        ENDIF
 
-F3
-        =       "f3",cr
-        [ shortm=0
-        =       "All or 'mark to cursor' text will be saved to a file.",cr
-        =       "RETURN uses the name at the start of text after a '>'",cr
-        =       "COPY, RETURN to use the current file name.",cr,&EA
-        |
-        =       "Save text. All or 'mark to cursor' text will be saved",cr
-        =       "RETURN uses the name at the start of text after a '>'",cr
-        =       "COPY RETURN to use the current file name",cr
+.F3
+        EQUB    "f3",cr
+        IF shortm=0
+        EQUB    "All or 'mark to cursor' text will be saved to a file.",cr
+        EQUB    "RETURN uses the name at the start of text after a '>'",cr
+        EQUB    "COPY, RETURN to use the current file name.",cr,&EA
+        ELSE
+        EQUB    "Save text. All or 'mark to cursor' text will be saved",cr
+        EQUB    "RETURN uses the name at the start of text after a '>'",cr
+        EQUB    "COPY RETURN to use the current file name",cr
         NOP
-        ]
+        ENDIF
 
-SHFF3
-        =       "shf-f3",cr
-        [ shortm=0
-        =       "The top and bottom scroll margins have been removed.",cr
-        =       "Set Top scroll margin to cursor line with ctrl-f6",cr
-        =       "Set Bottom scroll margin to cursor line with ctrl-f7",cr,&EA
-        |
-        =       "Remove top and bottom scroll margins",cr
-        =       "Set Top scroll margin to current line with ctrl-f6",cr
-        =       "Set Bottom scroll margin to current line with ctrl-f7",cr
+.SHFF3
+        EQUB    "shf-f3",cr
+        IF shortm=0
+        EQUB    "The top and bottom scroll margins have been removed.",cr
+        EQUB    "Set Top scroll margin to cursor line with ctrl-f6",cr
+        EQUB    "Set Bottom scroll margin to cursor line with ctrl-f7",cr,&EA
+        ELSE
+        EQUB    "Remove top and bottom scroll margins",cr
+        EQUB    "Set Top scroll margin to current line with ctrl-f6",cr
+        EQUB    "Set Bottom scroll margin to current line with ctrl-f7",cr
         NOP
-        ]
+        ENDIF
 
-F4
-        =       "f4:- Interactive Find and Replace Function.",cr
-        [ shortm=0
-        =       "RETURN to use last f4. Special search characters are:",cr
-        =       "# digit, $ RETURN, . any, [ ] set of char, a-z a to z",cr
-        =       "~ not, * many, ^ many, | control, @ alpha, \ literal.",cr,&EA
-        |
-        =       "RETURN to use last f4. Special search characters are:",cr
-        =       "# digit, $ RETURN, . any, [ ] set of char, a-z a to z",cr
-        =       "~ not, * many, ^ many, | control, @ alpha, \ literal.",cr
+.F4
+        EQUB    "f4:- Interactive Find and Replace Function.",cr
+        IF shortm=0
+        EQUB    "RETURN to use last f4. Special search characters are:",cr
+        EQUB    "# digit, $ RETURN, . any, [ ] set of char, a-z a to z",cr
+        EQUB    "~ not, * many, ^ many, | control, @ alpha, \ literal.",cr,&EA
+        ELSE
+        EQUB    "RETURN to use last f4. Special search characters are:",cr
+        EQUB    "# digit, $ RETURN, . any, [ ] set of char, a-z a to z",cr
+        EQUB    "~ not, * many, ^ many, | control, @ alpha, \ literal.",cr
         NOP
-        ]
+        ENDIF
 
-SHFF4
-        =       "shf-f4",cr
-        [ shortm=0
-        =       "Return to specified language.",cr
-        =       "The text in the buffer will be 'transferred' into the",cr
-        =       "language.",cr,&EA
-        |
-        =       "Return to specified language",cr
-        =       "Text is transferred to the language",cr
-        =       cr
+.SHFF4
+        EQUB    "shf-f4",cr
+        IF shortm=0
+        EQUB    "Return to specified language.",cr
+        EQUB    "The text in the buffer will be 'transferred' into the",cr
+        EQUB    "language.",cr,&EA
+        ELSE
+        EQUB    "Return to specified language",cr
+        EQUB    "Text is transferred to the language",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-F5
-        [ shortm=0
-        =       "f5:- Global replace.              All, or marked text.",cr
-        =       "RETURN to use last f5. Special replace characters are:",cr
-        =       "/ to begin the replace section; & is the found string",cr
-        =       "%n found wild section n. See f4 for find characters.",cr,&EA
-        |
-        =       "f5: Global replace. All or marked text",cr
-        =       "RETURN to use last f5. Special replace characters are:",cr
-        =       "/ to begin the replace section; & is the found string",cr
-        =       "%n found wild section n. See f4 for find characters.",cr
+.F5
+        IF shortm=0
+        EQUB    "f5:- Global replace.              All, or marked text.",cr
+        EQUB    "RETURN to use last f5. Special replace characters are:",cr
+        EQUB    "/ to begin the replace section; & is the found string",cr
+        EQUB    "%n found wild section n. See f4 for find characters.",cr,&EA
+        ELSE
+        EQUB    "f5: Global replace. All or marked text",cr
+        EQUB    "RETURN to use last f5. Special replace characters are:",cr
+        EQUB    "/ to begin the replace section; & is the found string",cr
+        EQUB    "%n found wild section n. See f4 for find characters.",cr
         NOP
-        ]
+        ENDIF
 
-SHFF5
-        =       "shf-f5",cr
-        [ shortm=0
-        =       "The screen mode may be set to a specific mode. Also",cr
-        =       "Descriptive (D), or Key legend (K) modes may be set.",cr
-        =       "D and K use mode 0.",cr,&EA
-        |
-        =       "Set screen mode",cr
-        =       "D - Descriptive",cr
-        =       "K - Key legend",cr
+.SHFF5
+        EQUB    "shf-f5",cr
+        IF shortm=0
+        EQUB    "The screen mode may be set to a specific mode. Also",cr
+        EQUB    "Descriptive (D), or Key legend (K) modes may be set.",cr
+        EQUB    "D and K use mode 0.",cr,&EA
+        ELSE
+        EQUB    "Set screen mode",cr
+        EQUB    "D - Descriptive",cr
+        EQUB    "K - Key legend",cr
         NOP
-        ]
+        ENDIF
 
-F6
-        =       "f6",cr
-        [ shortm=0
-        =       "The current position of the cursor (_) is remembered.",cr
-        =       "The number at the bottom indicates how many (0,1,2)",cr
-        =       "marks (",255,") are being used.",cr,&EA
-        |
-        =       "Set a marker",cr
-        =       "The number (0,1,2) of marks (",255,") set is",cr
-        =       "given on the status line",cr
+.F6
+        EQUB    "f6",cr
+        IF shortm=0
+        EQUB    "The current position of the cursor (_) is remembered.",cr
+        EQUB    "The number at the bottom indicates how many (0,1,2)",cr
+        EQUB    "marks (",255,") are being used.",cr,&EA
+        ELSE
+        EQUB    "Set a marker",cr
+        EQUB    "The number (0,1,2) of marks (",255,") set is",cr
+        EQUB    "given on the status line",cr
         NOP
-        ]
+        ENDIF
 
-SHFF6
-        =       "shf-f6",cr
-        [ shortm=0
-        =       "All place marks are cleared.",cr
-        =       "",cr
-        =       "",cr,&EA
-        |
-        =       "Clear markers",cr
-        =       cr
-        =       cr
+.SHFF6
+        EQUB    "shf-f6",cr
+        IF shortm=0
+        EQUB    "All place marks are cleared.",cr
+        EQUB    "",cr
+        EQUB    "",cr,&EA
+        ELSE
+        EQUB    "Clear markers",cr
+        EQUB    cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-F7
-        =       "f7",cr
-        [ shortm=0
-        =       "The text between two marked places is copied to",cr
-        =       "the current cursor position.",cr
-        =       "The marks are NOT cleared.",cr,&EA
-        |
-        =       "Text is copied to the current position",cr
-        =       "The marks are NOT cleared",cr
-        =       cr
+.F7
+        EQUB    "f7",cr
+        IF shortm=0
+        EQUB    "The text between two marked places is copied to",cr
+        EQUB    "the current cursor position.",cr
+        EQUB    "The marks are NOT cleared.",cr,&EA
+        ELSE
+        EQUB    "Text is copied to the current position",cr
+        EQUB    "The marks are NOT cleared",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-SHFF7
-        =       "shf-f7",cr
-        [ shortm=0
-        =       "The text between two marked places is moved to",cr
-        =       "the current cursor position.",cr
-        =       "The marks are then cleared.",cr,&EA
-        |
-        =       "Text is moved to current position",cr
-        =       "The marks are cleared",cr
-        =       cr
+.SHFF7
+        EQUB    "shf-f7",cr
+        IF shortm=0
+        EQUB    "The text between two marked places is moved to",cr
+        EQUB    "the current cursor position.",cr
+        EQUB    "The marks are then cleared.",cr,&EA
+        ELSE
+        EQUB    "Text is moved to current position",cr
+        EQUB    "The marks are cleared",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-F8
-        =       "f8",cr
-        [ shortm=0
-        =       "The whole text is printed out to the screen or printer",cr
-        =       "using the built-in formatter/paginator.",cr
-        =       "",cr,&EA
-        |
-        =       "Print text to screen or printer",cr
-        =       cr
-        =       cr
+.F8
+        EQUB    "f8",cr
+        IF shortm=0
+        EQUB    "The whole text is printed out to the screen or printer",cr
+        EQUB    "using the built-in formatter/paginator.",cr
+        EQUB    "",cr,&EA
+        ELSE
+        EQUB    "Print text to screen or printer",cr
+        EQUB    cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-SHFF8
-        =       "shf-f8",cr
-        [ shortm=0
-        =       "The text between the cursor and the marked place",cr
-        =       "is deleted.",cr
-        =       "The mark is then cleared.",cr,&EA
-        |
-        =       "Delete text between marker and current position",cr
-        =       "The mark is then cleared",cr
-        =       cr
+.SHFF8
+        EQUB    "shf-f8",cr
+        IF shortm=0
+        EQUB    "The text between the cursor and the marked place",cr
+        EQUB    "is deleted.",cr
+        EQUB    "The mark is then cleared.",cr,&EA
+        ELSE
+        EQUB    "Delete text between marker and current position",cr
+        EQUB    "The mark is then cleared",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-F9
-        =       "f9",cr
-        [ shortm=0
-        =       "The old text in the buffer is recovered after a BREAK",cr
-        =       "or immediately after a Clear Text (by shf-f9).",cr
-        =       "",cr,&EA
-        |
-        =       "Recover old text",cr
-        =       cr
-        =       cr
+.F9
+        EQUB    "f9",cr
+        IF shortm=0
+        EQUB    "The old text in the buffer is recovered after a BREAK",cr
+        EQUB    "or immediately after a Clear Text (by shf-f9).",cr
+        EQUB    "",cr,&EA
+        ELSE
+        EQUB    "Recover old text",cr
+        EQUB    cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-SHFF9
-        =       "shf-f9",cr
-        [ shortm=0
-        =       "All text in the buffer is deleted.",cr
-        =       "Use shf-f9 twice to remove the text beyond hope of a",cr
-        =       "recovery by f9.",cr,&EA
-        |
-        =       "Delete text",cr
-        [ stamp=0
-        =       "shf-f9 twice will remove text beyond recovery by f9",cr
-        =       cr
-        |
-        =       "shf-f9 Y will select time stamping",cr
-        =       "shf-f9 shf-f9 selects 'EXEC' addresses",cr
-        ]
+.SHFF9
+        EQUB    "shf-f9",cr
+        IF shortm=0
+        EQUB    "All text in the buffer is deleted.",cr
+        EQUB    "Use shf-f9 twice to remove the text beyond hope of a",cr
+        EQUB    "recovery by f9.",cr,&EA
+        ELSE
+        EQUB    "Delete text",cr
+        IF stamp=0
+        EQUB    "shf-f9 twice will remove text beyond recovery by f9",cr
+        EQUB    cr
+        ELSE
+        EQUB    "shf-f9 Y will select time stamping",cr
+        EQUB    "shf-f9 shf-f9 selects 'EXEC' addresses",cr
+        ENDIF
         NOP
-        ]
+        ENDIF
 
-SHFTAB
-        =       "shf-TAB",cr
-        [ shortm=0
-        =       "The TAB key may be used to move to zones of eight",cr
-        =       "characters across the screen, or to position under",cr
-        =       "the first character of the line immediately above.",cr,&EA
-        |
-        =       "TAB to columns of 8, or to the position under the",cr
-        =       "first character of the previous line",cr
-        =       cr
+.SHFTAB
+        EQUB    "shf-TAB",cr
+        IF shortm=0
+        EQUB    "The TAB key may be used to move to zones of eight",cr
+        EQUB    "characters across the screen, or to position under",cr
+        EQUB    "the first character of the line immediately above.",cr,&EA
+        ELSE
+        EQUB    "TAB to columns of 8, or to the position under the",cr
+        EQUB    "first character of the previous line",cr
+        EQUB    cr
         NOP
-        ]
+        ENDIF
 
-SHFCOP
-        =       "shf-COPY",cr
-        [ shortm=0
-        =       "Cursor editing can be used with ⭡⯇╴╶⯈⭣ and COPY.",cr
-        =       "User defined soft keys are available as normal.",cr
-        =       "All characters except ESCAPE are put into text.",cr,&EA
-        |
-        =       "Cursor editing mode. ⭡⯇╴╶⯈⭣ and COPY and user",cr
-        =       "defined soft keys available as normal",cr
-        =       "ESCAPE terminates this mode",cr
+.SHFCOP
+        EQUB    "shf-COPY",cr
+        IF shortm=0
+        EQUB    "Cursor editing can be used with ⭡⯇╴╶⯈⭣ and COPY.",cr
+        EQUB    "User defined soft keys are available as normal.",cr
+        EQUB    "All characters except ESCAPE are put into text.",cr,&EA
+        ELSE
+        EQUB    "Cursor editing mode. ⭡⯇╴╶⯈⭣ and COPY and user",cr
+        EQUB    "defined soft keys available as normal",cr
+        EQUB    "ESCAPE terminates this mode",cr
         NOP
-        ]
+        ENDIF
 
-        [ cF8key=1
-ctrlF8
-        =       "Ctrl-f8",cr
-        =       "Toggle newline character between LF(|J) and CR(|M)",cr
-        =       cr
-        =       cr
+        IF cF8key=1
+.ctrlF8
+        EQUB    "Ctrl-f8",cr
+        EQUB    "Toggle newline character between LF(|J) and CR(|M)",cr
+        EQUB    cr
+        EQUB    cr
         NOP
-        ]
-
-        ; ------------------------------------------------------------ ;
-
-        LNK     EDIT03
+        ENDIF

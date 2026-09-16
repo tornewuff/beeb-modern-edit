@@ -1,12 +1,8 @@
-        TTL     EDIT text editor        > EDIT00
+        ;       EDIT text editor        > EDIT00
 
         ;
         ; Updates started 11th December 1986 by J.G.Smith
         ;
-
-        ; ------------------------------------------------------------ ;
-
-        CPU     1       ; This version solely for CMOS machines
 
         ; ------------------------------------------------------------ ;
 
@@ -34,221 +30,221 @@
 
         ; ------------------------------------------------------------ ;
 
-null    *       &00
-lf      *       &0A
-cr      *       &0D
-tab     *       &09
-down    *       lf
-up      *       &0B
-home    *       &1E
-space   *       " "
-delete  *       &7F
+null    =       &00
+lf      =       &0A
+cr      =       &0D
+tab     =       &09
+down    =       lf
+up      =       &0B
+home    =       &1E
+space   =       ' '
+delete  =       &7F
 
-        [ lfver=0
-termin  *       cr      ; line terminator
-        |
-termin  *       lf      ; a different line terminator
-        ]
+        IF lfver=0
+termin  =       cr      ; line terminator
+        ELSE
+termin  =       lf      ; a different line terminator
+        ENDIF
 
 
-bit7    *       &80
-bit6    *       &40
-bit5    *       &20
-bit4    *       &10
-bit3    *       &08
-bit2    *       &04
-bit1    *       &02
-bit0    *       &01
-
-        ; ------------------------------------------------------------ ;
-
-blink   *       bit6
-fblink  *       bit5
-
-fcstrt  *       &00             ; Full cursor start line
-ncstrt  *       &07             ; Normal start line
+bit7    =       &80
+bit6    =       &40
+bit5    =       &20
+bit4    =       &10
+bit3    =       &08
+bit2    =       &04
+bit1    =       &02
+bit0    =       &01
 
         ; ------------------------------------------------------------ ;
 
-moureg  *       &FC50
-mouxlo  *       moureg + 2
-mouswi  *       moureg + 6
+blink   =       bit6
+fblink  =       bit5
+
+fcstrt  =       &00             ; Full cursor start line
+ncstrt  =       &07             ; Normal start line
+
+        ; ------------------------------------------------------------ ;
+
+moureg  =       &FC50
+mouxlo  =       moureg + 2
+mouswi  =       moureg + 6
 
         ; EDIT symbolic constants
-osfind  *       &FFCE
-osbput  *       &FFD4
-osargs  *       &FFDA
-osfile  *       &FFDD
-osrdch  *       &FFE0
-osasci  *       &FFE3
-osnewl  *       &FFE7
-oswrch  *       &FFEE
-osword  *       &FFF1
-osbyte  *       &FFF4
-oscli   *       &FFF7
-escflg  *       &FF
-brkv    *       &0202
+osfind  =       &FFCE
+osbput  =       &FFD4
+osargs  =       &FFDA
+osfile  =       &FFDD
+osrdch  =       &FFE0
+osasci  =       &FFE3
+osnewl  =       &FFE7
+oswrch  =       &FFEE
+osword  =       &FFF1
+osbyte  =       &FFF4
+oscli   =       &FFF7
+escflg  =       &FF
+brkv    =       &0202
 
-        ^       &01
-csrtoc  #       &01
-csronw  #       &01
-hardup  #       &01
-harddo  #       &01
-fullsc  #       &01
-thelot  #       &01
+csrtoc  =       &01
+csronw  =       &02
+hardup  =       &03
+harddo  =       &04
+fullsc  =       &05
+thelot  =       &06
 
-        ^       &80
-multsy  #       &01
-notsym  #       &01
-wildsy  #       &01
-alphas  #       &01
-digsym  #       &01
-subrsy  #       &01
-setsym  #       &01
-fields  #       &01
-founds  #       &01
-escsym  #       &01
-nsensy  #       &01
-buttsy  #       &01
-termsy  #       &01
+multsy  =       &80
+notsym  =       &81
+wildsy  =       &82
+alphas  =       &83
+digsym  =       &84
+subrsy  =       &85
+setsym  =       &86
+fields  =       &87
+founds  =       &88
+escsym  =       &89
+nsensy  =       &8A
+buttsy  =       &8B
+termsy  =       &8C
 
-        ^       &00
-string  #       &02
-paje    #       &02
-tmax    #       &02
-temp    #       &02
-addr    #       &02
-argp    #       &02
-varp    #       &02
-TP      #       &02
-GS      #       &02
-GE      #       &02
-MS      #       &02
-xeff    *       MS
-lastsp  *       MS + 1
-me      #       &02
-diff    *       ME
-centre  *       ME + 1
-smatlo  #       &02
-rflush  *       smatlo
-linfed  *       smatlo + 1
-smathi  #       &02
-len     *       smathi
-indent  *       smathi + 1
-umatlo  #       &02
-underl  *       umatlo
-pundrl  *       umatlo + 1
-umathi  #       &02
-bold    *       umathi
-vspace  *       umathi + 1
+        SECTION ZeroPage, org = &00, guard = &90
 
-        [ cf8key=1
-clterm  #       &01     ; current line terminator
-        ]
-        [ extgf=1       ; Extended search/replace characters
-ctptr   #       &02     ; current text pointer
-        ]
+.string SKIP    &02
+.paje   SKIP    &02
+.tmax   SKIP    &02
+.temp   SKIP    &02
+.addr   SKIP    &02
+.argp   SKIP    &02
+.varp   SKIP    &02
+.TP     SKIP    &02
+.GS     SKIP    &02
+.GE     SKIP    &02
+.MS     SKIP    &02
+xeff    =       MS
+lastsp  =       MS + 1
+.me     SKIP    &02
+diff    =       ME
+centre  =       ME + 1
+.smatlo SKIP    &02
+rflush  =       smatlo
+linfed  =       smatlo + 1
+.smathi SKIP    &02
+len     =       smathi
+indent  =       smathi + 1
+.umatlo SKIP    &02
+underl  =       umatlo
+pundrl  =       umatlo + 1
+.umathi SKIP    &02
+bold    =       umathi
+vspace  =       umathi + 1
 
-hymem   #       &02
-tstart  #       &02
-brkact  #       &01
-size    #       &02
-maxsiz  #       &02
-pwtflg  #       &01
-prtflg  #       &01
-tutmod  #       &01
-modflg  #       &01
-Atemp   #       &01
-count   #       &01
-index   #       &01
-pagewi  #       &01
-pagele  #       &01
-realPA  #       &01
-scrupY  #       &01
-maxscr  #       &01
-update  #       &01
-scrnPY  #       &01
-scrnX   #       &01
-scrnY   #       &01
-lnbufx  #       &01
-cursed  #       &01
-sstckx  #       &01
-fill    *       sstckx
-replin  #       &01
-tinden  *       replin
-chunks  #       &02
-juslen  *       chunks
-spaces  *       chunks + 1
-nummar  #       &01
-L       *       nummar
-marksb  #       &01
-Q       *       markSB
-currle  #       &01
-nextre  #       &01
-nxtchr  #       &01
-lineDW  #       &01
-fieldI  #       &01
-lineot  *       fieldI
-inpind  #       &01
-ctlcha  *       inpind
-outind  #       &01
-boldrq  *       outind
-MMX     #       &01
-undrrq  *       mmx
-offset  #       &01               ; page offset
-simpch  #       &01
-pbold   *       simpch
-nextX   #       &01
-lastta  *       nextx
-line    #       &02
-doindX  *       line
-indexH  #       &01
-mulffl  #       &01
-tabcha  *       mulffl
-markX   #       &01
-TSM     #       &01
-BSM     #       &01
-scratc  #       &12
-buff    *       scratc + 10     ; (no.bffr len 15 {MMMDCCCLXXXVIII})
-texpfl  *       buff
-sensfl  *       buff + 1
-buttfl  *       buff + 2
-metafl  *       buff + 3
-replfl  *       buff + 4
-endp    *       buff + 8
-scp     *       buff + 10
-texp    *       buff + 12
-mousel  *       buff + 15       ; # 10
+        IF cf8key=1
+.clterm SKIP    &01     ; current line terminator
+        ENDIF
+        IF extgf=1      ; Extended search/replace characters
+.ctptr  SKIP    &02     ; current text pointer
+        ENDIF
 
-        [ stamp=1
-flexec  #       &04
-flload  #       &04
-        ]
+.hymem  SKIP    &02
+.tstart SKIP    &02
+.brkact SKIP    &01
+.size   SKIP    &02
+.maxsiz SKIP    &02
+.pwtflg SKIP    &01
+.prtflg SKIP    &01
+.tutmod SKIP    &01
+.modflg SKIP    &01
+.Atemp  SKIP    &01
+.count  SKIP    &01
+.index  SKIP    &01
+.pagewi SKIP    &01
+.pagele SKIP    &01
+.realPA SKIP    &01
+.scrupY SKIP    &01
+.maxscr SKIP    &01
+.update SKIP    &01
+.scrnPY SKIP    &01
+.scrnX  SKIP    &01
+.scrnY  SKIP    &01
+.lnbufx SKIP    &01
+.cursed SKIP    &01
+.sstckx SKIP    &01
+fill    =       sstckx
+.replin SKIP    &01
+tinden  =       replin
+.chunks SKIP    &02
+juslen  =       chunks
+spaces  =       chunks + 1
+.nummar SKIP    &01
+L       =       nummar
+.marksb SKIP    &01
+Q       =       markSB
+.currle SKIP    &01
+.nextre SKIP    &01
+.nxtchr SKIP    &01
+.lineDW SKIP    &01
+.fieldI SKIP    &01
+lineot  =       fieldI
+.inpind SKIP    &01
+ctlcha  =       inpind
+.outind SKIP    &01
+boldrq  =       outind
+.MMX    SKIP    &01
+undrrq  =       mmx
+.offset SKIP    &01               ; page offset
+.simpch SKIP    &01
+pbold   =       simpch
+.nextX  SKIP    &01
+lastta  =       nextx
+.line   SKIP    &02
+doindX  =       line
+.indexH SKIP    &01
+.mulffl SKIP    &01
+tabcha  =       mulffl
+.markX  SKIP    &01
+.TSM    SKIP    &01
+.BSM    SKIP    &01
+.scratc SKIP    &12
+buff    =       scratc + 10     ; (no.bffr len 15 {MMMDCCCLXXXVIII})
+texpfl  =       buff
+sensfl  =       buff + 1
+buttfl  =       buff + 2
+metafl  =       buff + 3
+replfl  =       buff + 4
+endp    =       buff + 8
+scp     =       buff + 10
+texp    =       buff + 12
+mousel  =       buff + 15       ; # 10
 
-        ASSERT  (@ < &8F)       ; otherwise too many definitions
+        IF stamp=1
+.flexec SKIP    &04
+.flload SKIP    &04
+        ENDIF
 
-        ^       &0400
-frbuff  #       &64
-grbuff  #       &64
-nambuf  #       &34
-oldsta  #       &04             ; start and end of incore text
-linbuf  #       &0100
-comman  *       linbuf
-noregs  *       comman          ; 10 number registers
-page    *       noregs          ; the page number is in 0
-lineno  *       page + 2        ; the line number is in 1
-pageeh  *       noregs + 10 * 2
-pageoh  *       pageeh + 2
-pageef  *       pageoh + 2
-pageof  *       pageef + 2      ; the header and footer pointers
-tablst  *       pageof + 2      ; list of tab positions, length 20
-maclst  *       tablst + 20     ; list of posible macro positions
-stracc  #       &0100
-maxmac  *       stracc - maclst ; Number of macro posns *2
+        ENDSECTION
 
-trnlst  *       stracc          ; table of translateable characters
+        SECTION Workspace, org = &0400, guard = &0800
 
-        [ cf8key=1
+.frbuff SKIP    &64
+.grbuff SKIP    &64
+.nambuf SKIP    &34
+.oldsta SKIP    &04             ; start and end of incore text
+.linbuf SKIP    &0100
+comman  =       linbuf
+noregs  =       comman          ; 10 number registers
+page    =       noregs          ; the page number is in 0
+lineno  =       page + 2        ; the line number is in 1
+pageeh  =       noregs + 10 * 2
+pageoh  =       pageeh + 2
+pageef  =       pageoh + 2
+pageof  =       pageef + 2      ; the header and footer pointers
+tablst  =       pageof + 2      ; list of tab positions, length 20
+maclst  =       tablst + 20     ; list of posible macro positions
+.stracc SKIP    &0100
+maxmac  =       stracc - maclst ; Number of macro posns *2
+
+trnlst  =       stracc          ; table of translateable characters
+
+        IF cf8key=1
 
         GBLS    $dhtext         ; default header text
         GBLS    $dftext         ; default footer text
@@ -256,25 +252,21 @@ trnlst  *       stracc          ; table of translateable characters
 $dhtext SETS    ".he␀.en␀"
 $dftext SETS    ".fo␀.ce␀Page .r0␀.ff.en␀"
 
-dhsize  *       :LEN: "$dhtext"
-dfsize  *       :LEN: "$dftext"
+dhsize  =       :LEN: "$dhtext"
+dfsize  =       :LEN: "$dftext"
 
-dhbuff  #       dhsize          ; Header buffer
-dfbuff  #       dfsize          ; Footer buffer
+.dhbuff SKIP    dhsize          ; Header buffer
+.dfbuff SKIP    dfsize          ; Footer buffer
 
-        ]
+        ENDIF
 
-sindex  #       &06
-ssttlo  #       &06
-sstthi  #       &06
-scntlo  #       &06
-scnthi  #       &06
-fieldm  #       &0A
-fieldo  #       &0A
-scrim   #       &20
+.sindex SKIP    &06
+.ssttlo SKIP    &06
+.sstthi SKIP    &06
+.scntlo SKIP    &06
+.scnthi SKIP    &06
+.fieldm SKIP    &0A
+.fieldo SKIP    &0A
+.scrim  SKIP    &20
 
-        ASSERT  ( @ < &07FF )
-
-        ; ------------------------------------------------------------ ;
-
-        LNK     EDIT01
+        ENDSECTION

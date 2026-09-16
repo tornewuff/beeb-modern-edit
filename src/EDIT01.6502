@@ -1,38 +1,38 @@
-        TTL     EDIT text editor        > EDIT01
+        ;       EDIT text editor        > EDIT01
 
         ; ------------------------------------------------------------ ;
 
-origin
-pasROM
+.origin
+.pasROM
         JMP     langua
-        [ reladd=0
+        IF reladd=0
         JMP     servic
-        |
+        ELSE
         JMP     ((servic - origin) + &8000)
-        ]
+        ENDIF
 
-        [ reladd=0
-        =       &C2                     ; Type flag
-        |
-        =       &E2                     ; relocation address provided
-        ]
+        IF reladd=0
+        EQUB    &C2                     ; Type flag
+        ELSE
+        EQUB    &E2                     ; relocation address provided
+        ENDIF
 
-        =       copyri - pasROM
-        =       &02
-        =       "Edit"
-        =       null
-        =       "$vers"
-copyri
-        =       null
-        =       "(C)1984 Acorn"
-        =       null
+        EQUB    copyri - pasROM
+        EQUB    &02
+        EQUB    "Edit"
+        EQUB    null
+        EQUB    "$vers"
+.copyri
+        EQUB    null
+        EQUB    "(C)1984 Acorn"
+        EQUB    null
 
-        [ reladd=1
-        &       reladr                  ; relocation value
-        &       &0000                   ; Top 2 bytes
-        ]
+        IF reladd=1
+        EQUW    reladr                  ; relocation value
+        EQUW    &0000                   ; Top 2 bytes
+        ENDIF
 
-rom1br
+.rom1br
         ;Outputs 'brk' error message, & jumps to relevant re-entry
         ;point. Detailed action depends on value of 'brkaction' on entry -
         ; brkaction = 0 Moves cursor to editor status position,
@@ -41,225 +41,225 @@ rom1br
         ; 1    Outputs error message, and jumps to starloop.
         ; 2    resets to start of file and closes indexfile, then as 0
 
-        LDXIM   &FF
+        LDX     #&FF
         TXS
         STZ     cursed
-        LDAIM   &7E
+        LDA     #&7E
         JSR     osbyte
         LDA     BRKact
-        CMPIM   &FF
+        CMP     #&FF
         BNE     simBRK
-unret
+.unret
         LDA     addr
         BNE     unreta
         DEC     addr + 1
-unretA
+.unretA
         DEC     addr
         LDA     argP
         BNE     unretb
         DEC     argP + 1
-unretB
+.unretB
         DEC     argP
-        LDAI    argP
-        STAI    addr
+        LDA     (argP)
+        STA     (addr)
         LDA     addr
         BNE     unret
         LDA     addr + 1
         CMP     string + 1
         BNE     unret
-        LDAIM   cr
-        STAI    tmax
-        LDAIM   &00
-simBRK
-        CMPIM   &01
+        LDA     #cr
+        STA     (tmax)
+        LDA     #&00
+.simBRK
+        CMP     #&01
         BNE     simBK2
         JSR     supvBR
         JMP     starCN
-simBK2
+.simBK2
         BCC     norBRK
         JSR     closeX
         JSR     stFILE
-norBRK
+.norBRK
         JSR     vstrng
-        =       &03,&0F,&EA
+        EQUB    &03,&0F,&EA
         JSR     csr0ST
 
-        [ lerror=1
+        IF lerror=1
         JSR     vstrng
-        =       &0B,&0B,&0B,"┌",&EA
-        LDXIM   "─"
-        LDAIM   59-80
+        EQUB    &0B,&0B,&0B,"┌",&EA
+        LDX     #'─'
+        LDA     #59-80
         JSR     BRKsub
-        =       "Shift f5 D for info┐│",&EA
-        LDXIM   " "
-        LDAIM   78-80
+        EQUB    "Shift f5 D for info┐│",&EA
+        LDX     #' '
+        LDA     #78-80
         JSR     BRKsub
-        =       "│└",&EA
-        LDXIM   "─"
-        LDAIM   54-80
+        EQUB    "│└",&EA
+        LDX     #'─'
+        LDA     #54-80
         JSR     BRKsub
-        =       "Press ESCAPE to continue┘",11,11,9,&EA
+        EQUB    "Press ESCAPE to continue┘",11,11,9,&EA
         JSR     BRKoy
-        |
+        ELSE
         JSR     supvBR
         JSR     curOFF
         LDA     tutmod
-        ANDIM   &07
-        CMPIM   &05
+        AND     #&07
+        CMP     #&05
         BEQ     nomess
-        LDAI    &FD
-        CMPIM   &01
+        LDA     (&FD)
+        CMP     #&01
         BNE     nomess
         JSR     vstrng
-        [ 1=0
-        =       lf,cr,"For help type: shf-f5 D",&EA
-        |
-        =       lf,cr,"Shift f5 D for info",&EA ; Slightly shorter
-        ]
-nomess
+        IF 1=0
+        EQUB    lf,cr,"For help type: shf-f5 D",&EA
+        ELSE
+        EQUB    lf,cr,"Shift f5 D for info",&EA ; Slightly shorter
+        ENDIF
+.nomess
         JSR     osnewl
         JSR     strimo
-        =       "Press ESCAPE to continue",&EA
-        ]
+        EQUB    "Press ESCAPE to continue",&EA
+        ENDIF
 
-esclop
+.esclop
         JSR     osrdch
-        CMPIM   &1B
+        CMP     #&1B
         BNE     esclop
-ESCCON
-        LDAIM   &7E
+.ESCCON
+        LDA     #&7E
         JSR     osbyte
         JSR     NORMAL
         JMP     EDITCO
-SUPVBR
+.SUPVBR
         JSR     OSNEWL
-BRKOY
-        LDYIM   &01
-BRKOLP
-        LDAIY   &FD
+.BRKOY
+        LDY     #&01
+.BRKOLP
+        LDA     (&FD),Y
         BEQ     BRKOX
         JSR     OSASCI
         INY
         BNE     BRKOLP
-BRKOX
+.BRKOX
         RTS
 
         ; ------------------------------------------------------------ ;
 
-servic  ; Recognise *help and *edit
+.servic ; Recognise *help and *edit
 
-        [ mouse = 0
-        CMPIM   &04
+        IF mouse = 0
+        CMP     #&04
         BEQ     unknow
-        CMPIM   &09
+        CMP     #&09
         BNE     servex
 
         ; *HELP response
 
-        LDAIY   &F2
-        CMPIM   cr
+        LDA     (&F2),Y
+        CMP     #cr
         BNE     helpEX  ; don't say anything unless there are no keywords
 
-        [ reladd=0
+        IF reladd=0
         PHY
-        |
+        ELSE
         TYA             ; When relocated for TUBEs then non-CMOS codes
         PHA
-        ]
+        ENDIF
 
-        LDYIM   helpen - helpin - 1
-helpLO
-        [ reladd=0
-        LDAAY   helpin          ; Must always be assembled for &8000
-        |                       ; on relocated versions
-        LDAAY   (helpin - reladr) + &8000
-        ]
+        LDY     #helpen - helpin - 1
+.helpLO
+        IF reladd=0
+        LDA     helpin,Y        ; Must always be assembled for &8000
+        ELSE                    ; on relocated versions
+        LDA     helpin - reladr + &8000,Y
+        ENDIF
         JSR     osasci
         DEY
         BPL     helpLO
 
-        [ reladd=0
+        IF reladd=0
         PLY
-        |
+        ELSE
         PLA
         TAY
-        ]
-helpEX
-        LDAIM   &09
-servex
+        ENDIF
+.helpEX
+        LDA     #&09
+.servex
         RTS
-helpin
-        = cr,"5 TIDE",cr
-helpen
+.helpin
+        EQUB    cr,"5 TIDE",cr
+.helpen
 
-unknow
+.unknow
         ; Recognise *edit as command to enter language.
 
-        [ reladd=0
+        IF reladd=0
         PHY
         PHX
-        |
+        ELSE
         TYA
         PHA
         TXA
         PHA
-        ]
+        ENDIF
 
-        LDXIM   &03
-ucomLO
-        LDAIY   &F2
-        CMPIM   "."
+        LDX     #&03
+.ucomLO
+        LDA     (&F2),Y
+        CMP     #'.'
         BEQ     ucommi
-        ANDIM   &DF
-        [ reladd=0
-        CMPAX   helpen - 5      ; Must always be assembled at &8000
-        |                       ; on relocated versions
-        CMPAX   (helpen - reladr - 5) + &8000
-        ]
+        AND     #&DF
+        IF reladd=0
+        CMP     helpen - 5,X    ; Must always be assembled at &8000
+        ELSE                    ; on relocated versions
+        CMP     helpen - reladr - 5 + &8000,X
+        ENDIF
         BNE     ucomEX
         INY
         DEX
         BPL     ucomLO
-        LDAIY   &F2
-        CMPIM   space + 1
+        LDA     (&F2),Y
+        CMP     #space + 1
         BCC     ucommi
-ucomEX
-        [ reladd=0
+.ucomEX
+        IF reladd=0
         PLX
         PLY
-        |
+        ELSE
         PLA
         TAX
         PLA
         TAY
-        ]
-        LDAIM   &04
+        ENDIF
+        LDA     #&04
         RTS
-ucommi
+.ucommi
         ; Command recognised - enter self as a language.
-        [ reladd=0
-        LDAIM   &8E
+        IF reladd=0
+        LDA     #&8E
         PLX
-        |
+        ELSE
         PLA
         TAX
-        LDAIM   &8E
-        ]
+        LDA     #&8E
+        ENDIF
         JMP     OSBYTE
-        ]
+        ENDIF
         ; ------------------------------------------------------------ ;
 
-langua                          ; Language entry point
+.langua                         ; Language entry point
         CLI
         CLD
-        LDXIM   &FF
+        LDX     #&FF
         TXS
-        LDAIM   ROM1br
+        LDA     #<ROM1br
         STA     BRKv
-        LDAIM   :MSB: ROM1BR
+        LDA     #>ROM1BR
         STA     BRKv + 1
         CLR     oldsta + 3
-        LDAIM   &F2
+        LDA     #&F2
         STA     scratc
         CLR     scratc + 1
         JSR     readby
@@ -267,228 +267,228 @@ langua                          ; Language entry point
         JSR     readnx
         STA     scratc + 1
         STX     scratc
-        LDXIM   20
-EDITol
+        LDX     #20
+.EDITol
         DEX
         BEQ     EDIToz
 
         JSR     readby
         JSR     readne
-        CMPIM   cr
+        CMP     #cr
         BEQ     EDIToz
 
-        CMPIM   " "
+        CMP     #' '
         BNE     EDITol
-        LDXIM   &00
-EDITgb
+        LDX     #&00
+.EDITgb
         JSR     readby
         JSR     readne
-        STAAX   &01A0
+        STA     &01A0,X
         INX
-        CPXIM   "@"
+        CPX     #'@'
         BNE     EDITGB
-        LDAIM   cr
-        STAAX   &01A0 - 1
+        LDA     #cr
+        STA     &01A0 - 1,X
         STA     nambuf
-        LDYIM   &00
+        LDY     #&00
         JSR     readhx
         BCC     EDITon
-        CMPIM   ","
+        CMP     #','
         BNE     EDITon
-        LDAZX   &00
+        LDA     &00,X
         STA     oldsta
-        LDAZX   &01
+        LDA     &01,X
         STA     oldsta + 1
         INY
         JSR     readHX
         BCC     EDITon
-        CMPIM   cr
+        CMP     #cr
         BNE     EDITon
-        LDAZX   &00
+        LDA     &00,X
         STA     oldsta + 2
-        LDAZX   &01
+        LDA     &01,X
         STA     oldsta + 3
         STZ     cursed
         BRA     EDIToy
-EDITon
-        LDXIM   &FF
-EDITn1
+.EDITon
+        LDX     #&FF
+.EDITn1
         INX
-        LDAAX   &01A0
-        CMPIM   " "
+        LDA     &01A0,X
+        CMP     #' '
         BEQ     EDITn1
-        CMPIM   cr
+        CMP     #cr
         BEQ     EDIToz
-EDITn2
-        LDAAX   &01A0
-        CMPIM   cr
+.EDITn2
+        LDA     &01A0,X
+        CMP     #cr
         BEQ     EDITn3
-        CMPIM   " "
+        CMP     #' '
         BCC     EDIToz
-        CMPIM   delete
+        CMP     #delete
         BCS     EDIToz
 
-EDITn3
-        STAAX   nambuf
+.EDITn3
+        STA     nambuf,X
         INX
-        CMPIM   cr
+        CMP     #cr
         BNE     EDITn2
-        LDAIM   &01
+        LDA     #&01
         STA     cursed
         BRA     EDIToy
 
-EDIToz
-        LDXIM   &FF
+.EDIToz
+        LDX     #&FF
         STX     cursed
-        LDAIM   cr
+        LDA     #cr
         STA     nambuf
 
-        [ cf8key=1
-        LDAZ    clterm          ; current line terminator
-        |
-        [ termin<>cr
-        LDAIM   termin
-        ]
-        ]
+        IF cf8key=1
+        LDA     clterm          ; current line terminator
+        ELSE
+        IF termin<>cr
+        LDA     #termin
+        ENDIF
+        ENDIF
 
-        CMPI    paje
+        CMP     (paje)
         BNE     EDIToy
-        CMPI    tmax
+        CMP     (tmax)
         BNE     EDIToy
         JSR     memsta
 
-EDIToy
-        LDAIM   161             ; read CMOS RAM into 'tutmod'
-        LDXIM   &08             ; our byte
-        LDYIM   &10             ; ???
+.EDIToy
+        LDA     #161            ; read CMOS RAM into 'tutmod'
+        LDX     #&08            ; our byte
+        LDY     #&10            ; ???
         JSR     osbyte
         STY     tutmod          ; returns &00 on the BBC OS 1.2
 
-        [ mouse=1
+        IF mouse=1
         JSR     mouser
-        ]
+        ENDIF
 
-        LDAIM   cr
+        LDA     #cr
         STA     frbuff
         STA     grbuff
-        [ cf8key=1
-        STAZ    clterm          ; initialise 'clterm' here
-        ]
+        IF cf8key=1
+        STA     clterm          ; initialise 'clterm' here
+        ENDIF
         STZ     indexH
         STZ     modflg
         JSR     vstrng          ; define characters
 
-        =       3
-        =       23,"─",&00,&00,&00,&FF,&00,&00,&00,&00
-        =       23,"│",&18,&18,&18,&18,&18,&18,&18,&18
+        EQUB    3
+        EQUB    23,"─",&00,&00,&00,&FF,&00,&00,&00,&00
+        EQUB    23,"│",&18,&18,&18,&18,&18,&18,&18,&18
 
-        [ dchars=1      ; Character definitions for descriptive MODE
-        =       23,"┌",&00,&00,&00,&07,&0C,&18,&18,&18
-        =       23,"┐",&00,&00,&00,&E0,&30,&18,&18,&18
-        =       23,"└",&18,&18,&0C,&07,&00,&00,&00,&00
-        =       23,"┘",&18,&18,&30,&E0,&00,&00,&00,&00
-        =       23,"©",&7E,&C3,&9D,&B1,&9D,&C3,&7E,&00
-        =       23,"⯇",&00,&18,&38,&7F,&38,&18,&00,&00
-        =       23,"⯈",&00,&18,&1C,&FE,&1C,&18,&00,&00
-        =       23,"⭣",&18,&18,&18,&18,&7E,&3C,&18,&00
-        =       23,"⭡",&00,&18,&3C,&7E,&18,&18,&18,&18
-        =       23,"╶",&00,&00,&00,&1F,&00,&00,&00,&00
-        =       23,"╴",&00,&00,&00,&F8,&00,&00,&00,&00
-        =       23,"┬",&00,&00,&00,&FF,&18,&18,&18,&18
-        =       23,"├",&18,&18,&18,&1F,&18,&18,&18,&18
-        =       23,"┤",&18,&18,&18,&F8,&18,&18,&18,&18
-        =       23,"┴",&18,&18,&18,&FF,&00,&00,&00,&00
-        =       23,"┼",&18,&18,&18,&FF,&18,&18,&18,&18
-        ]
-        [ lfarro=1
-nlfarr  *       &FE
-        =       23,nlfarr,&00,&18,&38,&7F,&38,&18,&00,&00
-        ]
+        IF dchars=1      ; Character definitions for descriptive MODE
+        EQUB    23,"┌",&00,&00,&00,&07,&0C,&18,&18,&18
+        EQUB    23,"┐",&00,&00,&00,&E0,&30,&18,&18,&18
+        EQUB    23,"└",&18,&18,&0C,&07,&00,&00,&00,&00
+        EQUB    23,"┘",&18,&18,&30,&E0,&00,&00,&00,&00
+        EQUB    23,"©",&7E,&C3,&9D,&B1,&9D,&C3,&7E,&00
+        EQUB    23,"⯇",&00,&18,&38,&7F,&38,&18,&00,&00
+        EQUB    23,"⯈",&00,&18,&1C,&FE,&1C,&18,&00,&00
+        EQUB    23,"⭣",&18,&18,&18,&18,&7E,&3C,&18,&00
+        EQUB    23,"⭡",&00,&18,&3C,&7E,&18,&18,&18,&18
+        EQUB    23,"╶",&00,&00,&00,&1F,&00,&00,&00,&00
+        EQUB    23,"╴",&00,&00,&00,&F8,&00,&00,&00,&00
+        EQUB    23,"┬",&00,&00,&00,&FF,&18,&18,&18,&18
+        EQUB    23,"├",&18,&18,&18,&1F,&18,&18,&18,&18
+        EQUB    23,"┤",&18,&18,&18,&F8,&18,&18,&18,&18
+        EQUB    23,"┴",&18,&18,&18,&FF,&00,&00,&00,&00
+        EQUB    23,"┼",&18,&18,&18,&FF,&18,&18,&18,&18
+        ENDIF
+        IF lfarro=1
+nlfarr  =       &FE
+        EQUB    23,nlfarr,&00,&18,&38,&7F,&38,&18,&00,&00
+        ENDIF
 
-        =       &EA
+        EQUB    &EA
 
         LDA     cursed
         BEQ     zippo
         DEA
         BEQ     zappo
         JMP     EDIT    ; and away we go...
-zippo
+.zippo
         JSR     EDITmd
 
-        [ stamp=1
+        IF stamp=1
         JSR      NSTAMP
-        ]
+        ENDIF
 
         JMP     oldtex
 
-zappo
+.zappo
         STZ     BRKact
         JSR     EDITmd
         JSR     EDITi2
-        LDYIM   &00
-        LDAIM   nambuf
+        LDY     #&00
+        LDA     #<nambuf
         STA     temp
-        LDAIM   :MSB: nambuf
+        LDA     #>nambuf
         STA     temp + 1
         JSR     tload
         JMP     EDITgt
 
-XYscra
+.XYscra
         ; Load XY with address of scratch.
-        LDXIM   :LSB: scratc
-        LDYIM   :MSB: scratc
+        LDX     #<scratc
+        LDY     #>scratc
         RTS
 
-readne
+.readne
         INC     scratc
-        BNE     . + 4
+        BNE     * + 4
         INC     scratc + 1
         RTS
 
-readhx
-        LDXIM   0
+.readhx
+        LDX     #0
         STZ     scratc + 5
-tsthex
-        LDAAY   &01A0
-        CMPIM   "0"
+.tsthex
+        LDA     &01A0,Y
+        CMP     #'0'
         BCC     hexend
-        CMPIM   "9" + 1
+        CMP     #'9' + 1
         BCC     OKhex
-        SBCIM   &37
-        CMPIM   10
+        SBC     #&37
+        CMP     #10
         BCC     hexend
-        CMPIM   16
+        CMP     #16
         BCS     hexend
-OKhex
+.OKhex
         ASL     scratc + 5
         ASL     scratc + 5
         ASL     scratc + 5
         ASL     scratc + 5
-        ANDIM   &0F
+        AND     #&0F
         TSB     scratc + 5
         INY
         INX
         BRA     tsthex
-hexend
-        CPXIM   &01             ; CC status for not found
+.hexend
+        CPX     #&01            ; CC status for not found
         LDX     scratc + 5
         RTS
 
-readnx
+.readnx
         JSR     readne
 
-readby
+.readby
         PHX
         PHY
         JSR     XYscra
-        LDAIM   5
+        LDA     #5
         JSR     osword
         PLY
         PLX
         LDA     scratc + 4
         RTS
 
-paslnm
+.paslnm
         SEC
         SBC     addr
         STA     maxsiz
@@ -496,34 +496,34 @@ paslnm
         SBC     addr + 1
         STA     maxsiz + 1
 
-filena
+.filena
         ; Entry - IY temp points to input name. Exit - scratch -> filename.
-        LDAIY   temp
-        CMPIM   cr
+        LDA     (temp),Y
+        CMP     #cr
         BEQ     textna
-        CMPIM   &8B
+        CMP     #&8B
         BEQ     oldnam
-        LDXIM   &00
+        LDX     #&00
 
-memnam
-        LDAIY   temp
-        STAAX   nambuf
+.memnam
+        LDA     (temp),Y
+        STA     nambuf,X
         INY
         INX
-        CPXIM   52
+        CPX     #52
         BNE     memnam
 
-oldnam
+.oldnam
         LDA     nambuf
-        CMPIM   cr
+        CMP     #cr
         BEQ     nonam
-        LDAIM   nambuf
+        LDA     #<nambuf
         STA     scratc
-        LDAIM   :MSB: nambuf
+        LDA     #>nambuf
         STA     scratc + 1
         RTS
 
-textna
+.textna
         LDX     GE
         LDY     GE + 1
         PHX
@@ -531,86 +531,86 @@ textna
         LDX     tstart
         LDY     tstart + 1
         JSR     GPBKXY
-        LDYIM   &00
+        LDY     #&00
 
-MVIC
-        LDAIY   GE
-        STAAY   stracc
+.MVIC
+        LDA     (GE),Y
+        STA     stracc,Y
         INY
         BNE     MVIC
         PLY
         PLX
         JSR     GPFDXY
-        LDYIM   &FF
-namsrc
+        LDY     #&FF
+.namsrc
         INY
         BMI     nonam
-        LDAAY   STRACC
+        LDA     STRACC,Y
 
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
 
         BEQ     nonam
-        CMPIM   ">"
+        CMP     #'>'
         BNE     namsrc
         INY
         STY     scratc
-namsr3
-        LDAAY   stracc
+.namsr3
+        LDA     stracc,Y
 
-        [ cf8key=1
-        CMPZ    clterm
-        |
-        CMPIM   termin
-        ]
+        IF cf8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
 
         BEQ     namfnd
         INY
         BPL     namsr3
-nonam
+.nonam
         TYA
         BEQ     namsrc
         BRK
-        =       &01,"No name found",null
+        EQUB    &01,"No name found",null
 
-namfnd
+.namfnd
 
-        [ cf8key=1
-        LDAIM   cr
-        STAAY   stracc
-        |
-        [ termin<>cr
-        LDAIM   cr
-        STAAY   STRACC
-        ]
-        ]
+        IF cf8key=1
+        LDA     #cr
+        STA     stracc,Y
+        ELSE
+        IF termin<>cr
+        LDA     #cr
+        STA     STRACC,Y
+        ENDIF
+        ENDIF
 
-        LDAIM   :MSB: stracc
+        LDA     #>stracc
         STA     scratc + 1
         RTS
 
-writna
+.writna
         JSR     startI
-        LDYIM   &FF
-wrispc
+        LDY     #&FF
+.wrispc
         INY
-        LDAIY   scratc
-        CMPIM   " "
+        LDA     (scratc),Y
+        CMP     #' '
         BEQ     wrispc
-wrilop
-        LDAIY   scratc
-        CMPIM   " " + 1
+.wrilop
+        LDA     (scratc),Y
+        CMP     #' ' + 1
         BCC     wriex
         JSR     oswrch
         INY
         BRA     wrilop
-wriex
+.wriex
         JMP     stopin
 
-tload
+.tload
         LDA     tstart
         STA     addr
         LDA     tstart + 1
@@ -618,41 +618,41 @@ tload
         LDA     tmax
         LDX     tmax + 1
 
-        [ STAMP=1
+        IF STAMP=1
         JSR     pasloa
         PHX
         PHY
-        LDXIM   flload
-        LDYIM   &02
+        LDX     #flload
+        LDY     #&02
         JSR     frscra
-        LDXIM   flexec
+        LDX     #flexec
         JSR     frscra
         PLY
         PLX
         RTS
-        ]
+        ENDIF
 
-pasloa
+.pasloa
         ; Entry - IY temp -> name, addr = load address, AX = max free address
         ; Exit - File checked for size (not on slow FS's)
         ; File loaded to addr, with XY = top of file
         JSR     paslnm
         JSR     prompt
-        =       "Loading ",&EA
+        EQUB    "Loading ",&EA
         JSR     writna
 
-pasGO
-        LDYIM   &00
+.pasGO
+        LDY     #&00
         TYA
         JSR     osargs
-        CMPIM   &04
+        CMP     #&04
         BCC     nosize
         ; Using a random access filing system,
         ; so can quickly check size of file.
-        LDAIM   &05
+        LDA     #&05
         JSR     XYscra
         JSR     osfile
-        CMPIM   &01
+        CMP     #&01
         BNE     nosize          ; Let FS generate 'Directory/not found' error.
         LDA     scratc + &0C
         ORA     scratc + &0D
@@ -663,7 +663,7 @@ pasGO
         SBC     scratc + &0B
         BCC     paslhu
 
-nosize
+.nosize
         ; Load file to addr, & set XY --> top of loaded file.
         LDA     addr
         STA     scratc + 2
@@ -672,7 +672,7 @@ nosize
         CLR     scratc + 4
         CLR     scratc + 5
         CLR     scratc + 6
-        LDAIM   &FF
+        LDA     #&FF
         JSR     XYscra
         JSR     osfile
         CLR     oldsta + 3      ; make old impossible
@@ -685,11 +685,11 @@ nosize
         TAY
         RTS
 
-paslhu
+.paslhu
         BRK
-        =       &02,"File too big",null
+        EQUB    &02,"File too big",null
 
-tSAVE
+.tSAVE
         ; Save (defaulting) marked block of text.
         ; Entry - (temp),Y points to input name.
         ; GE = Start of block
@@ -697,29 +697,29 @@ tSAVE
         ; Exit - specified memory saved as filename.
         JSR     filena
 
-inSAVE
+.inSAVE
         JSR     prompt
-        =       "Saving to ",&EA
+        EQUB    "Saving to ",&EA
         JSR     writna
-        LDXIM   &0F
-pasacl
-        STZAX   scratc + 2
+        LDX     #&0F
+.pasacl
+        STZ     scratc + 2,X
         DEX
         BPL     pasacl
 
-        [ STAMP=1
+        IF STAMP=1
         JSR     dstamp
-        LDXIM   flload
-        LDYIM   &02
+        LDX     #flload
+        LDY     #&02
         JSR     toscra
-        LDXIM   flexec
+        LDX     #flexec
         JSR     toscra
-        LDXIM   GE
+        LDX     #GE
         JSR     toscr2
-        LDYIM   &0E
-        LDXIM   endp
+        LDY     #&0E
+        LDX     #endp
         JSR     toscr2
-        |
+        ELSE
         DEC     scratc + 6
         DEC     scratc + 7
         DEC     scratc + 8
@@ -732,66 +732,66 @@ pasacl
         STA     scratc + &0E
         LDA     endp + 1
         STA     scratc + &0F
-        ]
+        ENDIF
 
-        LDAIM   &00
+        LDA     #&00
         JSR     XYscra
         JMP     osfile
 
-        [ STAMP=1
-toscra
+        IF STAMP=1
+.toscra
         JSR     toscr2
-toscr2
+.toscr2
         JSR     toscr1
-toscr1
-        LDAZX   &00
-        STAAY   scratc
+.toscr1
+        LDA     &00,X
+        STA     scratc,Y
         INX
         INY
         RTS
 
-frscra
+.frscra
         JSR     frscr2
-frscr2
+.frscr2
         JSR     frscr1
-frscr1
-        LDAAY   scratc
-        STAZX   &00
+.frscr1
+        LDA     scratc,Y
+        STA     &00,X
         INX
         INY
-dstmpX
+.dstmpX
         RTS
 
-nstamp
-        LDXIM   &07
-        LDAIM   &00
-nstmp1
-        STAAX   flexec
-        CPXIM   &04
+.nstamp
+        LDX     #&07
+        LDA     #&00
+.nstmp1
+        STA     flexec,X
+        CPX     #&04
         BNE     nstmp2
-        LDAIM   &FF
-nstmp2
+        LDA     #&FF
+.nstmp2
         DEX
         BPL     nstmp1
         RTS
-mstamp
-        LDAIM   &FF
+.mstamp
+        LDA     #&FF
         STA     flload + 1
         STA     flload + 2
         STA     flload + 3
-dstamp
+.dstamp
         LDA     flload + 1
         AND     flload + 2
         AND     flload + 3
         INA
         BNE     dstmpX
-        LDXIM   flexec
-        LDYIM   &00
-        LDAIM   &01
+        LDX     #flexec
+        LDY     #&00
+        LDA     #&01
         JMP     osword
-        ]
+        ENDIF
 
-readns
+.readns
         ; Reads line to commandline (linbuf), & strips leading &
         ; trailing spaces.
         ; Exit - temp --> 1st non-space char on line
@@ -802,104 +802,104 @@ readns
         JSR     readLS
         TYA
         BEQ     renSCR
-renSST
-        LDAAY   comman - 1
-        CMPIM   space
+.renSST
+        LDA     comman - 1,Y
+        CMP     #space
         BNE     renSCR
         DEY
         BNE     renSST
-renSCR
-        LDAIM   cr
-        STAAY   comman
-        LDYIM   &FF
-renSIG
+.renSCR
+        LDA     #cr
+        STA     comman,Y
+        LDY     #&FF
+.renSIG
         INY
-        LDAAY   comman
-        CMPIM   space
+        LDA     comman,Y
+        CMP     #space
         BEQ     renSIG
         CLC
-readIM
+.readIM
         TYA
-        ADCIM   :LSB: comman
+        ADC     #<comman
         STA     temp
-        LDAIM   &00
-        ADCIM   :MSB: comman
+        LDA     #&00
+        ADC     #>comman
         STA     temp + 1
-        LDYIM   &00
-        LDAI    temp
-        CMPIM   cr
-escCLR
+        LDY     #&00
+        LDA     (temp)
+        CMP     #cr
+.escCLR
         RTS
 
-readIN
-        LDYIM   &00
+.readIN
+        LDY     #&00
         BRA     readIM
 
-readLS
-        LDAIM   " "
+.readLS
+        LDA     #' '
         JSR     oswrch
 
         ; Read line into linbuf/commandline, testing for escape.
         ; Exit - Y = No. of chars read (excluding CR).
 
-        LDAIM   thelot
+        LDA     #thelot
         STA     update
         JSR     rdlnre
         BCC     escCLR
-escSET
+.escSET
         JSR     VSTRNG
-        =       &03,&0F,&0D,&EA
+        EQUB    &03,&0F,&0D,&EA
         LDA     BRKact
-        CMPIM   &02
+        CMP     #&02
         BNE     escSIM
         JSR     closeX
         JSR     stFILE
-escSIM
+.escSIM
         STZ     cursed
         JMP     escCON
-escTST
+.escTST
         BIT     &FF
         BMI     escSET
         RTS
 
-RDLNRE
-        LDYIM   0
-RDLNLP
+.RDLNRE
+        LDY     #0
+.RDLNLP
         JSR     OSRDCH
         BCS     RDLNEX
-        STAAY   LINBUF
-        CMPIM   &7F
+        STA     LINBUF,Y
+        CMP     #&7F
         BNE     RDLN2
-        CPYIM   0
+        CPY     #0
         BEQ     RDLNLP
         DEY
         JSR     OSWRCH
         BRA     RDLNLP
-RDLN2
-        CMPIM   &15
+.RDLN2
+        CMP     #&15
         BNE     RDLN3
-RDLNDL
+.RDLNDL
         TYA
         BEQ     RDLNLP
-        LDAIM   &7F
+        LDA     #&7F
         JSR     OSWRCH
         DEY
         BRA     RDLNDL
-RDLN3
+.RDLN3
         INY
-        CMPIM   CR
+        CMP     #CR
         BEQ     RDLNEG
         JSR     PASWRCH
         BRA     RDLNLP
-RDLNEG
+.RDLNEG
         PHY
         JSR     CUROFF
         PLY
         DEY
         CLC
-RDLNEX
+.RDLNEX
         RTS
-COPYBK
+.COPYBK
         ; Copy block backwards (i.e. to lower address).
         ; Entry - ARGP --> block of size XY
         ; VARP --> destination address
@@ -910,7 +910,7 @@ COPYBK
         BEQ     BKEXIT
         LDX     SIZE + 1
         SEC
-        LDAIM   0
+        LDA     #0
         SBC     SIZE
         TAY
         BEQ     BKLOOP
@@ -922,27 +922,27 @@ COPYBK
         BCS     CPNHI1
         DEC     ARGP + 1
         SEC
-CPNHI1
+.CPNHI1
         LDA     VARP
         SBC     TEMP
         STA     VARP
         BCS     CPNHI2
         DEC     VARP + 1
-CPNHI2
+.CPNHI2
         INX
-BKLOOP
-        LDAIY   ARGP
-        STAIY   VARP
+.BKLOOP
+        LDA     (ARGP),Y
+        STA     (VARP),Y
         INY
         BNE     BKLOOP
         INC     ARGP + 1
         INC     VARP + 1
         DEX
         BNE     BKLOOP
-BKEXIT
+.BKEXIT
         RTS
 
-memsta
+.memsta
         LDA     tstart + 1
         JSR     chkptr
         LDA     GS + 1
@@ -963,9 +963,9 @@ memsta
         LDA     GS + 1
         STA     OLDSTA + 3
         CLC
-CHKPTX
+.CHKPTX
         RTS
-CHKPTR
+.CHKPTR
         CMP     HYMEM + 1
         BCS     CHKPTX
         CMP     PAJE + 1
@@ -974,69 +974,69 @@ CHKPTR
         PLA
         RTS
 
-        [ lerror=1
-BRKSUB
+        IF lerror=1
+.BRKSUB
         SEC
         ADC     PAGEWI
         TAY
         TXA
-BRKSB1
+.BRKSB1
         JSR     OSWRCH
         DEY
         BNE     BRKSB1
-        ]
+        ENDIF
 
-VSTRNG
+.VSTRNG
         PLA
         STA     STRING
         PLA
         STA     STRING + 1
         JSR     VSTRLP
-        JMI     STRING
-VSTRLM
+        JMP     (STRING)
+.VSTRLM
         JSR     OSWRCH
-VSTRLP
+.VSTRLP
         INC     STRING
         BNE     STRINOT
         INC     STRING + 1
-STRINO
-        LDAI    STRING          ; enter here for normal string
-        CMPIM   &EA
+.STRINO
+        LDA     (STRING)        ; enter here for normal string
+        CMP     #&EA
         BNE     VSTRLM
         RTS
-CRTOGG
-        LDAIM   &20
+.CRTOGG
+        LDA     #&20
         EOR     TUTMOD
-DOMODE
+.DOMODE
         STA     TUTMOD
         PHX
         PHY
         TAY
-        LDAIM   162
-        LDXIM   8
+        LDA     #162
+        LDX     #8
         JSR     OSBYTE
         PLY
         PLX
         RTS
-TESTIF
-        LDAIM   &10
+.TESTIF
+        LDA     #&10
         BIT     TUTMOD
         RTS
-        [ MOUSE=1
-MOUSER
+        IF MOUSE=1
+.MOUSER
         LDA     MOUSEL
         STA     MOUSEL + 5
-        LDAIM   &92
-        LDXIM   MOUSWI
+        LDA     #&92
+        LDX     #MOUSWI
         JSR     OSBYTE
         STY     MOUSEL
-        LDXIM   MOUXLO
+        LDX     #MOUXLO
         JSR     OSBYTE
         PHY
         INX
         JSR     OSBYTE
         PLA
-        ANDIM   &F8
+        AND     #&F8
         PHA
         SBC     MOUSEL + 1
         STA     MOUSEL + 6
@@ -1046,14 +1046,14 @@ MOUSER
         STY     MOUSEL + 2
         PLA
         STA     MOUSEL + 1
-        LDAIM   &92
+        LDA     #&92
         INX
         JSR     OSBYTE
         PHY
         INX
         JSR     OSBYTE
         PLA
-        ANDIM   &F8
+        AND     #&F8
         PHA
         SBC     MOUSEL + 3
         STA     MOUSEL + 8
@@ -1064,8 +1064,4 @@ MOUSER
         PLY
         STY     MOUSEL + 3
         RTS
-        ]
-
-        LNK     EDIT02
-
-        END
+        ENDIF
