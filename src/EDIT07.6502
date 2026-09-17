@@ -24,24 +24,24 @@
 
 .FRSTRINIT
         ; Exit  -  Y = 0
-        CLR     OUTINDEX
-        CLR     REPLFLAG
-        CLR     FIELDINDEX
-        CLR     MMX
-        CLR     OFFSET
+        CLR     outindex
+        CLR     replflag
+        CLR     fieldindex
+        CLR     mmx
+        CLR     offset
         CLR     SENSFLAG
 .MININIT
-        CLR     INPINDEX
+        CLR     inpindex
         BRA     NEXTCH
 .GENNEXTCH
         JSR     GENBYTE
 .NEXTCH
-        ; A,atemp = linbuf,inpindex +  + . Exit - Z = (A = CR)
-        LDY     INPINDEX
-        LDA     LINBUF,Y
-        STA     ATEMP
-        INC     INPINDEX
-        CMP     #CR
+        ; A,Atemp = linbuf,inpindex +  + . Exit - Z = (A = CR)
+        LDY     inpindex
+        LDA     linbuf,Y
+        STA     Atemp
+        INC     inpindex
+        CMP     #cr
         RTS
         ; Translate & store FR string into stracc.
         ; Exit  - Find part translated into stracc, replindex holds start of
@@ -58,10 +58,10 @@
         JSR     FRSTRINIT
 .FINDPART
         CLR     MULFFLAG ; Don't yet know whether next object is either a
-        CLR     METAFLAG ; star or wildcard field.
+        CLR     metaflag ; star or wildcard field.
         CLR     BUTTFLAG ; or ^
-        LDA     ATEMP
-        CMP     #CR
+        LDA     Atemp
+        CMP     #cr
         BEQ     FIPAEXIT
         CMP     #'/'
         BEQ     FIPAEND
@@ -74,41 +74,41 @@
         BNE     FIPANMUL
 .FIPAMUL
         INC     MULFFLAG
-        LDX     #MULTSYM
+        LDX     #multsym
         JSR     GENNEXTCH
 .FIPANMUL
         CMP     #'~'
         BNE     FIPANNOT
-        LDX     #NOTSYM
+        LDX     #notsym
         JSR     GENNEXTCH
 .FIPANNOT
         CMP     #'['
         BNE     FIPASIMP
         INC     SENSFLAG
-        LDX     #SETSYM
+        LDX     #setsym
         JSR     GENBYTE
         JSR     GENBYTE ; Leave room for nextX, and remember position.
-        STY     NEXTX
+        STY     nextX
         JSR     NEXTCH
 .FIPASELT
         JSR     SIMPLEITEM
-        LDA     ATEMP
+        LDA     Atemp
         CMP     #']'
         BNE     FIPASELT
         DEC     SENSFLAG
-        LDA     OUTINDEX ; End of set construct. Store nextX
-        LDY     NEXTX
-        STA     STRACC,Y
+        LDA     outindex ; End of set construct. Store nextX
+        LDY     nextX
+        STA     stracc,Y
         JSR     NEXTCH
         BRA     FIFIFEEL
 .FIPAEND
-        INC     REPLFLAG
+        INC     replflag
 .FIPAEXIT
         JSR     TERMGEN
         JSR     NEXTCH
-        LDA     OUTINDEX
-        STA     REPLINDEX
-        LDA     REPLFLAG
+        LDA     outindex
+        STA     replindex
+        LDA     replflag
         BNE     REPLPART
         RTS
 .FIPASIMP
@@ -121,43 +121,43 @@
         LDX     #BUTTSYM
         JSR     GENBYTE
 .FIFICO
-        LDA     METAFLAG
+        LDA     metaflag
         BEQ     FIFIOFFI ; No meta-chars => not a field
-        LDX     FIELDINDEX
+        LDX     fieldindex
         CPX     #10
         BCS     FINDPART ; That's enough fields.
-        INC     FIELDINDEX
-        LDA     OFFSET
-        STA     FIELDOFFTAB,X
+        INC     fieldindex
+        LDA     offset
+        STA     fieldofftab,X
         LDA     MULFFLAG
         BNE     FIFIMULF
-        LDA     MMX
-        STA     FIELDMMXTAB,X
+        LDA     mmx
+        STA     fieldmmxtab,X
 .FIFIOFFI
-        INC     OFFSET
+        INC     offset
 .FINDPCH
         JMP     FINDPART
 .FIFIMULF
-        INC     MMX
-        LDA     MMX
+        INC     mmx
+        LDA     mmx
         CMP     #5
         BCS     FRSTERR
         ORA     #&80
-        STA     FIELDMMXTAB,X
-        CLR     OFFSET
+        STA     fieldmmxtab,X
+        CLR     offset
         BRA     FINDPCH
 .FRSTERR
         BRK
         EQUB    1,"Too many find multiples",0
 .REPANXCH
         JSR     NEXTCH
-.REPAGENB
+.REPAGENBYTE
         JSR     GENBYTE
 .REPLPART
         LDA     #&FF
         STA     SENSFLAG
-        LDA     ATEMP ; Translate replace part of FR string.
-        CMP     #CR
+        LDA     Atemp ; Translate replace part of FR string.
+        CMP     #cr
         BEQ     TERMGEN
         LDX     #FOUNDSYM
         CMP     #'&'
@@ -176,7 +176,7 @@
         SEC
         SBC     #'0'
         BCC     FIELDERR
-        CMP     FIELDINDEX
+        CMP     fieldindex
         BCS     FIELDERR
         TAX
         BPL     REPANXCH
@@ -185,19 +185,19 @@
         STX     SIMPCHAR
         TXA
         BPL     REPAGENBYTE
-        LDX     #ESCSYM
+        LDX     #escsym
         JSR     GENBYTE
         LDX     SIMPCHAR
-        BRA     REPAGENB
+        BRA     REPAGENBYTE
 .FIELDERR
         BRK
         EQUB    1,"Bad replace field number",0
 .TERMGEN
-        LDX     #TERMSYM; Generate termsym.
+        LDX     #termsym; Generate termsym.
 .GENBYTE
         ; stracc,outindex +  +  = X
         ; Exit - metaflag set (incremented) if meta-character (field) generated.
-        LDY     OUTINDEX
+        LDY     outindex
         LDA     SENSFLAG
         BNE     GENBSNS
         CPX     #'A'
@@ -213,27 +213,27 @@
         ORA     #&20
         TAX
         LDA     #NSENSYM
-        STA     STRACC,Y
+        STA     stracc,Y
         INY
-        INC     OUTINDEX
+        INC     outindex
         BEQ     GENBERR
 .GENBSNS
         TXA
-        STA     STRACC,Y
+        STA     stracc,Y
         BPL     GENBNMET
-        INC     METAFLAG
+        INC     metaflag
 .GENBNMET
-        INC     OUTINDEX
+        INC     outindex
         BEQ     GENBERR
         RTS
 .GENBERR
         BRK
         EQUB    1,"Syntax incorrect",0
 .SIMPLEITEM
-        LDA     ATEMP
+        LDA     Atemp
         CMP     #'~'
         BNE     SIITNNOT
-        LDX     #NOTSYM
+        LDX     #notsym
         JSR     GENBYTE
         JSR     NEXTCH
         BNE     SIITNNOT
@@ -260,7 +260,7 @@
         LDX     #ALPHASYM
         CMP     #'@'
         BEQ     SIITWILD
-        LDX     #DIGSYM
+        LDX     #digsym
         CMP     #'#'
         BNE     SIITNWIL
 .SIITWILD
@@ -269,7 +269,7 @@
 .SIITNWIL
         JSR     CHARACTERSPECIFIER
         STX     SIMPCHAR
-        LDA     ATEMP
+        LDA     Atemp
         CMP     #'-'
         BNE     SIITCGEN
         INC     SENSFLAG
@@ -286,15 +286,15 @@
         ; Output character as escsym ch if >= &80
         TXA
         BPL     GENBYJ
-        LDX     #ESCSYM
+        LDX     #escsym
         JSR     GENBYTE
         LDX     SIMPCHAR
 .GENBYJ
         JMP     GENBYTE
 .CHARACTERSPECIFIER
         ; Exit  -  X = Character
-        CLR     COUNT ; Add 128 count
-        LDA     ATEMP
+        CLR     count ; Add 128 count
+        LDA     Atemp
         BMI     CHSPBY
         CMP     #'|'
         BNE     CHRSCO
@@ -302,7 +302,7 @@
         BEQ     CHRSER
         CMP     #'!'
         BNE     CHRSSO
-        INC     COUNT
+        INC     count
         JSR     NEXTCH
 .CHRSCO
         CMP     #'$'
@@ -322,7 +322,7 @@
         SBC     #'@'
         BRA     CHSPBY
 .CHSPCR
-        IF cf8key=1
+        IF cF8key=1
         LDA     clterm
         ELSE
         LDA     #termin
@@ -331,7 +331,7 @@
         PHA
         JSR     NEXTCH
         PLA
-        LDY     COUNT
+        LDY     count
         BEQ     CHRSEX
         ORA     #&80
 .CHRSEX
@@ -361,70 +361,70 @@
         ;        Search-string in stracc, terminated by termch.
         ; Exit  - CC  Occurence of findstring found.
         ;            MS  --> match
-        ;            ME  --> matchend  +  1
+        ;            me  --> matchend  +  1
         ;        CS  Search failed.
 .SEARCH
         LDY     #0
-        CLR     SSTCKX
-        ; Start of attempted match. See if have reached TEXP - either old
+        CLR     sstckx
+        ; Start of attempted match. See if have reached texp - either old
         ; cursor position, or end of search block.
         LDA     MS
-        STA     ME
-        CMP     TEXP
+        STA     me
+        CMP     texp
         LDA     MS + 1
-        STA     ME + 1
-        SBC     TEXP + 1
+        STA     me + 1
+        SBC     texp + 1
         BCC     SRCHCT
         LDA     TEXPFLAG
         BNE     SRCHFL
         JSR     MOVETOFOUNDPOSITION
         LDA     GS
-        STA     STRING
+        STA     string
         LDA     GS + 1
-        STA     STRING + 1
+        STA     string + 1
         INC     TEXPFLAG
-        LDA     ENDP
-        STA     TEXP
-        LDA     ENDP + 1
-        STA     TEXP + 1
+        LDA     endp
+        STA     texp
+        LDA     endp + 1
+        STA     texp + 1
         LDY     #0
         BRA     SRCHCT
 .SRCHFL
         SEC
         RTS
 .SRCHL1
-        INC     ME
+        INC     me
         BNE     SRCHCT
-        INC     ME + 1
+        INC     me + 1
 .SRCHCT
-        ; Expects Y (= linbufX), ME --> next char valid.
-        JSR     ESCTST
-        LDA     STRACC,Y
-        CMP     #TERMSYM
+        ; Expects Y (= linbufX), me --> next char valid.
+        JSR     escTST
+        LDA     stracc,Y
+        CMP     #termsym
         BEQ     SRCHFD
-        CMP     #MULTSYM
+        CMP     #multsym
         BEQ     SRCHMI
-        JSR     COMPMOBJ
+        JSR     compmobj
         BEQ     SRCHL1
 .SRCHIN
         ; Increment current multiple match, or advance MS if there
         ; isn't one. Search fails when MS reaches EOT.
-        LDX     SSTCKX
+        LDX     sstckx
         BNE     SRCHFM
         INC     MS
         BNE     SEARCH
         INC     MS + 1
         BRA     SEARCH
 .SRCHFD
-        LDA     MS ; Match found. Set sstk[0] = MS, (ME-MS).
+        LDA     MS ; Match found. Set sstk[0] = MS, (me-MS).
         STA     SSTTLOSTK
         LDA     MS + 1
         STA     SSTTHISTK
         SEC
-        LDA     ME
+        LDA     me
         SBC     MS
         STA     SCNTLOSTK
-        LDA     ME + 1
+        LDA     me + 1
         SBC     MS + 1
         STA     SCNTHISTK
         CLC
@@ -436,15 +436,15 @@
         CLC
         LDA     SSTTLOSTK,X
         ADC     SCNTLOSTK,X
-        STA     ME
+        STA     me
         LDA     SSTTHISTK,X
         ADC     SCNTHISTK,X
-        STA     ME + 1
+        STA     me + 1
         LDA     SINDEXSTK,X
         TAY
-        JSR     COMPMOBJ
+        JSR     compmobj
         BNE     SRCHBK
-        LDX     SSTCKX
+        LDX     sstckx
         INC     SCNTLOSTK,X
         BNE     SRCHL1
         INC     SCNTHISTK,X
@@ -453,32 +453,32 @@
         ; Can't increment this multiple-match, so backtrack to the previous one.
         ; unless its hit a ^ with count>0 in which case it continues
         LDX     BUTTFLAG
-        LDA     STRACC-1,X
+        LDA     stracc-1,X
         CMP     #BUTTSYM
         BNE     SRCHBC
         INY
-        LDX     SSTCKX
+        LDX     sstckx
         LDA     SCNTLOSTK,X
         ORA     SCNTHISTK,X
         BNE     SRCHCT
 .SRCHBC
-        DEC     SSTCKX
+        DEC     sstckx
         BRA     SRCHIN
 .SRCHMI
         ; 'Push' a new record onto backtrack-stack. Initially accept
         ; 0 characters into multiple match.
-        INC     SSTCKX
-        LDX     SSTCKX
+        INC     sstckx
+        LDX     sstckx
         INY
         TYA
         STA     SINDEXSTK,X
-        LDA     ME
+        LDA     me
         STA     SSTTLOSTK,X
-        LDA     ME + 1
+        LDA     me + 1
         STA     SSTTHISTK,X
         CLR     SCNTLOSTK,X
         CLR     SCNTHISTK,X
-        JSR     COMPMOBJ ; Cheap way to advance Y to next find-object.
+        JSR     compmobj ; Cheap way to advance Y to next find-object.
         JMP     SRCHCT
 .COMOFS
         PLP
@@ -486,31 +486,31 @@
         ; Have hit end of search text, so fail match.
         LDA     #1
         RTS
-.COMPMOBJ
-        ; Compares stracc,Y & (ME).
+.compmobj
+        ; Compares stracc,Y & (me).
         ; Exit  - Y indexes next ssobj
         ;        EQ  Objects match.
         ;        NE  Objects don't match.
         ; Match fails if have hit end of seach text.
-        LDA     ME
-        CMP     ENDP
+        LDA     me
+        CMP     endp
         BNE     COMOCO
-        LDA     ME + 1
-        CMP     ENDP + 1
+        LDA     me + 1
+        CMP     endp + 1
         BEQ     COMOFL
 .COMOCO
         ; Check for & store absence/presence of notsym, then branch depending
         ; whether trying to match constant, wildcard, subrange or set item.
-        LDA     STRACC,Y
-        CMP     #NOTSYM
+        LDA     stracc,Y
+        CMP     #notsym
         PHP
         BNE     COMONN
         INY
 .COMONN
         INY
-        LDA     STRACC-1,Y
+        LDA     stracc-1,Y
         BMI     COMOME
-        CMP     (ME)
+        CMP     (me)
         BNE     CMOPRN
         BRA     CMOPRY
 .COMOME
@@ -522,39 +522,39 @@
         BEQ     COMOAL
         CMP     #BUTTSYM
         BEQ     COMOFS
-        CMP     #DIGSYM
+        CMP     #digsym
         BEQ     CMODG1
         CMP     #SUBRSYM
         BEQ     CMOSUB
-        CMP     #SETSYM
+        CMP     #setsym
         BEQ     CMOSET
         ;
         ; Must be escsym ch
         ;
         INY
-        LDA     STRACC-1,Y
-        CMP     (ME)
+        LDA     stracc-1,Y
+        CMP     (me)
         BNE     CMOPRN
         BEQ     CMOPRY
 .CMOSUB
         INY
         INY
-        LDA     (ME)
-        CMP     STRACC-2,Y
+        LDA     (me)
+        CMP     stracc-2,Y
         BCC     CMOPRN
-        CMP     STRACC-1,Y
+        CMP     stracc-1,Y
         BCC     CMOPRY
         BNE     CMOPRN
         BRA     CMOPRY
 .CMONSEN
         INY
-        LDA     (ME)
+        LDA     (me)
         ORA     #&20
-        CMP     STRACC-1,Y
+        CMP     stracc-1,Y
         BNE     CMOPRN
         BRA     CMOPRY
 .COMOAL
-        LDA     (ME)
+        LDA     (me)
         CMP     #'_'
         BEQ     CMOPRY
         CMP     #'A'
@@ -567,7 +567,7 @@
         BCC     CMOPRN
         BRA     CMOPRY
 .CMODG1
-        LDA     (ME)
+        LDA     (me)
 .CMODG2
         CMP     #'0'
         BCC     CMOPRN
@@ -575,84 +575,84 @@
         BCS     CMOPRN
         BRA     CMOPRY
 .CMOSET
-        LDA     STRACC,Y
-        STA     NEXTX
+        LDA     stracc,Y
+        STA     nextX
         INY
 .CMOSEL
-        JSR     COMPMOBJ
+        JSR     compmobj
         BEQ     CMOSEY
-        CPY     NEXTX
+        CPY     nextX
         BNE     CMOSEL
 .CMOPRN
         PLP
         RTS
 .CMOSEY
-        LDY     NEXTX
+        LDY     nextX
 .CMOPRY
         PLA
         AND     #2
         RTS
-.CHKNREP
+.chknrep
         ; Check for size, then replace found string with replace string.
         ; Entry - Match just found; s*****stk[0] set up for %0 ('&')
         ;        replindex = start index of replace part in stracc
         ; Exit  - Found string replaced.
         JSR     MOVETOFOUNDPOSITION
         LDA     #1
-        STA     MODFLG
-        LDA     ME
+        STA     modflg
+        LDA     me
         STA     GE
-        LDA     ME + 1
+        LDA     me + 1
         STA     GE + 1
-        LDA     REPLINDEX
-        STA     LNBUFX
+        LDA     replindex
+        STA     lnbufx
 .CHNRLP
         LDA     GS
         CMP     MS
         LDA     GS + 1
         SBC     MS + 1
         BCS     CHNRRERR
-        LDY     LNBUFX
-        INC     LNBUFX
-        LDA     STRACC,Y
+        LDY     lnbufx
+        INC     lnbufx
+        LDA     stracc,Y
         BPL     CHNRSI
-        CMP     #TERMSYM
+        CMP     #termsym
         BEQ     CHNREX
         CMP     #FIELDSYM
         BEQ     CHNRFI
         CMP     #FOUNDSYM
         BEQ     CHNRFO
         ; Must be escsym ch
-        INC     LNBUFX
-        LDA     STRACC + 1,Y
+        INC     lnbufx
+        LDA     stracc + 1,Y
         BRA     CHNRSI
 .CHNRFO
         ; '&' has been frigged to look like MM 0
         LDY     #0
         BRA     CHNRAM
 .CHNRFI
-        INC     LNBUFX
-        LDA     STRACC + 1,Y
+        INC     lnbufx
+        LDA     stracc + 1,Y
         TAX
-        LDA     FIELDMMXTAB,X
+        LDA     fieldmmxtab,X
         BMI     CHNRMF
         TAY
         BEQ     CHNRMS
         CLC
         LDA     SSTTLOSTK,Y
         ADC     SCNTLOSTK,Y
-        STA     TEMP
+        STA     temp
         LDA     SSTTHISTK,Y
         ADC     SCNTHISTK,Y
         BNE     CHNRTM
 .CHNRMS
         LDA     MS
-        STA     TEMP
+        STA     temp
         LDA     MS + 1
 .CHNRTM
-        STA     TEMP + 1
-        LDY     FIELDOFFTAB,X
-        LDA     (TEMP),Y
+        STA     temp + 1
+        LDY     fieldofftab,X
+        LDA     (temp),Y
 .CHNRSI
         STA     (GS)
         INC     GS
@@ -667,13 +667,13 @@
         TAY
 .CHNRAM
         LDA     SSTTLOSTK,Y
-        STA     ARGP
+        STA     argP
         LDA     SSTTHISTK,Y
-        STA     ARGP + 1
+        STA     argP + 1
         LDA     GS
-        STA     VARP
+        STA     varp
         LDA     GS + 1
-        STA     VARP + 1
+        STA     varp + 1
         CLC
         LDA     SCNTLOSTK,Y
         TAX

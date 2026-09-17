@@ -5,32 +5,32 @@
         ;         scrnY forced if necessary
         ;         update possibly aborted by incoming char.
         ;         currlength valid
-.SCRNUD
+.scrnud
         JSR     LENGTHCALC
-        STA     CURRLENGTH
+        STA     currlength
         TAY
         BEQ     SCRNU0
         CMP     PAGEWIDTH
         BNE     SCRNU1
 .SCRNU0
-        LDA     UPDATE
+        LDA     UPDATEREQD
         CMP     #CSRTOCR
         BNE     SCRNU1
-        INC     UPDATE
+        INC     UPDATEREQD
         ; Update marks set, if any, to locate them for superimposition.
 .SCRNU1
         JSR     MARKUPDATE
-        JSR     CUROFF
+        JSR     curOFF
         ; If screen messier than would be fixed up by intended update,
         ; then do something about it.
-        LDA     SCRNPY
-        CMP     UPDATE
+        LDA     scrnPY
+        CMP     UPDATEREQD
         BCC     SCUDCO
         STA     UPDATEREQD
 .SCUDCO
-        CLR     SCRNPY
+        CLR     scrnPY
         LDA     UPDATEREQD
-        CMP     #THELOT
+        CMP     #thelot
         BNE     SCUDTI
         JSR     CLEARSCREEN
         ; If fullscreen update is required, then find internal start
@@ -38,14 +38,14 @@
 .SCUDTI
         LDA     UPDATEREQD
         BEQ     SCUDEX ; 'none'
-        CMP     #FULLSCREEN
+        CMP     #fullscreen
         BCC     SCUDBO
 .SCUDFS
-        LDA     SCRNY
+        LDA     scrnY
         JSR     TPGSBK
-        STA     SCRNY
+        STA     scrnY
         DEA
-        STA     MAXSCRUPY
+        STA     maxscrupY
         BMI     SCUDBO
         LDA     #0
         LDX     TP
@@ -55,72 +55,72 @@
 .SCUDBO
         ; Output bottom half of screen, branching for hardscrolls.
         LDX     UPDATEREQD
-        CPX     #HARDUP
+        CPX     #hardup
         BEQ     SCUDHU
         CPX     #HARDDOWN
         BEQ     SCUDHD
-        LDY     PAGELENGTH
-        STY     MAXSCRUPY
+        LDY     pagelength
+        STY     maxscrupY
         ; Set up A,X,Y for bottom half update.
-        LDA     SCRNY
+        LDA     scrnY
         LDX     GE
         LDY     GE+1
         JSR     UPDTLN
         BCC     SCUDEX
 .SCUDAB
         ; Record the fact that screen isn't totally up-to-date.
-        LDA     #CSRONW
+        LDA     #csronwards
         CMP     UPDATEREQD
         BCS     SCUDAS
-        LDA     #FULLSCREEN
+        LDA     #fullscreen
 .SCUDAS
-        STA     SCRNPY
+        STA     scrnPY
 .SCUDEX
         CLR     UPDATEREQD
         RTS
 .SCUDHU
         ; Push against bottom to scroll up.
         JSR     CSR0STATUSY
-        LDA     #DOWN
-        JSR     OSWRCH
+        LDA     #down
+        JSR     oswrch
         ; Scroll scrim up.
         LDX     #&FF
 .SCHULP
         INX
-        LDA     SCRIM+1,X
-        STA     SCRIM,X
-        CPX     PAGELENGTH
+        LDA     scrim+1,X
+        STA     scrim,X
+        CPX     pagelength
         BNE     SCHULP
-        CLR     SCRIM+1,X
-        JSR     STATUS
-        LDA     PAGELENGTH
+        CLR     scrim+1,X
+        JSR     status
+        LDA     pagelength
         BRA     SCHUDC
 .SCUDHD
         ; Rewrite status, then push against top to scroll down.
-        JSR     VSTRNG
-        EQUB    HOME,UP,&EA
+        JSR     vstrng
+        EQUB    home,up,&EA
         ; Scroll scrim down.
-        LDY     PAGELENGTH
+        LDY     pagelength
 .SCHDLP
-        LDA     SCRIM,Y
-        STA     SCRIM+1,Y
+        LDA     scrim,Y
+        STA     scrim+1,Y
         DEY
         BPL     SCHDLP
-        CLR     SCRIM
-        JSR     STATUS
+        CLR     scrim
+        JSR     status
         LDA     #0
 .SCHUDC
-        STA     MAXSCRUPY
-        LDX     SCP
-        LDY     SCP+1
+        STA     maxscrupY
+        LDX     scp
+        LDY     scp+1
         BNE     UPDTLN
         TAY
-.WIPELINE
+.wipeline
         ; Clear a line, assigning new scrim value. Y is line to clear.
         PHY
         JSR     CSR0Y
         LDA     #' '
-        JSR     OSWRCH
+        JSR     oswrch
         LDA     #0
         PLY
 .WIPETAIL
@@ -130,38 +130,38 @@
         ; Exit  - Tail of line wiped.
         ;        scrim updated
         ;        A,Y preserved.
-        STA     ATEMP
-        LDA     SCRIM,Y
-        CMP     ATEMP
+        STA     Atemp
+        LDA     scrim,Y
+        CMP     Atemp
         BCC     WTSCRM
         BEQ     WTSCRM
         LDA     #28
-        JSR     OSWRCH
-        LDA     ATEMP
+        JSR     oswrch
+        LDA     Atemp
         INA
-        JSR     OSWRCH
+        JSR     oswrch
         PHX
-        LDA     TUTMODE
+        LDA     tutmode
         AND     #7
         TAX
         TYA
         CLC
-        ADC     VERTTB,X
+        ADC     verttb,X
         PLX
         PHA
-        JSR     OSWRCH
-        LDA     SCRIM,Y
-        JSR     OSWRCH
+        JSR     oswrch
+        LDA     scrim,Y
+        JSR     oswrch
         PLA
-        JSR     OSWRCH
+        JSR     oswrch
         LDA     #12
-        JSR     OSWRCH
+        JSR     oswrch
         PHY
         JSR     DECWIN
         PLY
 .WTSCRM
-        LDA     ATEMP
-        STA     SCRIM,Y
+        LDA     Atemp
+        STA     scrim,Y
         RTS
 .UPDTLN
         ; Entry - A = Y-coord of 1st line to be output.
@@ -173,7 +173,7 @@
         ;        loop clearing lines until scrupY = pagelength.
         ;        CC - Normal termination
         ;        CS - Update aborted due to incoming character.
-        STA     SCRUPY
+        STA     scrupY
         STX     TP
         STY     TP+1
         LDX     #0
@@ -181,16 +181,16 @@
         CMP     #CSRTOCR
         BEQ     UPDLC0
         ; If updatereqd = csronwards then start screen update from char under cursor.
-        CMP     #CSRONWARDS
+        CMP     #csronwards
         BNE     UPDLCO
 .UPDLC0
-        LDX     SCRNX
-        CPX     CURRLENGTH
+        LDX     scrnX
+        CPX     currlength
         BCC     UPDLCO
-        LDX     CURRLENGTH
+        LDX     currlength
 .UPDLCO
         PHX
-        LDY     SCRUPY
+        LDY     scrupY
         JSR     CSRXY
         PLY
         DEY
@@ -198,7 +198,7 @@
         INY
 .UPDLL2
         LDA     (TP),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
@@ -211,86 +211,86 @@
 .UPDLCR
         JSR     PASWCR
 .UPDLEN
-        STY     COUNT ; Max csrX on this line.
+        STY     count ; Max csrX on this line.
         ; Superimpose marks, if any, onto this line.
-        LDY     MARKX
+        LDY     markX
 .MOUTLP
         DEY
         BMI     MOUTEX
-        STY     INDEX
+        STY     index
         ; If 0 <= (Mark - TP) <= count, then this is csrX within line.
         SEC
-        LDA     UMATLO,Y
+        LDA     UMATlo,Y
         SBC     TP
         TAX
-        LDA     UMATHI,Y
+        LDA     umathi,Y
         SBC     TP+1
         BCC     MOUTLP
         BNE     MOUTLP
-        CPX     COUNT
+        CPX     count
         BEQ     MOUTMO
         BCS     MOUTLP
 .MOUTMO
-        LDY     SCRUPY
+        LDY     scrupY
         JSR     CSRXY
-        LDA     INDEX
+        LDA     index
         CLC
         ADC     #'1'
         JSR     INVWRCH
-        LDX     COUNT
+        LDX     count
         INX
         JSR     CSRXY
-        LDY     INDEX
+        LDY     index
         BRA     MOUTLP
 .MOUTEX
         ; Update TP, and see if have hit end of file.
-        LDA     COUNT
-        LDY     SCRUPY
+        LDA     count
+        LDY     scrupY
         JSR     WIPETAIL
         JSR     TPPAP1 ; A = count
         BCS     UPDLNE
-        LDA     UPDATE
+        LDA     UPDATEREQD
         CMP     #CSRTOCR
         BEQ     UPDLFI
-        LDY     SCRUPY
-        CPY     MAXSCRUPY
+        LDY     scrupY
+        CPY     maxscrupY
         BCS     UPDLFI
         ; Test if any characters/commands are being queued in buffer.
-        LDA     UPDATER
-        CMP     #THELOT
+        LDA     UPDATEREQD
+        CMP     #thelot
         BEQ     QUEUEX
         LDA     NEXTREADFLAG
         BNE     QUEUCS
         LDA     #&81
         LDX     #0
         LDY     #0
-        JSR     OSBYTE
+        JSR     osbyte
         CPY     #&FF
         BEQ     QUEUEX
-        JSR     ESCTST
+        JSR     escTST
         INC     NEXTREADFLAG
-        STX     NXTCHR
+        STX     nxtchr
 .QUEUCS
         SEC
         RTS
 .QUEUEX
-        INC     SCRUPY
+        INC     scrupY
         LDX     #0
         JMP     UPDLCO
         ; Overwrite sentinal EOT TERMIN with EOT character.
 .UPDLNE
-        LDX     COUNT
-        LDY     SCRUPY
+        LDX     count
+        LDY     scrupY
         JSR     CSRXY
         LDA     #'*'
         JSR     INVWRCH
         BRA     UDLET1
 .UDLEOT
-        LDY     SCRUPY
-        JSR     WIPELINE
+        LDY     scrupY
+        JSR     wipeline
 .UDLET1
-        INC     SCRUPY
-        CPY     PAGELENGTH
+        INC     scrupY
+        CPY     pagelength
         BCC     UDLEOT
 .UPDLFI
         CLC
@@ -301,17 +301,17 @@
         ;        ctrl ch     --> inverted or chr(255) depending on mode
         ;        delete      --> inv ?
         ;        other chars --> echoed
-        CMP     #SPACE
+        CMP     #space
         BCC     PASWNC
-        CMP     #DELETE
+        CMP     #delete
         BNE     PASWOS
         LDA     #'?'
         BRA     INVWRCH
 .PASWOS
-        JMP     OSWRCH
+        JMP     oswrch
 .PASWCR
         LDA     #&20
-        BIT     TUTMODE
+        BIT     tutmode
         BEQ     PASWOS
         IF lfarro=1
         LDA     #nlfarr
@@ -326,7 +326,7 @@
         ; Entry - A = character
         ;        mode IN [0..7]
         PHA
-        LDA     TUTMODE
+        LDA     tutmode
         AND     #7
         CMP     #7
         BNE     INVWN7
@@ -336,178 +336,178 @@
 .INVWN7
         JSR     STARTINV
         PLA
-        JSR     OSWRCH
+        JSR     oswrch
 .STOPINV
         LDA     #17
-        JSR     OSWRCH
+        JSR     oswrch
         LDA     #128
-        JSR     OSWRCH
+        JSR     oswrch
         LDA     #17
-        JSR     OSWRCH
+        JSR     oswrch
         LDA     #7
-        JMP     OSWRCH
+        JMP     oswrch
 .STARTINV
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    17,135,17,0,&EA
         RTS
-.CURLT
+.curLT
         JSR     STARTTEST
         BCC     CLCONT
-        LDA     SCRNX
+        LDA     scrnX
         BEQ     CSREXI
 .CLCONT
-        DEC     SCRNX
+        DEC     scrnX
         BPL     CSREXI
         LDA     PAGEWIDTH
-        STA     SCRNX
+        STA     scrnX
         ; C set if at start of text
-.CURUP
+.curUP
         JSR     STARTTEST
         BCS     CSREXI
         LDA     #1
         JSR     MVLNBK
         LDA     TSM
-        CMP     SCRNY
+        CMP     scrnY
         BCS     CUUPSC
 .CUUPNS
-        DEC     SCRNY
+        DEC     scrnY
         BPL     CSREXI
 .CUUPSC
-        LDA     SCRNY ; In Top Scroll Margin. If more than Top Scroll Margin Width
+        LDA     scrnY ; In Top Scroll Margin. If more than Top Scroll Margin Width
         JSR     TPGSBK ; from top of file, then assign Scroll Pointer, else move cursor up.
-        CMP     SCRNY
+        CMP     scrnY
         CLC
         BNE     CUUPNS
         LDA     TP
-        STA     SCP
+        STA     scp
         LDA     TP+1
-        STA     SCP+1
+        STA     scp+1
         LDA     #HARDDOWN
         STA     UPDATEREQD
         RTS
 .WORDRT
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     EASYRT
-        JSR     CURDWN
+        JSR     curDWN
         BCS     WORDXX
-        JSR     SCRNUD
-.CURST
-        CLR     SCRNX
+        JSR     scrnud
+.curst
+        CLR     scrnX
         BRA     CSREXI
 .WORDXX
         PLA
         PLA
         RTS
 .EASYRT
-        JSR     CURRT
-        JSR     SCRNUD
+        JSR     curRT
+        JSR     scrnud
         BRA     CSREXI
 .WORDLT
-        LDA     SCRNX
-        BNE     CURLT
-        JSR     CURUP
+        LDA     scrnX
+        BNE     curLT
+        JSR     curUP
         BCS     WORDXX
-        JSR     SCRNUD
-.CUREND
-        LDA     CURRLENGTH
-        STA     SCRNX
+        JSR     scrnud
+.curend
+        LDA     currlength
+        STA     scrnX
 .CSREXI
         CLR     UPDATEREQD
         RTS
-.CURRT
-        LDA     SCRNX
+.curRT
+        LDA     scrnX
         CMP     PAGEWIDTH
         BEQ     CURRCO
-        INC     SCRNX
+        INC     scrnX
         BRA     CSREXI
 .CURRCO
         JSR     ENDTEST
         BCS     CSREXI
-        CLR     SCRNX
+        CLR     scrnX
         ; C set if at text end
-.CURDWN
+.curDWN
         JSR     ENDTEST
         BCS     CSREXI
         LDA     #1
         JSR     MVLNFD
-        LDA     SCRNY
+        LDA     scrnY
         CMP     BSM
         BCS     CUDOSC
-        INC     SCRNY
+        INC     scrnY
         BRA     CSREXI
 .CUDOSC
         ; In Bottom Scroll Margin.
         ; If more than (Pagelength-Bottom Scroll Margin)
-        ; from bottom of file, then assign Scroll Pointer, else set SCP+1 to
+        ; from bottom of file, then assign Scroll Pointer, else set scp+1 to
         ; 0 to indicate wipeline required.
 
-        STZ     SCP+1         ; Initialize SCP+1 to 0 implies
+        STZ     scp+1         ; Initialize scp+1 to 0 implies
                               ; blank line required for scroll.
         SEC
-        LDA     PAGELENGTH
+        LDA     pagelength
         SBC     BSM
         JSR     TPGEFD
-        LDA     COUNT
+        LDA     count
         BNE     CUDOWS
         LDA     TP
-        STA     SCP
+        STA     scp
         LDA     TP+1
-        STA     SCP+1
+        STA     scp+1
 .CUDOWS
-        LDA     #HARDUP
-        STA     UPDATE
+        LDA     #hardup
+        STA     UPDATEREQD
         CLC
 .WORDRX
         RTS
 .WORDRIGHT
-        LDA     CURRLE
-        CMP     SCRNX
+        LDA     currlength
+        CMP     scrnX
         BCS     WORDR3
-        STA     SCRNX
+        STA     scrnX
         BRA     WORDR3
 .WORDR1
         JSR     WORDRT
 .WORDR3
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        JSR     WORDC
+        JSR     wordc
         BCC     WORDR1
 .WORDR2
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        JSR     WORDC
+        JSR     wordc
         BCC     WORDRX
         JSR     WORDRT
         BRA     WORDR2
 .WORDL1
         JSR     WORDLT
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        JSR     WORDC
+        JSR     wordc
         BCC     WORDL1
 .WORDL2
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        JSR     WORDC
-        BCC     CURRT
+        JSR     wordc
+        BCC     curRT
         JSR     WORDLT
         BRA     WORDL2
 .WORDLEFT
-        LDA     CURRLE
-        CMP     SCRNX
+        LDA     currlength
+        CMP     scrnX
         BCS     WORDL1
-        STA     SCRNX
+        STA     scrnX
 .WORDCX
         SEC
         RTS
         ; C set if not wordc
-.WORDC
+.wordc
         CMP     #'0'
         BCC     WORDCX
         CMP     #'9' + 1
@@ -520,76 +520,76 @@
         RTS
 
 .EDITi2
-        LDX     TSTART
-        LDY     TSTART + 1
+        LDX     tstart
+        LDY     tstart + 1
 
 .EDITtd
         STX     GS
         STY     GS + 1
-        LDA     TMAX
+        LDA     tmax
         STA     GE
-        LDA     TMAX + 1
+        LDA     tmax + 1
         STA     GE + 1
 .EDITxx
-        STZ     CURSED
-        STZ     NEXTRE
-        STZ     MARKX
-        IF cf8key=1
+        STZ     cursED
+        STZ     NEXTREADFLAG
+        STZ     markX
+        IF cF8key=1
         LDA     clterm
         ELSE
         LDA     #termin
         ENDIF
-        STA     (PAJE)
-        STA     (TMAX)
-.STFILE
+        STA     (paje)
+        STA     (tmax)
+.stFILE
         LDX     tstart
         LDY     tstart + 1
         JSR     GPBKXY
-        CLR     SCRNX   ; CLR scrnY will be forced by scrnud
+        CLR     scrnX   ; CLR scrnY will be forced by scrnud
 .STFILX
         RTS
 
-.CUREDF
+.curedf
         LDA     BSM     ; Try to glue bottom of file to BSM.
-        STA     SCRNY
-        LDX     TMAX
-        LDY     TMAX + 1
-        JSR     GPFDXY
-        JMP     NORMAX
+        STA     scrnY
+        LDX     tmax
+        LDY     tmax + 1
+        JSR     gpfdXY
+        JMP     normax
 
 .IOtogg                 ; Insert/Over toggle
-        LDA     tutMOD
+        LDA     tutmode
         EOR     #bit4   ; the correct bit
         JSR     doMODE
         JMP     CstatU
 
-.CHKSCR
+.chkscr
         LDA     #&87    ; select mode if tutmode and screen mode NOT the same
-        JSR     OSBYTE
-        LDA     TUTMOD
+        JSR     osbyte
+        LDA     tutmode
         AND     #&07
         TAX
-        LDA     MODETB,X
-        STY     STRING
-        EOR     STRING
+        LDA     MODEtb,X
+        STY     string
+        EOR     string
         AND     #&07
         BEQ     STFILX  ; same ok
-.SELSCR
+.selscr
         LDA     #22     ; select the right screen mode
-        JSR     OSWRCH
-        LDA     TUTMODE
+        JSR     oswrch
+        LDA     tutmode
         AND     #&07
         TAY
-        LDA     MODETB,Y
+        LDA     MODEtb,Y
         ORA     #&80    ; select any shadow around
-        JMP     OSWRCH
+        JMP     oswrch
 
 
-.EDITMD                 ; Set up 'EDIT'
+.EDITmd                 ; Set up 'EDIT'
         JSR     selscr
 .EDITMA
         LDA     #&83
-        JSR     osbyte          ; Read PAJE
+        JSR     osbyte          ; Read paje
         STX     paje
         STY     paje + 1
         LDA     #&84
@@ -612,7 +612,7 @@
         SBC     #0
         STA     tmax + 1
         JSR     intpag          ; initialise pagelength and width
-        LDA     pagele
+        LDA     pagelength
         SEC
         SBC     #4
         STA     BSM
@@ -635,11 +635,11 @@
 .scmclr
         ; Clear Scroll Margins.
         CLR     TSM
-        LDA     pagele
+        LDA     pagelength
         STA     BSM
 
 .noupda
-        STZ     update
+        STZ     UPDATEREQD
         RTS
 
 .newtex                         ; Clear text
@@ -650,7 +650,7 @@
         TAX
         LDY     #&03
         JSR     osbyte
-        JSR     esctst
+        JSR     escTST
         TYA
         BEQ     doneW1
 .newtn
@@ -664,22 +664,22 @@
         BNE     doneW2
         JSR     mstamp
 .doneW2
-        JSR     memsta
-        JMP     editin
+        JSR     MEMSTATE
+        JMP     EDITin
         ELSE
         EQUB    "Text will be cleared if a key is hit",&EA
         LDA     #&81
         TAX
         LDY     #3
         JSR     osbyte
-        JSR     esctst
+        JSR     escTST
         CPY     #0
         BEQ     donew
 .newtn
         JMP     status
 .donew
-        JSR     memsta
-        JMP     editin
+        JSR     MEMSTATE
+        JMP     EDITin
         ENDIF
 
 .LOADfi
@@ -689,23 +689,23 @@
         JSR     lsf
         ENDIF
 
-        LDA     MODFLG
+        LDA     modflg
         BEQ     LOADF2
-        JSR     PROMPT
+        JSR     prompt
         EQUB    "Overwrite text [Y,f2]:",&EA
-        JSR     OSRDCH
+        JSR     osrdch
         CMP     #128+2
         BEQ     LOADF2
         AND     #&DF
         CMP     #'Y'
-        BNE     NEWTN
+        BNE     newtn
 .LOADF2
-        JSR     PROMPT
+        JSR     prompt
         EQUB    "Type filename to load:",&EA
-        JSR     READNS
+        JSR     readns
         LDY     #0
-        JSR     TLOAD
-        JMP     EDITGT
+        JSR     Tload
+        JMP     EDITgt
 
 .SAVEfi                         ; Save file
         IF curtyp=1
@@ -722,7 +722,7 @@
         JSR     readns
         JSR     dfblok
         LDY     #&00
-        JSR     tsave
+        JSR     tSAVE
 
         STZ     modflg
 
@@ -738,7 +738,7 @@
         JSR     dfblok
         LDY     #&00
         LDA     (temp)
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
@@ -747,9 +747,9 @@
         CMP     #&8B
         BEQ     msbad
         LDA     temp
-        STA     scratc
+        STA     scratch
         LDA     temp + 1
-        STA     scratc + 1
+        STA     scratch + 1
         JSR     inSAVE
         LDX     texp
         LDY     texp + 1
@@ -764,8 +764,8 @@
         JSR     lsf
         ENDIF
 
-        JSR     mkrefu
-        JSR     finepo
+        JSR     MKREFUSE
+        JSR     FINEPOSITIONGAP
         JSR     promtF
         EQUB    "to insert:",&EA
         JSR     readns
@@ -780,14 +780,14 @@
         STX     GS
         STY     GS+1
         JSR     MODIFY
-        LDX     ADDR ; Move to start of inserted file.
-        LDY     ADDR+1
+        LDX     addr ; Move to start of inserted file.
+        LDY     addr+1
         JSR     GPBKXY
-        JMP     NORMAL
+        JMP     NORMALIZE
 
-.edSTAR                         ; OSCLI processing
+.EDstar                         ; oscli processing
         LDA     #&01
-        STA     BRKact
+        STA     brkaction
         JSR     initus
         JSR     prompt
         EQUB    "Command line",&EA
@@ -795,9 +795,9 @@
         IF curtyp = 1
         JSR     lsf             ; slow line flash
         ENDIF
-.starcn
+.starCN
         JSR     osnewl
-.starlo
+.starloop
         LDA     #'*'
         JSR     oswrch
         LDA     #&00
@@ -805,15 +805,15 @@
         LDX     #<starCB
         JSR     osword
         BCS     stares
-        LDA     comman
+        LDA     commandline
         CMP     #cr
         BEQ     starex
-        LDX     #<comman
-        LDY     #>comman
+        LDX     #<commandline
+        LDY     #>commandline
         JSR     oscli
-        BRA     starlo
+        BRA     starloop
 .starCB
-        EQUW    comman
+        EQUW    commandline
         EQUB    238
         EQUB    " "
         EQUB    &FF
@@ -825,15 +825,15 @@
         EQUB    0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
         JSR     chkscr
         JSR     inited
-        JMP     editco
+        JMP     EDITcont
 
 .allowC
         ; Allow cursor editing & softkey use. Terminated by CR.
         LDA     #&01
         STA     cursED
 
-        IF PHIL=0
-        JSR     INITUS
+        IF phil=0
+        JSR     initus
         ENDIF
 
         JMP     CstatU
@@ -843,26 +843,26 @@
         EQUB    1,"Only 0,1,3,4,6,7,D or K"     ; followed by 0
 
 .verttb
-        EQUB    0,0,7,0,0,14,0                  ; plus another 0 in modetb
+        EQUB    0,0,7,0,0,14,0                  ; plus another 0 in MODEtb
 
 .MODEtb
         EQUB    0,1,0,3,4,0,6,7                 ; and the screen modes
 
-.GETMOD
-        JSR     PROMPT
+.getmod
+        JSR     prompt
         EQUB    "New Mode:",&EA
-        JSR     OSRDCH
-        JSR     OSWRCH
-        JSR     ESCTST
+        JSR     osrdch
+        JSR     oswrch
+        JSR     escTST
         CMP     #'7' + 1
         BCS     SETKEY
         SBC     #'0' - 1
-        BCC     BADMOD
+        BCC     BADMODE
         CMP     #2
-        BEQ     BADMOD
+        BEQ     BADMODE
         CMP     #5
-        BEQ     BADMOD
-        BRA     SETMOD
+        BEQ     BADMODE
+        BRA     SETMODE
 .SETKEY
         AND     #&DF
         CMP     #'D'
@@ -878,9 +878,9 @@
 
         IF origin=&8000
         TAY
-        LDA     modetb,Y
+        LDA     MODEtb,Y
         PHA
-        JSR     memsta
+        JSR     MEMSTATE
         LDA     #&82
         JSR     osbyte
         INX
@@ -902,66 +902,66 @@
         ENDIF
 
         LDA     #&7
-        TRB     tutmod
+        TRB     tutmode
         PLA
-        ORA     tutmod
-        JSR     domode
+        ORA     tutmode
+        JSR     doMODE
 
         IF origin=&8000
-        JSR     EDITMD
+        JSR     EDITmd
         ELSE
-        JSR     CHKSCR
+        JSR     chkscr
         LDA     #26
-        JSR     OSWRCH
+        JSR     oswrch
         JSR     EDITMA
         LDA     BSM
-        STA     SCRNY
-        CLR     SCRNX
-        JMP     EDITCO
+        STA     scrnY
+        CLR     scrnX
+        JMP     EDITcont
         ENDIF
 
 .OLDTEXT
-        LDA     OLDSTA + 3
-        CMP     PAJE + 1
+        LDA     oldsta + 3
+        CMP     paje + 1
         BCC     NOOLD
-        CMP     HYMEM + 1
+        CMP     hymem + 1
         BCS     NOOLD
-        CMP     OLDSTA + 1
+        CMP     oldsta + 1
         BCC     NOOLD
-        LDA     OLDSTA + 1
-        CMP     PAJE + 1
+        LDA     oldsta + 1
+        CMP     paje + 1
         BCC     NOOLD
-        LDA     OLDSTA
-        STA     ARGP
-        LDA     OLDSTA + 1
-        STA     ARGP + 1
+        LDA     oldsta
+        STA     argP
+        LDA     oldsta + 1
+        STA     argP + 1
         SEC
-        LDA     OLDSTA + 2
-        SBC     ARGP
+        LDA     oldsta + 2
+        SBC     argP
         TAX
-        LDA     OLDSTA + 3
-        SBC     ARGP + 1
+        LDA     oldsta + 3
+        SBC     argP + 1
         TAY
         BCC     NOOLD
-        LDA     TSTART
-        STA     VARP
-        LDA     TSTART + 1
-        STA     VARP + 1
+        LDA     tstart
+        STA     varp
+        LDA     tstart + 1
+        STA     varp + 1
         PHY
         PHX
         JSR     COPYBK
         PLA
         CLC
-        ADC     TSTART
+        ADC     tstart
         TAX
         PLA
-        ADC     TSTART + 1
+        ADC     tstart + 1
         TAY
-        CLR     OLDSTA + 3
-        JMP     EDITGS
+        CLR     oldsta + 3
+        JMP     EDITgs
 
-.MODESP
-        JSR     STFILE
+.MODEsp
+        JSR     stFILE
         BRK
         EQUB    2,"No room"
 
@@ -970,20 +970,20 @@
         EQUB    2,"No old text found",0
 
 .GETNUM
-        STZ     INDEX
-        STZ     LINE
-        STZ     LINE + 1
+        STZ     index
+        STZ     line
+        STZ     line + 1
 .EDLIRE
-        LDY     INDEX
-        LDA     (TEMP),Y
-        CMP     #CR
+        LDY     index
+        LDA     (temp),Y
+        CMP     #cr
         BEQ     EDLIMV
         CMP     #'9' + 1
         BCS     EDLIBN
         SBC     #'0' - 1
         BCC     EDLIBN
-        STA     ATEMP
-        LDA     #10; line = line * 10 + atemp
+        STA     Atemp
+        LDA     #10; line = line * 10 + Atemp
         LDX     #0
         LDY     #0
         CLC
@@ -991,61 +991,61 @@
 .EDLI10
         PHA
         TXA
-        ADC     LINE
+        ADC     line
         TAX
         TYA
-        ADC     LINE + 1
+        ADC     line + 1
         TAY
         BCS     EDLIBN
         PLA
         DEA
         BNE     EDLI10
         TXA
-        ADC     ATEMP
-        STA     LINE
+        ADC     Atemp
+        STA     line
         BCC     EDLNHI
         INY
         BEQ     EDLIBN
 .EDLNHI
-        STY     LINE + 1
-        INC     INDEX
+        STY     line + 1
+        INC     index
         BNE     EDLIRE
 .EDLIMV
         RTS
 
-.EDITLI
+.EDITli
         LDA     #1              ; Move to specified line number.
-        STA     LINE
-        CLR     LINE + 1
-        LDA     TSTART
-        STA     STRING
-        LDA     TSTART + 1
-        STA     STRING + 1
+        STA     line
+        CLR     line + 1
+        LDA     tstart
+        STA     string
+        LDA     tstart + 1
+        STA     string + 1
 .LOKLINE
-        LDA     (STRING)
-        IF cf8key=1
+        LDA     (string)
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     LOKLI2
-        INC     LINE
+        INC     line
         BNE     LOKLI2
-        INC     LINE + 1
+        INC     line + 1
 .LOKLI2
-        INC     STRING
+        INC     string
         BNE     LOKLI3
-        INC     STRING + 1
+        INC     string + 1
 .LOKLI3
-        LDA     STRING
+        LDA     string
         CMP     GS
-        LDA     STRING + 1
+        LDA     string + 1
         SBC     GS+1
         BCC     LOKLINE
-        JSR     PROMPT
+        JSR     prompt
         EQUB    "At line ",&EA
         JSR     WRITLINE
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    ", new line:",&EA
         JSR     STOPINV
         JSR     readns
@@ -1063,41 +1063,41 @@
         JSR     GETNUM
         ; Number is held in line. Numbers start at 1 ...
         SEC
-        LDA     LINE
+        LDA     line
         SBC     #1
-        STA     LINE
-        LDA     LINE + 1
+        STA     line
+        LDA     line + 1
         SBC     #0
-        STA     LINE+1
+        STA     line+1
         BCC     EDLIBN
-        JSR     STFILE
+        JSR     stFILE
         LDA     GE
         STA     TP
         LDA     GE + 1
         STA     TP + 1
 
 .EDLIFW
-        LDA     LINE
-        ORA     LINE + 1
+        LDA     line
+        ORA     line + 1
         BEQ     EDLIGO
 
 .EDLICR
         LDA     #1
         JSR     TPFWDA
         BCS     EDLIBL
-        LDA     ATEMP
-        IF cf8key=1
+        LDA     Atemp
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     EDLICR
-        LDA     LINE
+        LDA     line
         BNE     EDLNHD
-        DEC     LINE+1
+        DEC     line+1
 
 .EDLNHD
-        DEC     LINE
+        DEC     line
         BRA     EDLIFW
 
 .EDLIGO
@@ -1107,10 +1107,10 @@
         LDA     #4
 
 .EDLIGJ
-        STA     SCRNY
+        STA     scrnY
         JMP     GPFDTP
 
-        IF cf8key=1
+        IF cF8key=1
         ; ------------------------------------------------------------ ;
 
 .cf8swt                         ; CR/LF switch
@@ -1124,19 +1124,19 @@
         LDA     #lf
         STA     clterm
 .cont99
-        STZ     cursed
-        STZ     nextre
+        STZ     cursED
+        STZ     NEXTREADFLAG
         STZ     markX
 
         LDA     clterm
         STA     (paje)
         STA     (tmax)
 
-        STZ     SCRNX           ; CLR scrnY will be forced by scrnud
+        STZ     scrnX           ; CLR scrnY will be forced by scrnud
 
         JSR     stFILE          ; move the cursor to the top
                                 ; of the text
-        JMP     EDITco          ; and continue editing
+        JMP     EDITcont        ; and continue editing
 
         ; ------------------------------------------------------------ ;
         ENDIF

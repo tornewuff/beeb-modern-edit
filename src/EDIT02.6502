@@ -1,30 +1,30 @@
         ; -> EDIT02
         ;                                      current
         ;                                      line
-        ; PAJE                                                 HYMEM
+        ; paje                                                 hymem
         ;  v                                   <......>          v
         ; +-+-------------+-------------------+---------------+-+
         ; |$|.............|                 |...............|$|
         ; +-+-------------+-------------------+---------------+-+
         ;    ^             ^                   ^               ^
-        ; TSTART           GS                  GE            TMAX
+        ; tstart           GS                  GE            tmax
         ; scrnXAs is X coord of cursor. (GE)creenX is char under cursor,
         ; unless $ isA0 in (GE) .. (GE),scrnX (when it is that $).
         ; scrnY is Y coord of current line on screen, and may be forced by the
         ; screen update routine.
         ; Screen update types:-
         ;  none   ; Simple cursor movements
-        ;  csronw ; Character insert/delete
-        ;  fullsc ; Find,replace etc
-        ;  thelot ; Clears screen first. After tload etc
+        ;  csronwards ; Character insert/delete
+        ;  fullscreen ; Find,replace etc
+        ;  thelot ; Clears screen first. After Tload etc
         ;  hardup ; Special case, for cursor movevents
-        ;  harddo ; Special case, for cursor movevents
-        ;  pagewi ; is max X-coord of screen, and pagelength is max Y-coord of
+        ;  harddown ; Special case, for cursor movevents
+        ;  pagewidth ; is max X-coord of screen, and pagelength is max Y-coord of
         ;           screen (thus Y-coord of status line is pagelength + 1).
         ;  scrim  (screen image) holds maximum cursorX position written to each
         ;         line on the screen (including the CR, if any)
 .EDIT
-        JSR     editmd
+        JSR     EDITmd
 
         IF stamp = 1
         JSR     nstamp
@@ -35,27 +35,27 @@
 .EDITgt
         STZ     modflg          ; Re-entry point for Tload. XY = End of file.
 .EDITgs
-        JSR     EDITtd          ; Re-entry from OLDSTA, newmode
-.EDITco
+        JSR     EDITtd          ; Re-entry from oldsta, newmode
+.EDITcont
         LDX     #&FF            ; Re-entry point for brk-handler.
         TXS
-        STZ     BRKact
+        STZ     brkaction
         JSR     inited
         LDA     #thelot
-        STA     update
+        STA     UPDATEREQD
 
 .EDITlo                         ; Update screen to reflect previous command.
 
-        JSR     SCRNUD
-        JSR     CSRSCR
+        JSR     scrnud
+        JSR     CSRSCREENXY
         JSR     CURON
 
         IF curtyp=1
         JSR     curupd          ; update the cursor to relevant state
         ENDIF
 
-        LDA     #FULLSC
-        STA     UPDATE
+        LDA     #fullscreen
+        STA     UPDATEREQD
         ; Read a char, and branch depending on its value
         ;   &00 - &7F     is ASCII input to be entered as text
         ;   &80 - &8F     are softkey values       }
@@ -70,13 +70,13 @@
         BCS     EDITTE
 
         IF phil = 0
-        LDX     CURSED
+        LDX     cursED
         BNE     EDITTE
         TAX
         ELSE
         TAX
-        LDA     CURSED
-        BEQ     PHIL1
+        LDA     cursED
+        BEQ     phil1
         TXA
         AND     #&F
         CMP     #&A
@@ -85,7 +85,7 @@
 .phil1
         ENDIF
 
-        LDA     TUTMOD
+        LDA     tutmode
         AND     #7
         CMP     #5
         BNE     GOMAN
@@ -100,26 +100,26 @@
         PHA
         ASL     A
         TAY
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    26,30,31,0,8,&EA
         LDA     TXTTAB,Y
-        STA     STRING
+        STA     string
         LDA     TXTTAB + 1,Y
-        STA     STRING + 1
+        STA     string + 1
 .TUTLIN
         LDY     #&00
         JSR     osnewl
 .TUTOUT
-        LDA     (STRING)
-        INC     STRING
+        LDA     (string)
+        INC     string
         BNE     TUTINC
-        INC     STRING + 1
+        INC     string + 1
 .TUTINC
         CMP     #cr
         BEQ     NEEDWP
         CMP     #&EA
         BEQ     TUTDON
-        JSR     OSWRCH
+        JSR     oswrch
         INY
         BRA     TUTOUT
 .NEEDWP
@@ -127,12 +127,12 @@
 .TUTWIP
         CPY     #54
         BCS     TUTLIN
-        JSR     OSWRCH
+        JSR     oswrch
         INY
         BRA     TUTWIP
 .TUTDON
         JSR     DECWIN
-        JSR     CSRSCR
+        JSR     CSRSCREENXY
         PLX
 .GOMAN
         TXA
@@ -149,19 +149,19 @@
         ; Entry - A holds ASCII char to be treated as text input
         ; Exit  - appropraite action taken depending on current
         ;        'mode' (insert, overtype, csr-edit).
-        CMP     #DELETE
+        CMP     #delete
         BEQ     ECHRDE
-        CLR     OLDSTA + 3
+        CLR     oldsta + 3
         CMP     #cr
         BNE     ECHRCO
         JSR     TESTIF ;In insert mode put in the CR
         BNE     ECHRCR
-        JSR     ENDTES
+        JSR     ENDTEST
         BCS     ECHRCR
-        CLR     SCRNX
-        JMP     CURDWN ;in overtype mode CR is start of line
+        CLR     scrnX
+        JMP     curDWN ;in overtype mode CR is start of line
 .ECHRCR
-        IF cf8key=1
+        IF cF8key=1
         LDA     clterm
         ELSE
         LDA     #termin
@@ -173,9 +173,9 @@
         ; Don't insert in overtype mode, unless at end of line.
         JSR     TESTIF
         BNE     ECHRMV
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
@@ -183,90 +183,90 @@
         BNE     ECHRCH
 .ECHRMV
         LDX     #1
-        LDA     SCRNX
+        LDA     scrnX
         JSR     INSRTX
 .ECHRCH
         PLA
-        LDY     SCRNX
+        LDY     scrnX
         STA     (GE),Y
         ; Write char to screen (cursor OK), wiping tail for TERMIN.
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     ECHRNT
         JSR     PASWCR
-        LDA     SCRNX
-        LDY     SCRNY
-        JSR     WIPETA
+        LDA     scrnX
+        LDY     scrnY
+        JSR     WIPETAIL
 .EHRCSU
-        CLR     SCRNX
-        JSR     CURDWN
+        CLR     scrnX
+        JSR     curDWN
 .ECHRUP
-        LDA     UPDATE
+        LDA     UPDATEREQD
         BEQ     ECHREL
-        JSR     SCRNUD
+        JSR     scrnud
 .ECHREL
-        LDA     #CSRONW
-        STA     UPDATE
+        LDA     #csronwards
+        STA     UPDATEREQD
         JMP     MODIFY
 .ECHRNT
-        JSR     PASWRC
-        JSR     CURRT
+        JSR     PASWRCH
+        JSR     curRT
 .ECHRN0
-        LDA     UPDATE
+        LDA     UPDATEREQD
         BEQ     ECHRN1
-        JSR     SCRNUD
+        JSR     scrnud
 .ECHRN1
-        LDA     #CSRTOC
-        STA     UPDATE
+        LDA     #CSRTOCR
+        STA     UPDATEREQD
         JMP     MODIFY
 .ECHRDE
         ; Delete virtual space implies csrleft. Can't delete start of file.
         JSR     VSCOUN
         BEQ     EDELST
-        JMP     CURLT
+        JMP     curLT
 .EDELST
-        LDA     SCRNX
+        LDA     scrnX
         BNE     EDELCO
         JSR     STARTTEST
         BCS     DELABX
 .EDELCO
         ; Get char to be deleted under cursor. In absence of VS check,
         ; this will give TERMIN delete when past end of line.
-        JSR     CURLT
-        JSR     LENGTH          ; different line than current!
-        CMP     SCRNX
+        JSR     curLT
+        JSR     LENGTHCALC      ; different line than current!
+        CMP     scrnX
         BCS     EDELMT
-        STA     SCRNX
+        STA     scrnX
 .EDELMT
         ; Branch on text-entry mode (insert/overtype).
-        LDY     SCRNX
+        LDY     scrnX
         JSR     TESTIF
         BNE     EDELSL
         LDA     (GE),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BEQ     DELABX
-        LDA     #SPACE
+        LDA     #space
         STA     (GE),Y
-        LDA     #CSRTOC
-        STA     UPDATE
+        LDA     #CSRTOCR
+        STA     UPDATEREQD
         JMP     MODIFY
 .EDELSL
         LDA     (GE),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BEQ     EDELS2
-        LDA     CURRLE
-        CMP     PAGEWI
+        LDA     currlength
+        CMP     PAGEWIDTH
         BEQ     EDELS2
         JSR     EDEL1
         BRA     ECHRN0
@@ -274,82 +274,82 @@
         JSR     EDEL1
         BRA     ECHRUP
 .DELLIX
-        JSR     DELABV
-.DELLIN
-        CLR     SCRNX
+        JSR     delabv
+.dellin
+        CLR     scrnX
         LDA     (GE)
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     DELLIX
-        JSR     LENGTH
-        STA     CURRLE
-        JSR     DELABV
+        JSR     LENGTHCALC
+        STA     currlength
+        JSR     delabv
         JMP     ECHREL
-.DELABV
-        JSR     ENDTES
+.delabv
+        JSR     ENDTEST
         BCC     DELABY
-        LDA     SCRNX
-        CMP     CURRLE
+        LDA     scrnX
+        CMP     currlength
         BCC     DELABY
 .DELABX
         RTS
 .DELABY
-        LDA     CURRLE
-        CMP     SCRNX
+        LDA     currlength
+        CMP     scrnX
         BCC     DELABX
-        LDY     #CSRTOC
-        STY     UPDATE
-        CMP     PAGEWI
+        LDY     #CSRTOCR
+        STY     UPDATEREQD
+        CMP     PAGEWIDTH
         BEQ     EDEL0
-        LDY     SCRNX
+        LDY     scrnX
         LDA     (GE),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     EDEL1
 .EDEL0
-        INC     UPDATE
+        INC     UPDATEREQD
 .EDEL1
         ; Shift up start of line 'over' deleted character.
         JSR     MODIFY
         CLC
         LDA     GE
-        STA     TEMP
-        ADC     SCRNX
-        STA     ADDR
+        STA     temp
+        ADC     scrnX
+        STA     addr
         LDA     GE + 1
-        STA     TEMP + 1
+        STA     temp + 1
         ADC     #0
-        STA     ADDR + 1
+        STA     addr + 1
         INC     GE
         BNE     EDELNH
         INC     GE + 1
 .EDELNH
-        LDY     SCRNX
+        LDY     scrnX
         BRA     EDELDY
 .EDELLP
-        LDA     (TEMP),Y
+        LDA     (temp),Y
         STA     (GE),Y
 .EDELDY
         DEY
         BPL     EDELLP
-        LDX     MARKX
+        LDX     markX
 .EDELMK
         DEX
         BMI     DELABX
-        LDY     SMATLO,X
-        CPY     ADDR
-        LDA     SMATHI,X
-        SBC     ADDR + 1
+        LDY     SMATlo,X
+        CPY     addr
+        LDA     smathi,X
+        SBC     addr + 1
         BCS     EDELMK
-        INC     SMATLO,X
+        INC     SMATlo,X
         BNE     EDELMK
-        INC     SMATHI,X
+        INC     smathi,X
         BRA     EDELMK
 
 .EDCTBL
@@ -357,12 +357,12 @@
         EQUW    EDstar          ; f1
         EQUW    LOADfi          ; f2
         EQUW    SAVEfi          ; f3
-        EQUW    findre          ; f4
-        EQUW    globre          ; f5
-        EQUW    setmar          ; f6
+        EQUW    FINDREPLACE     ; f4
+        EQUW    GLOBREPLACE     ; f5
+        EQUW    SETMARK         ; f6
         EQUW    mkCPY           ; f7
         EQUW    print           ; f8
-        EQUW    oldtex          ; f9
+        EQUW    OLDTEXT         ; f9
         EQUW    tabkey          ; f10
         EQUW    delabv          ; copy
         EQUW    curLT           ; left
@@ -372,18 +372,18 @@
         ;
         EQUW    crtogg          ; shift-f0
         EQUW    IOtogg          ; shift-f1
-        EQUW    insrtf          ; shift-f2
+        EQUW    insrtF          ; shift-f2
         EQUW    scmclr          ; shift-f3
         EQUW    retlan          ; shift-f4
         EQUW    getmod          ; shift-f5
-        EQUW    clearm          ; shift-f6
+        EQUW    CLEARMARKS      ; shift-f6
         EQUW    mkmve           ; shift-f7
         EQUW    mkdel           ; shift-f8
         EQUW    newtex          ; shift-f9
         EQUW    tabctl          ; shift-f10
-        EQUW    allowc          ; shift-copy
-        EQUW    wordle          ; shift-left
-        EQUW    wordri          ; shift-right
+        EQUW    allowC          ; shift-copy
+        EQUW    WORDLEFT        ; shift-left
+        EQUW    WORDRIGHT       ; shift-right
         EQUW    pagedn          ; shift-down
         EQUW    pageup          ; shift-up
         ;
@@ -395,7 +395,7 @@
         EQUW    EDITlo          ; ctrl-f5
         EQUW    tsmcsr          ; ctrl-f6
         EQUW    bsmcsr          ; ctrl-f7
-        IF cf8key=1
+        IF cF8key=1
         EQUW    cf8swt          ; ctrl-f8
         ELSE
         EQUW    EDITlo          ; ctrl-f8
@@ -406,26 +406,26 @@
         EQUW    curst           ; ctrl-left
         EQUW    curend          ; ctrl-right
         EQUW    curedf          ; ctrl-down
-        EQUW    stfile          ; ctrl-up
+        EQUW    stFILE          ; ctrl-up
 
 .TXTTAB
-        EQUW    F0
-        EQUW    F1
-        EQUW    F2
-        EQUW    F3
-        EQUW    F4
-        EQUW    F5
-        EQUW    F6
-        EQUW    F7
-        EQUW    F8
-        EQUW    F9
-        EQUW    F9
-        EQUW    F9
-        EQUW    F9
-        EQUW    F9
-        EQUW    F9
-        EQUW    F9
-        EQUW    SHFF0
+        EQUW    f0
+        EQUW    f1
+        EQUW    f2
+        EQUW    f3
+        EQUW    f4
+        EQUW    f5
+        EQUW    f6
+        EQUW    f7
+        EQUW    f8
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    shff0
         EQUW    SHFF1
         EQUW    SHFF2
         EQUW    SHFF3
@@ -437,8 +437,8 @@
         EQUW    SHFF9
         EQUW    SHFTAB
         EQUW    SHFCOP
-.BIGMES
-        JSR VSTRNG
+.BIGMESS
+        JSR vstrng
         EQUB    remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐")
         EQUB    remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │")
         EQUB    remap("│Returns│Over   │ file  │Margins│Languag│ Mode  │ Marks │Move   │Delete │text  │")
@@ -449,7 +449,7 @@
         NOP
         RTS
 .BIGMET
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    remap("The Acorn Screen Editor © 1984 Acorn Computers Ver "), vers
 
         IF mouse = 1
@@ -477,7 +477,7 @@
 
         EQUB    "             Descriptive Mode "
 
-        IF cf8key=1
+        IF cF8key=1
         EQUB    "CR/LF"
         ELSE
         IF termin=lf
@@ -527,7 +527,7 @@
         NOP
         ENDIF
 
-.F1
+.f1
         EQUB    "f1",cr
         IF shortm=0
         EQUB    "Commands to the computer's operating system can be",cr
@@ -553,7 +553,7 @@
         NOP
         ENDIF
 
-.F2
+.f2
         EQUB    "f2",cr
         IF shortm=0
         EQUB    "A text file will be loaded, erasing the current text.",cr
@@ -579,7 +579,7 @@
         NOP
         ENDIF
 
-.F3
+.f3
         EQUB    "f3",cr
         IF shortm=0
         EQUB    "All or 'mark to cursor' text will be saved to a file.",cr
@@ -605,7 +605,7 @@
         NOP
         ENDIF
 
-.F4
+.f4
         EQUB    "f4:- Interactive Find and Replace Function.",cr
         IF shortm=0
         EQUB    "RETURN to use last f4. Special search characters are:",cr
@@ -631,7 +631,7 @@
         NOP
         ENDIF
 
-.F5
+.f5
         IF shortm=0
         EQUB    "f5:- Global replace.              All, or marked text.",cr
         EQUB    "RETURN to use last f5. Special replace characters are:",cr
@@ -658,7 +658,7 @@
         NOP
         ENDIF
 
-.F6
+.f6
         EQUB    "f6",cr
         IF shortm=0
         EQUB    "The current position of the cursor (_) is remembered.",cr
@@ -684,7 +684,7 @@
         NOP
         ENDIF
 
-.F7
+.f7
         EQUB    "f7",cr
         IF shortm=0
         EQUB    "The text between two marked places is copied to",cr
@@ -710,7 +710,7 @@
         NOP
         ENDIF
 
-.F8
+.f8
         EQUB    "f8",cr
         IF shortm=0
         EQUB    "The whole text is printed out to the screen or printer",cr
@@ -736,7 +736,7 @@
         NOP
         ENDIF
 
-.F9
+.f9
         EQUB    "f9",cr
         IF shortm=0
         EQUB    "The old text in the buffer is recovered after a BREAK",cr

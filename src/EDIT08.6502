@@ -9,13 +9,13 @@
         JSR     EDRDCH
         ORA     #&20
         RTS
-.MOVETOFOUNDPOSN
+.MOVETOFOUNDPOSITION
         LDX     MS
         LDY     MS+1
-        JMP     GPFDXY
+        JMP     gpfdXY
 .GLOBREPLACE
-        JSR     DFINIT
-        JSR     PROMPT
+        JSR     dfinit
+        JSR     prompt
         EQUB    "Global replace:",&EA
         IF extgf=1
         JSR     readlf
@@ -24,24 +24,24 @@
         ENDIF
         JSR     READINIT
         BNE     NEWGR
-        CMP     GRBUFF
+        CMP     grbuff
         BEQ     NOBUFF
 .OLDGR
-        LDA     GRBUFF,Y
-        STA     (TEMP),Y
+        LDA     grbuff,Y
+        STA     (temp),Y
         INY
         BPL     OLDGR
         LDY     #0
 .NEWGR
-        LDA     (TEMP),Y
-        STA     GRBUFF,Y
+        LDA     (temp),Y
+        STA     grbuff,Y
         INY
         CPY     #100
         BNE     NEWGR
         JSR     FINDTRANS
-        JSR     DFBLOK
-        CLR     LINE
-        CLR     LINE+1
+        JSR     dfblok
+        CLR     line
+        CLR     line+1
         CLR     TEXPFLAG
 .GREPLP
         LDX     GE
@@ -51,27 +51,27 @@
         STY     MS+1
         JSR     SEARCH
         BCS     GREPEX
-        INC     LINE
+        INC     line
         BNE     GREPNH
-        INC     LINE+1
+        INC     line+1
 .GREPNH
-        LDA     REPLFLAG
+        LDA     replflag
         BNE     GREPRP
-        LDX     ME
-        LDY     ME+1
+        LDX     me
+        LDY     me+1
         BRA     GREPNX
 .GREPRP
-        JSR     CHKNREP
+        JSR     chknrep
         BRA     GREPLP
 .GREPEX
         ;Move cursor (as near as possible) to the place it started at, then
         ;output match count.
-        LDX     STRING
-        LDY     STRING+1
+        LDX     string
+        LDY     string+1
         JSR     GPBKXY
         JSR     NORMALIZE
-        JSR     SCRNUD
-        LDX     #PRMPTL
+        JSR     scrnud
+        LDX     #prmptl
         JSR     PRMPTX
         EQUB    " ",&EA
         JSR     WRITLINE
@@ -82,39 +82,39 @@
         BRK
         EQUB    1,"No previous string",0
 .FINDREPLACE
-        JSR     PROMPT
+        JSR     prompt
         EQUB    "Find and replace:",&EA
         IF extgf=1
         JSR     readlf
         ELSE
-        JSR     READLS
+        JSR     readLS
         ENDIF
         JSR     READINIT
         BNE     NEWFR
-        CMP     FRBUFF
+        CMP     frbuff
         BEQ     NOBUFF
 .OLDFR
-        LDA     FRBUFF,Y
-        STA     (TEMP),Y
+        LDA     frbuff,Y
+        STA     (temp),Y
         INY
         BPL     OLDFR
         LDY     #0
 .NEWFR
-        LDA     (TEMP),Y
-        STA     FRBUFF,Y
+        LDA     (temp),Y
+        STA     frbuff,Y
         INY
         CPY     #100
         BNE     NEWFR
         JSR     FINDTRANS
         JSR     TEMPSX
         JSR     FINEPOSITIONGAP
-        LDA     LINE
-        STA     SCRNX
+        LDA     line
+        STA     scrnX
         ;Set up search termination pointer & flag.
-        LDA     TMAX
-        STA     TEXP
-        LDA     TMAX+1
-        STA     TEXP+1
+        LDA     tmax
+        STA     texp
+        LDA     tmax+1
+        STA     texp+1
         STA     TEXPFLAG
 .IMRPRL
         LDX     GE
@@ -124,14 +124,14 @@
         STY     MS+1
         JSR     SEARCH
         BCS     IMRPNF
-        JSR     MOVETOFOUNDPSN
-        JSR     NORMAX; get position of X back
+        JSR     MOVETOFOUNDPOSITION
+        JSR     normax; get position of X back
         LDA     BSM ;Move to BSM
-        STA     SCRNY
-        JSR     SCRNUD
-        LDA     #FULLSCREEN
+        STA     scrnY
+        JSR     scrnud
+        LDA     #fullscreen
         STA     UPDATEREQD
-        JSR     PROMPT
+        JSR     prompt
         EQUB    "R(eplace), C(ontinue) or ESCAPE",&EA
 
         JSR     CSRSCREENXY
@@ -140,39 +140,39 @@
         JSR     GETRESP
         CMP     #'c'
         BNE     IMRPNC
-        LDX     ME
-        LDY     ME+1
+        LDX     me
+        LDY     me+1
         BRA     IMRPCL
 .IMRPNC
         CMP     #'r'
         BNE     IMRPPR
         JSR     MKREFUSE
         ;Either use supplied replace part, or prompt for one.
-        LDA     REPLFLAG
+        LDA     replflag
         BNE     IMRPRP
-        JSR     PROMPT
+        JSR     prompt
         EQUB    "Replace by:",&EA
 
         IF extgf=1
         JSR     readlf
         ELSE
-        JSR     READLS
+        JSR     readLS
         ENDIF
         JSR     READINIT
         JSR     MININIT
-        LDA     REPLINDEX
-        STA     OUTINDEX
+        LDA     replindex
+        STA     outindex
         JSR     REPLPART
 .IMRPRP
-        JSR     CHKNREP
+        JSR     chknrep
         JMP     IMRPRL
 .IMRPNF
         JSR     NORMALIZE
-        LDA     #THELOT
-        STA     UPDATER
-        JSR     SCRNUD
-        JSR     STATUS
-        LDX     #PRMPTL
+        LDA     #thelot
+        STA     UPDATEREQD
+        JSR     scrnud
+        JSR     status
+        LDX     #prmptl
         JSR     PRMPTX
         EQUB    " Not found",&EA
         RTS
@@ -180,30 +180,30 @@
 .WRITLINE
         JSR     STARTINV
         LDX     #4;Outputs LINE in decimal, suppressing leading zeros.
-        STX     STRING
+        STX     string
 .WOPRNEXT
-        CLR     STRING+1
+        CLR     string+1
 .WOPRLOOP
         SEC
-        LDA     LINE
+        LDA     line
         SBC     WOPTBL,X
         TAY
-        LDA     LINE+1
+        LDA     line+1
         SBC     WOPTBH,X
         BCC     WOPRDIGI
-        STY     LINE
-        STA     LINE+1
-        INC     STRING+1
+        STY     line
+        STA     line+1
+        INC     string+1
         BRA     WOPRLOOP
 .WOPRDIGI
-        LDA     STRING+1
+        LDA     string+1
         BNE     WOPRGEN
-        DEC     STRING
+        DEC     string
         BPL     WOPRCONT
 .WOPRGEN
         ORA     #'0'
-        JSR     OSWRCH
-        CLR     STRING
+        JSR     oswrch
+        CLR     string
 .WOPRCONT
         DEX
         BPL     WOPRNEXT
@@ -226,31 +226,31 @@
         ;(any number of times), this address is translated into a value in
         ;UMATlo,hi (Used Mark Address Table), where the addresses refer to
         ;positions in the text as it is currently partitioned.
-.MARKUP
+.MARKUPDATE
         ;Update marks for current position of gap.
         ;Exit  -  marksbeforecsr =       No. of marks before GE.
         JSR     MKUDCH
 .MKUDKN
-        CLR     MARKSB
-        LDX     MARKX
+        CLR     marksbeforecsr
+        LDX     markX
 .MKUDLP
         DEX
         BMI     MKUDEX
-        LDY     SMATLO,X
-        STY     UMATLO,X
+        LDY     SMATlo,X
+        STY     UMATlo,X
         CPY     GE
-        LDA     SMATHI,X
-        STA     UMATHI,X
+        LDA     smathi,X
+        STA     umathi,X
         SBC     GE+1
         BCS     MKUDLP
-        INC     MARKSB
+        INC     marksbeforecsr
         SEC
         TYA
-        SBC     CHUNKS
-        STA     UMATLO,X
-        LDA     UMATHI,X
-        SBC     CHUNKS + 1
-        STA     UMATHI,X
+        SBC     chunksize
+        STA     UMATlo,X
+        LDA     umathi,X
+        SBC     chunksize + 1
+        STA     umathi,X
         BCS     MKUDLP
 .MKUDEX
         RTS
@@ -259,10 +259,10 @@
         SEC
         LDA     GE
         SBC     GS
-        STA     CHUNKS
+        STA     chunksize
         LDA     GE+1
         SBC     GS+1
-        STA     CHUNKS + 1
+        STA     chunksize + 1
         RTS
 .CLRMARKS
         ;Clear, count update & order mark(s), ready for use.
@@ -272,307 +272,307 @@
         ;        Marks cleared & status updated
         ;        A[Z] =       nummarks =       No. of marks
         ;Save (GE - GS) for updating marks, then finepositiongap
-        JSR     FINEPO
+        JSR     FINEPOSITIONGAP
         JSR     MKUDCH
         JSR     MKUDKN
 
         ;If Mark2 (exists) < Mark1, then swap.
-        LDX     MARKX
+        LDX     markX
         CPX     #2
         BNE     CLRMCO
-        LDA     UMATLO+1
-        CMP     UMATLO
-        LDA     UMATHI+1
-        SBC     UMATHI
+        LDA     UMATlo+1
+        CMP     UMATlo
+        LDA     umathi+1
+        SBC     umathi
         BCS     CLRMCO
-        LDA     UMATLO
-        LDY     UMATLO+1
-        STA     UMATLO+1
-        STY     UMATLO
-        LDA     UMATHI
-        LDY     UMATHI+1
-        STA     UMATHI+1
-        STY     UMATHI
+        LDA     UMATlo
+        LDY     UMATlo+1
+        STA     UMATlo+1
+        STY     UMATlo
+        LDA     umathi
+        LDY     umathi+1
+        STA     umathi+1
+        STY     umathi
 .CLRMCO
-        LDA     MARKX
-        STA     NUMMAR
-        CLR     MARKX
-        JSR     STATUS
-        LDA     NUMMAR
+        LDA     markX
+        STA     nummarks
+        CLR     markX
+        JSR     status
+        LDA     nummarks
 .MKRFEX
         RTS
 .MKREFUSE
         ;Complain if any marks are set.
-        LDA     MARKX
+        LDA     markX
         BEQ     MKRFEX
         BRK
         EQUB    1,"Mark(s) set",0
 .NMBLOK
         ;Normalizes a marked block of text, to ease use.
-        ;Entry  -  Marks updated (gap fine positioned). TEXP =       GE
+        ;Entry  -  Marks updated (gap fine positioned). texp =       GE
         ;Exit   -  'Bad marking' error if 2 marks were set.
         ;       -  EQ - 0 marks were set.
         ;          NE - 1 mark was set (csr-mark or mark-csr):
         ;               Gap moved to start of block,
         ;               XY =       end of block.
         LDA     GE
-        STA     TEXP
+        STA     texp
         LDA     GE+1
-        STA     TEXP+1
-        LDA     NUMMAR
+        STA     texp+1
+        LDA     nummarks
         BEQ     NBLKEX
         CMP     #1
-        BNE     BADMAR
-        LDX     UMATLO
-        LDY     UMATHI
-        DEC     MARKSB
+        BNE     BADMARKING
+        LDX     UMATlo
+        LDY     umathi
+        DEC     marksbeforecsr
         BNE     NBLKEX
         JSR     GPBKXY
-        LDX     TEXP
-        LDY     TEXP+1
+        LDX     texp
+        LDY     texp+1
 .NBLKEX
         RTS
-.DFINIT
+.dfinit
         ;Seperated this way to avoid grotty command-line escape.
         JSR     TEMPSX
-        JSR     CLRMAR
+        JSR     CLRMARKS
         CMP     #2
-        BEQ     BADMAR
+        BEQ     BADMARKING
         PHA
-        LDA     LINE
-        STA     SCRNX
+        LDA     line
+        STA     scrnX
         PLA
         RTS
-.DFBLOK
+.dfblok
         ;Normalize a 'marked' block (defaulting to whole) of text.
-        ;Exit  -  TEXP =       Old cursor position (in end of text).
-        ;         ENDP =       End of 'marked' block.
+        ;Exit  -  texp =       Old cursor position (in end of text).
+        ;         endp =       End of 'marked' block.
         JSR     NMBLOK
         BNE     DBLKEP
-        JSR     STFILE
-        LDX     TMAX
-        LDY     TMAX + 1
+        JSR     stFILE
+        LDX     tmax
+        LDY     tmax + 1
 .DBLKEP
-        STX     ENDP
-        STY     ENDP + 1
+        STX     endp
+        STY     endp + 1
         RTS
 .MVBLOK
         ;Ensure good marking (m-m-c or c-m-m) for a block 'move-op'
         ;Exit  -  CC: marks are after cursor
         ;         CS: marks are before cursor
-        JSR     CLRMAR
+        JSR     CLRMARKS
         CMP     #2
-        BNE     BADMAR
+        BNE     BADMARKING
         ;if 2nd mark on cursor then shift it to GS
-        LDA     UMATLO + 1
+        LDA     UMATlo + 1
         CMP     GE
         BNE     MVBLOJ
-        LDA     UMATHI + 1
+        LDA     umathi + 1
         CMP     GE+1
         BNE     MVBLOJ
         LDA     GS
-        STA     UMATLO + 1
+        STA     UMATlo + 1
         LDA     GS+1
-        STA     UMATHI + 1
-        INC     MARKSB
+        STA     umathi + 1
+        INC     marksbeforecsr
 .MVBLOJ
-        LDA     MARKSB
+        LDA     marksbeforecsr
         DEA     ;cmp#1
-        BEQ     BADMAR
+        BEQ     BADMARKING
         RTS
 .BADMARKING
         BRK
         EQUB    1,"Bad marking",0
 .SETMARK
-        JSR     FINEPO
-        LDX     MARKX
+        JSR     FINEPOSITIONGAP
+        LDX     markX
         CPX     #2
-        BEQ     BADMAR
+        BEQ     BADMARKING
         ;Save mark address.
         LDA     GE
-        STA     SMATLO,X
+        STA     SMATlo,X
         LDA     GE+1
-        STA     SMATHI,X
-        JSR     NORMAL
-        INC     MARKX
-        JMP     STATUS
+        STA     smathi,X
+        JSR     NORMALIZE
+        INC     markX
+        JMP     status
 .CLEARMARKS
-        JSR     CLRMAR
-        JMP     NORMAL
-.MKDEL
-        JSR     CLRMAR
+        JSR     CLRMARKS
+        JMP     NORMALIZE
+.mkdel
+        JSR     CLRMARKS
         JSR     NMBLOK
-        BEQ     BADMAR ;Stop delete from defaulting to 'NEW' !
+        BEQ     BADMARKING ;Stop delete from defaulting to 'NEW' !
         STX     GE
         STY     GE+1
         JSR     MODIFY
-.NORMAX
-        JSR     NORMAL
-        LDA     STRING
-        STA     SCRNX
+.normax
+        JSR     NORMALIZE
+        LDA     string
+        STA     scrnX
         RTS
-.MKCPY
+.mkCPY
         ;Marked copy. Either m-m-c or c-m-m.
         JSR     MVBLOK
         ;XY =       (Mark2-Mark1) - size of block to be copied.
         SEC
-        LDA     UMATLO + 1
-        SBC     UMATLO
+        LDA     UMATlo + 1
+        SBC     UMATlo
         TAX
-        LDA     UMATHI + 1
-        SBC     UMATHI
+        LDA     umathi + 1
+        SBC     umathi
         TAY
-        LDA     MARKSB
+        LDA     marksbeforecsr
         BEQ     MKCPYO
-        STX     STRING
-        STY     STRING + 1
+        STX     string
+        STY     string + 1
         SEC
-        LDA     SMATLO
-        SBC     STRING
-        STA     SMATLO
-        LDA     SMATHI
-        SBC     STRING + 1
-        STA     SMATHI
-        LDA     SMATLO + 1
-        SBC     STRING
-        STA     SMATLO + 1
-        LDA     SMATHI + 1
-        SBC     STRING + 1
-        STA     SMATHI + 1
+        LDA     SMATlo
+        SBC     string
+        STA     SMATlo
+        LDA     smathi
+        SBC     string + 1
+        STA     smathi
+        LDA     SMATlo + 1
+        SBC     string
+        STA     SMATlo + 1
+        LDA     smathi + 1
+        SBC     string + 1
+        STA     smathi + 1
 .MKCPYO
         JSR     CHECKR
         ;Copy the block, then normalize text.
-        LDA     UMATLO
-        STA     ARGP
-        LDA     UMATHI
-        STA     ARGP + 1
+        LDA     UMATlo
+        STA     argP
+        LDA     umathi
+        STA     argP + 1
         STX     GE
-        STX     VARP
+        STX     varp
         STY     GE + 1
-        STY     VARP + 1
+        STY     varp + 1
         JSR     CPFD2
         LDX     #1
-        STX     MODFLG
+        STX     modflg
         INX
-        STX     MARKX
-        JSR     STATUS
-        JMP     NORMAL
-.MKMVE
+        STX     markX
+        JSR     status
+        JMP     NORMALIZE
+.mkmve
         ;If marks are before cursor, then do a bit of tweaking to
         ;change it into case where thay are after it.
         JSR     MVBLOK
         ;Initialize pointers for iterative swap block routine.
-        LDX     UMATLO
-        LDY     UMATHI
-        LDA     MARKSB
+        LDX     UMATlo
+        LDY     umathi
+        LDA     marksbeforecsr
         BEQ     MVBEFC
-        STX     ARGP
-        STY     ARGP + 1
-        LDA     UMATLO + 1
-        STA     VARP
-        LDA     UMATHI + 1
-        STA     VARP + 1
+        STX     argP
+        STY     argP + 1
+        LDA     UMATlo + 1
+        STA     varp
+        LDA     umathi + 1
+        STA     varp + 1
         LDX     GS
         LDY     GS + 1
         BRA     MVSTP3
 .MVBEFC
-        STX     VARP
-        STY     VARP + 1
+        STX     varp
+        STY     varp + 1
         LDA     GE
-        STA     ARGP
+        STA     argP
         LDA     GE + 1
-        STA     ARGP + 1
-        LDX     UMATLO + 1
-        LDY     UMATHI + 1
+        STA     argP + 1
+        LDX     UMATlo + 1
+        LDY     umathi + 1
 .MVSTP3
-        STX     ENDP
-        STY     ENDP + 1
+        STX     endp
+        STY     endp + 1
 .MVLOOP
         SEC
-        LDA     VARP
-        SBC     ARGP
-        STA     SIZE
-        LDA     VARP + 1
-        SBC     ARGP + 1
-        STA     SIZE + 1
-        LDA     ENDP
-        SBC     VARP
+        LDA     varp
+        SBC     argP
+        STA     size
+        LDA     varp + 1
+        SBC     argP + 1
+        STA     size + 1
+        LDA     endp
+        SBC     varp
         TAX
-        LDA     ENDP + 1
-        SBC     VARP + 1
+        LDA     endp + 1
+        SBC     varp + 1
         TAY
-        CPX     SIZE
-        SBC     SIZE + 1
+        CPX     size
+        SBC     size + 1
         BCS     MV2GE
-        STX     SIZE
-        STY     SIZE + 1
+        STX     size
+        STY     size + 1
 .MV2GE
-        LDA     SIZE
-        ORA     SIZE + 1
+        LDA     size
+        ORA     size + 1
         BEQ     MVNORM
         BCS     MV2GE1
-        LDX     VARP
-        LDY     VARP + 1
-        JSR     MVSWAP
+        LDX     varp
+        LDY     varp + 1
+        JSR     MVSWAPBYTES
         CLC
         TYA
-        ADC     TEMP
-        STA     ARGP
+        ADC     temp
+        STA     argP
         LDA     #null
-        ADC     TEMP + 1
-        STA     ARGP + 1
+        ADC     temp + 1
+        STA     argP + 1
         BCC     MVLOOP
 .MV2GE1
         SEC
-        LDA     ENDP
-        SBC     SIZE
-        STA     ENDP
+        LDA     endp
+        SBC     size
+        STA     endp
         TAX
-        LDA     ENDP + 1
-        SBC     SIZE + 1
-        STA     ENDP + 1
+        LDA     endp + 1
+        SBC     size + 1
+        STA     endp + 1
         TAY
-        JSR     MVSWAP
+        JSR     MVSWAPBYTES
         BRA     MVLOOP
 .MVNORM
-        LDA     #FULLSC
-        STA     UPDATE
-        JSR     NORMAL
+        LDA     #fullscreen
+        STA     UPDATEREQD
+        JSR     NORMALIZE
         JMP     MODIFY
 .MVSWAPBYTES
-        ;Swap size bytes ARGP <-> XY
-        LDA     ARGP
-        STA     TEMP
-        LDA     ARGP + 1
-        STA     TEMP + 1
-        STX     ADDR
-        STY     ADDR + 1
-        INC     SIZE + 1 ;To allow dec to zero below.
+        ;Swap size bytes argP <-> XY
+        LDA     argP
+        STA     temp
+        LDA     argP + 1
+        STA     temp + 1
+        STX     addr
+        STY     addr + 1
+        INC     size + 1 ;To allow dec to zero below.
         LDY     #null
 .MVNINC
-        CPY     SIZE
+        CPY     size
         BNE     MVSWLP
-        DEC     SIZE + 1
+        DEC     size + 1
         BEQ     TEMPSE
 .MVSWLP
-        LDA     (TEMP),Y
+        LDA     (temp),Y
         TAX
-        LDA     (ADDR),Y
-        STA     (TEMP),Y
+        LDA     (addr),Y
+        STA     (temp),Y
         TXA
-        STA     (ADDR),Y
+        STA     (addr),Y
         INY
         BNE     MVNINC
-        INC     TEMP + 1
-        INC     ADDR + 1
+        INC     temp + 1
+        INC     addr + 1
         BRA     MVNINC
 .TEMPSX
-        LDA     SCRNX
-        STA     LINE
-        LDA     CURRLEN
-        CMP     SCRNX
+        LDA     scrnX
+        STA     line
+        LDA     currlength
+        CMP     scrnX
         BCS     TEMPSE
-        STA     SCRNX
+        STA     scrnX
 .TEMPSE
         RTS
 
@@ -594,14 +594,14 @@
                                 ; VDU 23,0,10,value,0,0,0,0,0,0
 
 .curupd                         ; cursor update
-                                ; 'tutmod' holds editing state
+                                ; 'tutmode' holds editing state
         PHA
                                 ; bit4 = Insert/Over mode
-        LDA     tutmod
+        LDA     tutmode
         AND     #bit4
         BEQ     ovrcur
 
-        LDA     cursed
+        LDA     cursED
         BEQ     slowc1
 
         JSR     bff
@@ -610,7 +610,7 @@
         JSR     bsf
         BRA     curex
 .ovrcur
-        LDA     cursed
+        LDA     cursED
         BEQ     slowc2
 
         JSR     lff
@@ -770,7 +770,7 @@ nktent  =       ( kttabe - kttab )
         JSR     oswrch
 
         LDA     #thelot
-        STA     update
+        STA     UPDATEREQD
 
         JSR     rdline
         BCC     noESC
@@ -778,15 +778,15 @@ nktent  =       ( kttabe - kttab )
         JSR     vstrng
         EQUB    &03,&0F,&0D,&EA
 
-        LDA     BRKact
+        LDA     brkaction
         CMP     #&02
         BNE     ESCso
 
         JSR     closeX
         JSR     stFILE
 .ESCso
-        STZ     cursed
-        JMP     ESCcon
+        STZ     cursED
+        JMP     escCON
 
 .rdline
         LDY     #&00            ; index into 'linbuf'
@@ -852,7 +852,7 @@ nktent  =       ( kttabe - kttab )
 
         BCC     rdloop
 
-        JSR     paswrc          ; write character after parsing
+        JSR     PASWRCH         ; write character after parsing
                                 ; ctrl chars - inverse
                                 ; delete     - inverse "?"
                                 ; any other character just echoed
@@ -892,7 +892,7 @@ nktent  =       ( kttabe - kttab )
         RTS                     ; well it wasn't one of ours
 
 .gotit1
-        JSR     startI
+        JSR     STARTINV
 
         LDY     #&01            ; the index to the text
 .ncoutl
@@ -904,7 +904,7 @@ nktent  =       ( kttabe - kttab )
         INY
         BRA     ncoutl
 .tdone
-        JSR     stopIN
+        JSR     STOPINV
 
         PLA
         CLC

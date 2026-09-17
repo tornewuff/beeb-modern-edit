@@ -7,7 +7,7 @@
         ; ------------------------------------------------------------ ;
 
         ; The editor keeps a byte in the CMOS RAM.
-        ; It is copied into TUTMOD on startup.
+        ; It is copied into tutmode on startup.
         ;
         ; Bits 0 to 2 define the current mode with the following relationship
         ;       Value   Mode
@@ -83,28 +83,28 @@ osword  =       &FFF1
 osbyte  =       &FFF4
 oscli   =       &FFF7
 escflg  =       &FF
-brkv    =       &0202
+BRKv    =       &0202
 
-csrtoc  =       &01
-csronw  =       &02
+CSRTOCR =       &01
+csronwards =    &02
 hardup  =       &03
-harddo  =       &04
-fullsc  =       &05
+HARDDOWN =      &04
+fullscreen =    &05
 thelot  =       &06
 
-multsy  =       &80
+multsym =       &80
 notsym  =       &81
-wildsy  =       &82
-alphas  =       &83
+WILDSYM =       &82
+ALPHASYM =      &83
 digsym  =       &84
-subrsy  =       &85
+SUBRSYM =       &85
 setsym  =       &86
-fields  =       &87
-founds  =       &88
+FIELDSYM =      &87
+FOUNDSYM =      &88
 escsym  =       &89
-nsensy  =       &8A
-buttsy  =       &8B
-termsy  =       &8C
+NSENSYM =       &8A
+BUTTSYM =       &8B
+termsym =       &8C
 
         SECTION ZeroPage, org = &00, guard = &90
 
@@ -113,7 +113,7 @@ termsy  =       &8C
 .tmax   SKIP    &02
 .temp   SKIP    &02
 .addr   SKIP    &02
-.argp   SKIP    &02
+.argP   SKIP    &02
 .varp   SKIP    &02
 .TP     SKIP    &02
 .GS     SKIP    &02
@@ -122,22 +122,22 @@ termsy  =       &8C
 xeff    =       MS
 lastsp  =       MS + 1
 .me     SKIP    &02
-diff    =       ME
-centre  =       ME + 1
-.smatlo SKIP    &02
-rflush  =       smatlo
-linfed  =       smatlo + 1
+diff    =       me
+centre  =       me + 1
+.SMATlo SKIP    &02
+rflush  =       SMATlo
+linfed  =       SMATlo + 1
 .smathi SKIP    &02
 len     =       smathi
 indent  =       smathi + 1
-.umatlo SKIP    &02
-underl  =       umatlo
-pundrl  =       umatlo + 1
+.UMATlo SKIP    &02
+underl  =       UMATlo
+pundrl  =       UMATlo + 1
 .umathi SKIP    &02
 bold    =       umathi
 vspace  =       umathi + 1
 
-        IF cf8key=1
+        IF cF8key=1
 .clterm SKIP    &01     ; current line terminator
         ENDIF
         IF extgf=1      ; Extended search/replace characters
@@ -146,70 +146,70 @@ vspace  =       umathi + 1
 
 .hymem  SKIP    &02
 .tstart SKIP    &02
-.brkact SKIP    &01
+.brkaction SKIP &01
 .size   SKIP    &02
 .maxsiz SKIP    &02
 .pwtflg SKIP    &01
 .prtflg SKIP    &01
-.tutmod SKIP    &01
+.tutmode SKIP   &01
 .modflg SKIP    &01
 .Atemp  SKIP    &01
 .count  SKIP    &01
 .index  SKIP    &01
-.pagewi SKIP    &01
-.pagele SKIP    &01
+.PAGEWIDTH SKIP &01
+.pagelength SKIP &01
 .realPA SKIP    &01
 .scrupY SKIP    &01
-.maxscr SKIP    &01
-.update SKIP    &01
+.maxscrupY SKIP &01
+.UPDATEREQD SKIP &01
 .scrnPY SKIP    &01
 .scrnX  SKIP    &01
 .scrnY  SKIP    &01
 .lnbufx SKIP    &01
-.cursed SKIP    &01
+.cursED SKIP    &01
 .sstckx SKIP    &01
 fill    =       sstckx
-.replin SKIP    &01
-tinden  =       replin
-.chunks SKIP    &02
-juslen  =       chunks
-spaces  =       chunks + 1
-.nummar SKIP    &01
-L       =       nummar
-.marksb SKIP    &01
-Q       =       markSB
-.currle SKIP    &01
-.nextre SKIP    &01
+.replindex SKIP &01
+tinden  =       replindex
+.chunksize SKIP &02
+juslen  =       chunksize
+spaces  =       chunksize + 1
+.nummarks SKIP  &01
+l       =       nummarks
+.marksbeforecsr SKIP &01
+Q       =       marksbeforecsr
+.currlength SKIP &01
+.NEXTREADFLAG SKIP &01
 .nxtchr SKIP    &01
 .lineDW SKIP    &01
-.fieldI SKIP    &01
-lineot  =       fieldI
-.inpind SKIP    &01
-ctlcha  =       inpind
-.outind SKIP    &01
-boldrq  =       outind
-.MMX    SKIP    &01
+.fieldindex SKIP &01
+lineot  =       fieldindex
+.inpindex SKIP  &01
+ctlcha  =       inpindex
+.outindex SKIP  &01
+boldrq  =       outindex
+.mmx    SKIP    &01
 undrrq  =       mmx
 .offset SKIP    &01               ; page offset
-.simpch SKIP    &01
-pbold   =       simpch
+.SIMPCHAR SKIP  &01
+pbold   =       SIMPCHAR
 .nextX  SKIP    &01
-lastta  =       nextx
+LASTTAB =       nextX
 .line   SKIP    &02
 doindX  =       line
 .indexH SKIP    &01
-.mulffl SKIP    &01
-tabcha  =       mulffl
+.MULFFLAG SKIP  &01
+tabcha  =       MULFFLAG
 .markX  SKIP    &01
 .TSM    SKIP    &01
 .BSM    SKIP    &01
-.scratc SKIP    &12
-buff    =       scratc + 10     ; (no.bffr len 15 {MMMDCCCLXXXVIII})
-texpfl  =       buff
-sensfl  =       buff + 1
-buttfl  =       buff + 2
-metafl  =       buff + 3
-replfl  =       buff + 4
+.scratch SKIP   &12
+buff    =       scratch + 10    ; (no.bffr len 15 {MMMDCCCLXXXVIII})
+TEXPFLAG =      buff
+SENSFLAG =      buff + 1
+BUTTFLAG =      buff + 2
+metaflag =      buff + 3
+replflag =      buff + 4
 endp    =       buff + 8
 scp     =       buff + 10
 texp    =       buff + 12
@@ -229,8 +229,8 @@ mousel  =       buff + 15       ; # 10
 .nambuf SKIP    &34
 .oldsta SKIP    &04             ; start and end of incore text
 .linbuf SKIP    &0100
-comman  =       linbuf
-noregs  =       comman          ; 10 number registers
+commandline =   linbuf
+noregs  =       commandline     ; 10 number registers
 page    =       noregs          ; the page number is in 0
 lineno  =       page + 2        ; the line number is in 1
 pageeh  =       noregs + 10 * 2
@@ -240,11 +240,11 @@ pageof  =       pageef + 2      ; the header and footer pointers
 tablst  =       pageof + 2      ; list of tab positions, length 20
 maclst  =       tablst + 20     ; list of posible macro positions
 .stracc SKIP    &0100
-maxmac  =       stracc - maclst ; Number of macro posns *2
+maxMAC  =       stracc - maclst ; Number of macro posns *2
 
 trnlst  =       stracc          ; table of translateable characters
 
-        IF cf8key=1
+        IF cF8key=1
 
 dhtext  =       remap(".he␀.en␀")                       ; default header text
 dftext  =       remap(".fo␀.ce␀Page .r0␀.ff.en␀")       ; default footer text
@@ -257,13 +257,13 @@ dfsize  =       LEN(dftext)
 
         ENDIF
 
-.sindex SKIP    &06
-.ssttlo SKIP    &06
-.sstthi SKIP    &06
-.scntlo SKIP    &06
-.scnthi SKIP    &06
-.fieldm SKIP    &0A
-.fieldo SKIP    &0A
+.SINDEXSTK SKIP &06
+.SSTTLOSTK SKIP &06
+.SSTTHISTK SKIP &06
+.SCNTLOSTK SKIP &06
+.SCNTHISTK SKIP &06
+.fieldmmxtab SKIP &0A
+.fieldofftab SKIP &0A
 .scrim  SKIP    &20
 
         ENDSECTION

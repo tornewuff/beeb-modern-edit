@@ -1,5 +1,5 @@
         ; -> EDIT03
-.INITED
+.inited
         ; Set up edit keys as softkeys, and set softkeys to have
         ; following bases -
         ; plain = &80
@@ -7,66 +7,66 @@
         ; ctrl  = &A0
         LDA     #4
         LDX     #2
-        JSR     OSBYTE
+        JSR     osbyte
         LDA     #&DB
         LDX     #128 + 10
         LDY     #0
-        JSR     OSBYTE          ; tab key pretends to be soft key 10
+        JSR     osbyte          ; tab key pretends to be soft key 10
         LDA     #&E3
         LDX     #&A0
         LDY     #0
-        JSR     OSBYTE
+        JSR     osbyte
         LDA     #&E2
         LDX     #&90
         LDY     #0
-        JSR     OSBYTE
+        JSR     osbyte
         LDX     #&80
 .INITEX
         LDA     #&E1
         LDY     #0
-        JMP     OSBYTE
-.INITUS
+        JMP     osbyte
+.initus
         ; Return cursor-keys & softkeys to 'normal' state.
         LDA     #&DB
         LDX     #9
         LDY     #0
-        JSR     OSBYTE          ; tab key emits 9
+        JSR     osbyte          ; tab key emits 9
         LDA     #4
         LDX     #0
-        JSR     OSBYTE
+        JSR     osbyte
         LDX     #1
         BRA     INITEX
-.STARTT
-        ; Returns CS if on 1st line (GS = TSTART), else CC.
-        LDA     TSTART
+.STARTTEST
+        ; Returns CS if on 1st line (GS = tstart), else CC.
+        LDA     tstart
         CMP     GS
-        LDA     TSTART + 1
+        LDA     tstart + 1
         SBC     GS + 1
         RTS
-.ENDTES
-        ; Returns CS if on last line (GE + scrimcreenY = TMAX), else CC.
+.ENDTEST
+        ; Returns CS if on last line (GE + scrimcreenY = tmax), else CC.
         CLC
-        LDA     CURRLE
+        LDA     currlength
         ADC     GE
         TAX
         LDA     #0
         ADC     GE + 1
-        CPX     TMAX
-        SBC     TMAX + 1
+        CPX     tmax
+        SBC     tmax + 1
         RTS
-.LENGTH
+.LENGTHCALC
         ; Find length of current line. Exit - A = length - 1
         LDY     #0
 .LECCLO
         LDA     (GE),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BEQ     LECCRE
         INY
-        CPY     PAGEWI
+        CPY     PAGEWIDTH
         BNE     LECCLO
 .LECCRE
         TYA
@@ -78,26 +78,26 @@
         ;         XY = temp = GE - XY
         ;         Error if temp < GS
 
-        STX     SIZE
-        STY     SIZE + 1
+        STX     size
+        STY     size + 1
         SEC
         LDA     GE
-        SBC     SIZE
+        SBC     size
         TAX
         LDA     GE + 1
-        SBC     SIZE + 1
+        SBC     size + 1
         TAY
-        STX     TEMP
-        STY     TEMP + 1
+        STX     temp
+        STY     temp + 1
         CPX     GS
         SBC     GS + 1
         BCS     VDU23X
-        JMP     CHNRRE                  ; 'No room'
+        JMP     CHNRRERR                ; 'No room'
 
 .CURON
         LDY     #1
         BRA     VDU231
-.CUROFF
+.curOFF
         LDY     #0
 .VDU231
         LDX     #1
@@ -106,26 +106,26 @@
         ; Exit  - VDU 23,X,Y,0,0,0,0,0,0,0 Output.
 
         LDA     #23
-        JSR     OSWRCH
+        JSR     oswrch
         TXA
-        JSR     OSWRCH
+        JSR     oswrch
         TYA
-        JSR     OSWRCH
-        JSR     VSTRNG
+        JSR     oswrch
+        JSR     vstrng
         EQUB    &00,&00,&00,&00,&00,&00,&00,&EA
 .VDU23X
         RTS
 
-.INTPAG
-        LDA     TUTMOD
+.intpag
+        LDA     tutmode
         AND     #7
         CMP     #2
         BEQ     KEYONL
         CMP     #5
         BEQ     KEYONL
         BRA     NOTTUT
-.CLEARS
-        LDA     TUTMOD
+.CLEARSCREEN
+        LDA     tutmode
         AND     #7
         CMP     #2
         BEQ     DOTUT
@@ -133,46 +133,46 @@
         BNE     NOTTUT
 .DOTUT
         PHA
-        JSR     VSTRNG
-        EQUB    26,HOME,&EA
-        JSR     STARTI
+        JSR     vstrng
+        EQUB    26,home,&EA
+        JSR     STARTINV
         JSR     BIGMESS
         PLA
         CMP     #2
         BEQ     KEYONL
         JSR     BIGMET
 .KEYONL
-        JSR     STOPIN
+        JSR     STOPINV
         JSR     GETWIN          ; get size of total screen
-        STA     REALPA          ; pagelength in A
+        STA     realPA          ; pagelength in A
         JSR     DECWIN
 .NOTTUT
         JSR     GETWIN          ; get size of working area
         TAX                     ; pagelength again in A
         INX                     ; Initialize scrim.
-        LDA     PAGEWI
+        LDA     PAGEWIDTH
 .SCMILO
-        STA     SCRIM,X
+        STA     scrim,X
         DEX
         BPL     SCMILO
-        JSR     STATUS
-        CLR     SCRNPY
+        JSR     status
+        CLR     scrnPY
         RTS
 .GETWIN
         LDA     #160
         LDX     #10
-        JSR     OSBYTE
-        STX     PAGEWI
-        STY     PAGELE
+        JSR     osbyte
+        STX     PAGEWIDTH
+        STY     pagelength
         LDX     #8
-        JSR     OSBYTE
+        JSR     osbyte
         TYA
         CLC
-        SBC     PAGELE
-        STA     PAGELE
+        SBC     pagelength
+        STA     pagelength
         RTS
 .DECWIN
-        LDA     TUTMOD
+        LDA     tutmode
         AND     #7
         LDY     #14
         CMP     #5
@@ -182,47 +182,47 @@
         BNE     NOWIND
 .WINDOW
         LDA     #28
-        JSR     OSWRCH
+        JSR     oswrch
         LDA     #0
-        JSR     OSWRCH
-        LDA     REALPA
+        JSR     oswrch
+        LDA     realPA
         INA
-        JSR     OSWRCH
-        LDA     PAGEWI
-        JSR     OSWRCH
+        JSR     oswrch
+        LDA     PAGEWIDTH
+        JSR     oswrch
         TYA
-        JMP     OSWRCH
+        JMP     oswrch
 .NOWIND
         LDA     #26
-        JMP     OSWRCH
+        JMP     oswrch
 .EDRDCH
         ; Exit - A holds character read
         LDA     NEXTREADFLAG
         BEQ     EDRDOSRD
-        LDA     NXTCHR
+        LDA     nxtchr
         CLR     NEXTREADFLAG
         RTS
 .EDRDOSRD
-        IF MOUSE=1
+        IF mouse=1
         PHX
         PHY
 .MOUSLP
         LDA     #&81
         LDX     #0
         LDY     #0
-        JSR     OSBYTE
+        JSR     osbyte
         TXA
         CPY     #&FF
         BNE     NOMOUSE
-        JSR     MOUSER
-        LDA     MOUSEL + 8
-        ORA     MOUSEL + 9
+        JSR     mouser
+        LDA     mousel + 8
+        ORA     mousel + 9
         BNE     MOUSLY
-        LDA     MOUSEL + 6
-        ORA     MOUSEL + 7
+        LDA     mousel + 6
+        ORA     mousel + 7
         BNE     MOUSLX
-        LDA     MOUSEL
-        CMP     MOUSEL + 5
+        LDA     mousel
+        CMP     mousel + 5
         BEQ     MOUSLP
         AND     #&7
         BIT     #&1
@@ -232,65 +232,65 @@
         BIT     #&4
         BEQ     MOUSLP
         LDA     #&86
-        BRA     NOMOUS
+        BRA     NOMOUSE
 .MOUSK1
         LDA     #&98
-        BRA     NOMOUS
+        BRA     NOMOUSE
 .MOUSK2
         LDA     #&97
-        BRA     NOMOUS
+        BRA     NOMOUSE
 .MOUSLX
         LDA     #&8D
-        LDX     MOUSEL + 7
-        BPL     NOMOUS
+        LDX     mousel + 7
+        BPL     NOMOUSE
         LDA     #&8C
-        BNE     NOMOUS
+        BNE     NOMOUSE
 .MOUSLY
         LDA     #&8F
-        LDX     MOUSEL + 9
+        LDX     mousel + 9
         BPL     NOMOUSE
         LDA     #&8E
 .NOMOUSE
         PLX
         PLY
         ELSE
-        JSR     OSRDCH
+        JSR     osrdch
         ENDIF
 
-        JMP     ESCTST
+        JMP     escTST
 .MODIFY
         LDA     #1
-        LDX     MODFLG
-        STA     MODFLG
-        BEQ     STATUS
+        LDX     modflg
+        STA     modflg
+        BEQ     status
         RTS
-.TABCTL
+.tabctl
         LDA     #8
-        EOR     TUTMOD
-        JSR     DOMODE
+        EOR     tutmode
+        JSR     doMODE
 
 .CstatU
-        STZ     UPDATE          ; update required
+        STZ     UPDATEREQD      ; update required
 .status
-        JSR     CSR0ST          ; Output status on status line.
-        JSR     startI          ; Start inverse
+        JSR     CSR0STATUSY     ; Output status on status line.
+        JSR     STARTINV        ; Start inverse
         JSR     TESTIF
         BEQ     STATSO
 
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    "Insert ",&EA
         BRA     STATSI
 
 .STATSO
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    "Over   ",&EA
 
 .STATSI
-        LDX     CURSED
+        LDX     cursED
         BEQ     STATSC
-        JSR     VSTRNG
+        JSR     vstrng
 
-        IF PHIL=0
+        IF phil=0
         EQUB    "    Cursor Editing",&EA
         ELSE
         EQUB    "    Soft Key Entry",&EA
@@ -299,38 +299,38 @@
         BRA     STATSX
 
 .STATSC
-        LDA     MARKX
+        LDA     markX
         BEQ     STATST
         DEA
         BNE     STATSM
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    "One mark ",&EA
         BRA     STATSS
 .STATSM
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    "Two marks",&EA
         BRA     STATSS
 .STATST
         LDA     #8
-        AND     TUTMOD
+        AND     tutmode
         BNE     STATTW
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    "TAB cols ",&EA
         BRA     STATSS
 .STATTW
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    "TAB words",&EA
 .STATSS
-        LDA     MODFLG
+        LDA     modflg
         BNE     STATMO
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    " Original",&EA
         BRA     STATSX
 .STATMO
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    " Modified",&EA
 .STATSX
-        IF cf8key=1
+        IF cF8key=1
 
         LDA     clterm
         CMP     #cr
@@ -347,31 +347,31 @@
 .STATlf
         ENDIF
 
-        IF STAMP=1
-        LDA     FLLOAD + 1
-        AND     FLLOAD + 2
-        AND     FLLOAD + 3
+        IF stamp=1
+        LDA     flload + 1
+        AND     flload + 2
+        AND     flload + 3
         INA
         BNE     STATNS
 
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    " Date",&EA
         BRA     STATNQ
 .STATNS
 
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    " Exec",&EA
 .STATNQ
         ENDIF
 
-        JSR     stopIN          ; stop inverse
-        LDY     pagele
+        JSR     STOPINV         ; stop inverse
+        LDY     pagelength
         INY
 
 prmptl  =       25              ; Prompt position
 
 
-        IF cf8key=1
+        IF cF8key=1
 prmod1  =       3               ; CR/LF text
         ELSE
 prmod1  =       0
@@ -383,9 +383,9 @@ prmod2  =       5               ; Date/Exec text
 prmod2  =       0
         ENDIF
 
-        LDA     #(PRMPTL - 1 + prmod1 + prmod2)  ; plus any modifications
+        LDA     #(prmptl - 1 + prmod1 + prmod2)  ; plus any modifications
 
-        JMP     wipeTA                  ; and clear the rest of the line
+        JMP     WIPETAIL                ; and clear the rest of the line
 
 
 .promtF
@@ -395,62 +395,62 @@ prmod2  =       0
         BRA     STRMFL
 
 .prompt
-        LDY PAGELE
+        LDY pagelength
         INY
-        JSR     WIPELI
+        JSR     wipeline
         LDX     #0
 .PRMPTX
-        LDY     PAGELE
+        LDY     pagelength
         INY
         JSR     CSRXY
         LDX     #1
         BRA     STRMFL
-.STRIMO
+.strimo
         LDX     #0
 .STRMFL
-        JSR     STARTI
+        JSR     STARTINV
         PLA
-        STA     STRING
+        STA     string
         PLA
-        STA     STRING + 1
+        STA     string + 1
         JSR     VSTRLP
-        JSR     STOPIN
+        JSR     STOPINV
         TXA
         BEQ     STRMEX
-        LDA     PAGEWI
+        LDA     PAGEWIDTH
         DEA
-        LDY     PAGELE
-        STA     SCRIM + 1,Y
+        LDY     pagelength
+        STA     scrim + 1,Y
 .STRMEX
-        JMP     (STRING)
-.CSRSCR
-        LDX SCRNX
-        LDY     SCRNY
+        JMP     (string)
+.CSRSCREENXY
+        LDX scrnX
+        LDY     scrnY
         BPL     CSRXY
-.CSR0ST
-        LDY PAGELE
+.CSR0STATUSY
+        LDY pagelength
         INY
 .CSR0Y
         LDX     #0
 .CSRXY
         LDA     #31
-        JSR     OSWRCH
+        JSR     oswrch
         TXA
-        JSR     OSWRCH
+        JSR     oswrch
         TYA
-        JMP     OSWRCH
-.NORMAL
+        JMP     oswrch
+.NORMALIZE
         ; Entry : gap character positioned
         ; Exit : gap moved to start of current line
         LDA     GS
-        STA     TEMP
+        STA     temp
         LDA     GS + 1
-        STA     TEMP + 1
+        STA     temp + 1
         JSR     FINDPO
-        STA     STRING
+        STA     string
         SEC
         LDA     GS
-        SBC     STRING
+        SBC     string
         TAX
         LDA     GS + 1
         SBC     #0
@@ -459,18 +459,18 @@ prmod2  =       0
 .FINDPO
         ; Entry : temp-> middle of line in 1st half of text
         ; Exit  : A[Z]  = xcoord (0..page..width) of pointer within line.
-        ;         Y(=atemp) = page_width - A
+        ;         Y(=Atemp) = page_width - A
         CLC     ;-1
-        LDA     TEMP
-        SBC     PAGEWI
-        STA     TEMP
+        LDA     temp
+        SBC     PAGEWIDTH
+        STA     temp
         BCS     FIPOND
-        DEC     TEMP + 1
+        DEC     temp + 1
 .FIPOND
-        LDY PAGEWI
+        LDY PAGEWIDTH
 .FIPOLP
-        LDA     (TEMP),Y
-        IF cf8key=1
+        LDA     (temp),Y
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
@@ -482,10 +482,10 @@ prmod2  =       0
         BPL     FIPOLP
         BMI     FINDPO
 .FIPOL2
-        STY ATEMP
+        STY Atemp
         SEC
-        LDA     PAGEWI
-        SBC     ATEMP
+        LDA     PAGEWIDTH
+        SBC     Atemp
         RTS
 .TPGEFD
         ; TP := GE  +  A lines
@@ -498,34 +498,34 @@ prmod2  =       0
         ; Entry - A = No. of lines to advance TP
         ; Exit  - TP advanced (possibly by less than A lines if hit EOT)
         ;         count = No. of lines remaining from original request.
-        ;         atemp = Last end of line character.
+        ;         Atemp = Last end of line character.
         TAX
-        STX     COUNT
+        STX     count
         BEQ     TPTPEX
 .TPTPLP
         LDY     #&FF
 .TPTPSE
         INY
         LDA     (TP),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BEQ     TPTPFD
-        CPY     PAGEWI
+        CPY     PAGEWIDTH
         BNE     TPTPSE
 .TPTPFD
-        STA ATEMP
+        STA Atemp
         TYA
         JSR     TPPAP1
         BCS     TPTPEX
-        DEC     COUNT
+        DEC     count
         BNE     TPTPLP
 .TPTPEX
         RTS
 .TPPAP1
-        ; Exit  -  CC TP = TP  +  (A + 1). CS TP + (A + 1) = HYMEM,
+        ; Exit  -  CC TP = TP  +  (A + 1). CS TP + (A + 1) = hymem,
         ;          TP unchanged.
         SEC     ; + 1
         ADC     TP
@@ -533,8 +533,8 @@ prmod2  =       0
         LDA     #0
         ADC     TP + 1
         TAY
-        CPX     HYMEM
-        SBC     HYMEM + 1
+        CPX     hymem
+        SBC     hymem + 1
         BCS     TPPAPX
         STX     TP
         STY     TP + 1
@@ -550,34 +550,34 @@ prmod2  =       0
         STX     TP
         STY     TP + 1
         TAX
-        STX     COUNT
+        STX     count
         BEQ     TPXYEX
         LDX     #0
 .TPXYLP
-        LDA TSTART
+        LDA tstart
         CMP     TP
-        LDA     TSTART + 1
+        LDA     tstart + 1
         SBC     TP + 1
         BCS     TPXYAB
         CLC     ; - 1
         LDA     TP
-        SBC     PAGEWI
+        SBC     PAGEWIDTH
         STA     TP
         BCS     TPXYND
         DEC     TP + 1
 .TPXYND
-        LDY PAGEWI
+        LDY PAGEWIDTH
         LDA     (TP),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
         ENDIF
         BNE     TPXYCO
         LDA     TP
-        STA     TEMP
+        STA     temp
         LDA     TP + 1
-        STA     TEMP + 1
+        STA     temp + 1
         JSR     FIPOE2
         BEQ     TPXYCO
         TYA                     ; answer from FINDPO in Y
@@ -587,14 +587,14 @@ prmod2  =       0
         INC     TP + 1
 .TPXYCO
         INX
-        CPX     COUNT
+        CPX     count
         BCC     TPXYLP
 .TPXYAB
         TXA
 .TPXYEX
         RTS
-.PAGEUP
-        LDA PAGELE
+.pageup
+        LDA pagelength
         INA
 .MVLNBK
         ; Entry - A = No. of lines to move gap back.
@@ -605,81 +605,81 @@ prmod2  =       0
         LDY     TP + 1
 .GPBKXY
         ; Move gap back so that GS := XY
-        STX     ARGP
-        STY     ARGP + 1
+        STX     argP
+        STY     argP + 1
         SEC
         LDA     GS
-        SBC     ARGP
+        SBC     argP
         STX     GS
         TAX
         LDA     GS + 1
-        SBC     ARGP + 1
+        SBC     argP + 1
         STY     GS + 1
         TAY
-        STX     SIZE
-        STY     SIZE + 1
+        STX     size
+        STY     size + 1
         LDA     GE
-        SBC     SIZE
-        STA     VARP
+        SBC     size
+        STA     varp
         STA     GE
         LDA     GE + 1
-        SBC     SIZE + 1
-        STA     VARP + 1
+        SBC     size + 1
+        STA     varp + 1
         STA     GE + 1
 .COPYFD
         ; Copy block forward (i.e. to higher address).
-        ; Entry - ARGP --> block of size XY
-        ;         VARP --> destination address
-        ; Exit  - ARGP,VARP uncorrupted.
-        STX     SIZE
-        STY     SIZE + 1
+        ; Entry - argP --> block of size XY
+        ;         varp --> destination address
+        ; Exit  - argP,varp uncorrupted.
+        STX     size
+        STY     size + 1
 .CPFD2
-        LDA SIZE
+        LDA size
         TAY
-        ORA     SIZE + 1
+        ORA     size + 1
         BEQ     CPFDEX
-        LDX     SIZE + 1
+        LDX     size + 1
         CLC
         TXA
-        ADC     ARGP + 1
-        STA     ARGP + 1
+        ADC     argP + 1
+        STA     argP + 1
         TXA
-        ADC     VARP + 1
-        STA     VARP + 1
+        ADC     varp + 1
+        STA     varp + 1
         INX
         BCC     CPFDL2
 .CPFDLP
-        LDA     (ARGP),Y
-        STA     (VARP),Y
+        LDA     (argP),Y
+        STA     (varp),Y
 .CPFDL2
         DEY
         CPY     #&FF
         BNE     CPFDLP
         DEX
         BEQ     CPFDEX
-        DEC     ARGP + 1
-        DEC     VARP + 1
+        DEC     argP + 1
+        DEC     varp + 1
         BNE     CPFDLP
 .CPFDEX
         RTS
-.PAGEDN
-        LDA PAGELE
+.pagedn
+        LDA pagelength
         INA
 .MVLNFD
         JSR TPGEFD
 .GPFDTP
         LDX TP
         LDY     TP + 1
-.GPFDXY
+.gpfdXY
         ; Move gap forward so that GE := XY
         LDA     GE
-        STA     ARGP
+        STA     argP
         LDA     GE + 1
-        STA     ARGP + 1
+        STA     argP + 1
         LDA     GS
-        STA     VARP
+        STA     varp
         LDA     GS + 1
-        STA     VARP + 1
+        STA     varp + 1
         SEC
         TXA
         SBC     GE
@@ -701,45 +701,45 @@ prmod2  =       0
         ADC     GE + 1
         STA     GE + 1
         JMP     COPYBK
-.FINEPO
+.FINEPOSITIONGAP
         ; Entry - Gap line positioned, without VS in text.
         ; Exit  - Gap character positioned, with VS added.
         JSR     ADDVIR
         CLC
         LDA     GE
-        ADC     SCRNX
+        ADC     scrnX
         TAX
         LDA     GE + 1
         ADC     #0
         TAY
-        BRA     GPFDXY
+        BRA     gpfdXY
 .ADDVIR
         JSR     VSCOUN
         BEQ     ADVSEX
         PHA
         TAX
-        LDA     CURRLE
+        LDA     currlength
         JSR     INSRTX
         ; Wipe possible visible TERMIN.
-        LDX     CURRLE
-        LDY     SCRNY
+        LDX     currlength
+        LDY     scrnY
         JSR     CSRXY
-        LDA     #SPACE
-        JSR     OSWRCH
+        LDA     #space
+        JSR     oswrch
         PLX     ;number spaces from VSCOUN
-        LDY     SCRNX
+        LDY     scrnX
 .ADVSLP
         DEY
         STA     (GE),Y
         DEX
         BNE     ADVSLP
 .ADVSEX
-        JMP     CSRSCR
+        JMP     CSRSCREENXY
 .VSCOUN
         ; Exit - A(Z) = Number of virtual spaces.
         SEC
-        LDA     SCRNX
-        SBC     CURRLE
+        LDA     scrnX
+        SBC     currlength
         BCS     VSCTEX
         LDA     #0
 .VSCTEX
@@ -748,7 +748,7 @@ prmod2  =       0
         ; Entry - Require gap of XY ( > 0) opening up after GE  +  A
         ; Exit  - GE -= XY (checked against GS)
         ;         A chars moved back to new GE, to open up gap
-        STA     ATEMP
+        STA     Atemp
         CLC
         ADC     GE
         PHA
@@ -761,65 +761,65 @@ prmod2  =       0
         LDY     #0
 .INSXLP
         LDA     (GE),Y
-        STA     (TEMP),Y
+        STA     (temp),Y
         INY
-        CPY     ATEMP
+        CPY     Atemp
         BCC     INSXLP
         STX     GE
-        LDA     TEMP + 1
+        LDA     temp + 1
         STA     GE + 1
         PLX
-        STX     COUNT
+        STX     count
         PLA
-        STA     TEMP + 1
+        STA     temp + 1
         PLA
-        STA     TEMP
-        LDY     MARKX
+        STA     temp
+        LDY     markX
 .INSXMK
         DEY
         BMI     INSXEX
-        LDX     SMATLO,Y
-        CPX     TEMP
-        LDA     SMATHI,Y
-        SBC     TEMP + 1
+        LDX     SMATlo,Y
+        CPX     temp
+        LDA     smathi,Y
+        SBC     temp + 1
         BCS     INSXMK
         SEC
         TXA
-        SBC     COUNT
-        STA     SMATLO,Y
-        LDA     SMATHI,Y
+        SBC     count
+        STA     SMATlo,Y
+        LDA     smathi,Y
         SBC     #0
-        STA     SMATHI,Y
+        STA     smathi,Y
         BRA     INSXMK
 .INSXEX
         RTS
-.TABKEY
+.tabkey
         LDA     #8
-        BIT     TUTMOD
+        BIT     tutmode
         BNE     TABSTR
 .TABPOS
-        INC SCRNX
-        LDA     SCRNX
+        INC scrnX
+        LDA     scrnX
         AND     #7
         BNE     TABPOS
-        LDA     SCRNX
-        CMP     PAGEWI
+        LDA     scrnX
+        CMP     PAGEWIDTH
         BCC     TABX
-        CLR     SCRNX
+        CLR     scrnX
         BRA     TABX
 .TABSTR
         LDA     #1
         JSR     TPGSBK
         CMP     #1
         BNE     INSXEX
-        LDY     SCRNX
+        LDY     scrnX
         DEY
 .TABS1
         INY
-        CPY     PAGEWI
+        CPY     PAGEWIDTH
         BCS     TABSSP
         LDA     (TP),Y
-        IF cf8key=1
+        IF cF8key=1
         CMP     clterm
         ELSE
         CMP     #termin
@@ -832,79 +832,79 @@ prmod2  =       0
         LDY     #&FF
 .TABS2
         INY
-        CPY     PAGEWI
+        CPY     PAGEWIDTH
         BCS     TABSEX
         LDA     (TP),Y
         CMP     #' '
         BEQ     TABS2
 .TABSEX
-        STY     SCRNX
+        STY     scrnX
 .TABX
-        CLR     UPDATE
+        CLR     UPDATEREQD
 .RELANX
         RTS
-.RETLAN
-        JSR     PROMPT
+.retlan
+        JSR     prompt
         EQUB    "Type language name:",&EA
-        JSR     READLS
+        JSR     readLS
         BEQ     RELANX
         LDY     #0
 .RELAPL
-        LDA     LINBUF,Y
+        LDA     linbuf,Y
         INY
-        CMP     #CR
+        CMP     #cr
         BNE     RELAPL
-        STA     LINBUF + 1,Y
+        STA     linbuf + 1,Y
         LDA     #' '
-        STA     LINBUF - 1,Y
+        STA     linbuf - 1,Y
         LDA     #'@'
-        STA     LINBUF,Y
-        LDA     #THELOT
-        STA     UPDATE
-        JSR     STFILE
+        STA     linbuf,Y
+        LDA     #thelot
+        STA     UPDATEREQD
+        JSR     stFILE
         LDA     GE + 1
         DEA
-        CMP     PAJE + 1
+        CMP     paje + 1
         BCS     RETLOK
         BRK
         EQUB    &02,"Not enough space to return to language",null
 .RETLOK
         LDA     #&FF
-        STA     BRKACT          ; pretty lethal break action rqd
-        LDA     PAJE + 1
+        STA     brkaction       ; pretty lethal break action rqd
+        LDA     paje + 1
         INA
-        STA     ARGP + 1
-        CLR     ARGP
+        STA     argP + 1
+        CLR     argP
         LDA     #0
-        STA     (TMAX)          ; terminating zero
+        STA     (tmax)          ; terminating zero
         LDA     GE
-        STA     ADDR
+        STA     addr
         LDA     GE + 1
-        STA     ADDR + 1
+        STA     addr + 1
 .RELLOP
-        LDA     (ADDR)
-        STA     (ARGP)
-        INC     ARGP
+        LDA     (addr)
+        STA     (argP)
+        INC     argP
         BNE     RELLOQ
-        INC     ARGP + 1
+        INC     argP + 1
 .RELLOQ
-        INC     ADDR
+        INC     addr
         BNE     RELLOP
-        INC     ADDR + 1
-        LDA     ADDR + 1
-        CMP     HYMEM + 1
+        INC     addr + 1
+        LDA     addr + 1
+        CMP     hymem + 1
         BNE     RELLOP
         JSR     CURON
-        JSR     VSTRNG
+        JSR     vstrng
         EQUB    26,12,&EA
-        JSR     INITUS
-        LDA     PAJE + 1
+        JSR     initus
+        LDA     paje + 1
         INA
-        STA     STRING + 1  ; set 0 to PAGE + 256
-        CLR     STRING
-        LDX     #<LINBUF
-        LDY     #>LINBUF
-        JMP     OSCLI
+        STA     string + 1  ; set 0 to PAGE + 256
+        CLR     string
+        LDX     #<linbuf
+        LDY     #>linbuf
+        JMP     oscli
 
 .prHELP
         EQUB    14,cr,cr,"Format commands:- {initial values}",cr
@@ -982,4 +982,4 @@ prmod2  =       0
         LDA     (string)
         BPL     prinHK
         JSR     inkeys
-        JMP     EDITco
+        JMP     EDITcont
