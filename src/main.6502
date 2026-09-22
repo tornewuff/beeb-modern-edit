@@ -42,6 +42,7 @@ ELSE
         INCLUDE "module/brk_handler.6502"
         INCLUDE "module/service_entry.6502"
 ENDIF
+INCLUDE "module/language_entry.6502"
 INCLUDE "EDIT01.6502"
 INCLUDE "EDIT02.6502"
 INCLUDE "EDIT03.6502"
