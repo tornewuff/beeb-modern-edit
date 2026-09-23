@@ -1,0 +1,34 @@
+.build {
+IF DEFINED(build_disc)
+        filename = "EDIT"
+ELSE
+        filename = "edit.1.50r.rom"
+ENDIF
+}
+
+org     =       &8000   ; Object destination address
+
+        ; ------------------------------------------------------------ ;
+
+vers    =       "1.50r" ; No more than 4 characters please
+
+phil    =       0       ; assemble with phil's version of "cursor editing"
+mouse   =       0       ; assemble with mouse options
+lerror  =       1       ; assemble with long error box
+dchars  =       1       ; assemble with character definitions
+syzygy  =       1       ; 'A SYZYGY prog' displayed, was under EXTRAS
+stamp   =       0       ; date stamping
+
+lfver   =       0       ; linefeed version
+cF8key  =       1       ; ctrl-f8 toggle (cr/lf)
+shortm  =       1       ; shorter messages
+curtyp  =       1       ; different cursor types
+
+lfarro  =       1       ; linefeed arrow
+
+extgf   =       0       ; extended FIND/REPLACE texts
+
+reladd  =       0       ; relocation address provided
+reladr  =       &B800   ; relocation address
+
+INCLUDE "main.6502"
