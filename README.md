@@ -14,6 +14,7 @@ All credit is due to the various original authors.
 
 ## Building
 
-The code has been adapted to the modern syntax Baron expects, and the inconsistently-spelled/capitalized labels (Acorn's assembler only considered the first six characters of labels to be significant, and compared them case-insensitively) have been made consistent.
+Currently this only builds HiEdit 1.24 using the default configuration from the period source code.
 
-You can run `just check` to see that Baron now emits no errors.
+- `just build` will build HiEdit 1.24.
+- `just verify` verifies that it matches the original.
