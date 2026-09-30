@@ -2,7 +2,7 @@ set minimum-version := '1.55.0'
 set unstable
 set lists
 
-roots := "src" / ["main"] + ".6502"
+roots := "src" / ["hiedit.b800"] + ".6502"
 build := "build"
 
 verify: build

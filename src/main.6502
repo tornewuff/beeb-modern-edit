@@ -1,9 +1,8 @@
 INCLUDE "utf8.6502"
 
-INCLUDE "HDRB800.6502"
 INCLUDE "EDIT00.6502"
 
-SECTION Main, cmos = true, org = org, filename = "hiedit.b800.rom"
+SECTION Main, cmos = true, org = org, filename = build.filename
 
 INCLUDE "EDIT01.6502"
 INCLUDE "EDIT02.6502"

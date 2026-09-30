@@ -1,5 +1,9 @@
         ;       Header file HI-Edit (CMOS)      > HDRB800
 
+.build {
+        filename = "hiedit.b800.rom"
+}
+
 org     =       &B800   ; Object destination address
 
         ; ------------------------------------------------------------ ;
@@ -24,3 +28,5 @@ extgf   =       0       ; extended FIND/REPLACE texts
 
 reladd  =       0       ; relocation address provided
 reladr  =       &B800   ; relocation address
+
+INCLUDE "main.6502"

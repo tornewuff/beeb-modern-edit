@@ -3,6 +3,6 @@
     "editor.tabSize": 8
   },
   "baron.sourceFiles": [
-    "src/main.6502"
+    "src/hiedit.b800.6502"
   ]
 }
