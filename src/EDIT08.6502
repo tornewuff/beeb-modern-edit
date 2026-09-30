@@ -165,7 +165,7 @@ IMRPNC
         JSR     REPLPART
 IMRPRP
         JSR     CHKNREP
-        JMP     IMRPRL  
+        JMP     IMRPRL
 IMRPNF
         JSR     NORMALIZE
         LDAIM   THELOT
@@ -389,7 +389,7 @@ SETMARK
         CPXIM   2
         BEQ     BADMAR
         ;Save mark address.
-        LDA     GE   
+        LDA     GE
         STAZX   SMATLO
         LDA     GE+1
         STAZX   SMATHI
@@ -600,7 +600,7 @@ curupd                          ; cursor update
         LDAZ    tutmod
         ANDIM   bit4
         BEQ     ovrcur
-           
+
         LDAZ    cursed
         BEQ     slowc1
 
@@ -873,7 +873,7 @@ noESC
 
 sttapt                          ; search through the table and print the text
                                 ; Entry..  A - character value
-                                ; Exit...  A - character value        
+                                ; Exit...  A - character value
                                 ;         CC - found - text printed
                                 ;         CS - not found
         LDXIM   :LSB: kttab
@@ -897,7 +897,7 @@ gotit1
         JSR     startI
 
         LDYIM   &01             ; the index to the text
-ncoutl        
+ncoutl
         LDAIY   ctptr
         BEQ     tdone
 

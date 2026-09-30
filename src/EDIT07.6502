@@ -1,5 +1,5 @@
         ; Find replace section -> EDIT07
-        ; Use recursive descent to check syntax ; 
+        ; Use recursive descent to check syntax ;
         ; F_str ::= find_part CR
         ; find_part ::= { ['*'] (simple_item | set_item) }
         ; set_item  ::= ['~'] ( '[' simple_item { simple_item } ']' )
@@ -45,7 +45,7 @@ NEXTCH
         RTS
         ; Translate & store FR string into stracc.
         ; Exit  - Find part translated into stracc, replindex holds start of
-        ;        replace string (when translated) in stracc. 
+        ;        replace string (when translated) in stracc.
         ;      - fieldindex = No. of fields (max 10) in find string.
         ;      - For each field n (n> 0) -
         ;        'mulf' (* ..)  -  fieldmmxtab,n = (mmx :OR: &80)
@@ -344,17 +344,17 @@ CHRSER
         ; 'Multiple occurence' matching is achieved by a general backtracking
         ; algorithm, using a stack of records, one for each '*-match', holding
         ; the following data -
-        ;  + - + 
+        ;  + - +
         ; |0| linbufX of multsym concerned
-        ;  + - + 
+        ;  + - +
         ; |1| lo }
         ;  + - +     } Text address of match start
         ; |2| hi }
-        ;  + - + 
+        ;  + - +
         ; |3| lo }
         ;  + - +     } Number of object accepted by match
         ; |4| hi }
-        ;  + - + 
+        ;  + - +
         ; The first record is reserved (by chknrep) for match-start pointer.
         ; Entry - MS   --> Search start position
         ;        EOSP    --> Top bit set charcater at required end of search.
@@ -528,9 +528,9 @@ COMOME
         BEQ     CMOSUB
         CMPIM   SETSYM
         BEQ     CMOSET
-        ; 
+        ;
         ; Must be escsym ch
-        ; 
+        ;
         INY
         LDAAY   STRACC-1
         CMPI    ME
@@ -638,7 +638,7 @@ CHNRFI
         BMI     CHNRMF
         TAY
         BEQ     CHNRMS
-        CLC       
+        CLC
         LDAAY   SSTTLOSTK
         ADCAY   SCNTLOSTK
         STA     TEMP

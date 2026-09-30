@@ -491,7 +491,7 @@ write
         BPL     WRITEX
         LDAIM   &20
         TRB     PRTFLG
-        JSR     DOSCRE 
+        JSR     DOSCRE
         LDAIM   &20
         TSB     PRTFLG
         RTS
@@ -544,7 +544,7 @@ DODIV
         CMP     SPACES
         BCC     DONDIV
         INX
-        SBC     SPACES 
+        SBC     SPACES
         BCS     DODIV
 DONDIV
         STX     Q

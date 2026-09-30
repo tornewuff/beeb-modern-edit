@@ -713,7 +713,7 @@ SAVEfi                          ; Save file
         ]
 
         JSR     dfinit
-        CMPIM   &01          
+        CMPIM   &01
         BEQ     marksa
 
         JSR     promtF
@@ -769,7 +769,7 @@ insrtF
         JSR     promtF
         =       "to insert:",&EA
         JSR     readns
-        LDA     GS              
+        LDA     GS
         STA     addr
         LDA     GS + 1
         STA     addr + 1
@@ -941,7 +941,7 @@ OLDTEXT
         TAX
         LDA     OLDSTA + 3
         SBC     ARGP + 1
-        TAY           
+        TAY
         BCC     NOOLD
         LDA     TSTART
         STA     VARP

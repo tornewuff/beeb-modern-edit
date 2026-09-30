@@ -439,18 +439,18 @@ TXTTAB
         &       SHFCOP
 BIGMES
         JSR VSTRNG
-        =       "°shf-f0¦§shf-f1¦§shf-f2¦§shf-f3¦§shf-f4¦§shf-f5¦§shf-f6¦§shf-f7¦§shf-f8¦§shf-f9±"
-        =       "©Display©Insert/©Insert ©Remove ©Return © Set   © Clear ©Marked ©Marked ©Clear ©"
-        =       "©Returns©Over   © file  ©Margins©Languag© Mode  © Marks ©Move   ©Delete ©text  ©"
-        =       "«¦¦f0¦¦¦¯¦¦f1¦¦¦¯¦¦f2¦¦¦¯¦¦f3¦¦¦¯¦¦f4¦¦¦¯¦¦f5¦¦¦¯¦¦f6¦¦¦¯¦¦f7¦¦¦¯¦¦f8¦¦¦¯¦¦f9¦¦­"
-        =       "© Goto  ©Command© Load  © Save  ©Find   ©Global © Mark  ©Marked © Print © Old  ©"
-        =       "© line  ©line   © file  © file  ©String ©Replace© Place ©Copy   © text  © text ©"
-        =       "²¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦¦®¦¦¦¦¦¦³"
+        =       "â”Œshf-f0â”€â”¬shf-f1â”€â”¬shf-f2â”€â”¬shf-f3â”€â”¬shf-f4â”€â”¬shf-f5â”€â”¬shf-f6â”€â”¬shf-f7â”€â”¬shf-f8â”€â”¬shf-f9â”"
+        =       "â”‚Displayâ”‚Insert/â”‚Insert â”‚Remove â”‚Return â”‚ Set   â”‚ Clear â”‚Marked â”‚Marked â”‚Clear â”‚"
+        =       "â”‚Returnsâ”‚Over   â”‚ file  â”‚Marginsâ”‚Languagâ”‚ Mode  â”‚ Marks â”‚Move   â”‚Delete â”‚text  â”‚"
+        =       "â”œâ”€â”€f0â”€â”€â”€â”¼â”€â”€f1â”€â”€â”€â”¼â”€â”€f2â”€â”€â”€â”¼â”€â”€f3â”€â”€â”€â”¼â”€â”€f4â”€â”€â”€â”¼â”€â”€f5â”€â”€â”€â”¼â”€â”€f6â”€â”€â”€â”¼â”€â”€f7â”€â”€â”€â”¼â”€â”€f8â”€â”€â”€â”¼â”€â”€f9â”€â”€â”¤"
+        =       "â”‚ Goto  â”‚Commandâ”‚ Load  â”‚ Save  â”‚Find   â”‚Global â”‚ Mark  â”‚Marked â”‚ Print â”‚ Old  â”‚"
+        =       "â”‚ line  â”‚line   â”‚ file  â”‚ file  â”‚String â”‚Replaceâ”‚ Place â”‚Copy   â”‚ text  â”‚ text â”‚"
+        =       "â””â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”˜"
         NOP
         RTS
 BIGMET
         JSR     VSTRNG
-        =       "The Acorn Screen Editor ‡ 1984 Acorn Computers Ver $vers"
+        =       "The Acorn Screen Editor Â© 1984 Acorn Computers Ver $vers"
 
         [ mouse = 1
         =       "m"
@@ -458,7 +458,7 @@ BIGMET
         =       " "
         ]
 
-        =       "°¦¦¦±Shift: screen up   "      ; EOL 1
+        =       "â”Œâ”€â”€â”€â”Shift: screen up   "      ; EOL 1
 
         [ syzygy=1      ; "a SYZYGY prog"
 
@@ -487,17 +487,17 @@ BIGMET
         ]
         ]
 
-        =       "   © ‹ ©Control: text start"  ; EOL 2
+        =       "   â”‚ â­¡ â”‚Control: text start"  ; EOL 2
 
-        =       "TAB performs tabulation controlled by shift TAB.      °¦®¦§¦®¦±Shift: word l/r  "  ; EOL 3
+        =       "TAB performs tabulation controlled by shift TAB.      â”Œâ”€â”´â”€â”¬â”€â”´â”€â”Shift: word l/r  "  ; EOL 3
 
-        =       "COPY deletes the character above the cursor.          © ˆ¤©¢‰ ©Control:         "  ; EOL 4
+        =       "COPY deletes the character above the cursor.          â”‚ â¯‡â•´â”‚â•¶â¯ˆ â”‚Control:         "  ; EOL 4
 
-        =       "shift COPY provides normal soft keys and cursor       ²¦§¦®¦§¦³    l/r of line  "  ; EOL 5
+        =       "shift COPY provides normal soft keys and cursor       â””â”€â”¬â”€â”´â”€â”¬â”€â”˜    l/r of line  "  ; EOL 5
 
-        =       "       copying (ESCAPE to leave this mode).             © Š ©Shift: screen down "  ; EOL 6
+        =       "       copying (ESCAPE to leave this mode).             â”‚ â­£ â”‚Shift: screen down "  ; EOL 6
 
-        =       "control COPY deletes the current line to next new line  ²¦¦¦³Control: text end  "  ; EOL 7
+        =       "control COPY deletes the current line to next new line  â””â”€â”€â”€â”˜Control: text end  "  ; EOL 7
         NOP
         RTS
 
@@ -783,11 +783,11 @@ SHFTAB
 SHFCOP
         =       "shf-COPY",cr
         [ shortm=0
-        =       "Cursor editing can be used with ‹ˆ¤¢‰Š and COPY.",cr
+        =       "Cursor editing can be used with â­¡â¯‡â•´â•¶â¯ˆâ­£ and COPY.",cr
         =       "User defined soft keys are available as normal.",cr
         =       "All characters except ESCAPE are put into text.",cr,&EA
         |
-        =       "Cursor editing mode. ‹ˆ¤¢‰Š and COPY and user",cr
+        =       "Cursor editing mode. â­¡â¯‡â•´â•¶â¯ˆâ­£ and COPY and user",cr
         =       "defined soft keys available as normal",cr
         =       "ESCAPE terminates this mode",cr
         NOP

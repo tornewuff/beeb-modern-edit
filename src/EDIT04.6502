@@ -61,7 +61,7 @@ CLRREG
         STAAX   trnlst
         PLX
         |
-        STA     trnlst + lf + (cr - termin) 
+        STA     trnlst + lf + (cr - termin)
         ]
 
         LDAIM   &09
@@ -126,7 +126,7 @@ CHAINB
                                 ; with an immediate value straight after
 
         LDXIM   (dhsize - 1)    ; size of header
-mhlp        
+mhlp
         LDAAX   defhdr          ; default header
         BNE     nhchan
 
@@ -138,7 +138,7 @@ nhchan
         BPL     mhlp            ; move header loop
 
         LDXIM   (dfsize - 1)    ; size of footer
-mflp        
+mflp
         LDAAX   defftr          ; default footer
         BNE     nfchan
 
@@ -633,7 +633,7 @@ MOVREG
         ANDIM   15
         STA     BUFF
         LDAAX   NOREGS
-        PLX     
+        PLX
         STAAX   NOREGS
         LDAAX   NOREGS+1
         ANDIM   &F0
@@ -757,7 +757,7 @@ ROUTFO
 ROUTEF
         LDA     ADDR
         STA     PAGEEF
-        LDA     ADDR+1 
+        LDA     ADDR+1
         STA     PAGEEF+1
 ROUTIG
         BRA     SKIPEN

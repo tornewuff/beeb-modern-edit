@@ -457,10 +457,10 @@ NORMAL
 FINDPO
         ; Entry : temp-> middle of line in 1st half of text
         ; Exit  : A[Z]  = xcoord (0..page..width) of pointer within line.
-        ;         Y(=atemp) = page_width - A  
+        ;         Y(=atemp) = page_width - A
         CLC     ;-1
         LDA     TEMP
-        SBC     PAGEWI 
+        SBC     PAGEWI
         STA     TEMP
         BCS     FIPOND
         DEC     TEMP + 1
@@ -627,7 +627,7 @@ GPBKXY
 COPYFD
         ; Copy block forward (i.e. to higher address).
         ; Entry - ARGP --> block of size XY
-        ;         VARP --> destination address 
+        ;         VARP --> destination address
         ; Exit  - ARGP,VARP uncorrupted.
         STX     SIZE
         STY     SIZE + 1
