@@ -14,4 +14,6 @@ All credit is due to the various original authors.
 
 ## Building
 
-The code is written in Acorn's own assembler syntax and does not yet build. You can run `just check` to see one or more syntax errors from Baron that need to be fixed.
+The code has been adapted to the modern syntax Baron expects, but does not yet build as Acorn's assembler only considered the first six characters of labels to be significant, and compared them case-insensitively, so the source is not entirely consistent about the spelling and capitalization of labels.
+
+You can run `just check` to see a long list of undefined symbol errors.

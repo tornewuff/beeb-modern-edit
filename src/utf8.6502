@@ -1,0 +1,58 @@
+; Decode a short list of assumed-valid UTF-8 bytes, one character per recursion.
+; Only ever called on runs of 8 bytes or fewer, so its depth is bounded by 8.
+FUNCTION utf8_decode_core(cs)
+    IF LEN(cs) == 0
+        r = {}
+    ELIF cs[0] < &80
+        r = CONCAT({cs[0]}, utf8_decode_core(cs[1..]))
+    ELIF cs[0] < &E0
+        r = CONCAT({(cs[0] AND &1F) * 64 + (cs[1] AND &3F)}, utf8_decode_core(cs[2..]))
+    ELIF cs[0] < &F0
+        r = CONCAT({(cs[0] AND &F) * 4096 + (cs[1] AND &3F) * 64 + (cs[2] AND &3F)}, utf8_decode_core(cs[3..]))
+    ELSE
+        r = CONCAT({(cs[0] AND &7) * 262144 + (cs[1] AND &F) * 4096 + (cs[2] AND &3F) * 64 + (cs[3] AND &3F)}, utf8_decode_core(cs[4..]))
+    ENDIF
+= r
+
+; Largest index <= i that starts a character (i.e. is not a continuation byte).
+FUNCTION utf8_cut(cs, i)
+    IF (cs[i] AND &C0) == &80
+        r = utf8_cut(cs, i - 1)
+    ELSE
+        r = i
+    ENDIF
+= r
+
+; Split in half and recurse, nudging the split point back onto a character boundary.
+; Depth is log2(n) + 8, so string length is effectively unlimited.
+FUNCTION utf8_decode(cs)
+    n = LEN(cs)
+    IF n <= 8
+        r = utf8_decode_core(cs)
+    ELSE
+        m = utf8_cut(cs, n DIV 2)
+        r = CONCAT(utf8_decode(cs[0..<m]), utf8_decode(cs[m..]))
+    ENDIF
+= r
+
+; Each codepoint is followed by three spaces to align nicely with the byte values.
+codepoints = "␀   ©   ⯇   ⯈   ⭣   ⭡   ╶   ╴   ─   ┬   │   ├   ┤   ┴   ┼   ┌   ┐   └   ┘   "
+byte_vals = {&00,&87,&88,&89,&8A,&8B,&A2,&A4,&A6,&A7,&A9,&AB,&AD,&AE,&AF,&B0,&B1,&B2,&B3}
+
+; Decoded list still has three space codepoints after each "significant" codepoint...
+from = CONCAT(0..127, utf8_decode(CODES(codepoints)))
+
+; ...so insert three space bytes after each element of byte_vals as well.
+pad_vals = REPEATED(LEN(byte_vals), ' ')
+to = CONCAT(0..127, FLATTEN(ZIP(byte_vals, pad_vals, pad_vals, pad_vals)))
+
+FUNCTION remap(s) = CHR(to[FIND(from, utf8_decode(CODES(s)))])
+
+FUNCTION remapchar(s)
+    u = utf8_decode(CODES(s))
+    if LEN(u) == 1
+        r = to[FIND(from, u[0])]
+    ELSE
+        r = ERROR("bad char: ", s)
+    ENDIF
+= r

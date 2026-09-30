@@ -439,18 +439,18 @@
         EQUW    SHFCOP
 .BIGMES
         JSR VSTRNG
-        EQUB    "┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐"
-        EQUB    "│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │"
-        EQUB    "│Returns│Over   │ file  │Margins│Languag│ Mode  │ Marks │Move   │Delete │text  │"
-        EQUB    "├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤"
-        EQUB    "│ Goto  │Command│ Load  │ Save  │Find   │Global │ Mark  │Marked │ Print │ Old  │"
-        EQUB    "│ line  │line   │ file  │ file  │String │Replace│ Place │Copy   │ text  │ text │"
-        EQUB    "└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┘"
+        EQUB    remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐")
+        EQUB    remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │")
+        EQUB    remap("│Returns│Over   │ file  │Margins│Languag│ Mode  │ Marks │Move   │Delete │text  │")
+        EQUB    remap("├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤")
+        EQUB    remap("│ Goto  │Command│ Load  │ Save  │Find   │Global │ Mark  │Marked │ Print │ Old  │")
+        EQUB    remap("│ line  │line   │ file  │ file  │String │Replace│ Place │Copy   │ text  │ text │")
+        EQUB    remap("└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┘")
         NOP
         RTS
 .BIGMET
         JSR     VSTRNG
-        EQUB    "The Acorn Screen Editor © 1984 Acorn Computers Ver ", vers
+        EQUB    remap("The Acorn Screen Editor © 1984 Acorn Computers Ver "), vers
 
         IF mouse = 1
         EQUB    "m"
@@ -458,7 +458,7 @@
         EQUB    " "
         ENDIF
 
-        EQUB    "┌───┐Shift: screen up   "      ; EOL 1
+        EQUB    remap("┌───┐Shift: screen up   ")      ; EOL 1
 
         IF syzygy=1     ; "a SYZYGY prog"
 
@@ -487,17 +487,17 @@
         ENDIF
         ENDIF
 
-        EQUB    "   │ ⭡ │Control: text start"  ; EOL 2
+        EQUB    remap("   │ ⭡ │Control: text start")  ; EOL 2
 
-        EQUB    "TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  "  ; EOL 3
+        EQUB    remap("TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  ")  ; EOL 3
 
-        EQUB    "COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         "  ; EOL 4
+        EQUB    remap("COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         ")  ; EOL 4
 
-        EQUB    "shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  "  ; EOL 5
+        EQUB    remap("shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  ")  ; EOL 5
 
-        EQUB    "       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down "  ; EOL 6
+        EQUB    remap("       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down ")  ; EOL 6
 
-        EQUB    "control COPY deletes the current line to next new line  └───┘Control: text end  "  ; EOL 7
+        EQUB    remap("control COPY deletes the current line to next new line  └───┘Control: text end  ")  ; EOL 7
         NOP
         RTS
 
@@ -783,11 +783,11 @@
 .SHFCOP
         EQUB    "shf-COPY",cr
         IF shortm=0
-        EQUB    "Cursor editing can be used with ⭡⯇╴╶⯈⭣ and COPY.",cr
+        EQUB    remap("Cursor editing can be used with ⭡⯇╴╶⯈⭣ and COPY."),cr
         EQUB    "User defined soft keys are available as normal.",cr
         EQUB    "All characters except ESCAPE are put into text.",cr,&EA
         ELSE
-        EQUB    "Cursor editing mode. ⭡⯇╴╶⯈⭣ and COPY and user",cr
+        EQUB    remap("Cursor editing mode. ⭡⯇╴╶⯈⭣ and COPY and user"),cr
         EQUB    "defined soft keys available as normal",cr
         EQUB    "ESCAPE terminates this mode",cr
         NOP

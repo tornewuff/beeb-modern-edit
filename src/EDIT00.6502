@@ -246,8 +246,8 @@ trnlst  =       stracc          ; table of translateable characters
 
         IF cf8key=1
 
-dhtext  =       ".he␀.en␀"                      ; default header text
-dftext  =       ".fo␀.ce␀Page .r0␀.ff.en␀"      ; default footer text
+dhtext  =       remap(".he␀.en␀")                       ; default header text
+dftext  =       remap(".fo␀.ce␀Page .r0␀.ff.en␀")       ; default footer text
 
 dhsize  =       LEN(dhtext)
 dfsize  =       LEN(dftext)
