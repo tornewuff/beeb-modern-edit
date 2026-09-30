@@ -151,14 +151,14 @@
         ;        'mode' (insert, overtype, csr-edit).
         CMP     #delete
         BEQ     ECHRDE
-        CLR     oldsta + 3
+        STZ     oldsta + 3
         CMP     #cr
         BNE     ECHRCO
         JSR     TESTIF ;In insert mode put in the CR
         BNE     ECHRCR
         JSR     ENDTEST
         BCS     ECHRCR
-        CLR     scrnX
+        STZ     scrnX
         JMP     curDWN ;in overtype mode CR is start of line
 .ECHRCR
         IF cF8key=1
@@ -201,7 +201,7 @@
         LDY     scrnY
         JSR     WIPETAIL
 .EHRCSU
-        CLR     scrnX
+        STZ     scrnX
         JSR     curDWN
 .ECHRUP
         LDA     UPDATEREQD
@@ -276,7 +276,7 @@
 .DELLIX
         JSR     delabv
 .dellin
-        CLR     scrnX
+        STZ     scrnX
         LDA     (GE)
         IF cF8key=1
         CMP     clterm

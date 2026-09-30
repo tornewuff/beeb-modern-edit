@@ -40,9 +40,9 @@
         BNE     NEWGR
         JSR     FINDTRANS
         JSR     dfblok
-        CLR     line
-        CLR     line+1
-        CLR     TEXPFLAG
+        STZ     line
+        STZ     line+1
+        STZ     TEXPFLAG
 .GREPLP
         LDX     GE
         LDY     GE+1
@@ -182,7 +182,7 @@
         LDX     #4;Outputs LINE in decimal, suppressing leading zeros.
         STX     string
 .WOPRNEXT
-        CLR     string+1
+        STZ     string+1
 .WOPRLOOP
         SEC
         LDA     line
@@ -203,7 +203,7 @@
 .WOPRGEN
         ORA     #'0'
         JSR     oswrch
-        CLR     string
+        STZ     string
 .WOPRCONT
         DEX
         BPL     WOPRNEXT
@@ -231,7 +231,7 @@
         ;Exit  -  marksbeforecsr =       No. of marks before GE.
         JSR     MKUDCH
 .MKUDKN
-        CLR     marksbeforecsr
+        STZ     marksbeforecsr
         LDX     markX
 .MKUDLP
         DEX
@@ -296,7 +296,7 @@
 .CLRMCO
         LDA     markX
         STA     nummarks
-        CLR     markX
+        STZ     markX
         JSR     status
         LDA     nummarks
 .MKRFEX

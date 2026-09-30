@@ -258,10 +258,10 @@
         STA     BRKv
         LDA     #>ROM1br
         STA     BRKv + 1
-        CLR     oldsta + 3
+        STZ     oldsta + 3
         LDA     #&F2
         STA     scratch
-        CLR     scratch + 1
+        STZ     scratch + 1
         JSR     readby
         TAX
         JSR     readnx
@@ -669,13 +669,13 @@ nlfarr  =       &FE
         STA     scratch + 2
         LDA     addr + 1
         STA     scratch + 3
-        CLR     scratch + 4
-        CLR     scratch + 5
-        CLR     scratch + 6
+        STZ     scratch + 4
+        STZ     scratch + 5
+        STZ     scratch + 6
         LDA     #&FF
         JSR     XYSCRATCH
         JSR     osfile
-        CLR     oldsta + 3      ; make old impossible
+        STZ     oldsta + 3      ; make old impossible
         CLC
         LDA     addr
         ADC     scratch + &0A

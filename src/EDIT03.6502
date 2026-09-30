@@ -156,7 +156,7 @@
         DEX
         BPL     SCMILO
         JSR     status
-        CLR     scrnPY
+        STZ     scrnPY
         RTS
 .GETWIN
         LDA     #160
@@ -200,7 +200,7 @@
         LDA     NEXTREADFLAG
         BEQ     EDRDOSRD
         LDA     nxtchr
-        CLR     NEXTREADFLAG
+        STZ     NEXTREADFLAG
         RTS
 .EDRDOSRD
         IF mouse=1
@@ -805,7 +805,7 @@ prmod2  =       0
         LDA     scrnX
         CMP     PAGEWIDTH
         BCC     TABX
-        CLR     scrnX
+        STZ     scrnX
         BRA     TABX
 .TABSTR
         LDA     #1
@@ -840,7 +840,7 @@ prmod2  =       0
 .TABSEX
         STY     scrnX
 .TABX
-        CLR     UPDATEREQD
+        STZ     UPDATEREQD
 .RELANX
         RTS
 .retlan
@@ -874,7 +874,7 @@ prmod2  =       0
         LDA     paje + 1
         INA
         STA     argP + 1
-        CLR     argP
+        STZ     argP
         LDA     #0
         STA     (tmax)          ; terminating zero
         LDA     GE
@@ -901,7 +901,7 @@ prmod2  =       0
         LDA     paje + 1
         INA
         STA     string + 1  ; set 0 to PAGE + 256
-        CLR     string
+        STZ     string
         LDX     #<linbuf
         LDY     #>linbuf
         JMP     oscli

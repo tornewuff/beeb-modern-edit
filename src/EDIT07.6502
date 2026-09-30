@@ -24,14 +24,14 @@
 
 .FRSTRINIT
         ; Exit  -  Y = 0
-        CLR     outindex
-        CLR     replflag
-        CLR     fieldindex
-        CLR     mmx
-        CLR     offset
-        CLR     SENSFLAG
+        STZ     outindex
+        STZ     replflag
+        STZ     fieldindex
+        STZ     mmx
+        STZ     offset
+        STZ     SENSFLAG
 .MININIT
-        CLR     inpindex
+        STZ     inpindex
         BRA     NEXTCH
 .GENNEXTCH
         JSR     GENBYTE
@@ -57,9 +57,9 @@
 .FINDTRANS
         JSR     FRSTRINIT
 .FINDPART
-        CLR     MULFFLAG ; Don't yet know whether next object is either a
-        CLR     metaflag ; star or wildcard field.
-        CLR     BUTTFLAG ; or ^
+        STZ     MULFFLAG ; Don't yet know whether next object is either a
+        STZ     metaflag ; star or wildcard field.
+        STZ     BUTTFLAG ; or ^
         LDA     Atemp
         CMP     #cr
         BEQ     FIPAEXIT
@@ -144,7 +144,7 @@
         BCS     FRSTERR
         ORA     #&80
         STA     fieldmmxtab,X
-        CLR     offset
+        STZ     offset
         BRA     FINDPCH
 .FRSTERR
         BRK
@@ -293,7 +293,7 @@
         JMP     GENBYTE
 .CHARACTERSPECIFIER
         ; Exit  -  X = Character
-        CLR     count ; Add 128 count
+        STZ     count ; Add 128 count
         LDA     Atemp
         BMI     CHSPBY
         CMP     #'|'
@@ -365,7 +365,7 @@
         ;        CS  Search failed.
 .SEARCH
         LDY     #0
-        CLR     sstckx
+        STZ     sstckx
         ; Start of attempted match. See if have reached texp - either old
         ; cursor position, or end of search block.
         LDA     MS
@@ -476,8 +476,8 @@
         STA     SSTTLOSTK,X
         LDA     me + 1
         STA     SSTTHISTK,X
-        CLR     SCNTLOSTK,X
-        CLR     SCNTHISTK,X
+        STZ     SCNTLOSTK,X
+        STZ     SCNTHISTK,X
         JSR     compmobj ; Cheap way to advance Y to next find-object.
         JMP     SRCHCT
 .COMOFS

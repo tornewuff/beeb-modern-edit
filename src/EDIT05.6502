@@ -47,7 +47,7 @@
         RTS
 .ROUTRF
         STA     rflush
-        CLR     centre        ; can't have both
+        STZ     centre        ; can't have both
         RTS
 .ROUTSP
         JSR     GETNO
@@ -82,12 +82,12 @@
         STA     vspace
         RTS
 .ROUTTA
-        CLR     LASTTAB
+        STZ     LASTTAB
 .SETTAB
         JSR     GETNO
         LDX     LASTTAB
         STA     tablst,X
-        CLR     tablst+1,X
+        STZ     tablst+1,X
         INC     LASTTAB
         JSR     SPACEY
         CMP     #','
@@ -259,11 +259,11 @@
         PHA
         LDA     linfed
         PHA
-        CLR     linfed
-        CLR     fill
-        CLR     pbold
-        CLR     pundrl
-        CLR     indent
+        STZ     linfed
+        STZ     fill
+        STZ     pbold
+        STZ     pundrl
+        STZ     indent
         LDA     #1
         STA     vspace
         STX     addr
@@ -498,7 +498,7 @@
 .DOSCRE
         LDA     offset
         JSR     SCMVTO
-        CLR     diff
+        STZ     diff
         LDA     xeff
         BNE     SCREEA
         SEC
@@ -623,7 +623,7 @@
 .closeX
         LDY     indexH
         BEQ     closee
-        CLR     indexH
+        STZ     indexH
         LDA     #&00
         JSR     osfind        ; close index file
 .closee
