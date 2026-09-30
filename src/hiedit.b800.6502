@@ -38,4 +38,6 @@ extgf   =       0       ; extended FIND/REPLACE texts
 reladd  =       0       ; relocation address provided
 reladr  =       &B800   ; relocation address
 
+edit150 =       FALSE   ; shuffle code around to build EDIT 1.50
+
 INCLUDE "main.6502"
