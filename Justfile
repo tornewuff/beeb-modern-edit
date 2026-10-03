@@ -11,6 +11,9 @@ verify: build
 build: _prep
     baron -p {{ build }} {{ roots }}
 
+disc target: _prep
+    baron -D build_disc=\"{{ target }}\" --opt 3 -o {{ build }}/disc.ssd {{ roots }} src/disc_boot.6502
+
 _prep:
     @mkdir -p {{ build }}
 

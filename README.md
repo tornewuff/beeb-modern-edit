@@ -18,3 +18,4 @@ Currently this only builds HiEdit 1.24 using the default configuration from the 
 
 - `just build` will build HiEdit 1.24.
 - `just verify` verifies that it matches the original.
+- `just disc hiedit` will build an SSD image that boots HiEdit.

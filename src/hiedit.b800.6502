@@ -1,7 +1,11 @@
         ;       Header file HI-Edit (CMOS)      > HDRB800
 
 .build {
+if DEFINED(build_disc)
+        filename = "HIEDIT"
+ELSE
         filename = "hiedit.b800.rom"
+ENDIF
 }
 
 org     =       &B800   ; Object destination address
