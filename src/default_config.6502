@@ -25,6 +25,8 @@
         extgf   =       0
         ; shuffle code around to build EDIT 1.50
         edit150 =       FALSE
+        ; omit the service handler to save space (formerly enabled by mouse=1)
+        omit_service =  FALSE
 }
 
 IF DEFINED(setconfig.phil) : phil = setconfig.phil : ELSE : phil = default_config.phil : ENDIF
@@ -40,3 +42,4 @@ IF DEFINED(setconfig.curtyp) : curtyp = setconfig.curtyp : ELSE : curtyp = defau
 IF DEFINED(setconfig.lfarro) : lfarro = setconfig.lfarro : ELSE : lfarro = default_config.lfarro : ENDIF
 IF DEFINED(setconfig.extgf) : extgf = setconfig.extgf : ELSE : extgf = default_config.extgf : ENDIF
 IF DEFINED(setconfig.edit150) : edit150 = setconfig.edit150 : ELSE : edit150 = default_config.edit150 : ENDIF
+IF DEFINED(setconfig.omit_service) : omit_service = setconfig.omit_service : ELSE : omit_service = default_config.omit_service : ENDIF

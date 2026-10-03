@@ -4,7 +4,12 @@ SECTION Header, org = header_origin
 
         JMP     language
 
+IF omit_service
+        RTS
+        EQUW    0
+ELSE
         JMP     service_entry
+ENDIF
 
 IF build.relocation_model == "none"
         EQUB    &C2             ; service + language, 6502 code

@@ -1,3 +1,5 @@
+IF NOT(omit_service)
+
 ; Calculate the non-relocated equivalent of the address we are currently at.
 service_origin = * - origin + header_origin
 
@@ -5,7 +7,6 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
 
 ; Recognise *help and *edit
 .service_entry {
-        IF mouse = 0
         CMP     #&04
         BEQ     unknow
         CMP     #&09
@@ -95,7 +96,8 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
         LDA     #&8E
         ENDIF
         JMP     osbyte
-        ENDIF
 }
 
 ENDSECTION
+
+ENDIF
