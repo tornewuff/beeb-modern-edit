@@ -450,7 +450,14 @@
         RTS
 .BIGMET
         JSR     vstrng
-        EQUB    remap("The Acorn Screen Editor © 1984 Acorn Computers Ver "), vers
+        EQUB    remap("The Acorn Screen Editor © 1984 Acorn Computers ")
+        IF LEN(metadata.version_str) == 4
+        EQUB    "Ver ", metadata.version_str
+        ELIF LEN(metadata.version_str) == 5
+        EQUB    "Vn ", metadata.version_str
+        ELSE
+        ERROR   "version_str must be 4 or 5 bytes"
+        ENDIF
 
         IF mouse = 1
         EQUB    "m"

@@ -14,8 +14,9 @@ All credit is due to the various original authors.
 
 ## Building
 
-Currently this only builds HiEdit 1.24 using the default configuration from the period source code.
+Currently this builds HiEdit 1.24 using the default configuration from the period source code, and a work-in-progress version of Edit 1.50r that is mostly just the same as 1.24.
 
-- `just build` will build HiEdit 1.24.
-- `just verify` verifies that it matches the original.
+- `just build` will build both variants.
+- `just verify` verifies that HiEdit 1.24 matches the original (but does not check 1.50r because it definitely does not match yet).
 - `just disc hiedit` will build an SSD image that boots HiEdit.
+- `just disc edit` will build an SSD image that boots Edit 1.50r.

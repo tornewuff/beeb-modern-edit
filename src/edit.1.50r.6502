@@ -6,11 +6,16 @@ ELSE
 ENDIF
 }
 
-org     =       &8000   ; Object destination address
+.metadata {
+        title = "EDIT"
+        copyright = CONCAT("1989 Acorn", lf, cr)
+        version_byte = &0a
+        version_str = "1.50r"
+}
+
+org     =       &B800   ; Object destination address
 
         ; ------------------------------------------------------------ ;
-
-vers    =       "1.50r" ; No more than 4 characters please
 
 phil    =       0       ; assemble with phil's version of "cursor editing"
 mouse   =       0       ; assemble with mouse options

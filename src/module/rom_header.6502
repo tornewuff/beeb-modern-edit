@@ -1,29 +1,25 @@
 .origin
-.pasROM
         JMP     language
-        IF reladd=0
+IF reladd=0
         JMP     servic
-        ELSE
+ELSE
         JMP     servic - origin + &8000
-        ENDIF
+ENDIF
 
-        IF reladd=0
+IF reladd=0
         EQUB    &C2                     ; Type flag
-        ELSE
+ELSE
         EQUB    &E2                     ; relocation address provided
-        ENDIF
+ENDIF
 
-        EQUB    copyri - pasROM
-        EQUB    &02
-        EQUB    "Edit"
-        EQUB    null
-        EQUB    vers
-.copyri
-        EQUB    null
-        EQUB    "(C)1984 Acorn"
-        EQUB    null
+        EQUB    copyright - origin
+        EQUB    metadata.version_byte
+        EQUB    metadata.title, null
+        EQUB    metadata.version_str
+.copyright
+        EQUB    null, "(C)", metadata.copyright, null
 
-        IF reladd=1
+IF reladd=1
         EQUW    reladr                  ; relocation value
         EQUW    &0000                   ; Top 2 bytes
-        ENDIF
+ENDIF
