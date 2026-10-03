@@ -1,5 +1,7 @@
 INCLUDE "include/default_config.6502"
 INCLUDE "include/utf8.6502"
+INCLUDE "include/mos.6502"
+INCLUDE "include/nmos_compat.6502"
 
 IF build.relocation_model == "none"
         ; Assemble everything for the destination address. If this is not &8000

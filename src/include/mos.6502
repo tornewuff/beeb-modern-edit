@@ -1,0 +1,12 @@
+; MOS zero page workspace locations
+
+os_text_ptr     =       &f2
+
+; Service call numbers
+
+service_call_offer_command      = &04
+service_call_help               = &09
+
+; OSBYTE calls
+
+osbyte_enter_language   = &8e

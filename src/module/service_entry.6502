@@ -7,93 +7,64 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
 
 ; Recognise *help and *edit
 .service_entry {
-        CMP     #&04
-        BEQ     unknow
-        CMP     #&09
-        BNE     servex
+        CMP     #service_call_offer_command
+        BEQ     parse_command
+        CMP     #service_call_help
+        BNE     return
 
-        ; *HELP response
-
-        LDA     (&F2),Y
+        ; *help
+        LDA     (os_text_ptr),Y
         CMP     #cr
-        BNE     helpEX  ; don't say anything unless there are no keywords
-
-        IF build.cmos_host
-        PHY
-        ELSE
-        TYA
-        PHA
-        ENDIF
-
-        LDY     #helpen - helpin - 1
-.helpLO
-        LDA     helpin,Y
+        BNE     help_return  ; don't say anything unless there are no keywords
+        PHY_COMPAT
+        LDY     #help_message_last - help_message
+.@      LDA     help_message,Y
         JSR     osasci
         DEY
-        BPL     helpLO
-
-        IF build.cmos_host
-        PLY
-        ELSE
-        PLA
-        TAY
-        ENDIF
-.helpEX
-        LDA     #&09
-.servex
+        BPL     @-
+        PLY_COMPAT
+.help_return
+        LDA     #service_call_help
+.return
         RTS
-.helpin
-        EQUB    cr,"5 TIDE",cr
-.helpen
+.help_message
+        EQUB    cr, "5 "
+.help_message_edit  ; used for command matching as well as help
+        EQUB    REVERSE("EDIT")
+.help_message_last
+        EQUB    cr
 
-.unknow
+.parse_command
         ; Recognise *edit as command to enter language.
-
-        IF build.cmos_host
-        PHY
-        PHX
-        ELSE
-        TYA
-        PHA
-        TXA
-        PHA
-        ENDIF
-
-        LDX     #&03
-.ucomLO
-        LDA     (&F2),Y
+        PHY_COMPAT
+        PHX_COMPAT
+        LDX     #help_message_last - help_message_edit - 1
+.@      LDA     (os_text_ptr),Y
         CMP     #'.'
-        BEQ     ucommi
-        AND     #&DF
-        CMP     helpen - 5,X
-        BNE     ucomEX
+        BEQ     edit_command
+        AND     #&DF            ; convert to uppercase
+        CMP     help_message_edit,X
+        BNE     command_return
         INY
         DEX
-        BPL     ucomLO
-        LDA     (&F2),Y
+        BPL     @-
+        LDA     (os_text_ptr),Y
         CMP     #space + 1
-        BCC     ucommi
-.ucomEX
-        IF build.cmos_host
-        PLX
-        PLY
-        ELSE
-        PLA
-        TAX
-        PLA
-        TAY
-        ENDIF
-        LDA     #&04
+        BCC     edit_command    ; if space or control char
+.command_return
+        PLX_COMPAT
+        PLY_COMPAT
+        LDA     #service_call_offer_command
         RTS
-.ucommi
+.edit_command
         ; Command recognised - enter self as a language.
         IF build.cmos_host
-        LDA     #&8E
+        LDA     #osbyte_enter_language
         PLX
         ELSE
         PLA
         TAX
-        LDA     #&8E
+        LDA     #osbyte_enter_language
         ENDIF
         JMP     osbyte
 }
