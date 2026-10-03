@@ -1,8 +1,35 @@
 INCLUDE "utf8.6502"
 
+IF build.relocation_model == "none"
+        ; Assemble everything for the destination address. If this is not &8000
+        ; this will not be usable as a sideways ROM but can be loaded from disc.
+        header_origin = build.destination_address
+        origin = build.destination_address
+ELIF build.relocation_model == "tube"
+        ; Assemble the ROM header and service entry point for &8000, and the
+        ; rest of the code for the relocation address, used by the Tube loader.
+        header_origin = &8000
+        origin = build.relocation_address
+ELIF build.relocation_model == "mos350"
+        ; Assemble the ROM header and service entry point for &8000. The
+        ; assembly will be (externally) performed twice: first with the rest of
+        ; the code also assembled for &8000, then with `build_relocated` set to
+        ; assemble the rest of the code for the relocation address. The two ROMs
+        ; can then be compared to generate the relocation bitmap to be used by
+        ; the MOS 3.50 relocator.
+        header_origin = &8000
+        IF DEFINED(build_relocated)
+                origin = build.relocation_address
+        ELSE
+                origin = &8000
+        ENDIF
+ELSE
+        ERROR "unknown relocation model: ", build.relocation_model
+ENDIF
+
 INCLUDE "EDIT00.6502"
 
-SECTION Main, cmos = true, org = org, filename = build.filename
+SECTION Main, cmos = TRUE, org = origin, filename = build.filename
 
 INCLUDE "module/rom_header.6502"
 IF edit150

@@ -1,25 +1,37 @@
-.origin
+SECTION Header, org = header_origin
+
+.rom_header {
+
         JMP     language
-IF reladd=0
-        JMP     servic
+
+        JMP     service_entry
+
+IF build.relocation_model == "none"
+        EQUB    &C2             ; service + language, 6502 code
 ELSE
-        JMP     servic - origin + &8000
+        EQUB    &E2             ; relocation address provided
 ENDIF
 
-IF reladd=0
-        EQUB    &C2                     ; Type flag
-ELSE
-        EQUB    &E2                     ; relocation address provided
-ENDIF
-
-        EQUB    copyright - origin
+        EQUB    copyright - rom_header
         EQUB    metadata.version_byte
         EQUB    metadata.title, null
         EQUB    metadata.version_str
 .copyright
         EQUB    null, "(C)", metadata.copyright, null
 
-IF reladd=1
-        EQUW    reladr                  ; relocation value
-        EQUW    &0000                   ; Top 2 bytes
+IF build.relocation_model != "none"
+        EQUW    build.relocation_address
+        IF build.relocation_model == "mos350"
+                EQUW    bitmap_descriptor
+                .bitmap_descriptor {
+                        EQUW    build.relocation_bitmap
+                        EQUB    build.relocation_bitmap_rom, 0
+                }
+        ELSE
+                EQUW    &0000
+        ENDIF
 ENDIF
+
+}
+
+ENDSECTION

@@ -1,9 +1,16 @@
 .build {
 IF DEFINED(build_disc)
         filename = "EDIT"
+ELIF DEFINED(build_relocated)
+        filename = "edit.1.50r.relocated"
 ELSE
         filename = "edit.1.50r.rom"
 ENDIF
+        relocation_model = "mos350"
+        relocation_address = &b800
+        relocation_bitmap = &bd80
+        relocation_bitmap_rom = &83
+        cmos_host = TRUE
 }
 
 .metadata {
@@ -12,8 +19,6 @@ ENDIF
         version_byte = &0a
         version_str = "1.50r"
 }
-
-org     =       &B800   ; Object destination address
 
         ; ------------------------------------------------------------ ;
 
@@ -32,9 +37,6 @@ curtyp  =       1       ; different cursor types
 lfarro  =       1       ; linefeed arrow
 
 extgf   =       0       ; extended FIND/REPLACE texts
-
-reladd  =       0       ; relocation address provided
-reladr  =       &B800   ; relocation address
 
 edit150 =       TRUE    ; shuffle code around to build EDIT 1.50
 

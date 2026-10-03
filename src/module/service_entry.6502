@@ -1,5 +1,10 @@
-.servic ; Recognise *help and *edit
+; Calculate the non-relocated equivalent of the address we are currently at.
+service_origin = * - origin + header_origin
 
+SECTION Service, cmos = build.cmos_host, org = service_origin
+
+; Recognise *help and *edit
+.service_entry {
         IF mouse = 0
         CMP     #&04
         BEQ     unknow
@@ -12,25 +17,21 @@
         CMP     #cr
         BNE     helpEX  ; don't say anything unless there are no keywords
 
-        IF reladd=0
+        IF build.cmos_host
         PHY
         ELSE
-        TYA             ; When relocated for TUBEs then non-CMOS codes
+        TYA
         PHA
         ENDIF
 
         LDY     #helpen - helpin - 1
 .helpLO
-        IF reladd=0
-        LDA     helpin,Y        ; Must always be assembled for &8000
-        ELSE                    ; on relocated versions
-        LDA     helpin - reladr + &8000,Y
-        ENDIF
+        LDA     helpin,Y
         JSR     osasci
         DEY
         BPL     helpLO
 
-        IF reladd=0
+        IF build.cmos_host
         PLY
         ELSE
         PLA
@@ -47,7 +48,7 @@
 .unknow
         ; Recognise *edit as command to enter language.
 
-        IF reladd=0
+        IF build.cmos_host
         PHY
         PHX
         ELSE
@@ -63,11 +64,7 @@
         CMP     #'.'
         BEQ     ucommi
         AND     #&DF
-        IF reladd=0
-        CMP     helpen - 5,X    ; Must always be assembled at &8000
-        ELSE                    ; on relocated versions
-        CMP     helpen - reladr - 5 + &8000,X
-        ENDIF
+        CMP     helpen - 5,X
         BNE     ucomEX
         INY
         DEX
@@ -76,7 +73,7 @@
         CMP     #space + 1
         BCC     ucommi
 .ucomEX
-        IF reladd=0
+        IF build.cmos_host
         PLX
         PLY
         ELSE
@@ -89,7 +86,7 @@
         RTS
 .ucommi
         ; Command recognised - enter self as a language.
-        IF reladd=0
+        IF build.cmos_host
         LDA     #&8E
         PLX
         ELSE
@@ -99,3 +96,6 @@
         ENDIF
         JMP     osbyte
         ENDIF
+}
+
+ENDSECTION
