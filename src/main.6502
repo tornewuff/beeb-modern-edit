@@ -4,6 +4,7 @@ INCLUDE "EDIT00.6502"
 
 SECTION Main, cmos = true, org = org, filename = build.filename
 
+INCLUDE "module/rom_header.6502"
 INCLUDE "EDIT01.6502"
 INCLUDE "EDIT02.6502"
 INCLUDE "EDIT03.6502"
