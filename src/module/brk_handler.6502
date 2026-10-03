@@ -1,0 +1,111 @@
+.ROM1br
+        ;Outputs 'brk' error message, & jumps to relevant re-entry
+        ;point. Detailed action depends on value of 'brkaction' on entry -
+        ; brkaction = 0 Moves cursor to editor status position,
+        ; outputs error message, then prompts for space
+        ; before jumping to EDITcont.
+        ; 1    Outputs error message, and jumps to starloop.
+        ; 2    resets to start of file and closes indexfile, then as 0
+
+        LDX     #&FF
+        TXS
+        STZ     cursED
+        LDA     #&7E
+        JSR     osbyte
+        LDA     brkaction
+        CMP     #&FF
+        BNE     simBRK
+.unret
+        LDA     addr
+        BNE     unretA
+        DEC     addr + 1
+.unretA
+        DEC     addr
+        LDA     argP
+        BNE     unretB
+        DEC     argP + 1
+.unretB
+        DEC     argP
+        LDA     (argP)
+        STA     (addr)
+        LDA     addr
+        BNE     unret
+        LDA     addr + 1
+        CMP     string + 1
+        BNE     unret
+        LDA     #cr
+        STA     (tmax)
+        LDA     #&00
+.simBRK
+        CMP     #&01
+        BNE     simBK2
+        JSR     supvBR
+        JMP     starCN
+.simBK2
+        BCC     norBRK
+        JSR     closeX
+        JSR     stFILE
+.norBRK
+        JSR     vstrng
+        EQUB    &03,&0F,&EA
+        JSR     CSR0STATUSY
+
+        IF lerror=1
+        JSR     vstrng
+        EQUB    &0B,&0B,&0B,remap("┌"),&EA
+        LDX     #remapchar("─")
+        LDA     #59-80
+        JSR     BRKsub
+        EQUB    remap("Shift f5 D for info┐│"),&EA
+        LDX     #' '
+        LDA     #78-80
+        JSR     BRKsub
+        EQUB    remap("│└"),&EA
+        LDX     #remapchar("─")
+        LDA     #54-80
+        JSR     BRKsub
+        EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
+        JSR     BRKoy
+        ELSE
+        JSR     supvBR
+        JSR     curOFF
+        LDA     tutmode
+        AND     #&07
+        CMP     #&05
+        BEQ     nomess
+        LDA     (&FD)
+        CMP     #&01
+        BNE     nomess
+        JSR     vstrng
+        IF 1=0
+        EQUB    lf,cr,"For help type: shf-f5 D",&EA
+        ELSE
+        EQUB    lf,cr,"Shift f5 D for info",&EA ; Slightly shorter
+        ENDIF
+.nomess
+        JSR     osnewl
+        JSR     strimo
+        EQUB    "Press ESCAPE to continue",&EA
+        ENDIF
+
+.esclop
+        JSR     osrdch
+        CMP     #&1B
+        BNE     esclop
+.escCON
+        LDA     #&7E
+        JSR     osbyte
+        JSR     NORMALIZE
+        JMP     EDITcont
+.supvBR
+        JSR     osnewl
+.BRKoy
+        LDY     #&01
+.BRKOLP
+        LDA     (&FD),Y
+        BEQ     BRKOX
+        JSR     osasci
+        INY
+        BNE     BRKOLP
+.BRKOX
+        RTS

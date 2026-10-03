@@ -1,0 +1,101 @@
+.servic ; Recognise *help and *edit
+
+        IF mouse = 0
+        CMP     #&04
+        BEQ     unknow
+        CMP     #&09
+        BNE     servex
+
+        ; *HELP response
+
+        LDA     (&F2),Y
+        CMP     #cr
+        BNE     helpEX  ; don't say anything unless there are no keywords
+
+        IF reladd=0
+        PHY
+        ELSE
+        TYA             ; When relocated for TUBEs then non-CMOS codes
+        PHA
+        ENDIF
+
+        LDY     #helpen - helpin - 1
+.helpLO
+        IF reladd=0
+        LDA     helpin,Y        ; Must always be assembled for &8000
+        ELSE                    ; on relocated versions
+        LDA     helpin - reladr + &8000,Y
+        ENDIF
+        JSR     osasci
+        DEY
+        BPL     helpLO
+
+        IF reladd=0
+        PLY
+        ELSE
+        PLA
+        TAY
+        ENDIF
+.helpEX
+        LDA     #&09
+.servex
+        RTS
+.helpin
+        EQUB    cr,"5 TIDE",cr
+.helpen
+
+.unknow
+        ; Recognise *edit as command to enter language.
+
+        IF reladd=0
+        PHY
+        PHX
+        ELSE
+        TYA
+        PHA
+        TXA
+        PHA
+        ENDIF
+
+        LDX     #&03
+.ucomLO
+        LDA     (&F2),Y
+        CMP     #'.'
+        BEQ     ucommi
+        AND     #&DF
+        IF reladd=0
+        CMP     helpen - 5,X    ; Must always be assembled at &8000
+        ELSE                    ; on relocated versions
+        CMP     helpen - reladr - 5 + &8000,X
+        ENDIF
+        BNE     ucomEX
+        INY
+        DEX
+        BPL     ucomLO
+        LDA     (&F2),Y
+        CMP     #space + 1
+        BCC     ucommi
+.ucomEX
+        IF reladd=0
+        PLX
+        PLY
+        ELSE
+        PLA
+        TAX
+        PLA
+        TAY
+        ENDIF
+        LDA     #&04
+        RTS
+.ucommi
+        ; Command recognised - enter self as a language.
+        IF reladd=0
+        LDA     #&8E
+        PLX
+        ELSE
+        PLA
+        TAX
+        LDA     #&8E
+        ENDIF
+        JMP     osbyte
+        ENDIF
