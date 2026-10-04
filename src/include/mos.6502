@@ -1,6 +1,7 @@
 ; MOS zero page workspace locations
 
 os_text_ptr     =       &f2
+romsel_copy     =       &f4
 
 ; Service call numbers
 

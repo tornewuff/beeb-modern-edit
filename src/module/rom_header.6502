@@ -19,8 +19,10 @@ ENDIF
 
         EQUB    copyright - rom_header
         EQUB    metadata.version_byte
-        EQUB    metadata.title, null
-        EQUB    metadata.version_str
+.title
+        EQUB    metadata.title
+.title_end
+        EQUB    null, metadata.version_str
 .copyright
         EQUB    null, "(C)", metadata.copyright, null
 
