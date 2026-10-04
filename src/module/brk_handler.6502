@@ -10,8 +10,12 @@
         LDX     #&FF
         TXS
         STZ     cursED
+IF edit150
+        JSR     acknowledge_escape
+ELSE
         LDA     #osbyte_acknowledge_escape
         JSR     osbyte
+ENDIF
         LDA     brkaction
         CMP     #&FF
         BNE     simBRK
@@ -93,10 +97,21 @@ ENDIF
         CMP     #&1B
         BNE     esclop
 .escCON
+IF edit150
+        JSR     acknowledge_escape
+ELSE
         LDA     #osbyte_acknowledge_escape
         JSR     osbyte
+ENDIF
         JSR     NORMALIZE
         JMP     EDITcont
+
+IF edit150
+.acknowledge_escape
+        LDA     #osbyte_acknowledge_escape
+        JMP     osbyte
+ENDIF
+
 .supvBR
         JSR     osnewl
 .BRKoy
