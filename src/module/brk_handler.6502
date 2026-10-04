@@ -1,4 +1,4 @@
-.ROM1br
+.brk_handler {
         ;Outputs 'brk' error message, & jumps to relevant re-entry
         ;point. Detailed action depends on value of 'brkaction' on entry -
         ; brkaction = 0 Moves cursor to editor status position,
@@ -10,7 +10,7 @@
         LDX     #&FF
         TXS
         STZ     cursED
-        LDA     #&7E
+        LDA     #osbyte_acknowledge_escape
         JSR     osbyte
         LDA     brkaction
         CMP     #&FF
@@ -50,7 +50,7 @@
         EQUB    &03,&0F,&EA
         JSR     CSR0STATUSY
 
-        IF lerror=1
+IF lerror=1
         JSR     vstrng
         EQUB    &0B,&0B,&0B,remap("┌"),&EA
         LDX     #remapchar("─")
@@ -66,7 +66,7 @@
         JSR     BRKsub
         EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
         JSR     BRKoy
-        ELSE
+ELSE
         JSR     supvBR
         JSR     curOFF
         LDA     tutmode
@@ -78,22 +78,22 @@
         BNE     nomess
         JSR     vstrng
         IF 1=0
-        EQUB    lf,cr,"For help type: shf-f5 D",&EA
+                EQUB    lf,cr,"For help type: shf-f5 D",&EA
         ELSE
-        EQUB    lf,cr,"Shift f5 D for info",&EA ; Slightly shorter
+                EQUB    lf,cr,"Shift f5 D for info",&EA ; Slightly shorter
         ENDIF
 .nomess
         JSR     osnewl
         JSR     strimo
         EQUB    "Press ESCAPE to continue",&EA
-        ENDIF
+ENDIF
 
 .esclop
         JSR     osrdch
         CMP     #&1B
         BNE     esclop
 .escCON
-        LDA     #&7E
+        LDA     #osbyte_acknowledge_escape
         JSR     osbyte
         JSR     NORMALIZE
         JMP     EDITcont
@@ -109,3 +109,4 @@
         BNE     BRKOLP
 .BRKOX
         RTS
+}

@@ -10,4 +10,5 @@ service_call_help               = &09
 
 ; OSBYTE calls
 
-osbyte_enter_language   = &8e
+osbyte_acknowledge_escape       = &7e
+osbyte_enter_language           = &8e

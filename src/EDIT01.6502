@@ -3,9 +3,9 @@
         CLD
         LDX     #&FF
         TXS
-        LDA     #<ROM1br
+        LDA     #<brk_handler
         STA     BRKv
-        LDA     #>ROM1br
+        LDA     #>brk_handler
         STA     BRKv + 1
         STZ     oldsta + 3
         LDA     #&F2
@@ -605,7 +605,7 @@ nlfarr  =       &FE
         JSR     stFILE
 .escSIM
         STZ     cursED
-        JMP     escCON
+        JMP     brk_handler.escCON
 .escTST
         BIT     &FF
         BMI     escSET
