@@ -2,7 +2,7 @@ SECTION Header, org = header_origin
 
 .rom_header {
 
-        JMP     language
+        JMP     language_entry
 
 IF omit_service
         RTS

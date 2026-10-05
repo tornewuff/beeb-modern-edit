@@ -1,4 +1,4 @@
-.language                       ; Language entry point
+.language_entry {
         CLI
         CLD
         LDX     #&FF
@@ -158,3 +158,4 @@
         STA     temp + 1
         JSR     Tload
         JMP     EDITgt
+}
