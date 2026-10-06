@@ -1,0 +1,52 @@
+.EDstar                         ; oscli processing
+        LDA     #&01
+        STA     brkaction
+        JSR     initus
+        JSR     prompt
+        EQUB    "Command line",&EA
+
+        IF curtyp = 1
+        JSR     lsf             ; slow line flash
+        ENDIF
+.starCN
+        JSR     osnewl
+.starloop
+        LDA     #'*'
+        JSR     oswrch
+        LDA     #&00
+        LDY     #>starCB
+        LDX     #<starCB
+        JSR     osword
+        BCS     stares
+        LDA     commandline
+        CMP     #cr
+        BEQ     starex
+        LDX     #<commandline
+        LDY     #>commandline
+        JSR     oscli
+        BRA     starloop
+.starCB
+        EQUW    commandline
+        EQUB    238
+        EQUB    " "
+        EQUB    &FF
+.stares
+        LDA     #&7E
+        JSR     osbyte
+.starex
+        JSR     vstrng
+        EQUB    0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
+        JSR     chkscr
+        JSR     inited
+        JMP     EDITcont
+
+.allowC
+        ; Allow cursor editing & softkey use. Terminated by CR.
+        LDA     #&01
+        STA     cursED
+
+        IF phil=0
+        JSR     initus
+        ENDIF
+
+        JMP     CstatU

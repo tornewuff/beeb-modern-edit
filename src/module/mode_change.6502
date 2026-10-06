@@ -1,0 +1,81 @@
+.BADMODE
+        BRK
+        EQUB    1,"Only 0,1,3,4,6,7,D or K"     ; followed by 0
+
+.verttb
+        EQUB    0,0,7,0,0,14,0                  ; plus another 0 in MODEtb
+
+.MODEtb
+        EQUB    0,1,0,3,4,0,6,7                 ; and the screen modes
+
+.getmod
+        JSR     prompt
+        EQUB    "New Mode:",&EA
+        JSR     osrdch
+        JSR     oswrch
+        JSR     escTST
+        CMP     #'7' + 1
+        BCS     SETKEY
+        SBC     #'0' - 1
+        BCC     BADMODE
+        CMP     #2
+        BEQ     BADMODE
+        CMP     #5
+        BEQ     BADMODE
+        BRA     SETMODE
+.SETKEY
+        AND     #&DF
+        CMP     #'D'
+        BEQ     SETTUT
+        CMP     #'K'
+        BNE     BADMODE
+        LDA     #&02
+        BRA     SETMODE
+.SETTUT
+        LDA     #&05
+.SETMODE
+        PHA
+
+        IF origin=&8000
+        TAY
+        LDA     MODEtb,Y
+        PHA
+        JSR     MEMSTATE
+        LDA     #&82
+        JSR     osbyte
+        INX
+        BNE     inTUBE
+        INY
+        BNE     inTUBE
+        PLA
+        PHA
+        ORA     #&80
+        TAX
+        LDA     #&85
+        JSR     osbyte
+        CPX     GS
+        TYA
+        SBC     GS + 1
+        BCC     MODEsp
+.inTUBE
+        PLX
+        ENDIF
+
+        LDA     #&7
+        TRB     tutmode
+        PLA
+        ORA     tutmode
+        JSR     doMODE
+
+        IF origin=&8000
+        JSR     EDITmd
+        ELSE
+        JSR     chkscr
+        LDA     #26
+        JSR     oswrch
+        JSR     EDITMA
+        LDA     BSM
+        STA     scrnY
+        STZ     scrnX
+        JMP     EDITcont
+        ENDIF

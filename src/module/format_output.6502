@@ -1,0 +1,186 @@
+.VDUBIT
+        TAY
+        LDA     trnlst,Y
+        STA     scratch
+        JSR     XYSCRATCH
+        LDA     #10
+        JMP     osword
+.DOVDU
+        BIT     bold
+        BPL     VDUNBL
+; bold character
+        PHY
+        PHX
+        JSR     VDUBIT
+        LDX     #7
+.VDUBLD
+        LDA     scratch+1,X
+        LSR     A
+        ORA     scratch+1,X
+        STA     scratch+1,X
+        DEX
+        BPL     VDUBLD
+        BIT     underl
+        BPL     VDUDON
+; both bold and underline
+        BRA     VDUUND
+.VDUNBL
+        BIT     underl
+        BPL     WRCHA
+; underline character
+        PHY
+        PHX
+        JSR     VDUBIT
+.VDUUND
+        LDA     scratch+8
+        LSR     A
+        ROR     A
+        ORA     scratch+8
+        ROL     A
+        EOR     #&FF
+        TSB     scratch+8
+.VDUDON
+        LDA     #23
+        JSR     oswrch
+        LDA     #32
+        JSR     oswrch
+        LDX     #1
+.VDUPRG
+        LDA     scratch,X
+        JSR     oswrch
+        INX
+        CPX     #9
+        BNE     VDUPRG
+        JSR     vstrng
+        EQUB    32,23,32,0,0,0,0,0,0,0,0,&EA
+        PLX
+        PLY
+        RTS
+.ESCAP
+        LDA     #&7E
+        JSR     osbyte
+        JMP     DODWN
+
+.fmwrch
+        BIT     escflg
+        BMI     ESCAP        ; must not go via SENTRY,
+                             ; because of marked mode (SWOPCH)
+        BIT     doindX
+        BMI     DOINDE
+
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin       ; changed from CMPIM " "; BCC WRCHA
+        ENDIF
+        BEQ     wrchen
+
+        BIT     prtflg
+        BMI     DOVDU
+        BVS     NOULA
+
+        LDA     #' '
+        BIT     underl
+        BPL     NOULA
+        LDA     #'_'
+.NOULA
+        PHA
+
+        LDA     #&20
+        BIT     prtflg
+        BNE     NOBBLE
+        BIT     bold
+        BMI     NOBBLE
+
+        LDA     #' '
+        JSR     oswrch
+        PLA
+        RTS
+
+.NOBBLE
+        PLA
+.WRCHA
+        PHY
+        TAY
+        LDA     trnlst,Y
+        PLY
+        IF cF8key=1
+.wrch
+        JMP     (&020E)
+.wrchen
+        LDA     #cr
+        BRA     wrch
+        ELSE
+        IF termin=cr
+.wrchen
+.wrch
+        JMP     (&20E)
+        ELSE
+.wrch
+        JMP     (&20E)
+.wrchen
+        LDA     #cr
+        BRA     wrch
+        ENDIF
+        ENDIF
+.DOINDE
+        PHY
+        TAY
+        LDA     trnlst,Y
+        LDY     indexH
+        BEQ     DOINDF
+        JSR     osbput
+.DOINDF
+        PLY
+        RTS
+
+.lfwrch
+        BIT     doindX
+        BMI     writeX
+        LDA     #lf       ; write a real line feed
+        INC     lineno
+        BNE     fmwrca
+        INC     lineno + 1
+.fmwrca
+        DEC     lineot
+        BNE     wrch
+        JSR     oswrch
+        PHX
+        PHY
+        LDX     pageef
+        LDY     pageef + 1
+        LDA     page
+        LSR     A
+        BCC     doftr1
+        LDX     pageof
+        LDY     pageof + 1
+.doftr1
+        DEC     lineot
+        DEC     lineot
+        JSR     macro
+        LDA     #&FF
+        STA     lineot        ; set needs header
+        INC     page
+        BNE     hi
+        INC     page + 1
+.hi
+        PLY
+        PLX
+.writeX
+        RTS
+.write
+        LDA     #&20
+        TSB     prtflg
+        LDA     bold
+        PHA
+        JSR     DOSCRE
+        PLA
+        STA     bold
+        BIT     boldrq
+        BPL     writeX
+        LDA     #&20
+        TRB     prtflg
+        JSR     DOSCRE
+        LDA     #&20
+        TSB     prtflg
+        RTS

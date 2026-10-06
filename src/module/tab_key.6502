@@ -1,0 +1,48 @@
+.tabkey
+        LDA     #8
+        BIT     tutmode
+        BNE     TABSTR
+.TABPOS
+        INC scrnX
+        LDA     scrnX
+        AND     #7
+        BNE     TABPOS
+        LDA     scrnX
+        CMP     PAGEWIDTH
+        BCC     TABX
+        STZ     scrnX
+        BRA     TABX
+.TABSTR
+        LDA     #1
+        JSR     TPGSBK
+        CMP     #1
+        BNE     INSXEX
+        LDY     scrnX
+        DEY
+.TABS1
+        INY
+        CPY     PAGEWIDTH
+        BCS     TABSSP
+        LDA     (TP),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     TABSSP
+        CMP     #' '
+        BNE     TABS1
+        BRA     TABS2
+.TABSSP
+        LDY     #&FF
+.TABS2
+        INY
+        CPY     PAGEWIDTH
+        BCS     TABSEX
+        LDA     (TP),Y
+        CMP     #' '
+        BEQ     TABS2
+.TABSEX
+        STY     scrnX
+.TABX
+        STZ     UPDATEREQD

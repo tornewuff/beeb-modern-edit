@@ -1,0 +1,30 @@
+        IF lerror=1
+.BRKsub
+        SEC
+        ADC     PAGEWIDTH
+        TAY
+        TXA
+.BRKSB1
+        JSR     oswrch
+        DEY
+        BNE     BRKSB1
+        ENDIF
+
+.vstrng
+        PLA
+        STA     string
+        PLA
+        STA     string + 1
+        JSR     VSTRLP
+        JMP     (string)
+.VSTRLM
+        JSR     oswrch
+.VSTRLP
+        INC     string
+        BNE     STRINOT
+        INC     string + 1
+.STRINOT
+        LDA     (string)        ; enter here for normal string
+        CMP     #&EA
+        BNE     VSTRLM
+        RTS

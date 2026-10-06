@@ -1,0 +1,211 @@
+                ; the formatter -> EDIT04
+.PRINTH
+        JMP         prinHL        ; help on print
+.print
+        JSR     MKREFUSE
+        LDX     #&FF
+        STX     pwtflg
+        STX     prtflg        ; bit 7 printer, bit 6 pay attention to bold/underlining
+        STX     lineot        ; set needs header flag
+        TXS
+        JSR     prompt
+        EQUB    "Screen, Printer, Help ?",&EA
+.PRINTL
+        JSR     GETRESP
+        CMP     #'h'
+        BEQ     PRINTH
+        CMP     #'s'
+        BEQ     PRINTS
+        CMP     #'p'
+        BNE     PRINTL
+        STZ     prtflg        ; 0 for printer
+.PRINTS
+        JSR     prompt
+        EQUB    "Continuous, Paged ?",&EA
+.PRINTM
+        JSR     GETRESP
+        CMP     #'c'
+        BEQ     PRINTC
+        CMP     #'p'
+        BNE     PRINTM
+        STZ     pwtflg        ; 0 for paged output
+.PRINTC
+        JSR     MEMSTATE
+        LDA     tstart
+        STA     addr
+        LDA     tstart+1
+        STA     addr+1
+        LDA     #'.'
+        STA     ctlcha
+        LDX     #0
+.clrreg
+        STZ     noregs,X      ; clears noregs, tablst, maclst
+        INX
+        TXA
+        STA     trnlst,X      ; init translation
+        BNE     clrreg
+
+        IF cF8key=1
+        PHX                     ; set X to correct offset
+        SEC
+        LDA     #cr
+        SBC     clterm
+        CLC
+        ADC     #lf
+        TAX
+        ENDIF
+
+        LDA     #' '
+
+        IF cF8key=1
+        STA     trnlst,X
+        PLX
+        ELSE
+        STA     trnlst + lf + (cr - termin)
+        ENDIF
+
+        LDA     #&09
+        STA     tabcha
+        DEA                   ; to 8
+        CLC
+.DEFTAB
+        STA     tablst,X
+        INX
+        ADC     #8       ; carry clear
+        CMP     #100
+        BCC     DEFTAB
+        LDA     #2
+        STA     brkaction
+        DEA
+        STA     page        ; A=1
+        STA     vspace        ; single spacing
+        STA     lineno
+        STZ     doindX        ; no indexing
+        STZ     indexH        ; index file handle
+        STZ     pundrl        ; persistent underline off
+        STZ     pbold        ; persistent bold off
+        STZ     indent        ; turn off indent
+        STZ     fill        ; enable justification
+        STZ     offset        ; no page offset
+        STZ     linfed        ; no overprinting
+        LDA     #58
+        STA     lineDW        ; lines per page
+        LDA     #76
+        STA     len        ; characters per line
+        JSR     vstrng
+        EQUB    26,12,&EA
+        BIT     prtflg
+        BMI     PATCHA
+        LDX     #0       ; just for jes's code, set and reset printer type
+        LDA     #5
+        JSR     osbyte
+        JSR     osbyte
+        LDA     #2
+        JSR     oswrch
+.PATCHA
+        BIT     pwtflg
+        BMI     CHAINB
+        BIT     prtflg
+        BPL     CHAINB
+        LDA     #14
+        JSR     oswrch        ; page mode if screen and page wait
+.CHAINB
+        IF cF8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
+        STA     (GS)
+
+        IF cF8key=1
+                                ; Copy initial header and footer texts
+                                ; into their respective buffers, changing
+                                ; any nulls into the 'clterm' value
+
+                                ; AX can be corrupted since X is loaded
+                                ; with an immediate value straight after
+
+        LDX     #(dhsize - 1)   ; size of header
+.mhlp
+        LDA     defhdr,X        ; default header
+        BNE     nhchan
+
+        LDA     clterm
+.nhchan
+        STA     dhbuff,X        ; and into the buffer
+
+        DEX
+        BPL     mhlp            ; move header loop
+
+        LDX     #(dfsize - 1)   ; size of footer
+.mflp
+        LDA     defftr,X        ; default footer
+        BNE     nfchan
+
+        LDA     clterm
+.nfchan
+        STA     dfbuff,X        ; and into the buffer
+
+        DEX
+        BPL     mflp            ; move footer loop
+
+
+        LDA     #<dhbuff
+        STA     pageeh
+        STA     pageoh
+        LDA     #>dhbuff
+        STA     pageeh + 1
+        STA     pageoh + 1
+
+        LDA     #<dfbuff
+        STA     pageef
+        STA     pageof
+        LDA     #>dfbuff
+        STA     pageef + 1
+        STA     pageof + 1
+        ELSE
+        LDA     #<defhdr
+        STA     pageeh
+        STA     pageoh
+        LDA     #>defhdr
+        STA     pageeh+1
+        STA     pageoh+1
+        LDA     #<defftr
+        STA     pageef
+        STA     pageof
+        LDA     #>defftr
+        STA     pageef+1
+        STA     pageof+1        ; initial header and footer info
+        ENDIF
+
+        LDX     #maxMAC
+.CHAINC
+        STZ     maclst-1,X
+        DEX
+        BNE     CHAINC
+.fine
+        STZ     centre        ; turn centre off
+        STZ     rflush        ; turn right-flush off
+        LDA     #&FF
+        STA     tinden        ; no temp indent
+        LDA     pundrl
+        STA     underl
+        STA     undrrq        ; underline required?
+        LDA     pbold
+        STA     bold
+        STA     boldrq        ; bold required?
+        BRA     CTLIN
+.LASLEN
+        JSR     ROUTBP
+        BIT     prtflg        ; print exit
+        BPL     DODWN
+        JSR     strimo
+        EQUB    "Print done. ",&EA
+        JSR     inkeys
+.DODWN
+        JSR     vstrng
+        EQUB    3,15,&EA
+        JSR     closeX
+        LDX     GS
+        LDY     GS+1
+        JMP     EDITgs

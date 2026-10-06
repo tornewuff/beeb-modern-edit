@@ -1,0 +1,48 @@
+.OLDTEXT
+        LDA     oldsta + 3
+        CMP     paje + 1
+        BCC     NOOLD
+        CMP     hymem + 1
+        BCS     NOOLD
+        CMP     oldsta + 1
+        BCC     NOOLD
+        LDA     oldsta + 1
+        CMP     paje + 1
+        BCC     NOOLD
+        LDA     oldsta
+        STA     argP
+        LDA     oldsta + 1
+        STA     argP + 1
+        SEC
+        LDA     oldsta + 2
+        SBC     argP
+        TAX
+        LDA     oldsta + 3
+        SBC     argP + 1
+        TAY
+        BCC     NOOLD
+        LDA     tstart
+        STA     varp
+        LDA     tstart + 1
+        STA     varp + 1
+        PHY
+        PHX
+        JSR     COPYBK
+        PLA
+        CLC
+        ADC     tstart
+        TAX
+        PLA
+        ADC     tstart + 1
+        TAY
+        STZ     oldsta + 3
+        JMP     EDITgs
+
+.MODEsp
+        JSR     stFILE
+        BRK
+        EQUB    2,"No room"
+
+.NOOLD
+        BRK
+        EQUB    2,"No old text found",0

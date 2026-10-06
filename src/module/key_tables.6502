@@ -1,0 +1,85 @@
+.EDCTBL
+        EQUW    EDITli          ; f0
+        EQUW    EDstar          ; f1
+        EQUW    LOADfi          ; f2
+        EQUW    SAVEfi          ; f3
+        EQUW    FINDREPLACE     ; f4
+        EQUW    GLOBREPLACE     ; f5
+        EQUW    SETMARK         ; f6
+        EQUW    mkCPY           ; f7
+        EQUW    print           ; f8
+        EQUW    OLDTEXT         ; f9
+        EQUW    tabkey          ; f10
+        EQUW    delabv          ; copy
+        EQUW    curLT           ; left
+        EQUW    curRT           ; right
+        EQUW    curDWN          ; down
+        EQUW    curUP           ; up
+        ;
+        EQUW    crtogg          ; shift-f0
+        EQUW    IOtogg          ; shift-f1
+        EQUW    insrtF          ; shift-f2
+        EQUW    scmclr          ; shift-f3
+        EQUW    retlan          ; shift-f4
+        EQUW    getmod          ; shift-f5
+        EQUW    CLEARMARKS      ; shift-f6
+        EQUW    mkmve           ; shift-f7
+        EQUW    mkdel           ; shift-f8
+        EQUW    newtex          ; shift-f9
+        EQUW    tabctl          ; shift-f10
+        EQUW    allowC          ; shift-copy
+        EQUW    WORDLEFT        ; shift-left
+        EQUW    WORDRIGHT       ; shift-right
+        EQUW    pagedn          ; shift-down
+        EQUW    pageup          ; shift-up
+        ;
+        EQUW    EDITlo          ; ctrl-f0
+        EQUW    EDITlo          ; ctrl-f1
+        EQUW    EDITlo          ; ctrl-f2
+        EQUW    EDITlo          ; ctrl-f3
+        EQUW    EDITlo          ; ctrl-f4
+        EQUW    EDITlo          ; ctrl-f5
+        EQUW    tsmcsr          ; ctrl-f6
+        EQUW    bsmcsr          ; ctrl-f7
+        IF cF8key=1
+        EQUW    cf8swt          ; ctrl-f8
+        ELSE
+        EQUW    EDITlo          ; ctrl-f8
+        ENDIF
+        EQUW    EDITlo          ; ctrl-f9
+        EQUW    EDITlo          ; ctrl-f10
+        EQUW    dellin          ; ctrl-copy
+        EQUW    curst           ; ctrl-left
+        EQUW    curend          ; ctrl-right
+        EQUW    curedf          ; ctrl-down
+        EQUW    stFILE          ; ctrl-up
+
+.TXTTAB
+        EQUW    f0
+        EQUW    f1
+        EQUW    f2
+        EQUW    f3
+        EQUW    f4
+        EQUW    f5
+        EQUW    f6
+        EQUW    f7
+        EQUW    f8
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    f9
+        EQUW    shff0
+        EQUW    SHFF1
+        EQUW    SHFF2
+        EQUW    SHFF3
+        EQUW    SHFF4
+        EQUW    SHFF5
+        EQUW    SHFF6
+        EQUW    SHFF7
+        EQUW    SHFF8
+        EQUW    SHFF9
+        EQUW    SHFTAB
+        EQUW    SHFCOP

@@ -1,0 +1,274 @@
+.NORMALIZE
+        ; Entry : gap character positioned
+        ; Exit : gap moved to start of current line
+        LDA     GS
+        STA     temp
+        LDA     GS + 1
+        STA     temp + 1
+        JSR     FINDPO
+        STA     string
+        SEC
+        LDA     GS
+        SBC     string
+        TAX
+        LDA     GS + 1
+        SBC     #0
+        TAY
+        JMP     GPBKXY
+.FINDPO
+        ; Entry : temp-> middle of line in 1st half of text
+        ; Exit  : A[Z]  = xcoord (0..page..width) of pointer within line.
+        ;         Y(=Atemp) = page_width - A
+        CLC     ;-1
+        LDA     temp
+        SBC     PAGEWIDTH
+        STA     temp
+        BCS     FIPOND
+        DEC     temp + 1
+.FIPOND
+        LDY PAGEWIDTH
+.FIPOLP
+        LDA     (temp),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     FIPOL2
+.FIPOE2
+        ; Entry point, when called from tempbacklines.
+        DEY
+        BPL     FIPOLP
+        BMI     FINDPO
+.FIPOL2
+        STY Atemp
+        SEC
+        LDA     PAGEWIDTH
+        SBC     Atemp
+        RTS
+.TPGEFD
+        ; TP := GE  +  A lines
+        LDX     GE
+        LDY     GE + 1
+        STX     TP
+        STY     TP + 1
+.TPFWDA
+        ; Moves pointer TP forward A lines.
+        ; Entry - A = No. of lines to advance TP
+        ; Exit  - TP advanced (possibly by less than A lines if hit EOT)
+        ;         count = No. of lines remaining from original request.
+        ;         Atemp = Last end of line character.
+        TAX
+        STX     count
+        BEQ     TPTPEX
+.TPTPLP
+        LDY     #&FF
+.TPTPSE
+        INY
+        LDA     (TP),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     TPTPFD
+        CPY     PAGEWIDTH
+        BNE     TPTPSE
+.TPTPFD
+        STA Atemp
+        TYA
+        JSR     TPPAP1
+        BCS     TPTPEX
+        DEC     count
+        BNE     TPTPLP
+.TPTPEX
+        RTS
+.TPPAP1
+        ; Exit  -  CC TP = TP  +  (A + 1). CS TP + (A + 1) = hymem,
+        ;          TP unchanged.
+        SEC     ; + 1
+        ADC     TP
+        TAX
+        LDA     #0
+        ADC     TP + 1
+        TAY
+        CPX     hymem
+        SBC     hymem + 1
+        BCS     TPPAPX
+        STX     TP
+        STY     TP + 1
+.TPPAPX
+        RTS
+.TPGSBK
+        ; TP := GS - A lines
+        ; Entry - A = No. of lines to retreat XY.
+        ; Exit  - TP retreated
+        ;         A = No. of lines was able to go back.
+        LDX     GS
+        LDY     GS + 1
+        STX     TP
+        STY     TP + 1
+        TAX
+        STX     count
+        BEQ     TPXYEX
+        LDX     #0
+.TPXYLP
+        LDA tstart
+        CMP     TP
+        LDA     tstart + 1
+        SBC     TP + 1
+        BCS     TPXYAB
+        CLC     ; - 1
+        LDA     TP
+        SBC     PAGEWIDTH
+        STA     TP
+        BCS     TPXYND
+        DEC     TP + 1
+.TPXYND
+        LDY PAGEWIDTH
+        LDA     (TP),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     TPXYCO
+        LDA     TP
+        STA     temp
+        LDA     TP + 1
+        STA     temp + 1
+        JSR     FIPOE2
+        BEQ     TPXYCO
+        TYA                     ; answer from FINDPO in Y
+        ADC     TP              ; + 1 from CS
+        STA     TP
+        BCC     TPXYCO
+        INC     TP + 1
+.TPXYCO
+        INX
+        CPX     count
+        BCC     TPXYLP
+.TPXYAB
+        TXA
+.TPXYEX
+        RTS
+.pageup
+        LDA pagelength
+        INA
+.MVLNBK
+        ; Entry - A = No. of lines to move gap back.
+        ; Exit  - Gap moved back A lines. May be moved less if
+        ;         hits start of file.
+        JSR     TPGSBK
+        LDX     TP
+        LDY     TP + 1
+.GPBKXY
+        ; Move gap back so that GS := XY
+        STX     argP
+        STY     argP + 1
+        SEC
+        LDA     GS
+        SBC     argP
+        STX     GS
+        TAX
+        LDA     GS + 1
+        SBC     argP + 1
+        STY     GS + 1
+        TAY
+        STX     size
+        STY     size + 1
+        LDA     GE
+        SBC     size
+        STA     varp
+        STA     GE
+        LDA     GE + 1
+        SBC     size + 1
+        STA     varp + 1
+        STA     GE + 1
+.COPYFD
+        ; Copy block forward (i.e. to higher address).
+        ; Entry - argP --> block of size XY
+        ;         varp --> destination address
+        ; Exit  - argP,varp uncorrupted.
+        STX     size
+        STY     size + 1
+.CPFD2
+        LDA size
+        TAY
+        ORA     size + 1
+        BEQ     CPFDEX
+        LDX     size + 1
+        CLC
+        TXA
+        ADC     argP + 1
+        STA     argP + 1
+        TXA
+        ADC     varp + 1
+        STA     varp + 1
+        INX
+        BCC     CPFDL2
+.CPFDLP
+        LDA     (argP),Y
+        STA     (varp),Y
+.CPFDL2
+        DEY
+        CPY     #&FF
+        BNE     CPFDLP
+        DEX
+        BEQ     CPFDEX
+        DEC     argP + 1
+        DEC     varp + 1
+        BNE     CPFDLP
+.CPFDEX
+        RTS
+.pagedn
+        LDA pagelength
+        INA
+.MVLNFD
+        JSR TPGEFD
+.GPFDTP
+        LDX TP
+        LDY     TP + 1
+.gpfdXY
+        ; Move gap forward so that GE := XY
+        LDA     GE
+        STA     argP
+        LDA     GE + 1
+        STA     argP + 1
+        LDA     GS
+        STA     varp
+        LDA     GS + 1
+        STA     varp + 1
+        SEC
+        TXA
+        SBC     GE
+        TAX
+        TYA
+        SBC     GE + 1
+        TAY
+        CLC
+        TXA
+        ADC     GS
+        STA     GS
+        TYA
+        ADC     GS + 1
+        STA     GS + 1
+        TXA
+        ADC     GE
+        STA     GE
+        TYA
+        ADC     GE + 1
+        STA     GE + 1
+        JMP     COPYBK
+.FINEPOSITIONGAP
+        ; Entry - Gap line positioned, without VS in text.
+        ; Exit  - Gap character positioned, with VS added.
+        JSR     ADDVIR
+        CLC
+        LDA     GE
+        ADC     scrnX
+        TAX
+        LDA     GE + 1
+        ADC     #0
+        TAY
+        BRA     gpfdXY

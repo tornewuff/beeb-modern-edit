@@ -1,0 +1,142 @@
+.newtex                         ; Clear text
+        JSR     prompt
+        IF stamp=1
+        EQUB    "Clear text [Y (dated),shf-f9 (exec)]",&EA
+        LDA     #&81
+        TAX
+        LDY     #&03
+        JSR     osbyte
+        JSR     escTST
+        TYA
+        BEQ     doneW1
+.newtn
+        JMP     status
+.doneW1
+        PHX
+        JSR     nstamp
+        PLA
+        ORA     #&20
+        CMP     #'y'
+        BNE     doneW2
+        JSR     mstamp
+.doneW2
+        JSR     MEMSTATE
+        JMP     EDITin
+        ELSE
+        EQUB    "Text will be cleared if a key is hit",&EA
+        LDA     #&81
+        TAX
+        LDY     #3
+        JSR     osbyte
+        JSR     escTST
+        CPY     #0
+        BEQ     donew
+.newtn
+        JMP     status
+.donew
+        JSR     MEMSTATE
+        JMP     EDITin
+        ENDIF
+
+.LOADfi
+        ; Doesn't zap buffer until new file is correctly loaded.
+
+        IF curtyp=1
+        JSR     lsf
+        ENDIF
+
+        LDA     modflg
+        BEQ     LOADF2
+        JSR     prompt
+        EQUB    "Overwrite text [Y,f2]:",&EA
+        JSR     osrdch
+        CMP     #128+2
+        BEQ     LOADF2
+        AND     #&DF
+        CMP     #'Y'
+        BNE     newtn
+.LOADF2
+        JSR     prompt
+        EQUB    "Type filename to load:",&EA
+        JSR     readns
+        LDY     #0
+        JSR     Tload
+        JMP     EDITgt
+
+.SAVEfi                         ; Save file
+        IF curtyp=1
+        JSR     lsf
+        ENDIF
+
+        JSR     dfinit
+        CMP     #&01
+        BEQ     marksa
+
+        JSR     promtF
+        EQUB    "to save:",&07,&EA
+
+        JSR     readns
+        JSR     dfblok
+        LDY     #&00
+        JSR     tSAVE
+
+        STZ     modflg
+
+        LDX     texp
+        LDY     texp + 1
+        JSR     gpfdXY
+        JMP     normax
+
+.marksa
+        JSR     promtF
+        EQUB    "for MARK TO CURSOR save:",&07,&EA
+        JSR     readns
+        JSR     dfblok
+        LDY     #&00
+        LDA     (temp)
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     msbad
+        CMP     #&8B
+        BEQ     msbad
+        LDA     temp
+        STA     scratch
+        LDA     temp + 1
+        STA     scratch + 1
+        JSR     inSAVE
+        LDX     texp
+        LDY     texp + 1
+        JSR     gpfdXY
+        JMP     normax
+.msbad
+        BRK
+        EQUB    &01,"Bad use of stored name",null
+
+.insrtF
+        IF curtyp=1
+        JSR     lsf
+        ENDIF
+
+        JSR     MKREFUSE
+        JSR     FINEPOSITIONGAP
+        JSR     promtF
+        EQUB    "to insert:",&EA
+        JSR     readns
+        LDA     GS
+        STA     addr
+        LDA     GS + 1
+        STA     addr + 1
+        LDA     GE
+        LDX     GE + 1
+        LDY     #0
+        JSR     PASLOAD
+        STX     GS
+        STY     GS+1
+        JSR     MODIFY
+        LDX     addr ; Move to start of inserted file.
+        LDY     addr+1
+        JSR     GPBKXY
+        JMP     NORMALIZE

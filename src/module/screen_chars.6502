@@ -1,0 +1,55 @@
+.PASWRCH
+        ; Entry - A = char to output.
+        ; Exit  - Y preserved
+        ;        ctrl ch     --> inverted or chr(255) depending on mode
+        ;        delete      --> inv ?
+        ;        other chars --> echoed
+        CMP     #space
+        BCC     PASWNC
+        CMP     #delete
+        BNE     PASWOS
+        LDA     #'?'
+        BRA     INVWRCH
+.PASWOS
+        JMP     oswrch
+.PASWCR
+        LDA     #&20
+        BIT     tutmode
+        BEQ     PASWOS
+        IF lfarro=1
+        LDA     #nlfarr
+        ELSE
+        LDA     #'$'      ; **
+        ENDIF
+        BRA     INVWRCH   ; **
+.PASWNC
+        ORA     #&40; Output control character as inverted keytop.
+.INVWRCH
+        ; Output character in inverse video (blob in mode 7).
+        ; Entry - A = character
+        ;        mode IN [0..7]
+        PHA
+        LDA     tutmode
+        AND     #7
+        CMP     #7
+        BNE     INVWN7
+        PLA
+        LDA     #255
+        BRA     PASWOS
+.INVWN7
+        JSR     STARTINV
+        PLA
+        JSR     oswrch
+.STOPINV
+        LDA     #17
+        JSR     oswrch
+        LDA     #128
+        JSR     oswrch
+        LDA     #17
+        JSR     oswrch
+        LDA     #7
+        JMP     oswrch
+.STARTINV
+        JSR     vstrng
+        EQUB    17,135,17,0,&EA
+        RTS

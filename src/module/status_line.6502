@@ -1,0 +1,165 @@
+.MODIFY
+        LDA     #1
+        LDX     modflg
+        STA     modflg
+        BEQ     status
+        RTS
+.tabctl
+        LDA     #8
+        EOR     tutmode
+        JSR     doMODE
+
+.CstatU
+        STZ     UPDATEREQD      ; update required
+.status
+        JSR     CSR0STATUSY     ; Output status on status line.
+        JSR     STARTINV        ; Start inverse
+        JSR     TESTIF
+        BEQ     STATSO
+
+        JSR     vstrng
+        EQUB    "Insert ",&EA
+        BRA     STATSI
+
+.STATSO
+        JSR     vstrng
+        EQUB    "Over   ",&EA
+
+.STATSI
+        LDX     cursED
+        BEQ     STATSC
+        JSR     vstrng
+
+        IF phil=0
+        EQUB    "    Cursor Editing",&EA
+        ELSE
+        EQUB    "    Soft Key Entry",&EA
+        ENDIF
+
+        BRA     STATSX
+
+.STATSC
+        LDA     markX
+        BEQ     STATST
+        DEA
+        BNE     STATSM
+        JSR     vstrng
+        EQUB    "One mark ",&EA
+        BRA     STATSS
+.STATSM
+        JSR     vstrng
+        EQUB    "Two marks",&EA
+        BRA     STATSS
+.STATST
+        LDA     #8
+        AND     tutmode
+        BNE     STATTW
+        JSR     vstrng
+        EQUB    "TAB cols ",&EA
+        BRA     STATSS
+.STATTW
+        JSR     vstrng
+        EQUB    "TAB words",&EA
+.STATSS
+        LDA     modflg
+        BNE     STATMO
+        JSR     vstrng
+        EQUB    " Original",&EA
+        BRA     STATSX
+.STATMO
+        JSR     vstrng
+        EQUB    " Modified",&EA
+.STATSX
+        IF cF8key=1
+
+        LDA     clterm
+        CMP     #cr
+        BEQ     STATcr
+
+        JSR     vstrng
+        EQUB    " LF",&EA
+
+        BRA     STATlf
+.STATcr
+        JSR     vstrng
+        EQUB    " CR",&EA
+
+.STATlf
+        ENDIF
+
+        IF stamp=1
+        LDA     flload + 1
+        AND     flload + 2
+        AND     flload + 3
+        INA
+        BNE     STATNS
+
+        JSR     vstrng
+        EQUB    " Date",&EA
+        BRA     STATNQ
+.STATNS
+
+        JSR     vstrng
+        EQUB    " Exec",&EA
+.STATNQ
+        ENDIF
+
+        JSR     STOPINV         ; stop inverse
+        LDY     pagelength
+        INY
+
+prmptl  =       25              ; Prompt position
+
+
+        IF cF8key=1
+prmod1  =       3               ; CR/LF text
+        ELSE
+prmod1  =       0
+        ENDIF
+
+        IF stamp=1
+prmod2  =       5               ; Date/Exec text
+        ELSE
+prmod2  =       0
+        ENDIF
+
+        LDA     #(prmptl - 1 + prmod1 + prmod2)  ; plus any modifications
+
+        JMP     WIPETAIL                ; and clear the rest of the line
+
+
+.promtF
+        JSR     prompt
+        EQUB    "Type filename ",&EA
+        LDX     #&01
+        BRA     STRMFL
+
+.prompt
+        LDY pagelength
+        INY
+        JSR     wipeline
+        LDX     #0
+.PRMPTX
+        LDY     pagelength
+        INY
+        JSR     CSRXY
+        LDX     #1
+        BRA     STRMFL
+.strimo
+        LDX     #0
+.STRMFL
+        JSR     STARTINV
+        PLA
+        STA     string
+        PLA
+        STA     string + 1
+        JSR     VSTRLP
+        JSR     STOPINV
+        TXA
+        BEQ     STRMEX
+        LDA     PAGEWIDTH
+        DEA
+        LDY     pagelength
+        STA     scrim + 1,Y
+.STRMEX
+        JMP     (string)

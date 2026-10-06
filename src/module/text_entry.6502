@@ -1,0 +1,209 @@
+.EDITTE
+        JSR     EDTEXT
+        JMP     EDITlo
+.EDTEXT
+        ; Entry - A holds ASCII char to be treated as text input
+        ; Exit  - appropraite action taken depending on current
+        ;        'mode' (insert, overtype, csr-edit).
+        CMP     #delete
+        BEQ     ECHRDE
+        STZ     oldsta + 3
+        CMP     #cr
+        BNE     ECHRCO
+        JSR     TESTIF ;In insert mode put in the CR
+        BNE     ECHRCR
+        JSR     ENDTEST
+        BCS     ECHRCR
+        STZ     scrnX
+        JMP     curDWN ;in overtype mode CR is start of line
+.ECHRCR
+        IF cF8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
+.ECHRCO
+        ; Insert character into text.
+        PHA
+        JSR     ADDVIR
+        ; Don't insert in overtype mode, unless at end of line.
+        JSR     TESTIF
+        BNE     ECHRMV
+        LDY     scrnX
+        LDA     (GE),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     ECHRCH
+.ECHRMV
+        LDX     #1
+        LDA     scrnX
+        JSR     INSRTX
+.ECHRCH
+        PLA
+        LDY     scrnX
+        STA     (GE),Y
+        ; Write char to screen (cursor OK), wiping tail for TERMIN.
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     ECHRNT
+        JSR     PASWCR
+        LDA     scrnX
+        LDY     scrnY
+        JSR     WIPETAIL
+.EHRCSU
+        STZ     scrnX
+        JSR     curDWN
+.ECHRUP
+        LDA     UPDATEREQD
+        BEQ     ECHREL
+        JSR     scrnud
+.ECHREL
+        LDA     #csronwards
+        STA     UPDATEREQD
+        JMP     MODIFY
+.ECHRNT
+        JSR     PASWRCH
+        JSR     curRT
+.ECHRN0
+        LDA     UPDATEREQD
+        BEQ     ECHRN1
+        JSR     scrnud
+.ECHRN1
+        LDA     #CSRTOCR
+        STA     UPDATEREQD
+        JMP     MODIFY
+.ECHRDE
+        ; Delete virtual space implies csrleft. Can't delete start of file.
+        JSR     VSCOUN
+        BEQ     EDELST
+        JMP     curLT
+.EDELST
+        LDA     scrnX
+        BNE     EDELCO
+        JSR     STARTTEST
+        BCS     DELABX
+.EDELCO
+        ; Get char to be deleted under cursor. In absence of VS check,
+        ; this will give TERMIN delete when past end of line.
+        JSR     curLT
+        JSR     LENGTHCALC      ; different line than current!
+        CMP     scrnX
+        BCS     EDELMT
+        STA     scrnX
+.EDELMT
+        ; Branch on text-entry mode (insert/overtype).
+        LDY     scrnX
+        JSR     TESTIF
+        BNE     EDELSL
+        LDA     (GE),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     DELABX
+        LDA     #space
+        STA     (GE),Y
+        LDA     #CSRTOCR
+        STA     UPDATEREQD
+        JMP     MODIFY
+.EDELSL
+        LDA     (GE),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     EDELS2
+        LDA     currlength
+        CMP     PAGEWIDTH
+        BEQ     EDELS2
+        JSR     EDEL1
+        BRA     ECHRN0
+.EDELS2
+        JSR     EDEL1
+        BRA     ECHRUP
+.DELLIX
+        JSR     delabv
+.dellin
+        STZ     scrnX
+        LDA     (GE)
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     DELLIX
+        JSR     LENGTHCALC
+        STA     currlength
+        JSR     delabv
+        JMP     ECHREL
+.delabv
+        JSR     ENDTEST
+        BCC     DELABY
+        LDA     scrnX
+        CMP     currlength
+        BCC     DELABY
+.DELABX
+        RTS
+.DELABY
+        LDA     currlength
+        CMP     scrnX
+        BCC     DELABX
+        LDY     #CSRTOCR
+        STY     UPDATEREQD
+        CMP     PAGEWIDTH
+        BEQ     EDEL0
+        LDY     scrnX
+        LDA     (GE),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     EDEL1
+.EDEL0
+        INC     UPDATEREQD
+.EDEL1
+        ; Shift up start of line 'over' deleted character.
+        JSR     MODIFY
+        CLC
+        LDA     GE
+        STA     temp
+        ADC     scrnX
+        STA     addr
+        LDA     GE + 1
+        STA     temp + 1
+        ADC     #0
+        STA     addr + 1
+        INC     GE
+        BNE     EDELNH
+        INC     GE + 1
+.EDELNH
+        LDY     scrnX
+        BRA     EDELDY
+.EDELLP
+        LDA     (temp),Y
+        STA     (GE),Y
+.EDELDY
+        DEY
+        BPL     EDELLP
+        LDX     markX
+.EDELMK
+        DEX
+        BMI     DELABX
+        LDY     SMATlo,X
+        CPY     addr
+        LDA     smathi,X
+        SBC     addr + 1
+        BCS     EDELMK
+        INC     SMATlo,X
+        BNE     EDELMK
+        INC     smathi,X
+        BRA     EDELMK

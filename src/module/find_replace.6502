@@ -1,0 +1,222 @@
+        ; -> EDIT08
+        ; Find-Replace & Global-Replace should have their own seperate command
+        ; keys, with the first delimeter 'built in' (i.e. not required), and CR
+        ; sufficing as terminator -
+        ; FR/ ....... [/.......] <CR>
+        ; GR/ .......  /.......  <CR>
+.GETRESP
+        ;Exit - A holds char - forced to lower case - read from keyboard
+        JSR     EDRDCH
+        ORA     #&20
+        RTS
+.MOVETOFOUNDPOSITION
+        LDX     MS
+        LDY     MS+1
+        JMP     gpfdXY
+.GLOBREPLACE
+        JSR     dfinit
+        JSR     prompt
+        EQUB    "Global replace:",&EA
+        IF extgf=1
+        JSR     readlf
+        ELSE
+        JSR     readLS
+        ENDIF
+        JSR     READINIT
+        BNE     NEWGR
+        CMP     grbuff
+        BEQ     NOBUFF
+.OLDGR
+        LDA     grbuff,Y
+        STA     (temp),Y
+        INY
+        BPL     OLDGR
+        LDY     #0
+.NEWGR
+        LDA     (temp),Y
+        STA     grbuff,Y
+        INY
+        CPY     #100
+        BNE     NEWGR
+        JSR     FINDTRANS
+        JSR     dfblok
+        STZ     line
+        STZ     line+1
+        STZ     TEXPFLAG
+.GREPLP
+        LDX     GE
+        LDY     GE+1
+.GREPNX
+        STX     MS
+        STY     MS+1
+        JSR     SEARCH
+        BCS     GREPEX
+        INC     line
+        BNE     GREPNH
+        INC     line+1
+.GREPNH
+        LDA     replflag
+        BNE     GREPRP
+        LDX     me
+        LDY     me+1
+        BRA     GREPNX
+.GREPRP
+        JSR     chknrep
+        BRA     GREPLP
+.GREPEX
+        ;Move cursor (as near as possible) to the place it started at, then
+        ;output match count.
+        LDX     string
+        LDY     string+1
+        JSR     GPBKXY
+        JSR     NORMALIZE
+        JSR     scrnud
+        LDX     #prmptl
+        JSR     PRMPTX
+        EQUB    " ",&EA
+        JSR     WRITLINE
+        JSR     PRMPTX
+        EQUB    " found",&EA
+        RTS
+.NOBUFF
+        BRK
+        EQUB    1,"No previous string",0
+.FINDREPLACE
+        JSR     prompt
+        EQUB    "Find and replace:",&EA
+        IF extgf=1
+        JSR     readlf
+        ELSE
+        JSR     readLS
+        ENDIF
+        JSR     READINIT
+        BNE     NEWFR
+        CMP     frbuff
+        BEQ     NOBUFF
+.OLDFR
+        LDA     frbuff,Y
+        STA     (temp),Y
+        INY
+        BPL     OLDFR
+        LDY     #0
+.NEWFR
+        LDA     (temp),Y
+        STA     frbuff,Y
+        INY
+        CPY     #100
+        BNE     NEWFR
+        JSR     FINDTRANS
+        JSR     TEMPSX
+        JSR     FINEPOSITIONGAP
+        LDA     line
+        STA     scrnX
+        ;Set up search termination pointer & flag.
+        LDA     tmax
+        STA     texp
+        LDA     tmax+1
+        STA     texp+1
+        STA     TEXPFLAG
+.IMRPRL
+        LDX     GE
+        LDY     GE+1
+.IMRPCL
+        STX     MS
+        STY     MS+1
+        JSR     SEARCH
+        BCS     IMRPNF
+        JSR     MOVETOFOUNDPOSITION
+        JSR     normax; get position of X back
+        LDA     BSM ;Move to BSM
+        STA     scrnY
+        JSR     scrnud
+        LDA     #fullscreen
+        STA     UPDATEREQD
+        JSR     prompt
+        EQUB    "R(eplace), C(ontinue) or ESCAPE",&EA
+
+        JSR     CSRSCREENXY
+        JSR     CURON
+.IMRPPR
+        JSR     GETRESP
+        CMP     #'c'
+        BNE     IMRPNC
+        LDX     me
+        LDY     me+1
+        BRA     IMRPCL
+.IMRPNC
+        CMP     #'r'
+        BNE     IMRPPR
+        JSR     MKREFUSE
+        ;Either use supplied replace part, or prompt for one.
+        LDA     replflag
+        BNE     IMRPRP
+        JSR     prompt
+        EQUB    "Replace by:",&EA
+
+        IF extgf=1
+        JSR     readlf
+        ELSE
+        JSR     readLS
+        ENDIF
+        JSR     READINIT
+        JSR     MININIT
+        LDA     replindex
+        STA     outindex
+        JSR     REPLPART
+.IMRPRP
+        JSR     chknrep
+        JMP     IMRPRL
+.IMRPNF
+        JSR     NORMALIZE
+        LDA     #thelot
+        STA     UPDATEREQD
+        JSR     scrnud
+        JSR     status
+        LDX     #prmptl
+        JSR     PRMPTX
+        EQUB    " Not found",&EA
+        RTS
+
+.WRITLINE
+        JSR     STARTINV
+        LDX     #4;Outputs LINE in decimal, suppressing leading zeros.
+        STX     string
+.WOPRNEXT
+        STZ     string+1
+.WOPRLOOP
+        SEC
+        LDA     line
+        SBC     WOPTBL,X
+        TAY
+        LDA     line+1
+        SBC     WOPTBH,X
+        BCC     WOPRDIGI
+        STY     line
+        STA     line+1
+        INC     string+1
+        BRA     WOPRLOOP
+.WOPRDIGI
+        LDA     string+1
+        BNE     WOPRGEN
+        DEC     string
+        BPL     WOPRCONT
+.WOPRGEN
+        ORA     #'0'
+        JSR     oswrch
+        STZ     string
+.WOPRCONT
+        DEX
+        BPL     WOPRNEXT
+        RTS
+.WOPTBL
+        EQUB    <1
+        EQUB    <10
+        EQUB    <100
+        EQUB    <1000
+        EQUB    <10000
+.WOPTBH
+        EQUB    >1
+        EQUB    >10
+        EQUB    >100
+        EQUB    >1000
+        EQUB    >10000

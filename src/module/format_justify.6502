@@ -1,0 +1,124 @@
+.DOSCRE
+        LDA     offset
+        JSR     SCMVTO
+        STZ     diff
+        LDA     xeff
+        BNE     SCREEA
+        SEC
+        LDA     juslen
+        SBC     count
+        STA     diff
+.SCREEA
+        LDA     tinden
+        CMP     #&FF
+        BNE     SCREEB
+        LDA     indent
+.SCREEB
+        JSR     SCMVTO
+        LDA     centre
+        BPL     SCREED
+        SEC
+        LDA     juslen
+        INA
+        SBC     count
+        JSR     MOVE
+.SCREED
+        BIT     rflush
+        BPL     SCREEQ
+        SEC
+        LDA     juslen
+        ADC     #1
+        SBC     count
+        JSR     SCMVTO
+.SCREEQ
+        LDY     #0
+        LDX     #0
+        LDA     spaces
+        BEQ     SCREEE
+        LSR     A
+        STA     l
+        LDA     #0
+        BIT     fill
+        BMI     SENA
+        LDA     diff
+.SENA
+        LDX     #1
+.DODIV
+        CMP     spaces
+        BCC     DONDIV
+        INX
+        SBC     spaces
+        BCS     DODIV
+.DONDIV
+        STX     Q
+        STA     diff
+        LDX     #0
+.SCREEE
+        JSR     CHKCTL
+
+        CMP     #cr             ; ++++
+        BEQ     screeG
+
+        CMP     tabcha
+        BNE     SCREES
+        TXA
+        LDX     #&FF
+.SCRTAB
+        INX
+        PHA
+        LDA     tablst,X
+        BEQ     SCRNTB
+        PLA
+        CMP     tablst,X
+        BCS     SCRTAB
+        SEC
+        SBC     tablst,X
+        EOR     #&FF
+        INA
+        PHX
+        JSR     SCMVTO
+        PLX
+        LDA     tablst,X
+        TAX
+        DEX
+        BRA     NOUL
+.SCRNTB
+        PLX
+        LDA     #' '
+.SCREES
+        CMP     #' '
+        BNE     SCREEF
+        CPX     LASTTAB
+        BCC     SCREEF
+        PHX
+        LDX     Q
+.SCRJUS
+        DEX
+        BEQ     NOMOV
+        LDA     #' '
+        JSR     fmwrch
+        BRA     SCRJUS
+.NOMOV
+        PLX
+        SEC
+        LDA     l
+        SBC     diff
+        STA     l
+        BCS     ENDJUS
+        ADC     spaces
+        STA     l
+        LDA     #' '
+        JSR     fmwrch
+.ENDJUS
+        LDA     #' '
+.SCREEF
+        JSR     fmwrch
+.NOUL
+        INY
+        INX
+        CPX     count
+        BCC     SCREEE
+
+        LDA     #cr             ; ++++
+.screeG
+        JMP     fmwrch

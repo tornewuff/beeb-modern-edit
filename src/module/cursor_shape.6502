@@ -1,0 +1,21 @@
+.CURON
+        LDY     #1
+        BRA     VDU231
+.curOFF
+        LDY     #0
+.VDU231
+        LDX     #1
+.VDU23
+        ; Entry - X = 1st byte, Y = 2nd byte
+        ; Exit  - VDU 23,X,Y,0,0,0,0,0,0,0 Output.
+
+        LDA     #23
+        JSR     oswrch
+        TXA
+        JSR     oswrch
+        TYA
+        JSR     oswrch
+        JSR     vstrng
+        EQUB    &00,&00,&00,&00,&00,&00,&00,&EA
+.VDU23X
+        RTS

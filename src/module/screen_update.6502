@@ -1,0 +1,297 @@
+        ; -> EDIT06
+        ; Entry - scrnY = desired screen Y coord of current line
+        ;         (scrnX,scrnY) = final cursor position
+        ; Exit  - screen & scrim updated
+        ;         scrnY forced if necessary
+        ;         update possibly aborted by incoming char.
+        ;         currlength valid
+.scrnud
+        JSR     LENGTHCALC
+        STA     currlength
+        TAY
+        BEQ     SCRNU0
+        CMP     PAGEWIDTH
+        BNE     SCRNU1
+.SCRNU0
+        LDA     UPDATEREQD
+        CMP     #CSRTOCR
+        BNE     SCRNU1
+        INC     UPDATEREQD
+        ; Update marks set, if any, to locate them for superimposition.
+.SCRNU1
+        JSR     MARKUPDATE
+        JSR     curOFF
+        ; If screen messier than would be fixed up by intended update,
+        ; then do something about it.
+        LDA     scrnPY
+        CMP     UPDATEREQD
+        BCC     SCUDCO
+        STA     UPDATEREQD
+.SCUDCO
+        STZ     scrnPY
+        LDA     UPDATEREQD
+        CMP     #thelot
+        BNE     SCUDTI
+        JSR     CLEARSCREEN
+        ; If fullscreen update is required, then find internal start
+        ; of screen, possibly forcing scrnY, and update top half.
+.SCUDTI
+        LDA     UPDATEREQD
+        BEQ     SCUDEX ; 'none'
+        CMP     #fullscreen
+        BCC     SCUDBO
+.SCUDFS
+        LDA     scrnY
+        JSR     TPGSBK
+        STA     scrnY
+        DEA
+        STA     maxscrupY
+        BMI     SCUDBO
+        LDA     #0
+        LDX     TP
+        LDY     TP+1
+        JSR     UPDTLN
+        BCS     SCUDAB
+.SCUDBO
+        ; Output bottom half of screen, branching for hardscrolls.
+        LDX     UPDATEREQD
+        CPX     #hardup
+        BEQ     SCUDHU
+        CPX     #HARDDOWN
+        BEQ     SCUDHD
+        LDY     pagelength
+        STY     maxscrupY
+        ; Set up A,X,Y for bottom half update.
+        LDA     scrnY
+        LDX     GE
+        LDY     GE+1
+        JSR     UPDTLN
+        BCC     SCUDEX
+.SCUDAB
+        ; Record the fact that screen isn't totally up-to-date.
+        LDA     #csronwards
+        CMP     UPDATEREQD
+        BCS     SCUDAS
+        LDA     #fullscreen
+.SCUDAS
+        STA     scrnPY
+.SCUDEX
+        STZ     UPDATEREQD
+        RTS
+.SCUDHU
+        ; Push against bottom to scroll up.
+        JSR     CSR0STATUSY
+        LDA     #down
+        JSR     oswrch
+        ; Scroll scrim up.
+        LDX     #&FF
+.SCHULP
+        INX
+        LDA     scrim+1,X
+        STA     scrim,X
+        CPX     pagelength
+        BNE     SCHULP
+        STZ     scrim+1,X
+        JSR     status
+        LDA     pagelength
+        BRA     SCHUDC
+.SCUDHD
+        ; Rewrite status, then push against top to scroll down.
+        JSR     vstrng
+        EQUB    home,up,&EA
+        ; Scroll scrim down.
+        LDY     pagelength
+.SCHDLP
+        LDA     scrim,Y
+        STA     scrim+1,Y
+        DEY
+        BPL     SCHDLP
+        STZ     scrim
+        JSR     status
+        LDA     #0
+.SCHUDC
+        STA     maxscrupY
+        LDX     scp
+        LDY     scp+1
+        BNE     UPDTLN
+        TAY
+.wipeline
+        ; Clear a line, assigning new scrim value. Y is line to clear.
+        PHY
+        JSR     CSR0Y
+        LDA     #' '
+        JSR     oswrch
+        LDA     #0
+        PLY
+.WIPETAIL
+        ; Assign scrim entry for a line, clearing old tail of line.
+        ; Entry - A = New scrim entry
+        ;        Y = screen Y-coord
+        ; Exit  - Tail of line wiped.
+        ;        scrim updated
+        ;        A,Y preserved.
+        STA     Atemp
+        LDA     scrim,Y
+        CMP     Atemp
+        BCC     WTSCRM
+        BEQ     WTSCRM
+        LDA     #28
+        JSR     oswrch
+        LDA     Atemp
+        INA
+        JSR     oswrch
+        PHX
+        LDA     tutmode
+        AND     #7
+        TAX
+        TYA
+        CLC
+        ADC     verttb,X
+        PLX
+        PHA
+        JSR     oswrch
+        LDA     scrim,Y
+        JSR     oswrch
+        PLA
+        JSR     oswrch
+        LDA     #12
+        JSR     oswrch
+        PHY
+        JSR     DECWIN
+        PLY
+.WTSCRM
+        LDA     Atemp
+        STA     scrim,Y
+        RTS
+.UPDTLN
+        ; Entry - A = Y-coord of 1st line to be output.
+        ;        XY --> 1st line to be output.
+        ;        maxscrupY = last line to be updated.
+        ; Exit  - line output, with rest of line wiped if necessary
+        ;        scrim,scrupY assigned (top bit set if no <CR> on line)
+        ;        If was last line (temp = hymem after update), then
+        ;        loop clearing lines until scrupY = pagelength.
+        ;        CC - Normal termination
+        ;        CS - Update aborted due to incoming character.
+        STA     scrupY
+        STX     TP
+        STY     TP+1
+        LDX     #0
+        LDA     UPDATEREQD
+        CMP     #CSRTOCR
+        BEQ     UPDLC0
+        ; If updatereqd = csronwards then start screen update from char under cursor.
+        CMP     #csronwards
+        BNE     UPDLCO
+.UPDLC0
+        LDX     scrnX
+        CPX     currlength
+        BCC     UPDLCO
+        LDX     currlength
+.UPDLCO
+        PHX
+        LDY     scrupY
+        JSR     CSRXY
+        PLY
+        DEY
+.UPDLLP
+        INY
+.UPDLL2
+        LDA     (TP),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     UPDLCR
+        JSR     PASWRCH
+        CPY     PAGEWIDTH
+        BNE     UPDLLP
+        BRA     UPDLEN
+.UPDLCR
+        JSR     PASWCR
+.UPDLEN
+        STY     count ; Max csrX on this line.
+        ; Superimpose marks, if any, onto this line.
+        LDY     markX
+.MOUTLP
+        DEY
+        BMI     MOUTEX
+        STY     index
+        ; If 0 <= (Mark - TP) <= count, then this is csrX within line.
+        SEC
+        LDA     UMATlo,Y
+        SBC     TP
+        TAX
+        LDA     umathi,Y
+        SBC     TP+1
+        BCC     MOUTLP
+        BNE     MOUTLP
+        CPX     count
+        BEQ     MOUTMO
+        BCS     MOUTLP
+.MOUTMO
+        LDY     scrupY
+        JSR     CSRXY
+        LDA     index
+        CLC
+        ADC     #'1'
+        JSR     INVWRCH
+        LDX     count
+        INX
+        JSR     CSRXY
+        LDY     index
+        BRA     MOUTLP
+.MOUTEX
+        ; Update TP, and see if have hit end of file.
+        LDA     count
+        LDY     scrupY
+        JSR     WIPETAIL
+        JSR     TPPAP1 ; A = count
+        BCS     UPDLNE
+        LDA     UPDATEREQD
+        CMP     #CSRTOCR
+        BEQ     UPDLFI
+        LDY     scrupY
+        CPY     maxscrupY
+        BCS     UPDLFI
+        ; Test if any characters/commands are being queued in buffer.
+        LDA     UPDATEREQD
+        CMP     #thelot
+        BEQ     QUEUEX
+        LDA     NEXTREADFLAG
+        BNE     QUEUCS
+        LDA     #&81
+        LDX     #0
+        LDY     #0
+        JSR     osbyte
+        CPY     #&FF
+        BEQ     QUEUEX
+        JSR     escTST
+        INC     NEXTREADFLAG
+        STX     nxtchr
+.QUEUCS
+        SEC
+        RTS
+.QUEUEX
+        INC     scrupY
+        LDX     #0
+        JMP     UPDLCO
+        ; Overwrite sentinal EOT TERMIN with EOT character.
+.UPDLNE
+        LDX     count
+        LDY     scrupY
+        JSR     CSRXY
+        LDA     #'*'
+        JSR     INVWRCH
+        BRA     UDLET1
+.UDLEOT
+        LDY     scrupY
+        JSR     wipeline
+.UDLET1
+        INC     scrupY
+        CPY     pagelength
+        BCC     UDLEOT
+.UPDLFI
+        CLC
+        RTS

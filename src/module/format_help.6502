@@ -1,0 +1,77 @@
+.prHELP
+        EQUB    14,cr,cr,"Format commands:- {initial values}",cr
+        EQUB    cr
+        EQUB    ".afrn assign format n to register r {0}",cr
+        EQUB    ".anrn assign number to register r {0}",cr
+        EQUB    ".bl   bold line",cr
+        EQUB    ".bp   begin page",cr
+        EQUB    ".cc c control character is c {.}",cr
+        EQUB    ".ce   centre line",cr
+        EQUB    ".ch*c chain in next file",cr
+        EQUB    ".co   comment line",cr
+        EQUB    ".dmcc define macro to .en",cr
+        EQUB    ".ds   double space lines",cr
+        EQUB    ".ef   even page foot title to .en",cr
+        EQUB    ".eh   even page head title to .en",cr
+        EQUB    ".en   end of .at, .ix or .ef etc",cr
+        EQUB    ".ep   begin even page",cr
+        EQUB    ".ff   form feed the printer, wait if paged mode",cr
+        EQUB    ".fo   even and odd foot title to .en",cr
+        EQUB    ".he   even and odd head title to .en",cr
+        EQUB    ".ic   close indexfile",cr
+        EQUB    ".ig   ignore input until .en",cr
+        EQUB    ".in+- indent left margin n places {0}",cr
+        EQUB    ".io*c open indexfile for output",cr
+        EQUB    ".ix   send text to indexfile until .en",cr
+        EQUB    ".ju   justify right margin of lines {on}",cr
+        EQUB    ".ll+- line length including indent {76}",cr
+        EQUB    ".ls+- line spacing is n {1}",cr
+        EQUB    ".lv n leave n blank lines (by .ne n and .sp n)",cr
+        EQUB    ".ne n needs n output lines, .bp if necessary",cr
+        EQUB    ".nj   no justification of lines",cr
+        EQUB    ".nn   no new line after this line",cr
+        EQUB    ".of   odd page foot title to .en",cr
+        EQUB    ".oh   odd page head title to .en",cr
+        EQUB    ".op   begin odd page",cr
+        EQUB    ".os*c call operating system with this string",cr
+        EQUB    ".pl+- text area length is n lines {58}",cr
+        EQUB    ".po+- page offset is n {0}",cr
+        EQUB    ".rf   right flush this line",cr
+        EQUB    ".sp n insert n blank lines",cr
+        EQUB    ".ss   single space lines",cr
+        EQUB    ".ta   define tabs {8,16,24,...,96}",cr
+        EQUB    ".tcc  define tab character as c {ctrl I}",cr
+        EQUB    ".ti+- temporary indent n",cr
+        EQUB    ".trcc translate {ctrl J is space}",cr
+        EQUB    ".ul   underline line",cr
+        EQUB    cr
+        EQUB    "n represents a decimal number, 0 is used if not present",cr
+        EQUB    "Spaces are allowed before n. c represents any character",cr
+        EQUB    "+- allows n, +n or -n: .in+2 sets an indent 2 more than current",cr
+        EQUB    ".ti+2 is a temporary indent of 2 more than the current indent",cr
+        EQUB    cr,"Formatting commands which can appear anywhere",cr,cr
+        EQUB    ".bb   begin bold",cr
+        EQUB    ".bu   begin underline",cr
+        EQUB    ".eb   end bold",cr
+        EQUB    ".eu   end underline",cr
+        EQUB    ".oc n output CHR$(n) to printer counted as 1 char",cr
+        EQUB    ".on n output CHR$(n) to printer without being counted",cr
+        EQUB    ".r0-9 contents of register e.g. .r0",15,cr,cr
+        EQUB    &EA
+
+.prinHL
+        LDA     #<prHELP
+        STA     string
+        LDA     #>prHELP
+        STA     string + 1
+        LDA     (string)
+.prinHK
+        JSR     osasci
+        INC     string
+        BNE     prinHM
+        INC     string + 1
+.prinHM
+        LDA     (string)
+        BPL     prinHK
+        JSR     inkeys
+        JMP     EDITcont

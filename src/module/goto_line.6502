@@ -1,0 +1,140 @@
+.GETNUM
+        STZ     index
+        STZ     line
+        STZ     line + 1
+.EDLIRE
+        LDY     index
+        LDA     (temp),Y
+        CMP     #cr
+        BEQ     EDLIMV
+        CMP     #'9' + 1
+        BCS     EDLIBN
+        SBC     #'0' - 1
+        BCC     EDLIBN
+        STA     Atemp
+        LDA     #10; line = line * 10 + Atemp
+        LDX     #0
+        LDY     #0
+        CLC
+
+.EDLI10
+        PHA
+        TXA
+        ADC     line
+        TAX
+        TYA
+        ADC     line + 1
+        TAY
+        BCS     EDLIBN
+        PLA
+        DEA
+        BNE     EDLI10
+        TXA
+        ADC     Atemp
+        STA     line
+        BCC     EDLNHI
+        INY
+        BEQ     EDLIBN
+.EDLNHI
+        STY     line + 1
+        INC     index
+        BNE     EDLIRE
+.EDLIMV
+        RTS
+
+.EDITli
+        LDA     #1              ; Move to specified line number.
+        STA     line
+        STZ     line + 1
+        LDA     tstart
+        STA     string
+        LDA     tstart + 1
+        STA     string + 1
+.LOKLINE
+        LDA     (string)
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     LOKLI2
+        INC     line
+        BNE     LOKLI2
+        INC     line + 1
+.LOKLI2
+        INC     string
+        BNE     LOKLI3
+        INC     string + 1
+.LOKLI3
+        LDA     string
+        CMP     GS
+        LDA     string + 1
+        SBC     GS+1
+        BCC     LOKLINE
+        JSR     prompt
+        EQUB    "At line ",&EA
+        JSR     WRITLINE
+        JSR     vstrng
+        EQUB    ", new line:",&EA
+        JSR     STOPINV
+        JSR     readns
+        BNE     LOLI4
+
+.EDLIBN
+        BRK
+        EQUB    1,"Bad number"
+
+.EDLIBL
+        BRK
+        EQUB    2,"Line not found",0
+
+.LOLI4
+        JSR     GETNUM
+        ; Number is held in line. Numbers start at 1 ...
+        SEC
+        LDA     line
+        SBC     #1
+        STA     line
+        LDA     line + 1
+        SBC     #0
+        STA     line+1
+        BCC     EDLIBN
+        JSR     stFILE
+        LDA     GE
+        STA     TP
+        LDA     GE + 1
+        STA     TP + 1
+
+.EDLIFW
+        LDA     line
+        ORA     line + 1
+        BEQ     EDLIGO
+
+.EDLICR
+        LDA     #1
+        JSR     TPFWDA
+        BCS     EDLIBL
+        LDA     Atemp
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     EDLICR
+        LDA     line
+        BNE     EDLNHD
+        DEC     line+1
+
+.EDLNHD
+        DEC     line
+        BRA     EDLIFW
+
+.EDLIGO
+        ; Move to BSM.
+        LDA     TSM
+        BNE     EDLIGJ
+        LDA     #4
+
+.EDLIGJ
+        STA     scrnY
+        JMP     GPFDTP

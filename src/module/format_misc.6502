@@ -1,0 +1,52 @@
+.closeX
+        LDY     indexH
+        BEQ     closee
+        STZ     indexH
+        LDA     #&00
+        JSR     osfind        ; close index file
+.closee
+        RTS
+
+.SCMVTO
+        ASL     A
+.MOVE
+        LSR     A
+        BEQ     MOVEX
+        TAX
+        LDA     #9
+        BIT     prtflg
+        BMI     MLOOP
+        LDA     #' '
+.MLOOP
+        BIT     doindX
+        BPL     MLOOPA
+        LDA     #' '
+        JSR     DOINDE
+        BRA     MLOOPB
+.MLOOPA
+        JSR     oswrch
+.MLOOPB
+        DEX
+        BNE     MLOOP
+.MOVEX
+        RTS
+.inkeys
+        JSR     strimo
+        EQUB    "Press SHIFT to continue",&EA
+.INKEY
+        PHX
+        PHY
+.INKEYL
+        JSR     escTST
+        LDX     #&FF
+        LDY     #&FF
+        LDA     #&81
+        JSR     osbyte
+        CPX     #&FF
+        BNE     INKEYL
+        LDA     #15
+        LDX     #&FF
+        JSR     osbyte
+        PLY
+        PLX
+        RTS

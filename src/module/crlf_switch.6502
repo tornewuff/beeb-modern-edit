@@ -1,0 +1,30 @@
+        IF cF8key=1
+        ; ------------------------------------------------------------ ;
+
+.cf8swt                         ; CR/LF switch
+        LDA     clterm
+        CMP     #cr
+        BEQ     setLF
+        LDA     #cr
+        STA     clterm
+        BRA     cont99
+.setLF
+        LDA     #lf
+        STA     clterm
+.cont99
+        STZ     cursED
+        STZ     NEXTREADFLAG
+        STZ     markX
+
+        LDA     clterm
+        STA     (paje)
+        STA     (tmax)
+
+        STZ     scrnX           ; STZ scrnY will be forced by scrnud
+
+        JSR     stFILE          ; move the cursor to the top
+                                ; of the text
+        JMP     EDITcont        ; and continue editing
+
+        ; ------------------------------------------------------------ ;
+        ENDIF

@@ -1,0 +1,79 @@
+.intpag
+        LDA     tutmode
+        AND     #7
+        CMP     #2
+        BEQ     KEYONL
+        CMP     #5
+        BEQ     KEYONL
+        BRA     NOTTUT
+.CLEARSCREEN
+        LDA     tutmode
+        AND     #7
+        CMP     #2
+        BEQ     DOTUT
+        CMP     #5
+        BNE     NOTTUT
+.DOTUT
+        PHA
+        JSR     vstrng
+        EQUB    26,home,&EA
+        JSR     STARTINV
+        JSR     BIGMESS
+        PLA
+        CMP     #2
+        BEQ     KEYONL
+        JSR     BIGMET
+.KEYONL
+        JSR     STOPINV
+        JSR     GETWIN          ; get size of total screen
+        STA     realPA          ; pagelength in A
+        JSR     DECWIN
+.NOTTUT
+        JSR     GETWIN          ; get size of working area
+        TAX                     ; pagelength again in A
+        INX                     ; Initialize scrim.
+        LDA     PAGEWIDTH
+.SCMILO
+        STA     scrim,X
+        DEX
+        BPL     SCMILO
+        JSR     status
+        STZ     scrnPY
+        RTS
+.GETWIN
+        LDA     #160
+        LDX     #10
+        JSR     osbyte
+        STX     PAGEWIDTH
+        STY     pagelength
+        LDX     #8
+        JSR     osbyte
+        TYA
+        CLC
+        SBC     pagelength
+        STA     pagelength
+        RTS
+.DECWIN
+        LDA     tutmode
+        AND     #7
+        LDY     #14
+        CMP     #5
+        BEQ     WINDOW
+        LDY     #7
+        CMP     #2
+        BNE     NOWIND
+.WINDOW
+        LDA     #28
+        JSR     oswrch
+        LDA     #0
+        JSR     oswrch
+        LDA     realPA
+        INA
+        JSR     oswrch
+        LDA     PAGEWIDTH
+        JSR     oswrch
+        TYA
+        JMP     oswrch
+.NOWIND
+        LDA     #26
+        JMP     oswrch

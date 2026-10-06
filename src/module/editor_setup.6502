@@ -1,0 +1,122 @@
+.EDITi2
+        LDX     tstart
+        LDY     tstart + 1
+
+.EDITtd
+        STX     GS
+        STY     GS + 1
+        LDA     tmax
+        STA     GE
+        LDA     tmax + 1
+        STA     GE + 1
+.EDITxx
+        STZ     cursED
+        STZ     NEXTREADFLAG
+        STZ     markX
+        IF cF8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
+        STA     (paje)
+        STA     (tmax)
+.stFILE
+        LDX     tstart
+        LDY     tstart + 1
+        JSR     GPBKXY
+        STZ     scrnX   ; STZ scrnY will be forced by scrnud
+.STFILX
+        RTS
+
+.curedf
+        LDA     BSM     ; Try to glue bottom of file to BSM.
+        STA     scrnY
+        LDX     tmax
+        LDY     tmax + 1
+        JSR     gpfdXY
+        JMP     normax
+
+.IOtogg                 ; Insert/Over toggle
+        LDA     tutmode
+        EOR     #bit4   ; the correct bit
+        JSR     doMODE
+        JMP     CstatU
+
+.chkscr
+        LDA     #&87    ; select mode if tutmode and screen mode NOT the same
+        JSR     osbyte
+        LDA     tutmode
+        AND     #&07
+        TAX
+        LDA     MODEtb,X
+        STY     string
+        EOR     string
+        AND     #&07
+        BEQ     STFILX  ; same ok
+.selscr
+        LDA     #22     ; select the right screen mode
+        JSR     oswrch
+        LDA     tutmode
+        AND     #&07
+        TAY
+        LDA     MODEtb,Y
+        ORA     #&80    ; select any shadow around
+        JMP     oswrch
+
+
+.EDITmd                 ; Set up 'EDIT'
+        JSR     selscr
+.EDITMA
+        LDA     #&83
+        JSR     osbyte          ; Read paje
+        STX     paje
+        STY     paje + 1
+        LDA     #&84
+        JSR     osbyte          ; Read HIMEM
+        STX     hymem
+        STY     hymem + 1
+
+        ; Set up edit (text) buffer delimiting pointers.
+        CLC
+        LDA     paje
+        ADC     #1
+        STA     tstart
+        LDA     paje + 1
+        ADC     #0
+        STA     tstart + 1
+        LDA     hymem
+        SBC     #0              ; CC gives -1
+        STA     tmax
+        LDA     hymem + 1
+        SBC     #0
+        STA     tmax + 1
+        JSR     intpag          ; initialise pagelength and width
+        LDA     pagelength
+        SEC
+        SBC     #4
+        STA     BSM
+        LDA     #4
+        STA     TSM
+        RTS
+
+.tsmcsr
+        ; Set Top Scroll Margin to current cursor line.
+        LDA     scrnY
+        STA     TSM
+        BRA     noupda
+
+.bsmcsr
+        ; Set Bottom Scroll Margin to current cursor line.
+        LDA     scrnY
+        STA     BSM
+        BRA     noupda
+
+.scmclr
+        ; Clear Scroll Margins.
+        STZ     TSM
+        LDA     pagelength
+        STA     BSM
+
+.noupda
+        STZ     UPDATEREQD
+        RTS

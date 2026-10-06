@@ -1,0 +1,96 @@
+        IF curtyp=1
+                                ; different types of display cursor
+                                ;
+                                ; block/slow flash INSERT
+                                ; line/slow flash  OVER
+                                ; block/fast flash FOUND search items (f4)
+                                ; line/fast flash  CURSOR EDITING
+                                ; line/slow flash  COMMAND LINE entry
+                                ;
+
+                                ; blink         ; blink
+                                ; fblink        ; Fast blink
+                                ; fcstrt        ; Full cursor start line
+                                ; ncstrt        ; Normal start line
+
+                                ; VDU 23,0,10,value,0,0,0,0,0,0
+
+.curupd                         ; cursor update
+                                ; 'tutmode' holds editing state
+        PHA
+                                ; bit4 = Insert/Over mode
+        LDA     tutmode
+        AND     #bit4
+        BEQ     ovrcur
+
+        LDA     cursED
+        BEQ     slowc1
+
+        JSR     bff
+        BRA     curex
+.slowc1
+        JSR     bsf
+        BRA     curex
+.ovrcur
+        LDA     cursED
+        BEQ     slowc2
+
+        JSR     lff
+        BRA     curex
+.slowc2
+        JSR     lsf
+.curex
+        PLA
+        RTS
+
+.bsf                            ; block slow flash
+        PHA
+        PHX
+
+        LDA     #fcstrt
+        BRA     sf
+.bff                            ; block fast flash
+        PHA
+        PHX
+
+        LDA     #fcstrt
+        BRA     ff
+.lff                            ; line slow flash
+        PHA
+        PHX
+
+        LDA     #ncstrt
+        BRA     ff
+.lsf                            ; line fast flash
+        PHA
+        PHX
+
+        LDA     #ncstrt
+.sf
+        ORA     #fblink         ; add the fast flash
+.ff                             ; slow flash
+        ORA     #blink          ; and add the blink
+                                ; at this point A holds value
+        TAX
+
+        LDA     #23
+        JSR     oswrch
+        LDA     #&00
+        JSR     oswrch
+        LDA     #&0A            ; cursor control register
+        JSR     oswrch
+        TXA
+        JSR     oswrch
+
+        LDX     #&05
+        LDA     #&00
+.bloop
+        JSR     oswrch
+        DEX
+        BPL     bloop
+
+        PLX
+        PLA
+
+        RTS                     ; and away..
+        ENDIF

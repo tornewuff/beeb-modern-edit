@@ -1,0 +1,71 @@
+.YADP
+        TYA
+        ADC     addr
+        STA     addr
+        BCC     ENDADD
+        INC     addr+1
+.ENDADD
+        RTS
+.MODNO
+        JSR     SPACEY
+        CMP     #'-'
+        BEQ     SUBNO
+        CMP     #'+'
+        BEQ     ADDNO
+        DEY
+        LDX     #0
+.ADDNO
+        PHX
+        JSR     GETNO
+        PLX
+        CLC
+        STX     temp
+        ADC     temp
+        BCC     ADDNOX
+        LDA     #0
+.ADDNOX
+        TAX
+        RTS
+.SUBNO
+        PHX
+        JSR     GETNO
+        STA     temp
+        PLA
+        SEC
+        SBC     temp
+        BCS     ADDNOX
+        LDA     #0
+        TAX
+        RTS
+.GETNO
+        LDX     #0
+        JSR     SPACEY
+        DEY
+.NUMLOP
+        LDA     (addr),Y
+        CMP     #'0'
+        BCC     ENDNO
+        CMP     #&3A
+        BCS     ENDNUM        ; not a decimal digit
+        AND     #&0F
+        PHA
+        TXA
+        ASL     A
+        ASL     A
+        STA     temp
+        TXA
+        CLC
+        ADC     temp
+        ASL     A
+        STA     temp
+        PLA
+        CLC
+        ADC     temp
+        TAX
+        INY
+        BRA     NUMLOP
+.ENDNUM
+        CLC
+.ENDNO
+        TXA
+        RTS

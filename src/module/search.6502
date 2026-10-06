@@ -1,0 +1,252 @@
+        ; Search subroutine , called by find & replace routines.
+        ; 'Multiple occurence' matching is achieved by a general backtracking
+        ; algorithm, using a stack of records, one for each '*-match', holding
+        ; the following data -
+        ;  + - +
+        ; |0| linbufX of multsym concerned
+        ;  + - +
+        ; |1| lo }
+        ;  + - +     } Text address of match start
+        ; |2| hi }
+        ;  + - +
+        ; |3| lo }
+        ;  + - +     } Number of object accepted by match
+        ; |4| hi }
+        ;  + - +
+        ; The first record is reserved (by chknrep) for match-start pointer.
+        ; Entry - MS   --> Search start position
+        ;        EOSP    --> Top bit set charcater at required end of search.
+        ;        Search-string in stracc, terminated by termch.
+        ; Exit  - CC  Occurence of findstring found.
+        ;            MS  --> match
+        ;            me  --> matchend  +  1
+        ;        CS  Search failed.
+.SEARCH
+        LDY     #0
+        STZ     sstckx
+        ; Start of attempted match. See if have reached texp - either old
+        ; cursor position, or end of search block.
+        LDA     MS
+        STA     me
+        CMP     texp
+        LDA     MS + 1
+        STA     me + 1
+        SBC     texp + 1
+        BCC     SRCHCT
+        LDA     TEXPFLAG
+        BNE     SRCHFL
+        JSR     MOVETOFOUNDPOSITION
+        LDA     GS
+        STA     string
+        LDA     GS + 1
+        STA     string + 1
+        INC     TEXPFLAG
+        LDA     endp
+        STA     texp
+        LDA     endp + 1
+        STA     texp + 1
+        LDY     #0
+        BRA     SRCHCT
+.SRCHFL
+        SEC
+        RTS
+.SRCHL1
+        INC     me
+        BNE     SRCHCT
+        INC     me + 1
+.SRCHCT
+        ; Expects Y (= linbufX), me --> next char valid.
+        JSR     escTST
+        LDA     stracc,Y
+        CMP     #termsym
+        BEQ     SRCHFD
+        CMP     #multsym
+        BEQ     SRCHMI
+        JSR     compmobj
+        BEQ     SRCHL1
+.SRCHIN
+        ; Increment current multiple match, or advance MS if there
+        ; isn't one. Search fails when MS reaches EOT.
+        LDX     sstckx
+        BNE     SRCHFM
+        INC     MS
+        BNE     SEARCH
+        INC     MS + 1
+        BRA     SEARCH
+.SRCHFD
+        LDA     MS ; Match found. Set sstk[0] = MS, (me-MS).
+        STA     SSTTLOSTK
+        LDA     MS + 1
+        STA     SSTTHISTK
+        SEC
+        LDA     me
+        SBC     MS
+        STA     SCNTLOSTK
+        LDA     me + 1
+        SBC     MS + 1
+        STA     SCNTHISTK
+        CLC
+        RTS
+.SRCHFM
+        ; Let most recent multiple match accept another occurence of
+        ; find-object, if one exists.
+        STY     BUTTFLAG
+        CLC
+        LDA     SSTTLOSTK,X
+        ADC     SCNTLOSTK,X
+        STA     me
+        LDA     SSTTHISTK,X
+        ADC     SCNTHISTK,X
+        STA     me + 1
+        LDA     SINDEXSTK,X
+        TAY
+        JSR     compmobj
+        BNE     SRCHBK
+        LDX     sstckx
+        INC     SCNTLOSTK,X
+        BNE     SRCHL1
+        INC     SCNTHISTK,X
+        BRA     SRCHL1
+.SRCHBK
+        ; Can't increment this multiple-match, so backtrack to the previous one.
+        ; unless its hit a ^ with count>0 in which case it continues
+        LDX     BUTTFLAG
+        LDA     stracc-1,X
+        CMP     #BUTTSYM
+        BNE     SRCHBC
+        INY
+        LDX     sstckx
+        LDA     SCNTLOSTK,X
+        ORA     SCNTHISTK,X
+        BNE     SRCHCT
+.SRCHBC
+        DEC     sstckx
+        BRA     SRCHIN
+.SRCHMI
+        ; 'Push' a new record onto backtrack-stack. Initially accept
+        ; 0 characters into multiple match.
+        INC     sstckx
+        LDX     sstckx
+        INY
+        TYA
+        STA     SINDEXSTK,X
+        LDA     me
+        STA     SSTTLOSTK,X
+        LDA     me + 1
+        STA     SSTTHISTK,X
+        STZ     SCNTLOSTK,X
+        STZ     SCNTHISTK,X
+        JSR     compmobj ; Cheap way to advance Y to next find-object.
+        JMP     SRCHCT
+.COMOFS
+        PLP
+.COMOFL
+        ; Have hit end of search text, so fail match.
+        LDA     #1
+        RTS
+.compmobj
+        ; Compares stracc,Y & (me).
+        ; Exit  - Y indexes next ssobj
+        ;        EQ  Objects match.
+        ;        NE  Objects don't match.
+        ; Match fails if have hit end of seach text.
+        LDA     me
+        CMP     endp
+        BNE     COMOCO
+        LDA     me + 1
+        CMP     endp + 1
+        BEQ     COMOFL
+.COMOCO
+        ; Check for & store absence/presence of notsym, then branch depending
+        ; whether trying to match constant, wildcard, subrange or set item.
+        LDA     stracc,Y
+        CMP     #notsym
+        PHP
+        BNE     COMONN
+        INY
+.COMONN
+        INY
+        LDA     stracc-1,Y
+        BMI     COMOME
+        CMP     (me)
+        BNE     CMOPRN
+        BRA     CMOPRY
+.COMOME
+        CMP     #WILDSYM
+        BEQ     CMOPRY
+        CMP     #NSENSYM
+        BEQ     CMONSEN
+        CMP     #ALPHASYM
+        BEQ     COMOAL
+        CMP     #BUTTSYM
+        BEQ     COMOFS
+        CMP     #digsym
+        BEQ     CMODG1
+        CMP     #SUBRSYM
+        BEQ     CMOSUB
+        CMP     #setsym
+        BEQ     CMOSET
+        ;
+        ; Must be escsym ch
+        ;
+        INY
+        LDA     stracc-1,Y
+        CMP     (me)
+        BNE     CMOPRN
+        BEQ     CMOPRY
+.CMOSUB
+        INY
+        INY
+        LDA     (me)
+        CMP     stracc-2,Y
+        BCC     CMOPRN
+        CMP     stracc-1,Y
+        BCC     CMOPRY
+        BNE     CMOPRN
+        BRA     CMOPRY
+.CMONSEN
+        INY
+        LDA     (me)
+        ORA     #&20
+        CMP     stracc-1,Y
+        BNE     CMOPRN
+        BRA     CMOPRY
+.COMOAL
+        LDA     (me)
+        CMP     #'_'
+        BEQ     CMOPRY
+        CMP     #'A'
+        BCC     CMODG2
+        CMP     #'z' + 1
+        BCS     CMOPRN
+        CMP     #'Z' + 1
+        BCC     CMOPRY
+        CMP     #'a'
+        BCC     CMOPRN
+        BRA     CMOPRY
+.CMODG1
+        LDA     (me)
+.CMODG2
+        CMP     #'0'
+        BCC     CMOPRN
+        CMP     #'9' + 1
+        BCS     CMOPRN
+        BRA     CMOPRY
+.CMOSET
+        LDA     stracc,Y
+        STA     nextX
+        INY
+.CMOSEL
+        JSR     compmobj
+        BEQ     CMOSEY
+        CPY     nextX
+        BNE     CMOSEL
+.CMOPRN
+        PLP
+        RTS
+.CMOSEY
+        LDY     nextX
+.CMOPRY
+        PLA
+        AND     #2
+        RTS

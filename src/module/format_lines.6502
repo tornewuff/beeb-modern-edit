@@ -1,0 +1,352 @@
+.CTLLMT
+        LDY     #3       ; found built in cmd
+        JSR     CTLLDO
+.CTLLMX
+        JSR     SPACEY
+        DEY
+        CLC
+        JSR     YADP
+        LDA     (addr)
+        CMP     ctlcha
+        BEQ     CTLIN1
+        LDY     #0
+.CLCTLI
+        JSR     ROUTCO
+        SEC
+        JSR     YADP
+.CTLIN
+        LDA     addr+1
+        STA     xeff        ; set nojust(local) by <>
+        CMP     #>CTLIN
+        BCS     CTLIN1
+        LDX     addr
+        CPX     GS
+        SBC     GS+1
+        BCS     LASLEN
+.CTLIN1
+        LDA     (addr)
+        CMP     ctlcha
+        BNE     LINLYX
+        LDX     #0       ; main control scan
+        LDY     #2
+        LDA     (addr),Y
+        STA     temp+1
+        DEY
+        LDA     (addr),Y
+.CTLLLP
+        CMP     CMDS,X
+        BNE     CTLLLL
+        LDY     CMDS+1,X
+        CPY     temp+1
+        BEQ     CTLLMT
+.CTLLLL
+        INX
+        INX
+        INX
+        INX
+        CPX     #NOCMDS
+        BNE     CTLLLP
+        JSR     MACCHK
+        BCC     LINLYX
+        LDA     addr
+        PHA
+        LDA     addr+1
+        PHA
+        LDA     ctlcha
+        PHA
+        LDA     (buff)
+        STA     ctlcha
+        LDA     buff
+        STA     addr
+        LDA     buff+1
+        STA     addr+1
+        LDY     #2
+        JSR     CLCTLI
+        PLA
+        STA     ctlcha
+        PLA
+        STA     addr+1
+        PLA
+        STA     addr
+        LDY     #3
+        BRA     CTLLMX
+.LINLYX
+        LDA     lineot
+        INA
+        BNE     NOHDR
+        JSR     DOHDR
+.NOHDR
+        LDA     len
+        LDY     tinden
+        INY
+        SEC
+        BEQ     SBCLEN
+        SBC     tinden        ; take off temp indent
+        BRA     GOTLEN
+.SBCLEN
+        SBC     indent        ; so take off indent
+.GOTLEN
+        STA     juslen
+        LDY     #0
+        LDX     #0
+        STZ     spaces        ; initialize spaces encountered
+        STZ     LASTTAB        ; initialize start of spacing out
+.LINLEN
+        CPY     #250
+        BCS     LENFNE
+        JSR     IGNCTL        ; main char count
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     LENFNE
+        CMP     tabcha
+        BNE     NOTTAB
+        TXA
+        LDX     #&FF
+.LOKTAB
+        INX
+        PHA
+        LDA     tablst,X
+        BEQ     NOTAB
+        PLA
+        CMP     tablst,X
+        BCS     LOKTAB
+        PHA
+        LDA     tablst,X
+        PLX
+        INY
+        CMP     juslen
+        BCS     NOTAB2
+        TAX
+        STX     lastsp
+        STX     LASTTAB
+        STZ     spaces
+        BRA     NOSP2
+.NOTAB
+        PLX
+        LDA     #' '
+.NOTTAB
+        CMP     #' '
+        BNE     NOSP
+        STX     lastsp
+        INC     spaces
+.NOSP
+        INX
+        INY
+.NOSP2
+        CPX     juslen
+        BCC     LINLEN
+.NOTAB2
+        JSR     IGNCTL
+        CMP     #' '
+        BEQ     LENFNA
+        CMP     tabcha
+        BEQ     LENFNA
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     LENFNA
+        LDA     spaces
+        BEQ     LENFNA
+        LDX     lastsp
+        DEC     spaces
+.LENFNA
+        DEX
+        STZ     xeff
+.LENFNE
+        INX
+        STX     count        ; X, Y free
+        BIT     prtflg
+        BPL     DODW
+        JSR     DOSCRE
+        BRA     LINCTL
+.DODW
+        LDA     #&40
+        TSB     prtflg        ; no underline first time
+        LDA     underl
+        PHA
+        JSR     write
+        PLA
+        STA     underl
+        BIT     undrrq
+        BPL     LINCTL
+        LDA     #&40       ; now do underline
+        TRB     prtflg
+        JSR     DOSCRE
+        STZ     underl
+.LINCTL
+        BIT     linfed
+        BMI     FINSEN
+        LDX     vspace
+.LINSCT
+        JSR     lfwrch        ; ready for next line
+        LDA     lineot
+        INA
+        BEQ     FINSEN
+        DEX
+        BNE     LINSCT
+.FINSEN
+        STZ     linfed        ; back on, for next line
+        JSR     SPACEY
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     NICEDL
+        DEY
+.NICEDL
+        CLC
+        JSR     YADP
+        JMP     fine
+.SPACEY
+        LDA     (addr),Y
+        INY
+        BEQ     SPACER
+        CMP     #' '
+        BEQ     SPACEY
+.SPACER
+        RTS
+.IGNCTL
+        LDA     (addr),Y    ; count routine
+        CMP     ctlcha
+        BNE     NOCTRL
+        INY
+        LDA     (addr),Y
+        CMP     #'b'
+        BEQ     WSCTRB
+        CMP     #'o'
+        BEQ     WSCTRO
+        CMP     #'r'
+        BEQ     WSCTRR
+        CMP     #'e'
+        BNE     NORECG
+.WSCTRB
+        INY
+        LDA     (addr),Y
+        CMP     #'b'
+        BEQ     WSCTRL
+        CMP     #'u'
+        BNE     NORECF
+.WSCTRL
+        INY
+        BRA     IGNCTL
+.WSCTRO
+        INY
+        LDA     (addr),Y
+        CMP     #'n'
+        BEQ     WSCTON
+        CMP     #'c'
+        BNE     NORECF
+        INX
+.WSCTON
+        PHX
+        INY
+        JSR     GETNO
+        PLX
+        BRA     IGNCTL
+.WSCTRR
+        INY
+        LDA     (addr),Y
+        CMP     #'0'
+        BCC     NORECF
+        CMP     #&3A
+        BCS     NORECF
+        JSR     DECCON
+        BRA     WSCTRL
+.NORECF
+        DEY
+.NORECG
+        DEY
+        LDA     (addr),Y
+.NOCTRL
+        RTS
+.WASCTL
+        INY
+.CHKCTL
+        LDA     (addr),Y    ; print routine
+        CMP     ctlcha
+        BNE     NOCTRL
+        INY
+        LDA     (addr),Y
+        CMP     #'b'
+        BEQ     WASCTB
+        CMP     #'o'
+        BEQ     WASCTO
+        CMP     #'r'
+        BEQ     WASCTR
+        CMP     #'e'
+        BNE     NORECG
+        INY
+        LDA     (addr),Y
+        CMP     #'b'
+        BEQ     WASCTEB
+        CMP     #'u'
+        BNE     NORECF
+        STZ     pundrl
+        STZ     underl
+        BRA     WASCTL
+.WASCTEB
+        STZ     pbold
+        STZ     bold
+        BRA     WASCTL
+.WASCTB
+        INY
+        LDA     (addr),Y
+        CMP     #'b'
+        BEQ     WASCTA
+        CMP     #'u'
+        BNE     NORECF
+        LDA     #&FF
+        STA     underl
+        STA     pundrl
+        STA     undrrq
+        BRA     WASCTL
+.WASCTA
+        LDA     #&FF
+        STA     pbold
+        STA     boldrq
+        STA     bold
+        BRA     WASCTL
+.WASCTO
+        INY
+        LDA     (addr),Y
+        CMP     #'n'
+        BEQ     WASCON
+        CMP     #'c'
+        BNE     NORECF
+        INX
+.WASCON
+        PHX
+        INY
+        JSR     GETNO
+        LDA     #1
+        JSR     oswrch
+        TXA
+        JSR     oswrch
+        PLX
+        BRA     CHKCTL
+.WASCTR
+        INY
+        LDA     (addr),Y
+        CMP     #'0'
+        BCC     NORECF
+        CMP     #&3A
+        BCS     NORECF
+        JSR     DECCON
+        PHX
+        LDX     temp
+.OUTCON
+        LDA     buff,X
+        JSR     fmwrch        ; ul!!
+        DEX
+        BPL     OUTCON
+        PLX
+        JMP     WASCTL
+.CTLLDO
+        LDA     #&FF
+        JMP     (CMDS+2,X)

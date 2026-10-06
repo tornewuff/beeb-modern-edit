@@ -1,0 +1,249 @@
+.paslnm
+        SEC
+        SBC     addr
+        STA     maxsiz
+        TXA
+        SBC     addr + 1
+        STA     maxsiz + 1
+
+.filename
+        ; Entry - IY temp points to input name. Exit - scratch -> filename.
+        LDA     (temp),Y
+        CMP     #cr
+        BEQ     textna
+        CMP     #&8B
+        BEQ     oldnam
+        LDX     #&00
+
+.memnam
+        LDA     (temp),Y
+        STA     nambuf,X
+        INY
+        INX
+        CPX     #52
+        BNE     memnam
+
+.oldnam
+        LDA     nambuf
+        CMP     #cr
+        BEQ     nonam
+        LDA     #<nambuf
+        STA     scratch
+        LDA     #>nambuf
+        STA     scratch + 1
+        RTS
+
+.textna
+        LDX     GE
+        LDY     GE + 1
+        PHX
+        PHY
+        LDX     tstart
+        LDY     tstart + 1
+        JSR     GPBKXY
+        LDY     #&00
+
+.MVIC
+        LDA     (GE),Y
+        STA     stracc,Y
+        INY
+        BNE     MVIC
+        PLY
+        PLX
+        JSR     gpfdXY
+        LDY     #&FF
+.namsrc
+        INY
+        BMI     nonam
+        LDA     stracc,Y
+
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+
+        BEQ     nonam
+        CMP     #'>'
+        BNE     namsrc
+        INY
+        STY     scratch
+.namsr3
+        LDA     stracc,Y
+
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+
+        BEQ     namfnd
+        INY
+        BPL     namsr3
+.nonam
+        TYA
+        BEQ     namsrc
+        BRK
+        EQUB    &01,"No name found",null
+
+.namfnd
+
+        IF cF8key=1
+        LDA     #cr
+        STA     stracc,Y
+        ELSE
+        IF termin<>cr
+        LDA     #cr
+        STA     stracc,Y
+        ENDIF
+        ENDIF
+
+        LDA     #>stracc
+        STA     scratch + 1
+        RTS
+
+.writna
+        JSR     STARTINV
+        LDY     #&FF
+.wrispc
+        INY
+        LDA     (scratch),Y
+        CMP     #' '
+        BEQ     wrispc
+.wrilop
+        LDA     (scratch),Y
+        CMP     #' ' + 1
+        BCC     wriex
+        JSR     oswrch
+        INY
+        BRA     wrilop
+.wriex
+        JMP     STOPINV
+
+.Tload
+        LDA     tstart
+        STA     addr
+        LDA     tstart + 1
+        STA     addr + 1
+        LDA     tmax
+        LDX     tmax + 1
+
+        IF stamp=1
+        JSR     PASLOAD
+        PHX
+        PHY
+        LDX     #flload
+        LDY     #&02
+        JSR     frscra
+        LDX     #flexec
+        JSR     frscra
+        PLY
+        PLX
+        RTS
+        ENDIF
+
+.PASLOAD
+        ; Entry - IY temp -> name, addr = load address, AX = max free address
+        ; Exit - File checked for size (not on slow FS's)
+        ; File loaded to addr, with XY = top of file
+        JSR     paslnm
+        JSR     prompt
+        EQUB    "Loading ",&EA
+        JSR     writna
+
+.pasGO
+        LDY     #&00
+        TYA
+        JSR     osargs
+        CMP     #&04
+        BCC     nosize
+        ; Using a random access filing system,
+        ; so can quickly check size of file.
+        LDA     #&05
+        JSR     XYSCRATCH
+        JSR     osfile
+        CMP     #&01
+        BNE     nosize          ; Let FS generate 'Directory/not found' error.
+        LDA     scratch + &0C
+        ORA     scratch + &0D
+        BNE     paslhu
+        LDA     maxsiz
+        CMP     scratch + &0A
+        LDA     maxsiz + 1
+        SBC     scratch + &0B
+        BCC     paslhu
+
+.nosize
+        ; Load file to addr, & set XY --> top of loaded file.
+        LDA     addr
+        STA     scratch + 2
+        LDA     addr + 1
+        STA     scratch + 3
+        STZ     scratch + 4
+        STZ     scratch + 5
+        STZ     scratch + 6
+        LDA     #&FF
+        JSR     XYSCRATCH
+        JSR     osfile
+        STZ     oldsta + 3      ; make old impossible
+        CLC
+        LDA     addr
+        ADC     scratch + &0A
+        TAX
+        LDA     addr + 1
+        ADC     scratch + &0B
+        TAY
+        RTS
+
+.paslhu
+        BRK
+        EQUB    &02,"File too big",null
+
+.tSAVE
+        ; Save (defaulting) marked block of text.
+        ; Entry - (temp),Y points to input name.
+        ; GE = Start of block
+        ; endp = End of block
+        ; Exit - specified memory saved as filename.
+        JSR     filename
+
+.inSAVE
+        JSR     prompt
+        EQUB    "Saving to ",&EA
+        JSR     writna
+        LDX     #&0F
+.pasacl
+        STZ     scratch + 2,X
+        DEX
+        BPL     pasacl
+
+        IF stamp=1
+        JSR     dstamp
+        LDX     #flload
+        LDY     #&02
+        JSR     toscra
+        LDX     #flexec
+        JSR     toscra
+        LDX     #GE
+        JSR     toscr2
+        LDY     #&0E
+        LDX     #endp
+        JSR     toscr2
+        ELSE
+        DEC     scratch + 6
+        DEC     scratch + 7
+        DEC     scratch + 8
+        DEC     scratch + 9
+        LDA     GE
+        STA     scratch + &0A
+        LDA     GE + 1
+        STA     scratch + &0B
+        LDA     endp
+        STA     scratch + &0E
+        LDA     endp + 1
+        STA     scratch + &0F
+        ENDIF
+
+        LDA     #&00
+        JSR     XYSCRATCH
+        JMP     osfile

@@ -1,0 +1,176 @@
+.mkdel
+        JSR     CLRMARKS
+        JSR     NMBLOK
+        BEQ     BADMARKING ;Stop delete from defaulting to 'NEW' !
+        STX     GE
+        STY     GE+1
+        JSR     MODIFY
+.normax
+        JSR     NORMALIZE
+        LDA     string
+        STA     scrnX
+        RTS
+.mkCPY
+        ;Marked copy. Either m-m-c or c-m-m.
+        JSR     MVBLOK
+        ;XY =       (Mark2-Mark1) - size of block to be copied.
+        SEC
+        LDA     UMATlo + 1
+        SBC     UMATlo
+        TAX
+        LDA     umathi + 1
+        SBC     umathi
+        TAY
+        LDA     marksbeforecsr
+        BEQ     MKCPYO
+        STX     string
+        STY     string + 1
+        SEC
+        LDA     SMATlo
+        SBC     string
+        STA     SMATlo
+        LDA     smathi
+        SBC     string + 1
+        STA     smathi
+        LDA     SMATlo + 1
+        SBC     string
+        STA     SMATlo + 1
+        LDA     smathi + 1
+        SBC     string + 1
+        STA     smathi + 1
+.MKCPYO
+        JSR     CHECKR
+        ;Copy the block, then normalize text.
+        LDA     UMATlo
+        STA     argP
+        LDA     umathi
+        STA     argP + 1
+        STX     GE
+        STX     varp
+        STY     GE + 1
+        STY     varp + 1
+        JSR     CPFD2
+        LDX     #1
+        STX     modflg
+        INX
+        STX     markX
+        JSR     status
+        JMP     NORMALIZE
+.mkmve
+        ;If marks are before cursor, then do a bit of tweaking to
+        ;change it into case where thay are after it.
+        JSR     MVBLOK
+        ;Initialize pointers for iterative swap block routine.
+        LDX     UMATlo
+        LDY     umathi
+        LDA     marksbeforecsr
+        BEQ     MVBEFC
+        STX     argP
+        STY     argP + 1
+        LDA     UMATlo + 1
+        STA     varp
+        LDA     umathi + 1
+        STA     varp + 1
+        LDX     GS
+        LDY     GS + 1
+        BRA     MVSTP3
+.MVBEFC
+        STX     varp
+        STY     varp + 1
+        LDA     GE
+        STA     argP
+        LDA     GE + 1
+        STA     argP + 1
+        LDX     UMATlo + 1
+        LDY     umathi + 1
+.MVSTP3
+        STX     endp
+        STY     endp + 1
+.MVLOOP
+        SEC
+        LDA     varp
+        SBC     argP
+        STA     size
+        LDA     varp + 1
+        SBC     argP + 1
+        STA     size + 1
+        LDA     endp
+        SBC     varp
+        TAX
+        LDA     endp + 1
+        SBC     varp + 1
+        TAY
+        CPX     size
+        SBC     size + 1
+        BCS     MV2GE
+        STX     size
+        STY     size + 1
+.MV2GE
+        LDA     size
+        ORA     size + 1
+        BEQ     MVNORM
+        BCS     MV2GE1
+        LDX     varp
+        LDY     varp + 1
+        JSR     MVSWAPBYTES
+        CLC
+        TYA
+        ADC     temp
+        STA     argP
+        LDA     #null
+        ADC     temp + 1
+        STA     argP + 1
+        BCC     MVLOOP
+.MV2GE1
+        SEC
+        LDA     endp
+        SBC     size
+        STA     endp
+        TAX
+        LDA     endp + 1
+        SBC     size + 1
+        STA     endp + 1
+        TAY
+        JSR     MVSWAPBYTES
+        BRA     MVLOOP
+.MVNORM
+        LDA     #fullscreen
+        STA     UPDATEREQD
+        JSR     NORMALIZE
+        JMP     MODIFY
+.MVSWAPBYTES
+        ;Swap size bytes argP <-> XY
+        LDA     argP
+        STA     temp
+        LDA     argP + 1
+        STA     temp + 1
+        STX     addr
+        STY     addr + 1
+        INC     size + 1 ;To allow dec to zero below.
+        LDY     #null
+.MVNINC
+        CPY     size
+        BNE     MVSWLP
+        DEC     size + 1
+        BEQ     TEMPSE
+.MVSWLP
+        LDA     (temp),Y
+        TAX
+        LDA     (addr),Y
+        STA     (temp),Y
+        TXA
+        STA     (addr),Y
+        INY
+        BNE     MVNINC
+        INC     temp + 1
+        INC     addr + 1
+        BRA     MVNINC
+.TEMPSX
+        LDA     scrnX
+        STA     line
+        LDA     currlength
+        CMP     scrnX
+        BCS     TEMPSE
+        STA     scrnX
+.TEMPSE
+        RTS

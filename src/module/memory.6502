@@ -1,0 +1,74 @@
+.COPYBK
+        ; Copy block backwards (i.e. to lower address).
+        ; Entry - argP --> block of size XY
+        ; varp --> destination address
+        STX     size
+        STY     size + 1
+        LDA     size
+        ORA     size + 1
+        BEQ     BKEXIT
+        LDX     size + 1
+        SEC
+        LDA     #0
+        SBC     size
+        TAY
+        BEQ     BKLOOP
+        STA     temp
+        SEC
+        LDA     argP
+        SBC     temp
+        STA     argP
+        BCS     CPNHI1
+        DEC     argP + 1
+        SEC
+.CPNHI1
+        LDA     varp
+        SBC     temp
+        STA     varp
+        BCS     CPNHI2
+        DEC     varp + 1
+.CPNHI2
+        INX
+.BKLOOP
+        LDA     (argP),Y
+        STA     (varp),Y
+        INY
+        BNE     BKLOOP
+        INC     argP + 1
+        INC     varp + 1
+        DEX
+        BNE     BKLOOP
+.BKEXIT
+        RTS
+
+.MEMSTATE
+        LDA     tstart + 1
+        JSR     chkptr
+        LDA     GS + 1
+        JSR     chkptr
+        LDA     GE + 1
+        JSR     chkptr
+        LDA     tmax + 1
+        JSR     chkptr
+        LDX     tmax
+        LDY     tmax + 1
+        JSR     gpfdXY
+        LDA     tstart
+        STA     oldsta
+        LDA     tstart + 1
+        STA     oldsta + 1
+        LDA     GS
+        STA     oldsta + 2
+        LDA     GS + 1
+        STA     oldsta + 3
+        CLC
+.CHKPTX
+        RTS
+.chkptr
+        CMP     hymem + 1
+        BCS     CHKPTX
+        CMP     paje + 1
+        BCS     CHKPTX
+        PLA
+        PLA
+        RTS

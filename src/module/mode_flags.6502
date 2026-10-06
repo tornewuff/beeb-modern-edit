@@ -1,0 +1,18 @@
+.crtogg
+        LDA     #&20
+        EOR     tutmode
+.doMODE
+        STA     tutmode
+        PHX
+        PHY
+        TAY
+        LDA     #162
+        LDX     #8
+        JSR     osbyte
+        PLY
+        PLX
+        RTS
+.TESTIF
+        LDA     #&10
+        BIT     tutmode
+        RTS

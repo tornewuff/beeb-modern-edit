@@ -1,0 +1,63 @@
+.EDRDCH
+        ; Exit - A holds character read
+        LDA     NEXTREADFLAG
+        BEQ     EDRDOSRD
+        LDA     nxtchr
+        STZ     NEXTREADFLAG
+        RTS
+.EDRDOSRD
+        IF mouse=1
+        PHX
+        PHY
+.MOUSLP
+        LDA     #&81
+        LDX     #0
+        LDY     #0
+        JSR     osbyte
+        TXA
+        CPY     #&FF
+        BNE     NOMOUSE
+        JSR     mouser
+        LDA     mousel + 8
+        ORA     mousel + 9
+        BNE     MOUSLY
+        LDA     mousel + 6
+        ORA     mousel + 7
+        BNE     MOUSLX
+        LDA     mousel
+        CMP     mousel + 5
+        BEQ     MOUSLP
+        AND     #&7
+        BIT     #&1
+        BNE     MOUSK1
+        BIT     #&2
+        BNE     MOUSK2
+        BIT     #&4
+        BEQ     MOUSLP
+        LDA     #&86
+        BRA     NOMOUSE
+.MOUSK1
+        LDA     #&98
+        BRA     NOMOUSE
+.MOUSK2
+        LDA     #&97
+        BRA     NOMOUSE
+.MOUSLX
+        LDA     #&8D
+        LDX     mousel + 7
+        BPL     NOMOUSE
+        LDA     #&8C
+        BNE     NOMOUSE
+.MOUSLY
+        LDA     #&8F
+        LDX     mousel + 9
+        BPL     NOMOUSE
+        LDA     #&8E
+.NOMOUSE
+        PLX
+        PLY
+        ELSE
+        JSR     osrdch
+        ENDIF
+
+        JMP     escTST

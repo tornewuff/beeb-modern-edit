@@ -1,0 +1,52 @@
+        IF stamp=1
+.toscra
+        JSR     toscr2
+.toscr2
+        JSR     toscr1
+.toscr1
+        LDA     &00,X
+        STA     scratch,Y
+        INX
+        INY
+        RTS
+
+.frscra
+        JSR     frscr2
+.frscr2
+        JSR     frscr1
+.frscr1
+        LDA     scratch,Y
+        STA     &00,X
+        INX
+        INY
+.dstmpX
+        RTS
+
+.nstamp
+        LDX     #&07
+        LDA     #&00
+.nstmp1
+        STA     flexec,X
+        CPX     #&04
+        BNE     nstmp2
+        LDA     #&FF
+.nstmp2
+        DEX
+        BPL     nstmp1
+        RTS
+.mstamp
+        LDA     #&FF
+        STA     flload + 1
+        STA     flload + 2
+        STA     flload + 3
+.dstamp
+        LDA     flload + 1
+        AND     flload + 2
+        AND     flload + 3
+        INA
+        BNE     dstmpX
+        LDX     #flexec
+        LDY     #&00
+        LDA     #&01
+        JMP     osword
+        ENDIF

@@ -1,0 +1,168 @@
+.curLT
+        JSR     STARTTEST
+        BCC     CLCONT
+        LDA     scrnX
+        BEQ     CSREXI
+.CLCONT
+        DEC     scrnX
+        BPL     CSREXI
+        LDA     PAGEWIDTH
+        STA     scrnX
+        ; C set if at start of text
+.curUP
+        JSR     STARTTEST
+        BCS     CSREXI
+        LDA     #1
+        JSR     MVLNBK
+        LDA     TSM
+        CMP     scrnY
+        BCS     CUUPSC
+.CUUPNS
+        DEC     scrnY
+        BPL     CSREXI
+.CUUPSC
+        LDA     scrnY ; In Top Scroll Margin. If more than Top Scroll Margin Width
+        JSR     TPGSBK ; from top of file, then assign Scroll Pointer, else move cursor up.
+        CMP     scrnY
+        CLC
+        BNE     CUUPNS
+        LDA     TP
+        STA     scp
+        LDA     TP+1
+        STA     scp+1
+        LDA     #HARDDOWN
+        STA     UPDATEREQD
+        RTS
+.WORDRT
+        LDY     scrnX
+        LDA     (GE),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BNE     EASYRT
+        JSR     curDWN
+        BCS     WORDXX
+        JSR     scrnud
+.curst
+        STZ     scrnX
+        BRA     CSREXI
+.WORDXX
+        PLA
+        PLA
+        RTS
+.EASYRT
+        JSR     curRT
+        JSR     scrnud
+        BRA     CSREXI
+.WORDLT
+        LDA     scrnX
+        BNE     curLT
+        JSR     curUP
+        BCS     WORDXX
+        JSR     scrnud
+.curend
+        LDA     currlength
+        STA     scrnX
+.CSREXI
+        STZ     UPDATEREQD
+        RTS
+.curRT
+        LDA     scrnX
+        CMP     PAGEWIDTH
+        BEQ     CURRCO
+        INC     scrnX
+        BRA     CSREXI
+.CURRCO
+        JSR     ENDTEST
+        BCS     CSREXI
+        STZ     scrnX
+        ; C set if at text end
+.curDWN
+        JSR     ENDTEST
+        BCS     CSREXI
+        LDA     #1
+        JSR     MVLNFD
+        LDA     scrnY
+        CMP     BSM
+        BCS     CUDOSC
+        INC     scrnY
+        BRA     CSREXI
+.CUDOSC
+        ; In Bottom Scroll Margin.
+        ; If more than (Pagelength-Bottom Scroll Margin)
+        ; from bottom of file, then assign Scroll Pointer, else set scp+1 to
+        ; 0 to indicate wipeline required.
+
+        STZ     scp+1         ; Initialize scp+1 to 0 implies
+                              ; blank line required for scroll.
+        SEC
+        LDA     pagelength
+        SBC     BSM
+        JSR     TPGEFD
+        LDA     count
+        BNE     CUDOWS
+        LDA     TP
+        STA     scp
+        LDA     TP+1
+        STA     scp+1
+.CUDOWS
+        LDA     #hardup
+        STA     UPDATEREQD
+        CLC
+.WORDRX
+        RTS
+.WORDRIGHT
+        LDA     currlength
+        CMP     scrnX
+        BCS     WORDR3
+        STA     scrnX
+        BRA     WORDR3
+.WORDR1
+        JSR     WORDRT
+.WORDR3
+        LDY     scrnX
+        LDA     (GE),Y
+        JSR     wordc
+        BCC     WORDR1
+.WORDR2
+        LDY     scrnX
+        LDA     (GE),Y
+        JSR     wordc
+        BCC     WORDRX
+        JSR     WORDRT
+        BRA     WORDR2
+.WORDL1
+        JSR     WORDLT
+        LDY     scrnX
+        LDA     (GE),Y
+        JSR     wordc
+        BCC     WORDL1
+.WORDL2
+        LDY     scrnX
+        LDA     (GE),Y
+        JSR     wordc
+        BCC     curRT
+        JSR     WORDLT
+        BRA     WORDL2
+.WORDLEFT
+        LDA     currlength
+        CMP     scrnX
+        BCS     WORDL1
+        STA     scrnX
+.WORDCX
+        SEC
+        RTS
+        ; C set if not wordc
+.wordc
+        CMP     #'0'
+        BCC     WORDCX
+        CMP     #'9' + 1
+        BCC     WORDCR
+        AND     #&DF
+        CMP     #'A'
+        BCC     WORDCX
+        CMP     #'Z' + 1
+.WORDCR
+        RTS

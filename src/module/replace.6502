@@ -1,0 +1,95 @@
+.chknrep
+        ; Check for size, then replace found string with replace string.
+        ; Entry - Match just found; s*****stk[0] set up for %0 ('&')
+        ;        replindex = start index of replace part in stracc
+        ; Exit  - Found string replaced.
+        JSR     MOVETOFOUNDPOSITION
+        LDA     #1
+        STA     modflg
+        LDA     me
+        STA     GE
+        LDA     me + 1
+        STA     GE + 1
+        LDA     replindex
+        STA     lnbufx
+.CHNRLP
+        LDA     GS
+        CMP     MS
+        LDA     GS + 1
+        SBC     MS + 1
+        BCS     CHNRRERR
+        LDY     lnbufx
+        INC     lnbufx
+        LDA     stracc,Y
+        BPL     CHNRSI
+        CMP     #termsym
+        BEQ     CHNREX
+        CMP     #FIELDSYM
+        BEQ     CHNRFI
+        CMP     #FOUNDSYM
+        BEQ     CHNRFO
+        ; Must be escsym ch
+        INC     lnbufx
+        LDA     stracc + 1,Y
+        BRA     CHNRSI
+.CHNRFO
+        ; '&' has been frigged to look like MM 0
+        LDY     #0
+        BRA     CHNRAM
+.CHNRFI
+        INC     lnbufx
+        LDA     stracc + 1,Y
+        TAX
+        LDA     fieldmmxtab,X
+        BMI     CHNRMF
+        TAY
+        BEQ     CHNRMS
+        CLC
+        LDA     SSTTLOSTK,Y
+        ADC     SCNTLOSTK,Y
+        STA     temp
+        LDA     SSTTHISTK,Y
+        ADC     SCNTHISTK,Y
+        BNE     CHNRTM
+.CHNRMS
+        LDA     MS
+        STA     temp
+        LDA     MS + 1
+.CHNRTM
+        STA     temp + 1
+        LDY     fieldofftab,X
+        LDA     (temp),Y
+.CHNRSI
+        STA     (GS)
+        INC     GS
+        BNE     CHNRLP
+        INC     GS + 1
+        BRA     CHNRLP
+.CHNRRERR
+        BRK
+        EQUB    2,"No room",0
+.CHNRMF
+        AND     #&7F
+        TAY
+.CHNRAM
+        LDA     SSTTLOSTK,Y
+        STA     argP
+        LDA     SSTTHISTK,Y
+        STA     argP + 1
+        LDA     GS
+        STA     varp
+        LDA     GS + 1
+        STA     varp + 1
+        CLC
+        LDA     SCNTLOSTK,Y
+        TAX
+        ADC     GS
+        STA     GS
+        LDA     SCNTHISTK,Y
+        TAY
+        ADC     GS + 1
+        STA     GS + 1
+        JSR     COPYBK
+        JMP     CHNRLP
+.CHNREX
+        RTS

@@ -1,0 +1,80 @@
+.ADDVIR
+        JSR     VSCOUN
+        BEQ     ADVSEX
+        PHA
+        TAX
+        LDA     currlength
+        JSR     INSRTX
+        ; Wipe possible visible TERMIN.
+        LDX     currlength
+        LDY     scrnY
+        JSR     CSRXY
+        LDA     #space
+        JSR     oswrch
+        PLX     ;number spaces from VSCOUN
+        LDY     scrnX
+.ADVSLP
+        DEY
+        STA     (GE),Y
+        DEX
+        BNE     ADVSLP
+.ADVSEX
+        JMP     CSRSCREENXY
+.VSCOUN
+        ; Exit - A(Z) = Number of virtual spaces.
+        SEC
+        LDA     scrnX
+        SBC     currlength
+        BCS     VSCTEX
+        LDA     #0
+.VSCTEX
+        RTS
+.INSRTX
+        ; Entry - Require gap of XY ( > 0) opening up after GE  +  A
+        ; Exit  - GE -= XY (checked against GS)
+        ;         A chars moved back to new GE, to open up gap
+        STA     Atemp
+        CLC
+        ADC     GE
+        PHA
+        LDA     GE + 1
+        ADC     #0
+        PHA
+        PHX
+        LDY     #0
+        JSR     CHECKR
+        LDY     #0
+.INSXLP
+        LDA     (GE),Y
+        STA     (temp),Y
+        INY
+        CPY     Atemp
+        BCC     INSXLP
+        STX     GE
+        LDA     temp + 1
+        STA     GE + 1
+        PLX
+        STX     count
+        PLA
+        STA     temp + 1
+        PLA
+        STA     temp
+        LDY     markX
+.INSXMK
+        DEY
+        BMI     INSXEX
+        LDX     SMATlo,Y
+        CPX     temp
+        LDA     smathi,Y
+        SBC     temp + 1
+        BCS     INSXMK
+        SEC
+        TXA
+        SBC     count
+        STA     SMATlo,Y
+        LDA     smathi,Y
+        SBC     #0
+        STA     smathi,Y
+        BRA     INSXMK
+.INSXEX
+        RTS

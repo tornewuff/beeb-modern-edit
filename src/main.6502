@@ -34,6 +34,7 @@ INCLUDE "EDIT00.6502"
 
 SECTION Main, cmos = TRUE, org = origin, filename = build.filename
 
+; EDIT01
 INCLUDE "module/rom_header.6502"
 IF edit150
         INCLUDE "module/service_entry_150.6502"
@@ -43,13 +44,80 @@ ELSE
         INCLUDE "module/service_entry.6502"
 ENDIF
 INCLUDE "module/language_entry.6502"
-INCLUDE "EDIT01.6502"
-INCLUDE "EDIT02.6502"
-INCLUDE "EDIT03.6502"
-INCLUDE "EDIT04.6502"
-INCLUDE "EDIT05.6502"
-INCLUDE "EDIT06.6502"
-INCLUDE "EDIT07.6502"
-INCLUDE "EDIT08.6502"
+INCLUDE "module/iomem_read.6502"
+INCLUDE "module/file_io.6502"
+INCLUDE "module/datestamp.6502"
+INCLUDE "module/read_line.6502"
+INCLUDE "module/memory.6502"
+INCLUDE "module/inline_strings.6502"
+INCLUDE "module/mode_flags.6502"
+INCLUDE "module/mouse.6502"
+
+; EDIT02
+INCLUDE "module/main_loop.6502"
+INCLUDE "module/text_entry.6502"
+INCLUDE "module/key_tables.6502"
+INCLUDE "module/help_text.6502"
+
+; EDIT03
+INCLUDE "module/softkeys.6502"
+INCLUDE "module/text_limits.6502"
+INCLUDE "module/cursor_shape.6502"
+INCLUDE "module/screen_layout.6502"
+INCLUDE "module/keyboard.6502"
+INCLUDE "module/status_line.6502"
+INCLUDE "module/cursor_position.6502"
+INCLUDE "module/gap_buffer.6502"
+INCLUDE "module/insert_text.6502"
+INCLUDE "module/tab_key.6502"
+INCLUDE "module/return_language.6502"
+INCLUDE "module/format_help.6502"
+
+; EDIT04 (format_commands continues into EDIT05)
+INCLUDE "module/print_command.6502"
+INCLUDE "module/format_lines.6502"
+INCLUDE "module/format_commands.6502"
+
+; EDIT05 (after the end of format_commands)
+INCLUDE "module/format_registers.6502"
+INCLUDE "module/format_macros.6502"
+INCLUDE "module/format_output.6502"
+INCLUDE "module/format_justify.6502"
+INCLUDE "module/format_misc.6502"
+INCLUDE "module/format_numbers.6502"
+INCLUDE "module/format_command_table.6502"
+
+; EDIT06
+INCLUDE "module/screen_update.6502"
+INCLUDE "module/screen_chars.6502"
+INCLUDE "module/cursor_keys.6502"
+INCLUDE "module/editor_setup.6502"
+INCLUDE "module/file_commands.6502"
+INCLUDE "module/star_commands.6502"
+INCLUDE "module/mode_change.6502"
+INCLUDE "module/old_text.6502"
+INCLUDE "module/goto_line.6502"
+INCLUDE "module/crlf_switch.6502"
+
+; EDIT07
+INCLUDE "module/search_pattern.6502"
+INCLUDE "module/search.6502"
+INCLUDE "module/replace.6502"
+
+; EDIT08
+INCLUDE "module/find_replace.6502"
+INCLUDE "module/marks.6502"
+INCLUDE "module/block_ops.6502"
+INCLUDE "module/cursor_type.6502"
+INCLUDE "module/extended_find.6502"
+
+        IF origin=&8000
+.theend
+        ELSE
+        EQUB    "Roger Wilson",null
+.theend
+        ENDIF
+
+romlen  =       (theend - origin)
 
 ENDSECTION

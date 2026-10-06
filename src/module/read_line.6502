@@ -1,0 +1,108 @@
+.readns
+        ; Reads line to commandline (linbuf), & strips leading &
+        ; trailing spaces.
+        ; Exit - temp --> 1st non-space char on line
+        ; A      = 1st non-space char on line
+        ; Y      = 0
+        ; EQ if line was 'empty', else NE
+
+        JSR     readLS
+        TYA
+        BEQ     renSCR
+.renSST
+        LDA     commandline - 1,Y
+        CMP     #space
+        BNE     renSCR
+        DEY
+        BNE     renSST
+.renSCR
+        LDA     #cr
+        STA     commandline,Y
+        LDY     #&FF
+.renSIG
+        INY
+        LDA     commandline,Y
+        CMP     #space
+        BEQ     renSIG
+        CLC
+.readIM
+        TYA
+        ADC     #<commandline
+        STA     temp
+        LDA     #&00
+        ADC     #>commandline
+        STA     temp + 1
+        LDY     #&00
+        LDA     (temp)
+        CMP     #cr
+.escCLR
+        RTS
+
+.READINIT
+        LDY     #&00
+        BRA     readIM
+
+.readLS
+        LDA     #' '
+        JSR     oswrch
+
+        ; Read line into linbuf/commandline, testing for escape.
+        ; Exit - Y = No. of chars read (excluding CR).
+
+        LDA     #thelot
+        STA     UPDATEREQD
+        JSR     rdlnre
+        BCC     escCLR
+.escSET
+        JSR     vstrng
+        EQUB    &03,&0F,&0D,&EA
+        LDA     brkaction
+        CMP     #&02
+        BNE     escSIM
+        JSR     closeX
+        JSR     stFILE
+.escSIM
+        STZ     cursED
+        JMP     brk_handler.escCON
+.escTST
+        BIT     &FF
+        BMI     escSET
+        RTS
+
+.rdlnre
+        LDY     #0
+.RDLNLP
+        JSR     osrdch
+        BCS     RDLNEX
+        STA     linbuf,Y
+        CMP     #&7F
+        BNE     RDLN2
+        CPY     #0
+        BEQ     RDLNLP
+        DEY
+        JSR     oswrch
+        BRA     RDLNLP
+.RDLN2
+        CMP     #&15
+        BNE     RDLN3
+.RDLNDL
+        TYA
+        BEQ     RDLNLP
+        LDA     #&7F
+        JSR     oswrch
+        DEY
+        BRA     RDLNDL
+.RDLN3
+        INY
+        CMP     #cr
+        BEQ     RDLNEG
+        JSR     PASWRCH
+        BRA     RDLNLP
+.RDLNEG
+        PHY
+        JSR     curOFF
+        PLY
+        DEY
+        CLC
+.RDLNEX
+        RTS

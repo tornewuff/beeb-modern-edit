@@ -1,0 +1,57 @@
+.STARTTEST
+        ; Returns CS if on 1st line (GS = tstart), else CC.
+        LDA     tstart
+        CMP     GS
+        LDA     tstart + 1
+        SBC     GS + 1
+        RTS
+.ENDTEST
+        ; Returns CS if on last line (GE + scrimcreenY = tmax), else CC.
+        CLC
+        LDA     currlength
+        ADC     GE
+        TAX
+        LDA     #0
+        ADC     GE + 1
+        CPX     tmax
+        SBC     tmax + 1
+        RTS
+.LENGTHCALC
+        ; Find length of current line. Exit - A = length - 1
+        LDY     #0
+.LECCLO
+        LDA     (GE),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     LECCRE
+        INY
+        CPY     PAGEWIDTH
+        BNE     LECCLO
+.LECCRE
+        TYA
+        RTS
+.CHECKR
+        ; Check for space in edit buffer.
+        ; Entry - XY = required No. of bytes
+        ; Exit  - size = XY
+        ;         XY = temp = GE - XY
+        ;         Error if temp < GS
+
+        STX     size
+        STY     size + 1
+        SEC
+        LDA     GE
+        SBC     size
+        TAX
+        LDA     GE + 1
+        SBC     size + 1
+        TAY
+        STX     temp
+        STY     temp + 1
+        CPX     GS
+        SBC     GS + 1
+        BCS     VDU23X
+        JMP     CHNRRERR                ; 'No room'

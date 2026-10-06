@@ -1,0 +1,16 @@
+.CSRSCREENXY
+        LDX scrnX
+        LDY     scrnY
+        BPL     CSRXY
+.CSR0STATUSY
+        LDY pagelength
+        INY
+.CSR0Y
+        LDX     #0
+.CSRXY
+        LDA     #31
+        JSR     oswrch
+        TXA
+        JSR     oswrch
+        TYA
+        JMP     oswrch

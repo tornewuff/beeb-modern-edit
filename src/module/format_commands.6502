@@ -1,0 +1,471 @@
+.ROUTAF
+        JSR     GETNO
+        AND     #15
+        ASL     A
+        TAX
+        LDA     noregs+1,X
+        AND     #15
+        STA     noregs+1,X
+        INY            ; skip some delimter
+        PHX
+        JSR     GETNO
+        PLX
+        ASL     A
+        ASL     A
+        ASL     A
+        ASL     A
+        ORA     noregs+1,X
+        STA     noregs+1,X
+        RTS
+.ROUTAN
+        JSR     GETNO
+        AND     #15
+        ASL     A
+        PHA
+        LDA     (addr),Y
+        INY            ; skip delimter
+        PHA
+        JSR     GETNO
+        PLA
+        CMP     #'+'
+        BEQ     ADDREG
+        CMP     #'-'
+        BEQ     SUBREG
+        CMP     #'='
+        BEQ     MOVREG
+        TXA
+        PLX
+        STA     noregs,X
+        LDA     noregs+1,X
+        AND     #&F0
+        STA     noregs+1,X
+        RTS
+.ADDREG
+        CLC
+        STX     buff
+        PLX
+        LDA     noregs,X
+        ADC     buff
+        STA     noregs,X
+        LDA     noregs+1,X
+        ADC     #0
+        STA     noregs+1,X
+        RTS
+.SUBREG
+        STX     buff
+        PLX
+        LDA     noregs,X
+        SBC     buff
+        STA     noregs,X
+        LDA     noregs+1,X
+        SBC     #0
+        STA     noregs+1,X
+        RTS
+.MOVREG
+        TXA
+        AND     #15
+        ASL     A
+        TAX
+        LDA     noregs+1,X
+        AND     #15
+        STA     buff
+        LDA     noregs,X
+        PLX
+        STA     noregs,X
+        LDA     noregs+1,X
+        AND     #&F0
+        ORA     buff
+        STA     noregs+1,X
+        RTS
+.ROUTBL
+        STA     bold
+        STA     boldrq
+        RTS
+.ROUTCC
+        LDA     (addr),Y
+        STA     ctlcha
+        INY
+        RTS
+.ROUTCE
+        STA     centre
+        STZ     rflush        ; can't have both
+        RTS
+.ROUTCH
+        LDA     addr
+        STA     temp
+        LDA     addr+1
+        STA     temp+1        ; move filename pointer
+        LDA     tstart
+        STA     addr
+        LDA     tstart+1
+        STA     addr+1
+        LDA     tmax
+        LDX     tmax+1
+        JSR     paslnm
+        JSR     pasGO
+        STX     GS
+        STY     GS+1
+        LDX     #&FF
+        TXS
+        JMP     CHAINB
+.MACCHK
+        STA     temp        ; check for macro: A=lo, temp+1=hi
+        LDX     #-2
+.MACCHL
+        INX
+        INX
+        CPX     #maxMAC
+        BCS     MACCHX
+        LDA     maclst,X
+        STA     buff
+        LDA     maclst+1,X
+        STA     buff+1
+        BEQ     MACCHZ
+        PHY
+        LDY     #3
+.MACSPC
+        LDA     (buff),Y
+        INY
+        CMP     #' '
+        BEQ     MACSPC
+        STA     buff+2
+        LDA     (buff),Y
+        PLY
+        CMP     temp+1
+        BNE     MACCHL
+        LDA     buff+2
+        CMP     temp
+        BNE     MACCHL
+        RTS            ; found CS,EQ
+.MACCHX
+        CLC            ; not found, no space CC,NE
+        TXA
+.MACCHZ
+        RTS            ; not found, at space CC,EQ
+.DMEXIT
+        DEY
+        RTS
+.ROUTDM
+        JSR     SPACEY
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     DMEXIT
+        CMP     ctlcha
+        BEQ     DMEXIT
+        STA     temp+1
+        LDA     (addr),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     DMEXIT
+        JSR     MACCHK
+        BNE     DMEXIT
+        LDA     addr
+        STA     maclst,X
+        LDA     addr+1
+        STA     maclst+1,X
+        BRA     SKIPEN
+.ROUTDS
+        LDA     #2
+        STA     vspace
+        RTS
+.ROUTOF
+        LDA     addr
+        STA     pageof
+        LDA     addr+1
+        STA     pageof+1
+        BRA     SKIPEN
+.ROUTOH
+        LDA     addr
+        STA     pageoh
+        LDA     addr+1
+        STA     pageoh+1
+        BRA     SKIPEN
+.ROUTFO
+        LDA     addr
+        STA     pageof
+        LDA     addr+1
+        STA     pageof+1
+.ROUTEF
+        LDA     addr
+        STA     pageef
+        LDA     addr+1
+        STA     pageef+1
+.ROUTIG
+        BRA     SKIPEN
+.ROUTHE
+        LDA     addr
+        STA     pageoh
+        LDA     addr+1
+        STA     pageoh+1
+.ROUTEH
+        LDA     addr
+        STA     pageeh
+        LDA     addr+1
+        STA     pageeh+1
+.SKIPEN
+        CLC
+        JSR     YADP
+.SKIPEM
+        LDA     (addr)
+        INC     addr
+        BNE     SKIPEK
+        PHA
+        INC     addr+1
+        LDA     addr
+        CMP     GS
+        LDA     addr+1
+        SBC     GS+1
+        BCS     SKIPEX
+        PLA
+.SKIPEK
+        CMP     ctlcha
+        BNE     SKIPEM
+        LDA     (addr)
+        CMP     #'e'
+        BNE     SKIPEM
+        LDY     #1
+        LDA     (addr),Y
+        CMP     #'n'
+        BNE     SKIPEM
+        INY
+.SKIPEX
+        RTS
+.ROUTEN
+        TSX
+        CPX     #&FD
+        BCS     SKIPEX        ; check for possible to do it
+        PLA
+        PLA
+        RTS            ; return a macro level
+.ROUTEP
+        JSR     ROUTBP
+        LDA     page
+        LSR     A
+        BCS     ROUTEP
+        RTS
+.ROUTFF
+        LDA     pwtflg
+        BMI     NOWAIT
+        LDA     prtflg
+        BPL     PRTWAT
+        JSR     INKEY
+.NOWAIT
+        LDA     #12
+        JMP     oswrch
+.PRTWAT
+        JSR     NOWAIT
+        JMP     INKEY
+.ROUTIC
+        PHY
+        JSR     closeX
+        PLY
+        RTS
+.ROUTIN
+        LDX     indent
+        JSR     MODNO
+        STX     indent
+        RTS
+.ROUTIO
+        CLC
+        JSR     YADP
+        JSR     closeX
+        LDX     addr
+        LDY     addr+1
+        LDA     #&80
+        JSR     osfind
+        STA     indexH
+        LDY     #0
+.ROUTCO
+        IF cF8key=1
+        LDA     clterm
+        ELSE
+        LDA     #termin
+        ENDIF
+        BRA     SKIPL1
+.SKIPLP
+        INY
+        BNE     SKIPL1
+        INC     addr+1
+.SKIPL1
+        CMP     (addr),Y
+        BNE     SKIPLP
+        RTS
+.ROUTIX
+        STA     doindX
+        CLC
+        JSR     YADP
+        LDA     lineot
+        PHA
+        LDA     #&FD
+        STA     lineot
+        JSR     CTLIN
+        PLA
+        STA     lineot
+        STZ     doindX
+        RTS
+.ROUTJU
+        STZ     fill
+        RTS
+.ROUTLL
+        LDX     len
+        JSR     MODNO
+        STA     len
+        RTS
+.ROUTLS
+        LDX     vspace
+        JSR     MODNO
+        STX     vspace
+        RTS
+.ROUTLV
+        JSR     GETNO
+        CMP     lineot
+        BEQ     OKAYLV
+        BCC     OKAYLV
+        PHA
+        JSR     ROUTBP
+        PLA
+.OKAYLV
+        JMP     ALINES
+        ;                               > EDIT05
+.ROUTNE
+        JSR     GETNO
+        CMP     lineot
+        BEQ     OKAY
+        BCC     OKAY
+.ROUTBP
+        LDA     lineot
+        BRA     ALINES
+.ROUTNJ
+        STA     fill
+.OKAY
+        RTS
+.ROUTNN
+        STA     linfed
+        RTS
+.ROUTOP
+        JSR     ROUTBP
+        LDA     page
+        LSR     A
+        BCC     ROUTOP
+        RTS
+.ROUTOS
+        CLC
+        JSR     YADP
+        LDX     addr
+        LDY     addr+1
+        JSR     oscli
+        LDY     #0
+        JMP     ROUTCO
+.ROUTPL
+        LDX     lineDW
+        JSR     MODNO
+        TXA
+        BEQ     WZERO
+        STA     lineDW
+        LDX     lineot
+        INX
+        BEQ     WZERO
+        STA     lineot
+.WZERO
+        RTS
+.ROUTPO
+        LDX     offset
+        JSR     MODNO
+        STA     offset
+        RTS
+.ROUTRF
+        STA     rflush
+        STZ     centre        ; can't have both
+        RTS
+.ROUTSP
+        JSR     GETNO
+.ALINES
+        TAX
+        BEQ     ALINEX
+        PHY
+        CMP     #&FF
+        BNE     ALINEL
+        JSR     DOHDR
+        LDX     lineot
+.ALINEL
+        LDA     lineot
+        INA
+        BNE     ALINET
+        PHX
+        JSR     DOHDR
+        PLX
+.ALINET
+
+        LDA     #cr             ; ++++
+        JSR     oswrch
+        JSR     lfwrch
+
+        DEX
+        BNE     ALINEL
+        PLY
+.ALINEX
+        RTS
+.ROUTSS
+        LDA     #1
+        STA     vspace
+        RTS
+.ROUTTA
+        STZ     LASTTAB
+.SETTAB
+        JSR     GETNO
+        LDX     LASTTAB
+        STA     tablst,X
+        STZ     tablst+1,X
+        INC     LASTTAB
+        JSR     SPACEY
+        CMP     #','
+        BEQ     SETTAB
+        DEY
+        RTS
+.ROUTTC
+        LDA     (addr),Y
+        STA     tabcha
+        INY
+        RTS
+.ROUTTI
+        LDX     tinden
+        CPX     #&FF
+        BNE     ROUSTI
+        LDX     indent        ; if no temp indent then use indent as base
+.ROUSTI
+        JSR     MODNO
+        STX     tinden
+        RTS
+.ROUTTR
+        LDA     (addr),Y
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     SETTRX
+        TAX
+        INY
+        LDA     (addr),Y
+        DEY
+        IF cF8key=1
+        CMP     clterm
+        ELSE
+        CMP     #termin
+        ENDIF
+        BEQ     SETTRX
+        INY
+        INY
+        STA     trnlst,X
+.SETTRX
+        RTS
+.ROUTUL
+        STA     underl
+        STA     undrrq
+        RTS

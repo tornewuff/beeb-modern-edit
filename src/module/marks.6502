@@ -1,0 +1,178 @@
+        ;Marks are stored in SMATlo,hi (Set Mark Address Table), where the
+        ;addresses refer to positions in the 2nd half of text; when updated
+        ;(any number of times), this address is translated into a value in
+        ;UMATlo,hi (Used Mark Address Table), where the addresses refer to
+        ;positions in the text as it is currently partitioned.
+.MARKUPDATE
+        ;Update marks for current position of gap.
+        ;Exit  -  marksbeforecsr =       No. of marks before GE.
+        JSR     MKUDCH
+.MKUDKN
+        STZ     marksbeforecsr
+        LDX     markX
+.MKUDLP
+        DEX
+        BMI     MKUDEX
+        LDY     SMATlo,X
+        STY     UMATlo,X
+        CPY     GE
+        LDA     smathi,X
+        STA     umathi,X
+        SBC     GE+1
+        BCS     MKUDLP
+        INC     marksbeforecsr
+        SEC
+        TYA
+        SBC     chunksize
+        STA     UMATlo,X
+        LDA     umathi,X
+        SBC     chunksize + 1
+        STA     umathi,X
+        BCS     MKUDLP
+.MKUDEX
+        RTS
+.MKUDCH
+        ;chunksize :=       size of gap to correct for.
+        SEC
+        LDA     GE
+        SBC     GS
+        STA     chunksize
+        LDA     GE+1
+        SBC     GS+1
+        STA     chunksize + 1
+        RTS
+.CLRMARKS
+        ;Clear, count update & order mark(s), ready for use.
+        ;Entry - Mark1 (markstk) and/or Mark2 (markstk+2) possibly set.
+        ;Exit  - Gap finepositioned
+        ;        Marks ordered so that Mark1 <=       Mark2
+        ;        Marks cleared & status updated
+        ;        A[Z] =       nummarks =       No. of marks
+        ;Save (GE - GS) for updating marks, then finepositiongap
+        JSR     FINEPOSITIONGAP
+        JSR     MKUDCH
+        JSR     MKUDKN
+
+        ;If Mark2 (exists) < Mark1, then swap.
+        LDX     markX
+        CPX     #2
+        BNE     CLRMCO
+        LDA     UMATlo+1
+        CMP     UMATlo
+        LDA     umathi+1
+        SBC     umathi
+        BCS     CLRMCO
+        LDA     UMATlo
+        LDY     UMATlo+1
+        STA     UMATlo+1
+        STY     UMATlo
+        LDA     umathi
+        LDY     umathi+1
+        STA     umathi+1
+        STY     umathi
+.CLRMCO
+        LDA     markX
+        STA     nummarks
+        STZ     markX
+        JSR     status
+        LDA     nummarks
+.MKRFEX
+        RTS
+.MKREFUSE
+        ;Complain if any marks are set.
+        LDA     markX
+        BEQ     MKRFEX
+        BRK
+        EQUB    1,"Mark(s) set",0
+.NMBLOK
+        ;Normalizes a marked block of text, to ease use.
+        ;Entry  -  Marks updated (gap fine positioned). texp =       GE
+        ;Exit   -  'Bad marking' error if 2 marks were set.
+        ;       -  EQ - 0 marks were set.
+        ;          NE - 1 mark was set (csr-mark or mark-csr):
+        ;               Gap moved to start of block,
+        ;               XY =       end of block.
+        LDA     GE
+        STA     texp
+        LDA     GE+1
+        STA     texp+1
+        LDA     nummarks
+        BEQ     NBLKEX
+        CMP     #1
+        BNE     BADMARKING
+        LDX     UMATlo
+        LDY     umathi
+        DEC     marksbeforecsr
+        BNE     NBLKEX
+        JSR     GPBKXY
+        LDX     texp
+        LDY     texp+1
+.NBLKEX
+        RTS
+.dfinit
+        ;Seperated this way to avoid grotty command-line escape.
+        JSR     TEMPSX
+        JSR     CLRMARKS
+        CMP     #2
+        BEQ     BADMARKING
+        PHA
+        LDA     line
+        STA     scrnX
+        PLA
+        RTS
+.dfblok
+        ;Normalize a 'marked' block (defaulting to whole) of text.
+        ;Exit  -  texp =       Old cursor position (in end of text).
+        ;         endp =       End of 'marked' block.
+        JSR     NMBLOK
+        BNE     DBLKEP
+        JSR     stFILE
+        LDX     tmax
+        LDY     tmax + 1
+.DBLKEP
+        STX     endp
+        STY     endp + 1
+        RTS
+.MVBLOK
+        ;Ensure good marking (m-m-c or c-m-m) for a block 'move-op'
+        ;Exit  -  CC: marks are after cursor
+        ;         CS: marks are before cursor
+        JSR     CLRMARKS
+        CMP     #2
+        BNE     BADMARKING
+        ;if 2nd mark on cursor then shift it to GS
+        LDA     UMATlo + 1
+        CMP     GE
+        BNE     MVBLOJ
+        LDA     umathi + 1
+        CMP     GE+1
+        BNE     MVBLOJ
+        LDA     GS
+        STA     UMATlo + 1
+        LDA     GS+1
+        STA     umathi + 1
+        INC     marksbeforecsr
+.MVBLOJ
+        LDA     marksbeforecsr
+        DEA     ;cmp#1
+        BEQ     BADMARKING
+        RTS
+.BADMARKING
+        BRK
+        EQUB    1,"Bad marking",0
+.SETMARK
+        JSR     FINEPOSITIONGAP
+        LDX     markX
+        CPX     #2
+        BEQ     BADMARKING
+        ;Save mark address.
+        LDA     GE
+        STA     SMATlo,X
+        LDA     GE+1
+        STA     smathi,X
+        JSR     NORMALIZE
+        INC     markX
+        JMP     status
+.CLEARMARKS
+        JSR     CLRMARKS
+        JMP     NORMALIZE

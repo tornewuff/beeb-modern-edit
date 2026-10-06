@@ -1,0 +1,54 @@
+.XYSCRATCH
+        ; Load XY with address of scratch.
+        LDX     #<scratch
+        LDY     #>scratch
+        RTS
+
+.readne
+        INC     scratch
+        BNE     * + 4
+        INC     scratch + 1
+        RTS
+
+.readHX
+        LDX     #0
+        STZ     scratch + 5
+.tsthex
+        LDA     &01A0,Y
+        CMP     #'0'
+        BCC     hexend
+        CMP     #'9' + 1
+        BCC     OKhex
+        SBC     #&37
+        CMP     #10
+        BCC     hexend
+        CMP     #16
+        BCS     hexend
+.OKhex
+        ASL     scratch + 5
+        ASL     scratch + 5
+        ASL     scratch + 5
+        ASL     scratch + 5
+        AND     #&0F
+        TSB     scratch + 5
+        INY
+        INX
+        BRA     tsthex
+.hexend
+        CPX     #&01            ; CC status for not found
+        LDX     scratch + 5
+        RTS
+
+.readnx
+        JSR     readne
+
+.readby
+        PHX
+        PHY
+        JSR     XYSCRATCH
+        LDA     #5
+        JSR     osword
+        PLY
+        PLX
+        LDA     scratch + 4
+        RTS

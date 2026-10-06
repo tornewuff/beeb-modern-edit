@@ -1,0 +1,103 @@
+.DOHDR
+        LDX     pageeh
+        LDY     pageeh+1
+        LDA     page
+        LSR     A
+        BCC     DOHDR1
+        LDX     pageoh
+        LDY     pageoh+1
+.DOHDR1
+        DEC     lineot
+        JSR     macro
+        LDA     lineDW
+        STA     lineot
+        LDA     #1
+        STA     lineno
+        LDA     #15
+        TRB     lineno+1; leave format alone!
+        RTS
+.macro
+        LDA     addr
+        PHA
+        LDA     addr+1
+        PHA
+        LDA     ctlcha
+        PHA
+        LDA     len
+        PHA
+        LDA     indent
+        PHA
+        LDA     tinden
+        PHA
+        LDA     bold
+        PHA
+        LDA     pbold
+        PHA
+        LDA     boldrq
+        PHA
+        LDA     underl
+        PHA
+        LDA     pundrl
+        PHA
+        LDA     undrrq
+        PHA
+        LDA     fill
+        PHA
+        LDA     vspace
+        PHA
+        LDA     centre
+        PHA
+        LDA     rflush
+        PHA
+        LDA     linfed
+        PHA
+        STZ     linfed
+        STZ     fill
+        STZ     pbold
+        STZ     pundrl
+        STZ     indent
+        LDA     #1
+        STA     vspace
+        STX     addr
+        STY     addr+1
+        LDA     (addr)
+        STA     ctlcha
+        LDY     #3
+        CLC
+        JSR     YADP; skip definition
+        JSR     fine
+        PLA
+        STA     linfed
+        PLA
+        STA     rflush
+        PLA
+        STA     centre
+        PLA
+        STA     vspace
+        PLA
+        STA     fill
+        PLA
+        STA     undrrq
+        PLA
+        STA     pundrl
+        PLA
+        STA     underl
+        PLA
+        STA     boldrq
+        PLA
+        STA     pbold
+        PLA
+        STA     bold
+        PLA
+        STA     tinden
+        PLA
+        STA     indent
+        PLA
+        STA     len
+        PLA
+        STA     ctlcha
+        PLA
+        STA     addr+1
+        PLA
+        STA     addr
+        RTS

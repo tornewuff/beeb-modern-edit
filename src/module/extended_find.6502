@@ -1,0 +1,314 @@
+        IF extgf=1               ; extended search and replace texts
+
+                                ; we will use the function and <Shift> function
+                                ; keys to insert the match characters
+
+                                ; when these keys are pressed the relevant
+                                ; text will be displayed and the correct
+                                ; (existing) match character inserted into
+                                ; the text - if a normal existing character
+                                ; is entered it will be translated to "\c"
+                                ; and the existing routines called
+
+        ; KEYS       TWIN                 EDIT
+        ;
+        ;       f0 - newline            - "$"
+        ;       f1 - found section      - "%"
+        ;       f2 - found string       - "&"
+        ;       f3 - most items         - "^"
+        ;       f4 - many items         - "*"
+        ;       f5 - replace by         - "/"
+        ;       f6 - NOT item           - "~"
+        ;       f7 - any character      - "."
+        ;       f8 - alpha-numeric      - "@"
+        ;       f9 - digit              - "#"
+        ;
+        ; Shift f0 - start set          - "["
+        ;       f1 - end set            - "]"
+        ;       f2 - sub range          - "-"
+        ;       f3 - control character  - "|"
+        ;       f4 - set top bit        - "|!|"
+        ;       f5 - exactly            - "\"
+        ;       f6 - toggle case        - not supported
+        ;       f7 -                    -
+        ;       f8 -                    -
+        ;       f9 -                    -
+        ;
+
+nlnc    =       &80
+fsnc    =       &81
+fstc    =       &82
+mstc    =       &83
+manc    =       &84
+rbyc    =       &85
+notc    =       &86
+anyc    =       &87
+alpc    =       &88
+digc    =       &89
+
+setc    =       &90
+stcc    =       &91
+subc    =       &92
+ctrc    =       &93
+stbc    =       &94
+exac    =       &95
+ntc1    =       &96
+ntc2    =       &97
+ntc3    =       &98
+ntc4    =       &99
+
+.kttab  ; key translation table
+
+        EQUB    nlnc,"newline",null           ; f0
+        EQUB    fsnc,"section",null           ; f1
+        EQUB    fstc,"match",null             ; f2
+        EQUB    mstc,"most",null              ; f3
+        EQUB    manc,"many",null              ; f4
+        EQUB    rbyc,"replace by",null        ; f5
+        EQUB    notc,"NOT",null               ; f6
+        EQUB    anyc,"any",null               ; f7
+        EQUB    alpc,"alpha",null             ; f8
+        EQUB    digc,"digit",null             ; f9
+
+        EQUB    setc,"[",null                 ; s+f0
+        EQUB    stcc,"]",null                 ; s+f1
+        EQUB    subc,"-",null                 ; s+f2
+        EQUB    ctrc,"control",null           ; s+f3
+        EQUB    stbc,"set top bit",null       ; s+f4
+        EQUB    exac,"exactly",null           ; s+f5
+        EQUB    ntc1,"",null                  ; s+f6
+        EQUB    ntc2,"",null                  ; s+f7
+        EQUB    ntc3,"",null                  ; s+f8
+        EQUB    ntc4,"",null                  ; s+f9
+
+.kttabe ; end of table
+
+nktent  =       ( kttabe - kttab )
+
+
+.readlf                         ; read line for find and replace
+                                ; convert special keys to text when displaying
+
+                                ; text into 'linbuf'
+                                ; Y = number of chars excluding cr
+        LDA     #space
+        JSR     oswrch
+
+        LDA     #thelot
+        STA     UPDATEREQD
+
+        JSR     rdline
+        BCC     noESC
+
+        JSR     vstrng
+        EQUB    &03,&0F,&0D,&EA
+
+        LDA     brkaction
+        CMP     #&02
+        BNE     ESCso
+
+        JSR     closeX
+        JSR     stFILE
+.ESCso
+        STZ     cursED
+        JMP     escCON
+
+.rdline
+        LDY     #&00            ; index into 'linbuf'
+.rdloop
+        LDA     #'r'
+        JSR     oswrch
+
+        JSR     osrdch
+        BCS     rdexit
+
+        STA     linbuf,Y        ; store the relevant value
+
+        CMP     #&7F
+        BNE     rdlin2
+
+        CPY     #&00
+        BEQ     rdloop
+
+        DEY
+
+        PHY
+
+        LDA     linbuf,Y
+
+        JSR     sttadt          ; delete the character(s)
+        PLY
+
+        BCC     rdloop
+
+        LDA     #&7F            ; then let us delete it ourselfs
+        JSR     oswrch
+
+        BRA     rdloop
+
+.rdlin2
+        CMP     #&15
+        BNE     rdlin3
+.rdlind
+        TYA
+        BEQ     rdloop
+
+        PHY
+
+        LDA     linbuf - 1,Y
+
+        JSR     sttadt          ; delete the character(s)
+        PLY
+
+        BCC     decY
+
+        LDA     #&7F            ; then let us delete it ourselfs
+        JSR     oswrch
+.decY
+        DEY
+        BRA     rdlind
+
+.rdlin3
+        INY
+        CMP     #cr
+        BEQ     rdlicr
+
+        JSR     sttapt
+
+        BCC     rdloop
+
+        JSR     PASWRCH         ; write character after parsing
+                                ; ctrl chars - inverse
+                                ; delete     - inverse "?"
+                                ; any other character just echoed
+        BRA     rdloop
+
+.rdlicr
+        PHY
+        JSR     curOFF
+        PLY
+        DEY
+        CLC
+.rdexit
+.noESC
+        RTS
+
+
+.sttapt                         ; search through the table and print the text
+                                ; Entry..  A - character value
+                                ; Exit...  A - character value
+                                ;         CC - found - text printed
+                                ;         CS - not found
+        LDX     #<kttab
+        LDY     #>kttab
+        STX     ctptr
+        STY     ctptr + 1
+
+.nctest
+        PHA
+
+        CMP     (ctptr)
+        BEQ     gotit1
+
+        JSR     nxtstr          ; no match so onto the next
+        BCC     nctest
+
+        PLA
+        RTS                     ; well it wasn't one of ours
+
+.gotit1
+        JSR     STARTINV
+
+        LDY     #&01            ; the index to the text
+.ncoutl
+        LDA     (ctptr),Y
+        BEQ     tdone
+
+        JSR     oswrch
+
+        INY
+        BRA     ncoutl
+.tdone
+        JSR     STOPINV
+
+        PLA
+        CLC
+        RTS
+
+
+
+.sttadt                         ; search through table and delete text
+                                ; if it is one of our expanded characters
+                                ; then delete the relevant number of chars
+                                ;
+                                ; Entry.. A - character value
+                                ; Exit..  relevant number of &7F's printed
+
+        LDX     #<kttab
+        LDY     #>kttab
+        STX     ctptr
+        STY     ctptr + 1
+.nctst2
+        LDA     (ctptr)
+        BEQ     gotit2
+
+        JSR     nxtstr
+        BCC     nctst2
+
+        RTS                     ; not matched - so delete manually
+
+.gotit2
+                                ; it is one of ours
+        LDY     #&FF
+.gndspc
+        INY
+
+        LDA     (ctptr),Y
+        BNE     gndspc
+
+        LDA     #&7F
+.dndspc
+        JSR     oswrch          ; and delete the relevant number of characters
+        DEY
+        BPL     dndspc
+
+        CLC
+        RTS
+
+
+.nxtstr                         ; pass onto the next string, checking
+                                ; to see if we have reached the end of the
+                                ; table
+                                ; step to character after 'null'
+                                ; update 'ctptr' until = kttabe
+        LDA     (ctptr)
+        BEQ     outup
+
+        INC     ctptr
+        BNE     nxtstr
+        INC     ctptr + 1
+        BRA     nxtstr
+
+.outup
+        INC     ctptr
+        BNE     nihii2
+        INC     ctptr + 1
+.nihii2
+        SEC
+        LDA     ctptr + 1
+        CMP     #>kttabe
+        BNE     maybe1
+        LDA     ctptr
+        CMP     #<kttabe
+        BCS     outdwn          ; and around for the next
+.maybe1
+        PLA
+        CLC
+        RTS
+.outdwn
+        PLA
+        SEC
+        RTS
+        ENDIF
+
+        ; ------------------------------------------------------------ ;
