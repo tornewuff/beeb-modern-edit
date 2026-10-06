@@ -1,5 +1,5 @@
 .DOSCRE
-        LDA     offset
+        LDA     page_offset
         JSR     SCMVTO
         STZ     diff
         LDA     xeff
@@ -9,7 +9,7 @@
         SBC     count
         STA     diff
 .SCREEA
-        LDA     tinden
+        LDA     temp_indent
         CMP     #&FF
         BNE     SCREEB
         LDA     indent
@@ -23,7 +23,7 @@
         SBC     count
         JSR     MOVE
 .SCREED
-        BIT     rflush
+        BIT     right_flush
         BPL     SCREEQ
         SEC
         LDA     juslen
@@ -57,32 +57,32 @@
         JSR     CHKCTL
 
         IF edit150
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #cr             ; ++++
         ENDIF
         BEQ     screeG
 
-        CMP     tabcha
+        CMP     tab_char
         BNE     SCREES
         TXA
         LDX     #&FF
 .SCRTAB
         INX
         PHA
-        LDA     tablst,X
+        LDA     tab_list,X
         BEQ     SCRNTB
         PLA
-        CMP     tablst,X
+        CMP     tab_list,X
         BCS     SCRTAB
         SEC
-        SBC     tablst,X
+        SBC     tab_list,X
         EOR     #&FF
         INA
         PHX
         JSR     SCMVTO
         PLX
-        LDA     tablst,X
+        LDA     tab_list,X
         TAX
         DEX
         BRA     NOUL
@@ -92,7 +92,7 @@
 .SCREES
         CMP     #' '
         BNE     SCREEF
-        CPX     LASTTAB
+        CPX     last_tab
         BCC     SCREEF
         PHX
         LDX     Q
@@ -100,7 +100,7 @@
         DEX
         BEQ     NOMOV
         LDA     #' '
-        JSR     fmwrch
+        JSR     format_wrch
         BRA     SCRJUS
 .NOMOV
         PLX
@@ -112,11 +112,11 @@
         ADC     spaces
         STA     l
         LDA     #' '
-        JSR     fmwrch
+        JSR     format_wrch
 .ENDJUS
         LDA     #' '
 .SCREEF
-        JSR     fmwrch
+        JSR     format_wrch
 .NOUL
         INY
         INX
@@ -124,9 +124,9 @@
         BCC     SCREEE
 
         IF edit150
-        LDA     clterm
+        LDA     line_terminator
         ELSE
         LDA     #cr             ; ++++
         ENDIF
 .screeG
-        JMP     fmwrch
+        JMP     format_wrch

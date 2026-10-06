@@ -4,10 +4,10 @@
         ENDIF
         SEC
         SBC     addr
-        STA     maxsiz
+        STA     max_size
         TXA
         SBC     addr + 1
-        STA     maxsiz + 1
+        STA     max_size + 1
         IF edit150
         PLP
         ENDIF
@@ -34,48 +34,48 @@
 
 .memnam
         LDA     (temp),Y
-        STA     nambuf,X
+        STA     filename_buffer,X
         INY
         INX
         CPX     #52
         BNE     memnam
 
 .oldnam
-        LDA     nambuf
+        LDA     filename_buffer
         CMP     #cr
         BEQ     nonam
         IF edit150
-        LDX     #<nambuf
-        LDA     #>nambuf
+        LDX     #<filename_buffer
+        LDA     #>filename_buffer
 .setnam
         STX     scratch
         STA     scratch + 1
         ELSE
-        LDA     #<nambuf
+        LDA     #<filename_buffer
         STA     scratch
-        LDA     #>nambuf
+        LDA     #>filename_buffer
         STA     scratch + 1
         ENDIF
         RTS
 
 .textna
-        LDX     GE
-        LDY     GE + 1
+        LDX     gap_end
+        LDY     gap_end + 1
         PHX
         PHY
-        LDX     tstart
-        LDY     tstart + 1
-        JSR     GPBKXY
+        LDX     text_start
+        LDY     text_start + 1
+        JSR     gap_back_to_xy
         LDY     #&00
 
 .MVIC
-        LDA     (GE),Y
+        LDA     (gap_end),Y
         STA     stracc,Y
         INY
         BNE     MVIC
         PLY
         PLX
-        JSR     gpfdXY
+        JSR     gap_forward_to_xy
         LDY     #&FF
 .namsrc
         INY
@@ -83,7 +83,7 @@
         LDA     stracc,Y
 
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -97,7 +97,7 @@
         LDA     stracc,Y
 
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -127,8 +127,8 @@
         STA     scratch + 1
         RTS
 
-.writna
-        JSR     STARTINV
+.print_filename
+        JSR     inverse_on
         LDY     #&FF
 .wrispc
         INY
@@ -143,18 +143,18 @@
         INY
         BRA     wrilop
 .wriex
-        JMP     STOPINV
+        JMP     inverse_off
 
-.Tload
-        LDA     tstart
+.load_text
+        LDA     text_start
         STA     addr
-        LDA     tstart + 1
+        LDA     text_start + 1
         STA     addr + 1
-        LDA     tmax
-        LDX     tmax + 1
+        LDA     text_end
+        LDX     text_end + 1
 
         IF stamp=1
-        JSR     PASLOAD
+        JSR     load_file
         PHX
         PHY
         LDX     #flload
@@ -168,16 +168,16 @@
         ENDIF
 
         IF edit150
-        CLV                     ; copy the name into nambuf
+        CLV                     ; copy the name into filename_buffer
         ENDIF
-.PASLOAD
+.load_file
         ; Entry - IY temp -> name, addr = load address, AX = max free address
         ; Exit - File checked for size (not on slow FS's)
         ; File loaded to addr, with XY = top of file
         JSR     paslnm
         JSR     prompt
         EQUB    "Loading ",&EA
-        JSR     writna
+        JSR     print_filename
 
 .pasGO
         LDY     #&00
@@ -195,9 +195,9 @@
         LDA     scratch + &0C
         ORA     scratch + &0D
         BNE     paslhu
-        LDA     maxsiz
+        LDA     max_size
         CMP     scratch + &0A
-        LDA     maxsiz + 1
+        LDA     max_size + 1
         SBC     scratch + &0B
         BCC     paslhu
 
@@ -213,7 +213,7 @@
         LDA     #&FF
         JSR     XYSCRATCH
         JSR     osfile
-        STZ     oldsta + 3      ; make old impossible
+        STZ     old_text_bounds + 3 ; make old impossible
         CLC
         LDA     addr
         ADC     scratch + &0A
@@ -227,21 +227,21 @@
         BRK
         EQUB    &02,"File too big",null
 
-.tSAVE
+.save_text
         ; Save (defaulting) marked block of text.
         ; Entry - (temp),Y points to input name.
-        ; GE = Start of block
-        ; endp = End of block
+        ; gap_end = Start of block
+        ; block_end = End of block
         ; Exit - specified memory saved as filename.
         IF edit150
-        CLV                     ; copy the name into nambuf
+        CLV                     ; copy the name into filename_buffer
         ENDIF
         JSR     filename
 
 .inSAVE
         JSR     prompt
         EQUB    "Saving to ",&EA
-        JSR     writna
+        JSR     print_filename
         LDX     #&0F
 .pasacl
         STZ     scratch + 2,X
@@ -255,23 +255,23 @@
         JSR     toscra
         LDX     #flexec
         JSR     toscra
-        LDX     #GE
+        LDX     #gap_end
         JSR     toscr2
         LDY     #&0E
-        LDX     #endp
+        LDX     #block_end
         JSR     toscr2
         ELSE
         DEC     scratch + 6
         DEC     scratch + 7
         DEC     scratch + 8
         DEC     scratch + 9
-        LDA     GE
+        LDA     gap_end
         STA     scratch + &0A
-        LDA     GE + 1
+        LDA     gap_end + 1
         STA     scratch + &0B
-        LDA     endp
+        LDA     block_end
         STA     scratch + &0E
-        LDA     endp + 1
+        LDA     block_end + 1
         STA     scratch + &0F
         ENDIF
 

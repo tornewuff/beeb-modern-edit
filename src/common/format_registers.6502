@@ -1,4 +1,4 @@
-.YADP
+.add_y_to_addr
         TYA
         ADC     addr
         STA     addr
@@ -6,7 +6,7 @@
         INC     addr+1
 .ENDADD
         RTS
-.MODNO
+.modify_number
         JSR     SPACEY
         CMP     #'-'
         BEQ     SUBNO
@@ -16,7 +16,7 @@
         LDX     #0
 .ADDNO
         PHX
-        JSR     GETNO
+        JSR     get_number
         PLX
         CLC
         STX     temp
@@ -28,7 +28,7 @@
         RTS
 .SUBNO
         PHX
-        JSR     GETNO
+        JSR     get_number
         STA     temp
         PLA
         SEC
@@ -37,7 +37,7 @@
         LDA     #0
         TAX
         RTS
-.GETNO
+.get_number
         LDX     #0
         JSR     SPACEY
         DEY

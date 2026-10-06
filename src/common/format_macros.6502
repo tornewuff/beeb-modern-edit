@@ -1,15 +1,15 @@
 .DOHDR
-        LDX     pageeh
-        LDY     pageeh+1
+        LDX     even_header
+        LDY     even_header+1
         LDA     page
         LSR     A
         BCC     DOHDR1
-        LDX     pageoh
-        LDY     pageoh+1
+        LDX     odd_header
+        LDY     odd_header+1
 .DOHDR1
         DEC     lineot
         JSR     macro
-        LDA     lineDW
+        LDA     lines_per_page
         STA     lineot
         LDA     #1
         STA     lineno
@@ -17,14 +17,14 @@
         TRB     lineno+1; leave format alone!
         RTS
         IF edit150
-.TPGE                           ; TP = GE
-        LDA     GE
-        STA     TP
-        LDA     GE + 1
-        STA     TP + 1
+.text_ptr_at_gap_end            ; text_ptr = gap_end
+        LDA     gap_end
+        STA     text_ptr
+        LDA     gap_end + 1
+        STA     text_ptr + 1
         RTS
 
-.prtvdu                         ; select the printer and enable it
+.enable_printer                 ; select the printer and enable it
         LDA     #5
         LDX     #0
         JSR     osbyte
@@ -38,25 +38,25 @@
         PHA
         LDA     addr+1
         PHA
-        LDA     ctlcha
+        LDA     control_char
         PHA
         LDA     len
         PHA
         LDA     indent
         PHA
-        LDA     tinden
+        LDA     temp_indent
         PHA
         LDA     bold
         PHA
         LDA     pbold
         PHA
-        LDA     boldrq
+        LDA     bold_request
         PHA
-        LDA     underl
+        LDA     underline
         PHA
         LDA     pundrl
         PHA
-        LDA     undrrq
+        LDA     underline_request
         PHA
         LDA     fill
         PHA
@@ -64,7 +64,7 @@
         PHA
         LDA     centre
         PHA
-        LDA     rflush
+        LDA     right_flush
         PHA
         LDA     linfed
         PHA
@@ -78,15 +78,15 @@
         STX     addr
         STY     addr+1
         LDA     (addr)
-        STA     ctlcha
+        STA     control_char
         LDY     #3
         CLC
-        JSR     YADP; skip definition
+        JSR     add_y_to_addr ; skip definition
         JSR     fine
         PLA
         STA     linfed
         PLA
-        STA     rflush
+        STA     right_flush
         PLA
         STA     centre
         PLA
@@ -94,25 +94,25 @@
         PLA
         STA     fill
         PLA
-        STA     undrrq
+        STA     underline_request
         PLA
         STA     pundrl
         PLA
-        STA     underl
+        STA     underline
         PLA
-        STA     boldrq
+        STA     bold_request
         PLA
         STA     pbold
         PLA
         STA     bold
         PLA
-        STA     tinden
+        STA     temp_indent
         PLA
         STA     indent
         PLA
         STA     len
         PLA
-        STA     ctlcha
+        STA     control_char
         PLA
         STA     addr+1
         PLA

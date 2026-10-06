@@ -7,13 +7,13 @@
         STA     BRKv
         LDA     #>brk_handler
         STA     BRKv + 1
-        STZ     oldsta + 3
+        STZ     old_text_bounds + 3
         LDA     #&F2
         STA     scratch
         STZ     scratch + 1
-        JSR     readby
+        JSR     read_io_byte
         TAX
-        JSR     readnx
+        JSR     read_next_io_byte
         STA     scratch + 1
         STX     scratch
         LDX     #20
@@ -21,8 +21,8 @@
         DEX
         BEQ     EDIToz
 
-        JSR     readby
-        JSR     readne
+        JSR     read_io_byte
+        JSR     cmdline_next
         CMP     #cr
         BEQ     EDIToz
 
@@ -30,34 +30,34 @@
         BNE     EDITol
         LDX     #&00
 .EDITgb
-        JSR     readby
-        JSR     readne
+        JSR     read_io_byte
+        JSR     cmdline_next
         STA     &01A0,X
         INX
         CPX     #'@'
         BNE     EDITgb
         LDA     #cr
         STA     &01A0 - 1,X
-        STA     nambuf
+        STA     filename_buffer
         LDY     #&00
-        JSR     readHX
+        JSR     read_hex
         BCC     EDITon
         CMP     #','
         BNE     EDITon
         LDA     &00,X
-        STA     oldsta
+        STA     old_text_bounds
         LDA     &01,X
-        STA     oldsta + 1
+        STA     old_text_bounds + 1
         INY
-        JSR     readHX
+        JSR     read_hex
         BCC     EDITon
         CMP     #cr
         BNE     EDITon
         LDA     &00,X
-        STA     oldsta + 2
+        STA     old_text_bounds + 2
         LDA     &01,X
-        STA     oldsta + 3
-        STZ     cursED
+        STA     old_text_bounds + 3
+        STZ     cursor_editing
         BRA     EDIToy
 .EDITon
         LDX     #&FF
@@ -78,54 +78,54 @@
         BCS     EDIToz
 
 .EDITn3
-        STA     nambuf,X
+        STA     filename_buffer,X
         INX
         CMP     #cr
         BNE     EDITn2
         LDA     #&01
-        STA     cursED
+        STA     cursor_editing
         BRA     EDIToy
 
 .EDIToz
         LDX     #&FF
-        STX     cursED
+        STX     cursor_editing
         LDA     #cr
-        STA     nambuf
+        STA     filename_buffer
 
         IF cF8key=1
-        LDA     clterm          ; current line terminator
+        LDA     line_terminator ; current line terminator
         ELSE
         IF termin<>cr
         LDA     #termin
         ENDIF
         ENDIF
 
-        CMP     (paje)
+        CMP     (oshwm)
         BNE     EDIToy
-        CMP     (tmax)
+        CMP     (text_end)
         BNE     EDIToy
-        JSR     MEMSTATE
+        JSR     save_text_bounds
 
 .EDIToy
-        LDA     #161            ; read CMOS RAM into 'tutmode'
+        LDA     #161            ; read CMOS RAM into 'options'
         LDX     #&08            ; our byte
         LDY     #&10            ; ???
         JSR     osbyte
-        STY     tutmode         ; returns &00 on the BBC OS 1.2
+        STY     options         ; returns &00 on the BBC OS 1.2
 
         IF mouse=1
         JSR     mouser
         ENDIF
 
         LDA     #cr
-        STA     frbuff
-        STA     grbuff
+        STA     find_replace_buffer
+        STA     global_replace_buffer
         IF cF8key=1
-        STA     clterm          ; initialise 'clterm' here
+        STA     line_terminator ; initialise 'line_terminator' here
         ENDIF
-        STZ     indexH
-        STZ     modflg
-        JSR     vstrng          ; define characters
+        STZ     index_handle
+        STZ     modified
+        JSR     print_inline    ; define characters
 
         EQUB    3
         EQUB    23,remap("─"),&00,&00,&00,&FF,&00,&00,&00,&00
@@ -155,13 +155,13 @@
 
         EQUB    &EA
 
-        LDA     cursED
+        LDA     cursor_editing
         BEQ     zippo
         DEA
         BEQ     zappo
         JMP     EDIT    ; and away we go...
 .zippo
-        JSR     EDITmd
+        JSR     setup_editor
 
         IF stamp=1
         JSR      nstamp
@@ -170,14 +170,14 @@
         JMP     OLDTEXT
 
 .zappo
-        STZ     brkaction
-        JSR     EDITmd
-        JSR     EDITi2
+        STZ     brk_action
+        JSR     setup_editor
+        JSR     clear_buffer
         LDY     #&00
-        LDA     #<nambuf
+        LDA     #<filename_buffer
         STA     temp
-        LDA     #>nambuf
+        LDA     #>filename_buffer
         STA     temp + 1
-        JSR     Tload
+        JSR     load_text
         JMP     EDITgt
 }

@@ -1,14 +1,14 @@
-.FRPRMT                         ; prompt for the find and replace action
+.prompt_replace_action          ; prompt for the find and replace action
         JSR     prompt
         EQUB    "C(ontinue), E(nd of file replace), R(eplace) or ESCAPE",&EA
         RTS
 
-.FRRDRP                         ; read the replacement
+.read_replacement               ; read the replacement
         JSR     prompt
         EQUB    "Replace by:",&EA
-        JSR     readLS
+        JSR     read_line
         JSR     READINIT
         JSR     MININIT
-        LDA     replindex
-        STA     outindex
+        LDA     replace_index
+        STA     output_index
         JMP     REPLPART

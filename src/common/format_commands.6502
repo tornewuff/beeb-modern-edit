@@ -1,31 +1,31 @@
 .ROUTAF
-        JSR     GETNO
+        JSR     get_number
         AND     #15
         ASL     A
         TAX
-        LDA     noregs+1,X
+        LDA     number_registers+1,X
         AND     #15
-        STA     noregs+1,X
+        STA     number_registers+1,X
         INY            ; skip some delimter
         PHX
-        JSR     GETNO
+        JSR     get_number
         PLX
         ASL     A
         ASL     A
         ASL     A
         ASL     A
-        ORA     noregs+1,X
-        STA     noregs+1,X
+        ORA     number_registers+1,X
+        STA     number_registers+1,X
         RTS
 .ROUTAN
-        JSR     GETNO
+        JSR     get_number
         AND     #15
         ASL     A
         PHA
         LDA     (addr),Y
         INY            ; skip delimter
         PHA
-        JSR     GETNO
+        JSR     get_number
         PLA
         CMP     #'+'
         BEQ     ADDREG
@@ -35,76 +35,76 @@
         BEQ     MOVREG
         TXA
         PLX
-        STA     noregs,X
-        LDA     noregs+1,X
+        STA     number_registers,X
+        LDA     number_registers+1,X
         AND     #&F0
-        STA     noregs+1,X
+        STA     number_registers+1,X
         RTS
 .ADDREG
         CLC
         STX     buff
         PLX
-        LDA     noregs,X
+        LDA     number_registers,X
         ADC     buff
-        STA     noregs,X
-        LDA     noregs+1,X
+        STA     number_registers,X
+        LDA     number_registers+1,X
         ADC     #0
-        STA     noregs+1,X
+        STA     number_registers+1,X
         RTS
 .SUBREG
         STX     buff
         PLX
-        LDA     noregs,X
+        LDA     number_registers,X
         SBC     buff
-        STA     noregs,X
-        LDA     noregs+1,X
+        STA     number_registers,X
+        LDA     number_registers+1,X
         SBC     #0
-        STA     noregs+1,X
+        STA     number_registers+1,X
         RTS
 .MOVREG
         TXA
         AND     #15
         ASL     A
         TAX
-        LDA     noregs+1,X
+        LDA     number_registers+1,X
         AND     #15
         STA     buff
-        LDA     noregs,X
+        LDA     number_registers,X
         PLX
-        STA     noregs,X
-        LDA     noregs+1,X
+        STA     number_registers,X
+        LDA     number_registers+1,X
         AND     #&F0
         ORA     buff
-        STA     noregs+1,X
+        STA     number_registers+1,X
         RTS
 .ROUTBL
         STA     bold
-        STA     boldrq
+        STA     bold_request
         RTS
 .ROUTCC
         LDA     (addr),Y
-        STA     ctlcha
+        STA     control_char
         INY
         RTS
 .ROUTCE
         STA     centre
-        STZ     rflush        ; can't have both
+        STZ     right_flush   ; can't have both
         RTS
 .ROUTCH
         LDA     addr
         STA     temp
         LDA     addr+1
         STA     temp+1        ; move filename pointer
-        LDA     tstart
+        LDA     text_start
         STA     addr
-        LDA     tstart+1
+        LDA     text_start+1
         STA     addr+1
-        LDA     tmax
-        LDX     tmax+1
+        LDA     text_end
+        LDX     text_end+1
         JSR     paslnm
         JSR     pasGO
-        STX     GS
-        STY     GS+1
+        STX     gap_start
+        STY     gap_start+1
         LDX     #&FF
         TXS
         JMP     CHAINB
@@ -116,9 +116,9 @@
         INX
         CPX     #maxMAC
         BCS     MACCHX
-        LDA     maclst,X
+        LDA     macro_list,X
         STA     buff
-        LDA     maclst+1,X
+        LDA     macro_list+1,X
         STA     buff+1
         BEQ     MACCHZ
         PHY
@@ -148,17 +148,17 @@
 .ROUTDM
         JSR     SPACEY
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BEQ     DMEXIT
-        CMP     ctlcha
+        CMP     control_char
         BEQ     DMEXIT
         STA     temp+1
         LDA     (addr),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -166,9 +166,9 @@
         JSR     MACCHK
         BNE     DMEXIT
         LDA     addr
-        STA     maclst,X
+        STA     macro_list,X
         LDA     addr+1
-        STA     maclst+1,X
+        STA     macro_list+1,X
         BRA     SKIPEN
 .ROUTDS
         LDA     #2
@@ -176,41 +176,41 @@
         RTS
 .ROUTOF
         LDA     addr
-        STA     pageof
+        STA     odd_footer
         LDA     addr+1
-        STA     pageof+1
+        STA     odd_footer+1
         BRA     SKIPEN
 .ROUTOH
         LDA     addr
-        STA     pageoh
+        STA     odd_header
         LDA     addr+1
-        STA     pageoh+1
+        STA     odd_header+1
         BRA     SKIPEN
 .ROUTFO
         LDA     addr
-        STA     pageof
+        STA     odd_footer
         LDA     addr+1
-        STA     pageof+1
+        STA     odd_footer+1
 .ROUTEF
         LDA     addr
-        STA     pageef
+        STA     even_footer
         LDA     addr+1
-        STA     pageef+1
+        STA     even_footer+1
 .ROUTIG
         BRA     SKIPEN
 .ROUTHE
         LDA     addr
-        STA     pageoh
+        STA     odd_header
         LDA     addr+1
-        STA     pageoh+1
+        STA     odd_header+1
 .ROUTEH
         LDA     addr
-        STA     pageeh
+        STA     even_header
         LDA     addr+1
-        STA     pageeh+1
+        STA     even_header+1
 .SKIPEN
         CLC
-        JSR     YADP
+        JSR     add_y_to_addr
 .SKIPEM
         LDA     (addr)
         INC     addr
@@ -218,13 +218,13 @@
         PHA
         INC     addr+1
         LDA     addr
-        CMP     GS
+        CMP     gap_start
         LDA     addr+1
-        SBC     GS+1
+        SBC     gap_start+1
         BCS     SKIPEX
         PLA
 .SKIPEK
-        CMP     ctlcha
+        CMP     control_char
         BNE     SKIPEM
         LDA     (addr)
         CMP     #'e'
@@ -250,40 +250,40 @@
         BCS     ROUTEP
         RTS
 .ROUTFF
-        LDA     pwtflg
+        LDA     page_wait_flag
         BMI     NOWAIT
-        LDA     prtflg
+        LDA     print_flags
         BPL     PRTWAT
-        JSR     INKEY
+        JSR     wait_shift
 .NOWAIT
         LDA     #12
         JMP     oswrch
 .PRTWAT
         JSR     NOWAIT
-        JMP     INKEY
+        JMP     wait_shift
 .ROUTIC
         PHY
-        JSR     closeX
+        JSR     close_index_file
         PLY
         RTS
 .ROUTIN
         LDX     indent
-        JSR     MODNO
+        JSR     modify_number
         STX     indent
         RTS
 .ROUTIO
         CLC
-        JSR     YADP
-        JSR     closeX
+        JSR     add_y_to_addr
+        JSR     close_index_file
         LDX     addr
         LDY     addr+1
         LDA     #&80
         JSR     osfind
-        STA     indexH
+        STA     index_handle
         LDY     #0
 .ROUTCO
         IF cF8key=1
-        LDA     clterm
+        LDA     line_terminator
         ELSE
         LDA     #termin
         ENDIF
@@ -297,9 +297,9 @@
         BNE     SKIPLP
         RTS
 .ROUTIX
-        STA     doindX
+        STA     index_output
         CLC
-        JSR     YADP
+        JSR     add_y_to_addr
         LDA     lineot
         PHA
         LDA     #&FD
@@ -307,23 +307,23 @@
         JSR     CTLIN
         PLA
         STA     lineot
-        STZ     doindX
+        STZ     index_output
         RTS
 .ROUTJU
         STZ     fill
         RTS
 .ROUTLL
         LDX     len
-        JSR     MODNO
+        JSR     modify_number
         STA     len
         RTS
 .ROUTLS
         LDX     vspace
-        JSR     MODNO
+        JSR     modify_number
         STX     vspace
         RTS
 .ROUTLV
-        JSR     GETNO
+        JSR     get_number
         CMP     lineot
         BEQ     OKAYLV
         BCC     OKAYLV
@@ -334,7 +334,7 @@
         JMP     ALINES
 
 .ROUTNE
-        JSR     GETNO
+        JSR     get_number
         CMP     lineot
         BEQ     OKAY
         BCC     OKAY
@@ -356,18 +356,18 @@
         RTS
 .ROUTOS
         CLC
-        JSR     YADP
+        JSR     add_y_to_addr
         LDX     addr
         LDY     addr+1
         JSR     oscli
         LDY     #0
         JMP     ROUTCO
 .ROUTPL
-        LDX     lineDW
-        JSR     MODNO
+        LDX     lines_per_page
+        JSR     modify_number
         TXA
         BEQ     WZERO
-        STA     lineDW
+        STA     lines_per_page
         LDX     lineot
         INX
         BEQ     WZERO
@@ -375,16 +375,16 @@
 .WZERO
         RTS
 .ROUTPO
-        LDX     offset
-        JSR     MODNO
-        STA     offset
+        LDX     page_offset
+        JSR     modify_number
+        STA     page_offset
         RTS
 .ROUTRF
-        STA     rflush
+        STA     right_flush
         STZ     centre        ; can't have both
         RTS
 .ROUTSP
-        JSR     GETNO
+        JSR     get_number
 .ALINES
         TAX
         BEQ     ALINEX
@@ -416,13 +416,13 @@
         STA     vspace
         RTS
 .ROUTTA
-        STZ     LASTTAB
+        STZ     last_tab
 .SETTAB
-        JSR     GETNO
-        LDX     LASTTAB
-        STA     tablst,X
-        STZ     tablst+1,X
-        INC     LASTTAB
+        JSR     get_number
+        LDX     last_tab
+        STA     tab_list,X
+        STZ     tab_list+1,X
+        INC     last_tab
         JSR     SPACEY
         CMP     #','
         BEQ     SETTAB
@@ -430,22 +430,22 @@
         RTS
 .ROUTTC
         LDA     (addr),Y
-        STA     tabcha
+        STA     tab_char
         INY
         RTS
 .ROUTTI
-        LDX     tinden
+        LDX     temp_indent
         CPX     #&FF
         BNE     ROUSTI
         LDX     indent        ; if no temp indent then use indent as base
 .ROUSTI
-        JSR     MODNO
-        STX     tinden
+        JSR     modify_number
+        STX     temp_indent
         RTS
 .ROUTTR
         LDA     (addr),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -455,17 +455,17 @@
         LDA     (addr),Y
         DEY
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BEQ     SETTRX
         INY
         INY
-        STA     trnlst,X
+        STA     translate_table,X
 .SETTRX
         RTS
 .ROUTUL
-        STA     underl
-        STA     undrrq
+        STA     underline
+        STA     underline_request
         RTS

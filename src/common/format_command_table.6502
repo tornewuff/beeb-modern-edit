@@ -93,7 +93,7 @@ NOCMDS  =       ( * - CMDS )
         IF cF8key=1 AND NOT(edit150)
                                 ; before printing, defaults are copied
                                 ; into private workspace buffer
-                                ; and nulls replaced with 'clterm'
+                                ; and nulls replaced with 'line_terminator'
 
 .defhdr
         EQUB    dhtext

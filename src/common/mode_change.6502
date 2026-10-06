@@ -8,16 +8,16 @@
 .MODEtb
         EQUB    0,1,0,3,4,0,6,7                 ; and the screen modes
 
-.getmod
+.change_mode
         JSR     prompt
         EQUB    "New Mode:",&EA
         IF edit150
-        JSR     rdcesc
+        JSR     read_char_esc
         JSR     oswrch
         ELSE
         JSR     osrdch
         JSR     oswrch
-        JSR     escTST
+        JSR     test_escape
         ENDIF
         CMP     #'7' + 1
         BCS     SETKEY
@@ -45,7 +45,7 @@
         TAY
         LDA     MODEtb,Y
         PHA
-        JSR     MEMSTATE
+        JSR     save_text_bounds
         LDA     #&82
         JSR     osbyte
         INX
@@ -58,29 +58,29 @@
         TAX
         LDA     #&85
         JSR     osbyte
-        CPX     GS
+        CPX     gap_start
         TYA
-        SBC     GS + 1
+        SBC     gap_start + 1
         BCC     MODEsp
 .inTUBE
         PLX
         ENDIF
 
         LDA     #&7
-        TRB     tutmode
+        TRB     options
         PLA
-        ORA     tutmode
-        JSR     doMODE
+        ORA     options
+        JSR     write_options
 
         IF origin=&8000
-        JSR     EDITmd
+        JSR     setup_editor
         ELSE
-        JSR     chkscr
+        JSR     check_screen_mode
         LDA     #26
         JSR     oswrch
-        JSR     EDITMA
-        LDA     BSM
-        STA     scrnY
-        STZ     scrnX
+        JSR     read_memory_limits
+        LDA     bottom_margin
+        STA     cursor_y
+        STZ     cursor_x
         JMP     EDITcont
         ENDIF

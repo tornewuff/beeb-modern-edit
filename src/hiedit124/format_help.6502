@@ -73,5 +73,5 @@
 .prinHM
         LDA     (string)
         BPL     prinHK
-        JSR     inkeys
+        JSR     wait_shift_prompt
         JMP     EDITcont

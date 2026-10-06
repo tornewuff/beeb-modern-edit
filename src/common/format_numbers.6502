@@ -4,9 +4,9 @@
         AND     #15
         ASL     A
         TAX
-        LDA     noregs,X
+        LDA     number_registers,X
         STA     temp
-        LDA     noregs+1,X
+        LDA     number_registers+1,X
         TAX
         AND     #15
         STA     temp+1

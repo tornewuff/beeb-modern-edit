@@ -1,7 +1,7 @@
-.EDstar                         ; oscli processing
+.star_command                   ; oscli processing
         LDA     #&01
-        STA     brkaction
-        JSR     initus
+        STA     brk_action
+        JSR     restore_keys
         JSR     prompt
         EQUB    "Command line",&EA
 
@@ -40,17 +40,17 @@
 .starfx
         LDA     #&DA            ; flush the VDU queue
         LDX     #0
-        JSR     osbyt0
+        JSR     osbyte_y0
 .starex
-        JSR     vstrng
+        JSR     print_inline
         EQUB    4,3,15,13,26,&EA
         ELSE
         LDA     #&7E
         JSR     osbyte
 .starex
-        JSR     vstrng
+        JSR     print_inline
         EQUB    0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
         ENDIF
-        JSR     chkscr
-        JSR     inited
+        JSR     check_screen_mode
+        JSR     init_edit_keys
         JMP     EDITcont

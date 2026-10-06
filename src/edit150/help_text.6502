@@ -1,7 +1,7 @@
         ; Edit 1.50r help displays and help texts (replaces help_text)
 
-.BIGMESS                        ; function key strip
-        JSR     vstrng
+.print_key_strip                ; function key strip
+        JSR     print_inline
         EQUB    remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐")
         EQUB    remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │")
         EQUB    remap("│Returns│Over   │ File  │Margins│Languag│ Mode  │ Marks │Move   │Delete │Text  │")
@@ -11,16 +11,16 @@
         EQUB    remap("└"),&EA
         LDX     #8
 .BIGMLP
-        JSR     vstrng
+        JSR     print_inline
         EQUB    remap("───────┴"),&EA
         DEX
         BPL     BIGMLP
-        JSR     vstrng
+        JSR     print_inline
         EQUB    remap("──────┘"),&EA
         RTS
 
-.BIGMET                         ; descriptive mode screen
-        JSR     vstrng
+.print_descriptive_help         ; descriptive mode screen
+        JSR     print_inline
         EQUB    remap("The Acorn Screen Editor © 1989 Acorn Computers ")
         EQUB    "Vn ", metadata.version_str
         EQUB    remap(" ┌───┐Shift: screen up   ")
@@ -37,7 +37,7 @@
 
         ; The box drawing characters used by the help displays are now
         ; only defined while they are on screen. define_chars saves the
-        ; current definitions of characters &80 onwards in chrbak before
+        ; current definitions of characters &80 onwards in saved_chars before
         ; redefining them, and restore_chars puts them back.
 
 nchars  =       18              ; number of characters redefined
@@ -45,8 +45,8 @@ nchars  =       18              ; number of characters redefined
 .define_chars
         LDX     #nchars - 1
         STX     scratch + 30
-        LDX     #<(chrbak + (nchars - 1) * 8 - 1)
-        LDY     #>(chrbak + (nchars - 1) * 8 - 1)
+        LDX     #<(saved_chars + (nchars - 1) * 8 - 1)
+        LDY     #>(saved_chars + (nchars - 1) * 8 - 1)
         STX     scratch + 28
         STY     scratch + 29
 .dfchlp                         ; save character definitions, last first
@@ -99,8 +99,8 @@ nchars  =       18              ; number of characters redefined
         RTS
 
 .restore_chars
-        LDX     #<chrbak
-        LDY     #>chrbak
+        LDX     #<saved_chars
+        LDY     #>saved_chars
         BRA     setchr
 
 .chrdef

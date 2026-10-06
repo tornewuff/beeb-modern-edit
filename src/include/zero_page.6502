@@ -1,122 +1,122 @@
         SECTION ZeroPage, org = &00, guard = &90
 
 .string SKIP    &02
-.paje   SKIP    &02
-.tmax   SKIP    &02
+.oshwm   SKIP    &02
+.text_end   SKIP    &02
 .temp   SKIP    &02
 .addr   SKIP    &02
-.argP   SKIP    &02
-.varp   SKIP    &02
-.TP     SKIP    &02
-.GS     SKIP    &02
-.GE     SKIP    &02
-.MS     SKIP    &02
-xeff    =       MS
-lastsp  =       MS + 1
-.me     SKIP    &02
-diff    =       me
-centre  =       me + 1
-.SMATlo SKIP    &02
-rflush  =       SMATlo
-linfed  =       SMATlo + 1
-.smathi SKIP    &02
-len     =       smathi
-indent  =       smathi + 1
-.UMATlo SKIP    &02
-underl  =       UMATlo
-pundrl  =       UMATlo + 1
-.umathi SKIP    &02
-bold    =       umathi
-vspace  =       umathi + 1
+.src_ptr   SKIP    &02
+.dst_ptr   SKIP    &02
+.text_ptr     SKIP    &02
+.gap_start     SKIP    &02
+.gap_end     SKIP    &02
+.match_start     SKIP    &02
+xeff    =       match_start
+lastsp  =       match_start + 1
+.match_end     SKIP    &02
+diff    =       match_end
+centre  =       match_end + 1
+.set_marks_lo SKIP    &02
+right_flush  =       set_marks_lo
+linfed  =       set_marks_lo + 1
+.set_marks_hi SKIP    &02
+len     =       set_marks_hi
+indent  =       set_marks_hi + 1
+.used_marks_lo SKIP    &02
+underline  =       used_marks_lo
+pundrl  =       used_marks_lo + 1
+.used_marks_hi SKIP    &02
+bold    =       used_marks_hi
+vspace  =       used_marks_hi + 1
 
         IF cF8key=1 AND NOT(edit150)
-.clterm SKIP    &01     ; current line terminator
+.line_terminator SKIP    &01 ; current line terminator
         ENDIF
         IF extgf=1      ; Extended search/replace characters
 .ctptr  SKIP    &02     ; current text pointer
         ENDIF
 
-.hymem  SKIP    &02
-.tstart SKIP    &02
-.brkaction SKIP &01
+.himem  SKIP    &02
+.text_start SKIP    &02
+.brk_action SKIP &01
 .size   SKIP    &02
-.maxsiz SKIP    &02
-.pwtflg SKIP    &01
-.prtflg SKIP    &01
-.tutmode SKIP   &01
-.modflg SKIP    &01
-.Atemp  SKIP    &01
+.max_size SKIP    &02
+.page_wait_flag SKIP    &01
+.print_flags SKIP    &01
+.options SKIP   &01
+.modified SKIP    &01
+.temp_a  SKIP    &01
 .count  SKIP    &01
 .index  SKIP    &01
-.PAGEWIDTH SKIP &01
-.pagelength SKIP &01
-.realPA SKIP    &01
-.scrupY SKIP    &01
-.maxscrupY SKIP &01
-.UPDATEREQD SKIP &01
-.scrnPY SKIP    &01
-.scrnX  SKIP    &01
-.scrnY  SKIP    &01
+.page_width SKIP &01
+.page_length SKIP &01
+.full_page_length SKIP    &01
+.update_y SKIP    &01
+.update_max_y SKIP &01
+.update_required SKIP &01
+.pending_update SKIP    &01
+.cursor_x  SKIP    &01
+.cursor_y  SKIP    &01
 .lnbufx SKIP    &01
-.cursED SKIP    &01
-.sstckx SKIP    &01
-fill    =       sstckx
-.replindex SKIP &01
-tinden  =       replindex
-.chunksize SKIP &02
-juslen  =       chunksize
-spaces  =       chunksize + 1
-.nummarks SKIP  &01
-l       =       nummarks
-.marksbeforecsr SKIP &01
-Q       =       marksbeforecsr
-.currlength SKIP &01
-.NEXTREADFLAG SKIP &01
-.nxtchr SKIP    &01
-.lineDW SKIP    &01
-.fieldindex SKIP &01
-lineot  =       fieldindex
-.inpindex SKIP  &01
-ctlcha  =       inpindex
-.outindex SKIP  &01
-boldrq  =       outindex
+.cursor_editing SKIP    &01
+.search_stack_index SKIP    &01
+fill    =       search_stack_index
+.replace_index SKIP &01
+temp_indent  =       replace_index
+.chunk_size SKIP &02
+juslen  =       chunk_size
+spaces  =       chunk_size + 1
+.num_marks SKIP  &01
+l       =       num_marks
+.marks_before_cursor SKIP &01
+Q       =       marks_before_cursor
+.line_length SKIP &01
+.key_pending SKIP &01
+.pending_key SKIP    &01
+.lines_per_page SKIP    &01
+.field_index SKIP &01
+lineot  =       field_index
+.input_index SKIP  &01
+control_char  =       input_index
+.output_index SKIP  &01
+bold_request  =       output_index
 .mmx    SKIP    &01
-undrrq  =       mmx
-.offset SKIP    &01               ; page offset
-.SIMPCHAR SKIP  &01
-pbold   =       SIMPCHAR
+underline_request  =       mmx
+.page_offset SKIP    &01          ; page offset
+.simple_char SKIP  &01
+pbold   =       simple_char
 .nextX  SKIP    &01
-LASTTAB =       nextX
+last_tab =       nextX
 .line   SKIP    &02
-doindX  =       line
-.indexH SKIP    &01
+index_output  =       line
+.index_handle SKIP    &01
 .MULFFLAG SKIP  &01
-tabcha  =       MULFFLAG
-.markX  SKIP    &01
-.TSM    SKIP    &01
-.BSM    SKIP    &01
+tab_char  =       MULFFLAG
+.mark_count  SKIP    &01
+.top_margin    SKIP    &01
+.bottom_margin    SKIP    &01
         IF edit150
-.srchst SKIP    &0E             ; search/replace state, no longer in buff
+.search_state SKIP    &0E       ; search/replace state, no longer in buff
 .scratch SKIP   &20
         ELSE
 .scratch SKIP   &12
         ENDIF
 buff    =       scratch + 10    ; (no.bffr len 15 {MMMDCCCLXXXVIII})
         IF edit150
-TEXPFLAG =      srchst
+search_end_flag =      search_state
         ELSE
-TEXPFLAG =      buff
+search_end_flag =      buff
         ENDIF
-SENSFLAG =      TEXPFLAG + 1
-BUTTFLAG =      TEXPFLAG + 2
-metaflag =      TEXPFLAG + 3
-replflag =      TEXPFLAG + 4
-endp    =       TEXPFLAG + 8
-scp     =       TEXPFLAG + 10
-texp    =       TEXPFLAG + 12
+SENSFLAG =      search_end_flag + 1
+BUTTFLAG =      search_end_flag + 2
+metaflag =      search_end_flag + 3
+replace_flag =      search_end_flag + 4
+block_end    =       search_end_flag + 8
+scroll_ptr     =       search_end_flag + 10
+search_end    =       search_end_flag + 12
 mousel  =       buff + 15       ; # 10
         IF cF8key=1 AND edit150
-.clterm SKIP    &01             ; current line terminator
+.line_terminator SKIP    &01    ; current line terminator
         ENDIF
 
         IF stamp=1

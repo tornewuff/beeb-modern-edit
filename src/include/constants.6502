@@ -1,7 +1,7 @@
         ; ------------------------------------------------------------ ;
 
         ; The editor keeps a byte in the CMOS RAM.
-        ; It is copied into tutmode on startup.
+        ; It is copied into options on startup.
         ;
         ; Bits 0 to 2 define the current mode with the following relationship
         ;       Value   Mode

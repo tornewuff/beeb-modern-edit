@@ -1,7 +1,7 @@
         IF lerror=1
-.BRKsub
+.print_repeat_inline
         SEC
-        ADC     PAGEWIDTH
+        ADC     page_width
         TAY
         TXA
 .BRKSB1
@@ -10,16 +10,16 @@
         BNE     BRKSB1
         ENDIF
 
-.vstrng
+.print_inline
         PLA
         STA     string
         PLA
         STA     string + 1
-        JSR     VSTRLP
+        JSR     print_string
         JMP     (string)
 .VSTRLM
         JSR     oswrch
-.VSTRLP
+.print_string
         INC     string
         BNE     STRINOT
         INC     string + 1

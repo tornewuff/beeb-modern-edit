@@ -1,4 +1,4 @@
-.newtex                         ; Clear text
+.clear_text                     ; Clear text
         JSR     prompt
         IF stamp=1
         EQUB    "Clear text [Y (dated),shf-f9 (exec)]",&EA
@@ -6,11 +6,11 @@
         TAX
         LDY     #&03
         JSR     osbyte
-        JSR     escTST
+        JSR     test_escape
         TYA
         BEQ     doneW1
 .newtn
-        JMP     status
+        JMP     show_status
 .doneW1
         PHX
         JSR     nstamp
@@ -20,20 +20,20 @@
         BNE     doneW2
         JSR     mstamp
 .doneW2
-        JSR     MEMSTATE
+        JSR     save_text_bounds
         JMP     EDITin
         ELIF edit150
         EQUB    "Clear text [Y,shf-f9 (exec),D (discard)]",&EA
-        JSR     EDINKY
+        JSR     read_key_timeout
         BNE     newtk
         TAX
         BNE     newtk
 .newtn
-        JSR     status
+        JSR     show_status
         JMP     EDITth
 .newtd                          ; discard: mark the text as discarded
         LDA     #2
-        STA     modflg
+        STA     modified
         BRA     newtn
 .newtk
         CMP     #&99            ; shift-f9
@@ -44,7 +44,7 @@
         CMP     #'y'
         BNE     newtn
 .donew
-        JSR     MEMSTATE
+        JSR     save_text_bounds
         JMP     EDITin
         ELSE
         EQUB    "Text will be cleared if a key is hit",&EA
@@ -52,30 +52,30 @@
         TAX
         LDY     #3
         JSR     osbyte
-        JSR     escTST
+        JSR     test_escape
         CPY     #0
         BEQ     donew
 .newtn
-        JMP     status
+        JMP     show_status
 .donew
-        JSR     MEMSTATE
+        JSR     save_text_bounds
         JMP     EDITin
         ENDIF
 
-.LOADfi
+.load_command
         ; Doesn't zap buffer until new file is correctly loaded.
 
         IF curtyp=1
         JSR     lsf
         ENDIF
 
-        LDA     modflg
+        LDA     modified
         IF edit150
         CMP     #1              ; only ask if modified
         BNE     LOADF2
         JSR     prompt
         EQUB    "Overwrite text [Y,f2]:",7,&EA
-        JSR     EDINKY
+        JSR     read_key_timeout
         BNE     LOADky
         TAX
         BEQ     newtn
@@ -94,12 +94,12 @@
 .LOADF2
         JSR     prompt
         EQUB    "Type filename to load:",&EA
-        JSR     readns
+        JSR     read_trimmed_line
         LDY     #0
-        JSR     Tload
+        JSR     load_text
         JMP     EDITgt
 
-.SAVEfi                         ; Save file
+.save_command                   ; Save file
         IF curtyp=1
         JSR     lsf
         ENDIF
@@ -108,30 +108,30 @@
         CMP     #&01
         BEQ     marksa
 
-        JSR     promtF
+        JSR     prompt_filename
         EQUB    "to save:",&07,&EA
 
-        JSR     readns
+        JSR     read_trimmed_line
         JSR     dfblok
         LDY     #&00
-        JSR     tSAVE
+        JSR     save_text
 
-        STZ     modflg
+        STZ     modified
 
-        LDX     texp
-        LDY     texp + 1
-        JSR     gpfdXY
-        JMP     normax
+        LDX     search_end
+        LDY     search_end + 1
+        JSR     gap_forward_to_xy
+        JMP     normalize_x
 
 .marksa
-        JSR     promtF
+        JSR     prompt_filename
         EQUB    "for MARK TO CURSOR save:",&07,&EA
-        JSR     readns
+        JSR     read_trimmed_line
         JSR     dfblok
         LDY     #&00
         LDA     (temp)
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -143,39 +143,39 @@
         LDA     temp + 1
         STA     scratch + 1
         JSR     inSAVE
-        LDX     texp
-        LDY     texp + 1
-        JSR     gpfdXY
-        JMP     normax
+        LDX     search_end
+        LDY     search_end + 1
+        JSR     gap_forward_to_xy
+        JMP     normalize_x
 .msbad
         BRK
         EQUB    &01,"Bad use of stored name",null
 
-.insrtF
+.insert_file
         IF curtyp=1
         JSR     lsf
         ENDIF
 
-        JSR     MKREFUSE
+        JSR     refuse_if_marked
         JSR     FINEPOSITIONGAP
-        JSR     promtF
+        JSR     prompt_filename
         EQUB    "to insert:",&EA
-        JSR     readns
-        LDA     GS
+        JSR     read_trimmed_line
+        LDA     gap_start
         STA     addr
-        LDA     GS + 1
+        LDA     gap_start + 1
         STA     addr + 1
-        LDA     GE
-        LDX     GE + 1
+        LDA     gap_end
+        LDX     gap_end + 1
         LDY     #0
         IF edit150
         BIT     brk_handler + 1 ; (&FF) sets V: use the name in place
         ENDIF
-        JSR     PASLOAD
-        STX     GS
-        STY     GS+1
-        JSR     MODIFY
+        JSR     load_file
+        STX     gap_start
+        STY     gap_start+1
+        JSR     set_modified
         LDX     addr ; Move to start of inserted file.
         LDY     addr+1
-        JSR     GPBKXY
+        JSR     gap_back_to_xy
         JMP     NORMALIZE

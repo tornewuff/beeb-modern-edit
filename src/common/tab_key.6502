@@ -1,31 +1,31 @@
 .tabkey
         LDA     #8
-        BIT     tutmode
+        BIT     options
         BNE     TABSTR
 .TABPOS
-        INC scrnX
-        LDA     scrnX
+        INC cursor_x
+        LDA     cursor_x
         AND     #7
         BNE     TABPOS
-        LDA     scrnX
-        CMP     PAGEWIDTH
+        LDA     cursor_x
+        CMP     page_width
         BCC     TABX
-        STZ     scrnX
+        STZ     cursor_x
         BRA     TABX
 .TABSTR
         LDA     #1
         JSR     TPGSBK
         CMP     #1
         BNE     INSXEX
-        LDY     scrnX
+        LDY     cursor_x
         DEY
 .TABS1
         INY
-        CPY     PAGEWIDTH
+        CPY     page_width
         BCS     TABSSP
-        LDA     (TP),Y
+        LDA     (text_ptr),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -37,12 +37,12 @@
         LDY     #&FF
 .TABS2
         INY
-        CPY     PAGEWIDTH
+        CPY     page_width
         BCS     TABSEX
-        LDA     (TP),Y
+        LDA     (text_ptr),Y
         CMP     #' '
         BEQ     TABS2
 .TABSEX
-        STY     scrnX
+        STY     cursor_x
 .TABX
-        STZ     UPDATEREQD
+        STZ     update_required

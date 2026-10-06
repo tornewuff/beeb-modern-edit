@@ -1,7 +1,7 @@
-.CURON
+.cursor_on
         LDY     #1
         BRA     VDU231
-.curOFF
+.cursor_off
         LDY     #0
 .VDU231
         LDX     #1
@@ -11,7 +11,7 @@
 
         IF edit150
         LDA     #23
-        JSR     wraxy
+        JSR     vdu_axy
         LDX     #8
         LDA     #0
 .VDU23L
@@ -25,7 +25,7 @@
         JSR     oswrch
         TYA
         JSR     oswrch
-        JSR     vstrng
+        JSR     print_inline
         EQUB    &00,&00,&00,&00,&00,&00,&00,&EA
         ENDIF
 .VDU23X

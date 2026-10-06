@@ -93,7 +93,7 @@
         EQUB    " being counted", &83, "r0-9 "
         EQUB    "contents of register e.g. .r"
         EQUB    "0", &0f, &0d, &0d, &ea
-        JSR     inkeys
+        JSR     wait_shift_prompt
         JMP     EDITcont
 
 .prhist                         ; print the inline text after the JSR

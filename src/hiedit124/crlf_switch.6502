@@ -1,24 +1,24 @@
-.cf8swt                         ; CR/LF switch
-        LDA     clterm
+.toggle_line_terminator         ; CR/LF switch
+        LDA     line_terminator
         CMP     #cr
         BEQ     setLF
         LDA     #cr
-        STA     clterm
+        STA     line_terminator
         BRA     cont99
 .setLF
         LDA     #lf
-        STA     clterm
+        STA     line_terminator
 .cont99
-        STZ     cursED
-        STZ     NEXTREADFLAG
-        STZ     markX
+        STZ     cursor_editing
+        STZ     key_pending
+        STZ     mark_count
 
-        LDA     clterm
-        STA     (paje)
-        STA     (tmax)
+        LDA     line_terminator
+        STA     (oshwm)
+        STA     (text_end)
 
-        STZ     scrnX           ; STZ scrnY will be forced by scrnud
+        STZ     cursor_x        ; STZ cursor_y will be forced by screen_update
 
-        JSR     stFILE          ; move the cursor to the top
+        JSR     cursor_text_start ; move the cursor to the top
                                 ; of the text
         JMP     EDITcont        ; and continue editing

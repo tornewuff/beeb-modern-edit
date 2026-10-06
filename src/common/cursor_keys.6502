@@ -1,161 +1,161 @@
-.curLT
+.cursor_left
         JSR     STARTTEST
         BCC     CLCONT
-        LDA     scrnX
+        LDA     cursor_x
         BEQ     CSREXI
 .CLCONT
-        DEC     scrnX
+        DEC     cursor_x
         BPL     CSREXI
-        LDA     PAGEWIDTH
-        STA     scrnX
+        LDA     page_width
+        STA     cursor_x
         ; C set if at start of text
-.curUP
+.cursor_up
         JSR     STARTTEST
         BCS     CSREXI
         LDA     #1
-        JSR     MVLNBK
-        LDA     TSM
-        CMP     scrnY
+        JSR     move_lines_back
+        LDA     top_margin
+        CMP     cursor_y
         BCS     CUUPSC
 .CUUPNS
-        DEC     scrnY
+        DEC     cursor_y
         BPL     CSREXI
 .CUUPSC
-        LDA     scrnY ; In Top Scroll Margin. If more than Top Scroll Margin Width
+        LDA     cursor_y ; In Top Scroll Margin. If more than Top Scroll Margin Width
         JSR     TPGSBK ; from top of file, then assign Scroll Pointer, else move cursor up.
-        CMP     scrnY
+        CMP     cursor_y
         CLC
         BNE     CUUPNS
-        LDA     TP
-        STA     scp
-        LDA     TP+1
-        STA     scp+1
+        LDA     text_ptr
+        STA     scroll_ptr
+        LDA     text_ptr+1
+        STA     scroll_ptr+1
         LDA     #HARDDOWN
-        STA     UPDATEREQD
+        STA     update_required
         RTS
 .WORDRT
-        LDY     scrnX
-        LDA     (GE),Y
+        LDY     cursor_x
+        LDA     (gap_end),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BNE     EASYRT
-        JSR     curDWN
+        JSR     cursor_down
         BCS     WORDXX
-        JSR     scrnud
-.curst
-        STZ     scrnX
+        JSR     screen_update
+.cursor_line_start
+        STZ     cursor_x
         BRA     CSREXI
 .WORDXX
         PLA
         PLA
         RTS
 .EASYRT
-        JSR     curRT
-        JSR     scrnud
+        JSR     cursor_right
+        JSR     screen_update
         BRA     CSREXI
 .WORDLT
-        LDA     scrnX
-        BNE     curLT
-        JSR     curUP
+        LDA     cursor_x
+        BNE     cursor_left
+        JSR     cursor_up
         BCS     WORDXX
-        JSR     scrnud
-.curend
-        LDA     currlength
-        STA     scrnX
+        JSR     screen_update
+.cursor_line_end
+        LDA     line_length
+        STA     cursor_x
 .CSREXI
-        STZ     UPDATEREQD
+        STZ     update_required
         RTS
-.curRT
-        LDA     scrnX
-        CMP     PAGEWIDTH
+.cursor_right
+        LDA     cursor_x
+        CMP     page_width
         BEQ     CURRCO
-        INC     scrnX
+        INC     cursor_x
         BRA     CSREXI
 .CURRCO
         JSR     ENDTEST
         BCS     CSREXI
-        STZ     scrnX
+        STZ     cursor_x
         ; C set if at text end
-.curDWN
+.cursor_down
         JSR     ENDTEST
         BCS     CSREXI
         LDA     #1
-        JSR     MVLNFD
-        LDA     scrnY
-        CMP     BSM
+        JSR     move_lines_forward
+        LDA     cursor_y
+        CMP     bottom_margin
         BCS     CUDOSC
-        INC     scrnY
+        INC     cursor_y
         BRA     CSREXI
 .CUDOSC
         ; In Bottom Scroll Margin.
         ; If more than (Pagelength-Bottom Scroll Margin)
-        ; from bottom of file, then assign Scroll Pointer, else set scp+1 to
-        ; 0 to indicate wipeline required.
+        ; from bottom of file, then assign Scroll Pointer, else set scroll_ptr+1 to
+        ; 0 to indicate wipe_line required.
 
-        STZ     scp+1         ; Initialize scp+1 to 0 implies
+        STZ     scroll_ptr+1  ; Initialize scroll_ptr+1 to 0 implies
                               ; blank line required for scroll.
         SEC
-        LDA     pagelength
-        SBC     BSM
+        LDA     page_length
+        SBC     bottom_margin
         JSR     TPGEFD
         LDA     count
         BNE     CUDOWS
-        LDA     TP
-        STA     scp
-        LDA     TP+1
-        STA     scp+1
+        LDA     text_ptr
+        STA     scroll_ptr
+        LDA     text_ptr+1
+        STA     scroll_ptr+1
 .CUDOWS
         LDA     #hardup
-        STA     UPDATEREQD
+        STA     update_required
         CLC
 .WORDRX
         RTS
 .WORDRIGHT
-        LDA     currlength
-        CMP     scrnX
+        LDA     line_length
+        CMP     cursor_x
         BCS     WORDR3
-        STA     scrnX
+        STA     cursor_x
         BRA     WORDR3
 .WORDR1
         JSR     WORDRT
 .WORDR3
-        LDY     scrnX
-        LDA     (GE),Y
-        JSR     wordc
+        LDY     cursor_x
+        LDA     (gap_end),Y
+        JSR     is_word_char
         BCC     WORDR1
 .WORDR2
-        LDY     scrnX
-        LDA     (GE),Y
-        JSR     wordc
+        LDY     cursor_x
+        LDA     (gap_end),Y
+        JSR     is_word_char
         BCC     WORDRX
         JSR     WORDRT
         BRA     WORDR2
 .WORDL1
         JSR     WORDLT
-        LDY     scrnX
-        LDA     (GE),Y
-        JSR     wordc
+        LDY     cursor_x
+        LDA     (gap_end),Y
+        JSR     is_word_char
         BCC     WORDL1
 .WORDL2
-        LDY     scrnX
-        LDA     (GE),Y
-        JSR     wordc
-        BCC     curRT
+        LDY     cursor_x
+        LDA     (gap_end),Y
+        JSR     is_word_char
+        BCC     cursor_right
         JSR     WORDLT
         BRA     WORDL2
 .WORDLEFT
-        LDA     currlength
-        CMP     scrnX
+        LDA     line_length
+        CMP     cursor_x
         BCS     WORDL1
-        STA     scrnX
+        STA     cursor_x
 .WORDCX
         SEC
         RTS
-        ; C set if not wordc
-.wordc
+        ; C set if not is_word_char
+.is_word_char
         CMP     #'0'
         BCC     WORDCX
         CMP     #'9' + 1

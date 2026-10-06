@@ -5,27 +5,27 @@
         JSR     SPACEY
         DEY
         CLC
-        JSR     YADP
+        JSR     add_y_to_addr
         LDA     (addr)
-        CMP     ctlcha
+        CMP     control_char
         BEQ     CTLIN1
         LDY     #0
 .CLCTLI
         JSR     ROUTCO
         SEC
-        JSR     YADP
+        JSR     add_y_to_addr
 .CTLIN
         LDA     addr+1
         STA     xeff        ; set nojust(local) by <>
         CMP     #>CTLIN
         BCS     CTLIN1
         LDX     addr
-        CPX     GS
-        SBC     GS+1
+        CPX     gap_start
+        SBC     gap_start+1
         BCS     LASLEN
 .CTLIN1
         LDA     (addr)
-        CMP     ctlcha
+        CMP     control_char
         BNE     LINLYX
         LDX     #0       ; main control scan
         LDY     #2
@@ -52,10 +52,10 @@
         PHA
         LDA     addr+1
         PHA
-        LDA     ctlcha
+        LDA     control_char
         PHA
         LDA     (buff)
-        STA     ctlcha
+        STA     control_char
         LDA     buff
         STA     addr
         LDA     buff+1
@@ -63,7 +63,7 @@
         LDY     #2
         JSR     CLCTLI
         PLA
-        STA     ctlcha
+        STA     control_char
         PLA
         STA     addr+1
         PLA
@@ -77,11 +77,11 @@
         JSR     DOHDR
 .NOHDR
         LDA     len
-        LDY     tinden
+        LDY     temp_indent
         INY
         SEC
         BEQ     SBCLEN
-        SBC     tinden        ; take off temp indent
+        SBC     temp_indent   ; take off temp indent
         BRA     GOTLEN
 .SBCLEN
         SBC     indent        ; so take off indent
@@ -90,38 +90,38 @@
         LDY     #0
         LDX     #0
         STZ     spaces        ; initialize spaces encountered
-        STZ     LASTTAB        ; initialize start of spacing out
+        STZ     last_tab       ; initialize start of spacing out
 .LINLEN
         CPY     #250
         BCS     LENFNE
         JSR     IGNCTL        ; main char count
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BEQ     LENFNE
-        CMP     tabcha
+        CMP     tab_char
         BNE     NOTTAB
         TXA
         LDX     #&FF
 .LOKTAB
         INX
         PHA
-        LDA     tablst,X
+        LDA     tab_list,X
         BEQ     NOTAB
         PLA
-        CMP     tablst,X
+        CMP     tab_list,X
         BCS     LOKTAB
         PHA
-        LDA     tablst,X
+        LDA     tab_list,X
         PLX
         INY
         CMP     juslen
         BCS     NOTAB2
         TAX
         STX     lastsp
-        STX     LASTTAB
+        STX     last_tab
         STZ     spaces
         BRA     NOSP2
 .NOTAB
@@ -142,10 +142,10 @@
         JSR     IGNCTL
         CMP     #' '
         BEQ     LENFNA
-        CMP     tabcha
+        CMP     tab_char
         BEQ     LENFNA
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -160,24 +160,24 @@
 .LENFNE
         INX
         STX     count        ; X, Y free
-        BIT     prtflg
+        BIT     print_flags
         BPL     DODW
         JSR     DOSCRE
         BRA     LINCTL
 .DODW
         LDA     #&40
-        TSB     prtflg        ; no underline first time
-        LDA     underl
+        TSB     print_flags   ; no underline first time
+        LDA     underline
         PHA
         JSR     write
         PLA
-        STA     underl
-        BIT     undrrq
+        STA     underline
+        BIT     underline_request
         BPL     LINCTL
         LDA     #&40       ; now do underline
-        TRB     prtflg
+        TRB     print_flags
         JSR     DOSCRE
-        STZ     underl
+        STZ     underline
 .LINCTL
         BIT     linfed
         BMI     FINSEN
@@ -193,7 +193,7 @@
         STZ     linfed        ; back on, for next line
         JSR     SPACEY
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -201,7 +201,7 @@
         DEY
 .NICEDL
         CLC
-        JSR     YADP
+        JSR     add_y_to_addr
         JMP     fine
 .SPACEY
         LDA     (addr),Y
@@ -213,7 +213,7 @@
         RTS
 .IGNCTL
         LDA     (addr),Y    ; count routine
-        CMP     ctlcha
+        CMP     control_char
         BNE     NOCTRL
         INY
         LDA     (addr),Y
@@ -246,7 +246,7 @@
 .WSCTON
         PHX
         INY
-        JSR     GETNO
+        JSR     get_number
         PLX
         BRA     IGNCTL
 .WSCTRR
@@ -269,7 +269,7 @@
         INY
 .CHKCTL
         LDA     (addr),Y    ; print routine
-        CMP     ctlcha
+        CMP     control_char
         BNE     NOCTRL
         INY
         LDA     (addr),Y
@@ -288,7 +288,7 @@
         CMP     #'u'
         BNE     NORECF
         STZ     pundrl
-        STZ     underl
+        STZ     underline
         BRA     WASCTL
 .WASCTEB
         STZ     pbold
@@ -302,14 +302,14 @@
         CMP     #'u'
         BNE     NORECF
         LDA     #&FF
-        STA     underl
+        STA     underline
         STA     pundrl
-        STA     undrrq
+        STA     underline_request
         BRA     WASCTL
 .WASCTA
         LDA     #&FF
         STA     pbold
-        STA     boldrq
+        STA     bold_request
         STA     bold
         BRA     WASCTL
 .WASCTO
@@ -323,7 +323,7 @@
 .WASCON
         PHX
         INY
-        JSR     GETNO
+        JSR     get_number
         LDA     #1
         JSR     oswrch
         TXA
@@ -342,7 +342,7 @@
         LDX     temp
 .OUTCON
         LDA     buff,X
-        JSR     fmwrch        ; ul!!
+        JSR     format_wrch   ; ul!!
         DEX
         BPL     OUTCON
         PLX

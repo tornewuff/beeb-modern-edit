@@ -1,7 +1,7 @@
-.COPYBK
+.copy_back
         ; Copy block backwards (i.e. to lower address).
-        ; Entry - argP --> block of size XY
-        ; varp --> destination address
+        ; Entry - src_ptr --> block of size XY
+        ; dst_ptr --> destination address
         STX     size
         STY     size + 1
         LDA     size
@@ -15,59 +15,59 @@
         BEQ     BKLOOP
         STA     temp
         SEC
-        LDA     argP
+        LDA     src_ptr
         SBC     temp
-        STA     argP
+        STA     src_ptr
         BCS     CPNHI1
-        DEC     argP + 1
+        DEC     src_ptr + 1
         SEC
 .CPNHI1
-        LDA     varp
+        LDA     dst_ptr
         SBC     temp
-        STA     varp
+        STA     dst_ptr
         BCS     CPNHI2
-        DEC     varp + 1
+        DEC     dst_ptr + 1
 .CPNHI2
         INX
 .BKLOOP
-        LDA     (argP),Y
-        STA     (varp),Y
+        LDA     (src_ptr),Y
+        STA     (dst_ptr),Y
         INY
         BNE     BKLOOP
-        INC     argP + 1
-        INC     varp + 1
+        INC     src_ptr + 1
+        INC     dst_ptr + 1
         DEX
         BNE     BKLOOP
 .BKEXIT
         RTS
 
-.MEMSTATE
-        LDA     tstart + 1
-        JSR     chkptr
-        LDA     GS + 1
-        JSR     chkptr
-        LDA     GE + 1
-        JSR     chkptr
-        LDA     tmax + 1
-        JSR     chkptr
-        LDX     tmax
-        LDY     tmax + 1
-        JSR     gpfdXY
-        LDA     tstart
-        STA     oldsta
-        LDA     tstart + 1
-        STA     oldsta + 1
-        LDA     GS
-        STA     oldsta + 2
-        LDA     GS + 1
-        STA     oldsta + 3
+.save_text_bounds
+        LDA     text_start + 1
+        JSR     check_pointer
+        LDA     gap_start + 1
+        JSR     check_pointer
+        LDA     gap_end + 1
+        JSR     check_pointer
+        LDA     text_end + 1
+        JSR     check_pointer
+        LDX     text_end
+        LDY     text_end + 1
+        JSR     gap_forward_to_xy
+        LDA     text_start
+        STA     old_text_bounds
+        LDA     text_start + 1
+        STA     old_text_bounds + 1
+        LDA     gap_start
+        STA     old_text_bounds + 2
+        LDA     gap_start + 1
+        STA     old_text_bounds + 3
         CLC
 .CHKPTX
         RTS
-.chkptr
-        CMP     hymem + 1
+.check_pointer
+        CMP     himem + 1
         BCS     CHKPTX
-        CMP     paje + 1
+        CMP     oshwm + 1
         BCS     CHKPTX
         PLA
         PLA

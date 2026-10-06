@@ -1,22 +1,22 @@
-.chknrep
+.check_and_replace
         ; Check for size, then replace found string with replace string.
         ; Entry - Match just found; s*****stk[0] set up for %0 ('&')
-        ;        replindex = start index of replace part in stracc
+        ;        replace_index = start index of replace part in stracc
         ; Exit  - Found string replaced.
         JSR     MOVETOFOUNDPOSITION
         LDA     #1
-        STA     modflg
-        LDA     me
-        STA     GE
-        LDA     me + 1
-        STA     GE + 1
-        LDA     replindex
+        STA     modified
+        LDA     match_end
+        STA     gap_end
+        LDA     match_end + 1
+        STA     gap_end + 1
+        LDA     replace_index
         STA     lnbufx
 .CHNRLP
-        LDA     GS
-        CMP     MS
-        LDA     GS + 1
-        SBC     MS + 1
+        LDA     gap_start
+        CMP     match_start
+        LDA     gap_start + 1
+        SBC     match_start + 1
         BCS     CHNRRERR
         LDY     lnbufx
         INC     lnbufx
@@ -52,18 +52,18 @@
         ADC     SCNTHISTK,Y
         BNE     CHNRTM
 .CHNRMS
-        LDA     MS
+        LDA     match_start
         STA     temp
-        LDA     MS + 1
+        LDA     match_start + 1
 .CHNRTM
         STA     temp + 1
         LDY     fieldofftab,X
         LDA     (temp),Y
 .CHNRSI
-        STA     (GS)
-        INC     GS
+        STA     (gap_start)
+        INC     gap_start
         BNE     CHNRLP
-        INC     GS + 1
+        INC     gap_start + 1
         BRA     CHNRLP
 .CHNRRERR
         BRK
@@ -73,23 +73,23 @@
         TAY
 .CHNRAM
         LDA     SSTTLOSTK,Y
-        STA     argP
+        STA     src_ptr
         LDA     SSTTHISTK,Y
-        STA     argP + 1
-        LDA     GS
-        STA     varp
-        LDA     GS + 1
-        STA     varp + 1
+        STA     src_ptr + 1
+        LDA     gap_start
+        STA     dst_ptr
+        LDA     gap_start + 1
+        STA     dst_ptr + 1
         CLC
         LDA     SCNTLOSTK,Y
         TAX
-        ADC     GS
-        STA     GS
+        ADC     gap_start
+        STA     gap_start
         LDA     SCNTHISTK,Y
         TAY
-        ADC     GS + 1
-        STA     GS + 1
-        JSR     COPYBK
+        ADC     gap_start + 1
+        STA     gap_start + 1
+        JSR     copy_back
         JMP     CHNRLP
 .CHNREX
         RTS

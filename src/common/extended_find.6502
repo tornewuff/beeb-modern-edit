@@ -89,32 +89,32 @@ nktent  =       ( kttabe - kttab )
 .readlf                         ; read line for find and replace
                                 ; convert special keys to text when displaying
 
-                                ; text into 'linbuf'
+                                ; text into 'line_buffer'
                                 ; Y = number of chars excluding cr
         LDA     #space
         JSR     oswrch
 
         LDA     #thelot
-        STA     UPDATEREQD
+        STA     update_required
 
         JSR     rdline
         BCC     noESC
 
-        JSR     vstrng
+        JSR     print_inline
         EQUB    &03,&0F,&0D,&EA
 
-        LDA     brkaction
+        LDA     brk_action
         CMP     #&02
         BNE     ESCso
 
-        JSR     closeX
-        JSR     stFILE
+        JSR     close_index_file
+        JSR     cursor_text_start
 .ESCso
-        STZ     cursED
+        STZ     cursor_editing
         JMP     escCON
 
 .rdline
-        LDY     #&00            ; index into 'linbuf'
+        LDY     #&00            ; index into 'line_buffer'
 .rdloop
         LDA     #'r'
         JSR     oswrch
@@ -122,7 +122,7 @@ nktent  =       ( kttabe - kttab )
         JSR     osrdch
         BCS     rdexit
 
-        STA     linbuf,Y        ; store the relevant value
+        STA     line_buffer,Y   ; store the relevant value
 
         CMP     #&7F
         BNE     rdlin2
@@ -134,7 +134,7 @@ nktent  =       ( kttabe - kttab )
 
         PHY
 
-        LDA     linbuf,Y
+        LDA     line_buffer,Y
 
         JSR     sttadt          ; delete the character(s)
         PLY
@@ -155,7 +155,7 @@ nktent  =       ( kttabe - kttab )
 
         PHY
 
-        LDA     linbuf - 1,Y
+        LDA     line_buffer - 1,Y
 
         JSR     sttadt          ; delete the character(s)
         PLY
@@ -177,7 +177,7 @@ nktent  =       ( kttabe - kttab )
 
         BCC     rdloop
 
-        JSR     PASWRCH         ; write character after parsing
+        JSR     print_text_char ; write character after parsing
                                 ; ctrl chars - inverse
                                 ; delete     - inverse "?"
                                 ; any other character just echoed
@@ -185,7 +185,7 @@ nktent  =       ( kttabe - kttab )
 
 .rdlicr
         PHY
-        JSR     curOFF
+        JSR     cursor_off
         PLY
         DEY
         CLC
@@ -217,7 +217,7 @@ nktent  =       ( kttabe - kttab )
         RTS                     ; well it wasn't one of ours
 
 .gotit1
-        JSR     STARTINV
+        JSR     inverse_on
 
         LDY     #&01            ; the index to the text
 .ncoutl
@@ -229,7 +229,7 @@ nktent  =       ( kttabe - kttab )
         INY
         BRA     ncoutl
 .tdone
-        JSR     STOPINV
+        JSR     inverse_off
 
         PLA
         CLC

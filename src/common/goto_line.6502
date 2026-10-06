@@ -1,4 +1,4 @@
-.GETNUM
+.parse_number
         STZ     index
         STZ     line
         STZ     line + 1
@@ -11,8 +11,8 @@
         BCS     EDLIBN
         SBC     #'0' - 1
         BCC     EDLIBN
-        STA     Atemp
-        LDA     #10; line = line * 10 + Atemp
+        STA     temp_a
+        LDA     #10; line = line * 10 + temp_a
         LDX     #0
         LDY     #0
         CLC
@@ -30,7 +30,7 @@
         DEA
         BNE     EDLI10
         TXA
-        ADC     Atemp
+        ADC     temp_a
         STA     line
         BCC     EDLNHI
         INY
@@ -42,18 +42,18 @@
 .EDLIMV
         RTS
 
-.EDITli
+.goto_line
         LDA     #1              ; Move to specified line number.
         STA     line
         STZ     line + 1
-        LDA     tstart
+        LDA     text_start
         STA     string
-        LDA     tstart + 1
+        LDA     text_start + 1
         STA     string + 1
 .LOKLINE
         LDA     (string)
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -67,17 +67,17 @@
         INC     string + 1
 .LOKLI3
         LDA     string
-        CMP     GS
+        CMP     gap_start
         LDA     string + 1
-        SBC     GS+1
+        SBC     gap_start+1
         BCC     LOKLINE
         JSR     prompt
         EQUB    "At line ",&EA
-        JSR     WRITLINE
-        JSR     vstrng
+        JSR     print_line_number
+        JSR     print_inline
         EQUB    ", new line:",&EA
-        JSR     STOPINV
-        JSR     readns
+        JSR     inverse_off
+        JSR     read_trimmed_line
         BNE     LOLI4
 
 .EDLIBN
@@ -89,7 +89,7 @@
         EQUB    2,"Line not found",0
 
 .LOLI4
-        JSR     GETNUM
+        JSR     parse_number
         ; Number is held in line. Numbers start at 1 ...
         SEC
         LDA     line
@@ -99,14 +99,14 @@
         SBC     #0
         STA     line+1
         BCC     EDLIBN
-        JSR     stFILE
+        JSR     cursor_text_start
         IF edit150
-        JSR     TPGE
+        JSR     text_ptr_at_gap_end
         ELSE
-        LDA     GE
-        STA     TP
-        LDA     GE + 1
-        STA     TP + 1
+        LDA     gap_end
+        STA     text_ptr
+        LDA     gap_end + 1
+        STA     text_ptr + 1
 
         ENDIF
 .EDLIFW
@@ -116,11 +116,11 @@
 
 .EDLICR
         LDA     #1
-        JSR     TPFWDA
+        JSR     text_ptr_forward
         BCS     EDLIBL
-        LDA     Atemp
+        LDA     temp_a
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
@@ -134,11 +134,11 @@
         BRA     EDLIFW
 
 .EDLIGO
-        ; Move to BSM.
-        LDA     TSM
+        ; Move to bottom_margin.
+        LDA     top_margin
         BNE     EDLIGJ
         LDA     #4
 
 .EDLIGJ
-        STA     scrnY
-        JMP     GPFDTP
+        STA     cursor_y
+        JMP     gap_forward_to_text_ptr

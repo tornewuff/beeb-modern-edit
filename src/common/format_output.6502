@@ -1,6 +1,6 @@
 .VDUBIT
         TAY
-        LDA     trnlst,Y
+        LDA     translate_table,Y
         STA     scratch
         JSR     XYSCRATCH
         LDA     #10
@@ -20,12 +20,12 @@
         STA     scratch+1,X
         DEX
         BPL     VDUBLD
-        BIT     underl
+        BIT     underline
         BPL     VDUDON
 ; both bold and underline
         BRA     VDUUND
 .VDUNBL
-        BIT     underl
+        BIT     underline
         BPL     WRCHA
 ; underline character
         PHY
@@ -41,7 +41,7 @@
         TSB     scratch+8
 .VDUDON
         IF edit150
-        JSR     vstrng
+        JSR     print_inline
         EQUB    23,32,&EA
         ELSE
         LDA     #23
@@ -56,7 +56,7 @@
         INX
         CPX     #9
         BNE     VDUPRG
-        JSR     vstrng
+        JSR     print_inline
         EQUB    32,23,32,0,0,0,0,0,0,0,0,&EA
         PLX
         PLY
@@ -70,33 +70,33 @@
         ENDIF
         JMP     DODWN
 
-.fmwrch
+.format_wrch
         BIT     escflg
         BMI     ESCAP        ; must not go via SENTRY,
                              ; because of marked mode (SWOPCH)
-        BIT     doindX
+        BIT     index_output
         BMI     DOINDE
 
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin       ; changed from CMPIM " "; BCC WRCHA
         ENDIF
         BEQ     wrchen
 
-        BIT     prtflg
+        BIT     print_flags
         BMI     DOVDU
         BVS     NOULA
 
         LDA     #' '
-        BIT     underl
+        BIT     underline
         BPL     NOULA
         LDA     #'_'
 .NOULA
         PHA
 
         LDA     #&20
-        BIT     prtflg
+        BIT     print_flags
         BNE     NOBBLE
         BIT     bold
         BMI     NOBBLE
@@ -111,7 +111,7 @@
 .WRCHA
         PHY
         TAY
-        LDA     trnlst,Y
+        LDA     translate_table,Y
         PLY
         IF cF8key=1
 .wrch
@@ -135,8 +135,8 @@
 .DOINDE
         PHY
         TAY
-        LDA     trnlst,Y
-        LDY     indexH
+        LDA     translate_table,Y
+        LDY     index_handle
         BEQ     DOINDF
         JSR     osbput
 .DOINDF
@@ -144,7 +144,7 @@
         RTS
 
 .lfwrch
-        BIT     doindX
+        BIT     index_output
         BMI     writeX
         LDA     #lf       ; write a real line feed
         INC     lineno
@@ -156,13 +156,13 @@
         JSR     oswrch
         PHX
         PHY
-        LDX     pageef
-        LDY     pageef + 1
+        LDX     even_footer
+        LDY     even_footer + 1
         LDA     page
         LSR     A
         BCC     doftr1
-        LDX     pageof
-        LDY     pageof + 1
+        LDX     odd_footer
+        LDY     odd_footer + 1
 .doftr1
         DEC     lineot
         DEC     lineot
@@ -179,17 +179,17 @@
         RTS
 .write
         LDA     #&20
-        TSB     prtflg
+        TSB     print_flags
         LDA     bold
         PHA
         JSR     DOSCRE
         PLA
         STA     bold
-        BIT     boldrq
+        BIT     bold_request
         BPL     writeX
         LDA     #&20
-        TRB     prtflg
+        TRB     print_flags
         JSR     DOSCRE
         LDA     #&20
-        TSB     prtflg
+        TSB     print_flags
         RTS

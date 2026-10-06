@@ -1,104 +1,104 @@
-.mkdel
+.delete_marked
         JSR     CLRMARKS
         JSR     NMBLOK
         BEQ     BADMARKING ;Stop delete from defaulting to 'NEW' !
-        STX     GE
-        STY     GE+1
-        JSR     MODIFY
-.normax
+        STX     gap_end
+        STY     gap_end+1
+        JSR     set_modified
+.normalize_x
         JSR     NORMALIZE
         LDA     string
-        STA     scrnX
+        STA     cursor_x
         RTS
-.mkCPY
+.copy_marked
         ;Marked copy. Either m-m-c or c-m-m.
         JSR     MVBLOK
         ;XY =       (Mark2-Mark1) - size of block to be copied.
         SEC
-        LDA     UMATlo + 1
-        SBC     UMATlo
+        LDA     used_marks_lo + 1
+        SBC     used_marks_lo
         TAX
-        LDA     umathi + 1
-        SBC     umathi
+        LDA     used_marks_hi + 1
+        SBC     used_marks_hi
         TAY
-        LDA     marksbeforecsr
+        LDA     marks_before_cursor
         BEQ     MKCPYO
         STX     string
         STY     string + 1
         SEC
-        LDA     SMATlo
+        LDA     set_marks_lo
         SBC     string
-        STA     SMATlo
-        LDA     smathi
+        STA     set_marks_lo
+        LDA     set_marks_hi
         SBC     string + 1
-        STA     smathi
-        LDA     SMATlo + 1
+        STA     set_marks_hi
+        LDA     set_marks_lo + 1
         SBC     string
-        STA     SMATlo + 1
-        LDA     smathi + 1
+        STA     set_marks_lo + 1
+        LDA     set_marks_hi + 1
         SBC     string + 1
-        STA     smathi + 1
+        STA     set_marks_hi + 1
 .MKCPYO
-        JSR     CHECKR
+        JSR     check_room
         ;Copy the block, then normalize text.
-        LDA     UMATlo
-        STA     argP
-        LDA     umathi
-        STA     argP + 1
-        STX     GE
-        STX     varp
-        STY     GE + 1
-        STY     varp + 1
+        LDA     used_marks_lo
+        STA     src_ptr
+        LDA     used_marks_hi
+        STA     src_ptr + 1
+        STX     gap_end
+        STX     dst_ptr
+        STY     gap_end + 1
+        STY     dst_ptr + 1
         JSR     CPFD2
         LDX     #1
-        STX     modflg
+        STX     modified
         INX
-        STX     markX
-        JSR     status
+        STX     mark_count
+        JSR     show_status
         JMP     NORMALIZE
-.mkmve
+.move_marked
         ;If marks are before cursor, then do a bit of tweaking to
         ;change it into case where thay are after it.
         JSR     MVBLOK
         ;Initialize pointers for iterative swap block routine.
-        LDX     UMATlo
-        LDY     umathi
-        LDA     marksbeforecsr
+        LDX     used_marks_lo
+        LDY     used_marks_hi
+        LDA     marks_before_cursor
         BEQ     MVBEFC
-        STX     argP
-        STY     argP + 1
-        LDA     UMATlo + 1
-        STA     varp
-        LDA     umathi + 1
-        STA     varp + 1
-        LDX     GS
-        LDY     GS + 1
+        STX     src_ptr
+        STY     src_ptr + 1
+        LDA     used_marks_lo + 1
+        STA     dst_ptr
+        LDA     used_marks_hi + 1
+        STA     dst_ptr + 1
+        LDX     gap_start
+        LDY     gap_start + 1
         BRA     MVSTP3
 .MVBEFC
-        STX     varp
-        STY     varp + 1
-        LDA     GE
-        STA     argP
-        LDA     GE + 1
-        STA     argP + 1
-        LDX     UMATlo + 1
-        LDY     umathi + 1
+        STX     dst_ptr
+        STY     dst_ptr + 1
+        LDA     gap_end
+        STA     src_ptr
+        LDA     gap_end + 1
+        STA     src_ptr + 1
+        LDX     used_marks_lo + 1
+        LDY     used_marks_hi + 1
 .MVSTP3
-        STX     endp
-        STY     endp + 1
+        STX     block_end
+        STY     block_end + 1
 .MVLOOP
         SEC
-        LDA     varp
-        SBC     argP
+        LDA     dst_ptr
+        SBC     src_ptr
         STA     size
-        LDA     varp + 1
-        SBC     argP + 1
+        LDA     dst_ptr + 1
+        SBC     src_ptr + 1
         STA     size + 1
-        LDA     endp
-        SBC     varp
+        LDA     block_end
+        SBC     dst_ptr
         TAX
-        LDA     endp + 1
-        SBC     varp + 1
+        LDA     block_end + 1
+        SBC     dst_ptr + 1
         TAY
         CPX     size
         SBC     size + 1
@@ -110,39 +110,39 @@
         ORA     size + 1
         BEQ     MVNORM
         BCS     MV2GE1
-        LDX     varp
-        LDY     varp + 1
+        LDX     dst_ptr
+        LDY     dst_ptr + 1
         JSR     MVSWAPBYTES
         CLC
         TYA
         ADC     temp
-        STA     argP
+        STA     src_ptr
         LDA     #null
         ADC     temp + 1
-        STA     argP + 1
+        STA     src_ptr + 1
         BCC     MVLOOP
 .MV2GE1
         SEC
-        LDA     endp
+        LDA     block_end
         SBC     size
-        STA     endp
+        STA     block_end
         TAX
-        LDA     endp + 1
+        LDA     block_end + 1
         SBC     size + 1
-        STA     endp + 1
+        STA     block_end + 1
         TAY
         JSR     MVSWAPBYTES
         BRA     MVLOOP
 .MVNORM
         LDA     #fullscreen
-        STA     UPDATEREQD
+        STA     update_required
         JSR     NORMALIZE
-        JMP     MODIFY
+        JMP     set_modified
 .MVSWAPBYTES
-        ;Swap size bytes argP <-> XY
-        LDA     argP
+        ;Swap size bytes src_ptr <-> XY
+        LDA     src_ptr
         STA     temp
-        LDA     argP + 1
+        LDA     src_ptr + 1
         STA     temp + 1
         STX     addr
         STY     addr + 1
@@ -165,12 +165,12 @@
         INC     temp + 1
         INC     addr + 1
         BRA     MVNINC
-.TEMPSX
-        LDA     scrnX
+.clamp_cursor_x
+        LDA     cursor_x
         STA     line
-        LDA     currlength
-        CMP     scrnX
+        LDA     line_length
+        CMP     cursor_x
         BCS     TEMPSE
-        STA     scrnX
+        STA     cursor_x
 .TEMPSE
         RTS

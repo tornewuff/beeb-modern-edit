@@ -1,4 +1,4 @@
-.inited
+.init_edit_keys
         ; Set up edit keys as softkeys, and set softkeys to have
         ; following bases -
         ; plain = &80
@@ -9,32 +9,32 @@
         JSR     osbyte
         LDA     #&DB
         LDX     #128 + 10
-        JSR     osbyt0          ; tab key pretends to be soft key 10
+        JSR     osbyte_y0       ; tab key pretends to be soft key 10
         LDA     #&E3
         LDX     #2
-        JSR     osbyt0
+        JSR     osbyte_y0
         DEA
         LDX     #2
-        JSR     osbyt0
+        JSR     osbyte_y0
         LDX     #2
 .INITEX
         DEA
-.osbyt0                         ; OSBYTE A with X, Y = 0
+.osbyte_y0                      ; OSBYTE A with X, Y = 0
         LDY     #0
         JMP     osbyte
-.initus
+.restore_keys
         ; Return cursor-keys & softkeys to 'normal' state.
         LDA     #&DB
         LDX     #9
-        JSR     osbyt0          ; tab key emits 9
+        JSR     osbyte_y0       ; tab key emits 9
         LDA     #4
         LDX     #0
         JSR     osbyte
         LDA     #&E3
         LDX     #&90
-        JSR     osbyt0
+        JSR     osbyte_y0
         DEA
         LDX     #&80
-        JSR     osbyt0
+        JSR     osbyte_y0
         LDX     #1
         BRA     INITEX

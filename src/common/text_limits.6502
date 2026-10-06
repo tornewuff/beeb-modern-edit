@@ -1,57 +1,57 @@
 .STARTTEST
-        ; Returns CS if on 1st line (GS = tstart), else CC.
-        LDA     tstart
-        CMP     GS
-        LDA     tstart + 1
-        SBC     GS + 1
+        ; Returns CS if on 1st line (gap_start = text_start), else CC.
+        LDA     text_start
+        CMP     gap_start
+        LDA     text_start + 1
+        SBC     gap_start + 1
         RTS
 .ENDTEST
-        ; Returns CS if on last line (GE + scrimcreenY = tmax), else CC.
+        ; Returns CS if on last line (gap_end + scrimcreenY = text_end), else CC.
         CLC
-        LDA     currlength
-        ADC     GE
+        LDA     line_length
+        ADC     gap_end
         TAX
         LDA     #0
-        ADC     GE + 1
-        CPX     tmax
-        SBC     tmax + 1
+        ADC     gap_end + 1
+        CPX     text_end
+        SBC     text_end + 1
         RTS
 .LENGTHCALC
         ; Find length of current line. Exit - A = length - 1
         LDY     #0
 .LECCLO
-        LDA     (GE),Y
+        LDA     (gap_end),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BEQ     LECCRE
         INY
-        CPY     PAGEWIDTH
+        CPY     page_width
         BNE     LECCLO
 .LECCRE
         TYA
         RTS
-.CHECKR
+.check_room
         ; Check for space in edit buffer.
         ; Entry - XY = required No. of bytes
         ; Exit  - size = XY
-        ;         XY = temp = GE - XY
-        ;         Error if temp < GS
+        ;         XY = temp = gap_end - XY
+        ;         Error if temp < gap_start
 
         STX     size
         STY     size + 1
         SEC
-        LDA     GE
+        LDA     gap_end
         SBC     size
         TAX
-        LDA     GE + 1
+        LDA     gap_end + 1
         SBC     size + 1
         TAY
         STX     temp
         STY     temp + 1
-        CPX     GS
-        SBC     GS + 1
+        CPX     gap_start
+        SBC     gap_start + 1
         BCS     VDU23X
         JMP     CHNRRERR                ; 'No room'

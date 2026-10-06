@@ -1,45 +1,45 @@
 .OLDTEXT
-        LDA     oldsta + 3
-        CMP     paje + 1
+        LDA     old_text_bounds + 3
+        CMP     oshwm + 1
         BCC     NOOLD
-        CMP     hymem + 1
+        CMP     himem + 1
         BCS     NOOLD
-        CMP     oldsta + 1
+        CMP     old_text_bounds + 1
         BCC     NOOLD
-        LDA     oldsta + 1
-        CMP     paje + 1
+        LDA     old_text_bounds + 1
+        CMP     oshwm + 1
         BCC     NOOLD
-        LDA     oldsta
-        STA     argP
-        LDA     oldsta + 1
-        STA     argP + 1
+        LDA     old_text_bounds
+        STA     src_ptr
+        LDA     old_text_bounds + 1
+        STA     src_ptr + 1
         SEC
-        LDA     oldsta + 2
-        SBC     argP
+        LDA     old_text_bounds + 2
+        SBC     src_ptr
         TAX
-        LDA     oldsta + 3
-        SBC     argP + 1
+        LDA     old_text_bounds + 3
+        SBC     src_ptr + 1
         TAY
         BCC     NOOLD
-        LDA     tstart
-        STA     varp
-        LDA     tstart + 1
-        STA     varp + 1
+        LDA     text_start
+        STA     dst_ptr
+        LDA     text_start + 1
+        STA     dst_ptr + 1
         PHY
         PHX
-        JSR     COPYBK
+        JSR     copy_back
         PLA
         CLC
-        ADC     tstart
+        ADC     text_start
         TAX
         PLA
-        ADC     tstart + 1
+        ADC     text_start + 1
         TAY
-        STZ     oldsta + 3
+        STZ     old_text_bounds + 3
         JMP     EDITgs
 
 .MODEsp
-        JSR     stFILE
+        JSR     cursor_text_start
         BRK
         EQUB    2,"No room"
 

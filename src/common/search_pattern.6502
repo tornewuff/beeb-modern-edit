@@ -18,49 +18,49 @@
         ; set_sym <nextX> ... <next item>
         ;                     ^
         ;                     nextX
-        ; Matching of subranges & sets should be internal to compmobj. nextX is
+        ; Matching of subranges & sets should be internal to compare_object. nextX is
         ; used to step on to the next find item after successfully matching one
         ; of the set alternatives (set match fails when hit tes_sym).
 
-.FRSTRINIT
+.init_find_replace
         ; Exit  -  Y = 0
-        STZ     outindex
-        STZ     replflag
-        STZ     fieldindex
+        STZ     output_index
+        STZ     replace_flag
+        STZ     field_index
         STZ     mmx
-        STZ     offset
+        STZ     page_offset
         STZ     SENSFLAG
 .MININIT
-        STZ     inpindex
+        STZ     input_index
         BRA     NEXTCH
 .GENNEXTCH
         JSR     GENBYTE
 .NEXTCH
-        ; A,Atemp = linbuf,inpindex +  + . Exit - Z = (A = CR)
-        LDY     inpindex
-        LDA     linbuf,Y
-        STA     Atemp
-        INC     inpindex
+        ; A,temp_a = line_buffer,input_index +  + . Exit - Z = (A = CR)
+        LDY     input_index
+        LDA     line_buffer,Y
+        STA     temp_a
+        INC     input_index
         CMP     #cr
         RTS
         ; Translate & store FR string into stracc.
-        ; Exit  - Find part translated into stracc, replindex holds start of
+        ; Exit  - Find part translated into stracc, replace_index holds start of
         ;        replace string (when translated) in stracc.
-        ;      - fieldindex = No. of fields (max 10) in find string.
+        ;      - field_index = No. of fields (max 10) in find string.
         ;      - For each field n (n> 0) -
         ;        'mulf' (* ..)  -  fieldmmxtab,n = (mmx :OR: &80)
         ;        'conf' (?)     -  fieldmmxtab,n = mmx of previous mulf
         ;                          fieldofftab,n = offset from above
-        ;      - replindex = stracc index of replace part (when translated)
-        ;      - replflag = 0  No replace part supplied
+        ;      - replace_index = stracc index of replace part (when translated)
+        ;      - replace_flag = 0  No replace part supplied
         ;                   1  Replace part supplied
 .FINDTRANS
-        JSR     FRSTRINIT
+        JSR     init_find_replace
 .FINDPART
         STZ     MULFFLAG ; Don't yet know whether next object is either a
         STZ     metaflag ; star or wildcard field.
         STZ     BUTTFLAG ; or ^
-        LDA     Atemp
+        LDA     temp_a
         CMP     #cr
         BEQ     FIPAEXIT
         CMP     #'/'
@@ -92,23 +92,23 @@
         JSR     NEXTCH
 .FIPASELT
         JSR     SIMPLEITEM
-        LDA     Atemp
+        LDA     temp_a
         CMP     #']'
         BNE     FIPASELT
         DEC     SENSFLAG
-        LDA     outindex ; End of set construct. Store nextX
+        LDA     output_index ; End of set construct. Store nextX
         LDY     nextX
         STA     stracc,Y
         JSR     NEXTCH
         BRA     FIFIFEEL
 .FIPAEND
-        INC     replflag
+        INC     replace_flag
 .FIPAEXIT
         JSR     TERMGEN
         JSR     NEXTCH
-        LDA     outindex
-        STA     replindex
-        LDA     replflag
+        LDA     output_index
+        STA     replace_index
+        LDA     replace_flag
         BNE     REPLPART
         RTS
 .FIPASIMP
@@ -123,18 +123,18 @@
 .FIFICO
         LDA     metaflag
         BEQ     FIFIOFFI ; No meta-chars => not a field
-        LDX     fieldindex
+        LDX     field_index
         CPX     #10
         BCS     FINDPART ; That's enough fields.
-        INC     fieldindex
-        LDA     offset
+        INC     field_index
+        LDA     page_offset
         STA     fieldofftab,X
         LDA     MULFFLAG
         BNE     FIFIMULF
         LDA     mmx
         STA     fieldmmxtab,X
 .FIFIOFFI
-        INC     offset
+        INC     page_offset
 .FINDPCH
         JMP     FINDPART
 .FIFIMULF
@@ -144,7 +144,7 @@
         BCS     FRSTERR
         ORA     #&80
         STA     fieldmmxtab,X
-        STZ     offset
+        STZ     page_offset
         BRA     FINDPCH
 .FRSTERR
         BRK
@@ -156,7 +156,7 @@
 .REPLPART
         LDA     #&FF
         STA     SENSFLAG
-        LDA     Atemp ; Translate replace part of FR string.
+        LDA     temp_a ; Translate replace part of FR string.
         CMP     #cr
         BEQ     TERMGEN
         LDX     #FOUNDSYM
@@ -176,18 +176,18 @@
         SEC
         SBC     #'0'
         BCC     FIELDERR
-        CMP     fieldindex
+        CMP     field_index
         BCS     FIELDERR
         TAX
         BPL     REPANXCH
 .RPNFLD
         JSR     CHARACTERSPECIFIER
-        STX     SIMPCHAR
+        STX     simple_char
         TXA
         BPL     REPAGENBYTE
         LDX     #escsym
         JSR     GENBYTE
-        LDX     SIMPCHAR
+        LDX     simple_char
         BRA     REPAGENBYTE
 .FIELDERR
         BRK
@@ -195,9 +195,9 @@
 .TERMGEN
         LDX     #termsym; Generate termsym.
 .GENBYTE
-        ; stracc,outindex +  +  = X
+        ; stracc,output_index +  +  = X
         ; Exit - metaflag set (incremented) if meta-character (field) generated.
-        LDY     outindex
+        LDY     output_index
         LDA     SENSFLAG
         BNE     GENBSNS
         CPX     #'A'
@@ -215,7 +215,7 @@
         LDA     #NSENSYM
         STA     stracc,Y
         INY
-        INC     outindex
+        INC     output_index
         BEQ     GENBERR
 .GENBSNS
         TXA
@@ -223,14 +223,14 @@
         BPL     GENBNMET
         INC     metaflag
 .GENBNMET
-        INC     outindex
+        INC     output_index
         BEQ     GENBERR
         RTS
 .GENBERR
         BRK
         EQUB    1,"Syntax incorrect",0
 .SIMPLEITEM
-        LDA     Atemp
+        LDA     temp_a
         CMP     #'~'
         BNE     SIITNNOT
         LDX     #notsym
@@ -268,15 +268,15 @@
         JMP     GENBYTE
 .SIITNWIL
         JSR     CHARACTERSPECIFIER
-        STX     SIMPCHAR
-        LDA     Atemp
+        STX     simple_char
+        LDA     temp_a
         CMP     #'-'
         BNE     SIITCGEN
         INC     SENSFLAG
         LDX     #SUBRSYM
         JSR     GENBYTE
         JSR     NEXTCH
-        LDX     SIMPCHAR
+        LDX     simple_char
         JSR     GENBYTE
         JSR     CHARACTERSPECIFIER
         JSR     GENBYTE
@@ -288,13 +288,13 @@
         BPL     GENBYJ
         LDX     #escsym
         JSR     GENBYTE
-        LDX     SIMPCHAR
+        LDX     simple_char
 .GENBYJ
         JMP     GENBYTE
 .CHARACTERSPECIFIER
         ; Exit  -  X = Character
         STZ     count ; Add 128 count
-        LDA     Atemp
+        LDA     temp_a
         BMI     CHSPBY
         CMP     #'|'
         BNE     CHRSCO
@@ -323,7 +323,7 @@
         BRA     CHSPBY
 .CHSPCR
         IF cF8key=1
-        LDA     clterm
+        LDA     line_terminator
         ELSE
         LDA     #termin
         ENDIF

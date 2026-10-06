@@ -1,7 +1,7 @@
-.closeX
-        LDY     indexH
+.close_index_file
+        LDY     index_handle
         BEQ     closee
-        STZ     indexH
+        STZ     index_handle
         LDA     #&00
         JSR     osfind        ; close index file
 .closee
@@ -14,11 +14,11 @@
         BEQ     MOVEX
         TAX
         LDA     #9
-        BIT     prtflg
+        BIT     print_flags
         BMI     MLOOP
         LDA     #' '
 .MLOOP
-        BIT     doindX
+        BIT     index_output
         BPL     MLOOPA
         LDA     #' '
         JSR     DOINDE
@@ -30,14 +30,14 @@
         BNE     MLOOP
 .MOVEX
         RTS
-.inkeys
-        JSR     strimo
+.wait_shift_prompt
+        JSR     print_inverse_inline
         EQUB    "Press SHIFT to continue",&EA
-.INKEY
+.wait_shift
         PHX
         PHY
 .INKEYL
-        JSR     escTST
+        JSR     test_escape
         LDX     #&FF
         LDY     #&FF
         LDA     #&81

@@ -1,10 +1,10 @@
-.allowC
+.cursor_edit_mode
         ; Allow cursor editing & softkey use. Terminated by CR.
         LDA     #&01
-        STA     cursED
+        STA     cursor_editing
 
         IF phil=0
-        JSR     initus
+        JSR     restore_keys
         ENDIF
 
         JMP     CstatU

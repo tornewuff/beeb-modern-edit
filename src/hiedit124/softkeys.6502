@@ -1,4 +1,4 @@
-.inited
+.init_edit_keys
         ; Set up edit keys as softkeys, and set softkeys to have
         ; following bases -
         ; plain = &80
@@ -24,7 +24,7 @@
         LDA     #&E1
         LDY     #0
         JMP     osbyte
-.initus
+.restore_keys
         ; Return cursor-keys & softkeys to 'normal' state.
         LDA     #&DB
         LDX     #9

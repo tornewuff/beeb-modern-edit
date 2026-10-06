@@ -1,21 +1,21 @@
-.tsmcsr
+.set_top_margin
         ; Set Top Scroll Margin to current cursor line.
-        LDA     scrnY
-        STA     TSM
+        LDA     cursor_y
+        STA     top_margin
         BRA     noupda
 
-.bsmcsr
+.set_bottom_margin
         ; Set Bottom Scroll Margin to current cursor line.
-        LDA     scrnY
-        STA     BSM
+        LDA     cursor_y
+        STA     bottom_margin
         BRA     noupda
 
-.scmclr
+.clear_scroll_margins
         ; Clear Scroll Margins.
-        STZ     TSM
-        LDA     pagelength
-        STA     BSM
+        STZ     top_margin
+        LDA     page_length
+        STA     bottom_margin
 
 .noupda
-        STZ     UPDATEREQD
+        STZ     update_required
         RTS

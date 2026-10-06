@@ -1,24 +1,24 @@
         SECTION Workspace, org = &0400, guard = &0800
 
-.frbuff SKIP    &64
-.grbuff SKIP    &64
-.nambuf SKIP    &34
-.oldsta SKIP    &04             ; start and end of incore text
-.linbuf SKIP    &0100
-commandline =   linbuf
-noregs  =       commandline     ; 10 number registers
-page    =       noregs          ; the page number is in 0
+.find_replace_buffer SKIP    &64
+.global_replace_buffer SKIP    &64
+.filename_buffer SKIP    &34
+.old_text_bounds SKIP    &04    ; start and end of incore text
+.line_buffer SKIP    &0100
+commandline =   line_buffer
+number_registers  =       commandline ; 10 number registers
+page    =       number_registers ; the page number is in 0
 lineno  =       page + 2        ; the line number is in 1
-pageeh  =       noregs + 10 * 2
-pageoh  =       pageeh + 2
-pageef  =       pageoh + 2
-pageof  =       pageef + 2      ; the header and footer pointers
-tablst  =       pageof + 2      ; list of tab positions, length 20
-maclst  =       tablst + 20     ; list of posible macro positions
+even_header  =       number_registers + 10 * 2
+odd_header  =       even_header + 2
+even_footer  =       odd_header + 2
+odd_footer  =       even_footer + 2 ; the header and footer pointers
+tab_list  =       odd_footer + 2 ; list of tab positions, length 20
+macro_list  =       tab_list + 20 ; list of posible macro positions
 .stracc SKIP    &0100
-maxMAC  =       stracc - maclst ; Number of macro posns *2
+maxMAC  =       stracc - macro_list ; Number of macro posns *2
 
-trnlst  =       stracc          ; table of translateable characters
+translate_table  =       stracc ; table of translateable characters
 
         IF cF8key=1 AND NOT(edit150)
 
@@ -28,8 +28,8 @@ dftext  =       remap(".fo␀.ce␀Page .r0␀.ff.en␀")       ; default footer
 dhsize  =       LEN(dhtext)
 dfsize  =       LEN(dftext)
 
-.dhbuff SKIP    dhsize          ; Header buffer
-.dfbuff SKIP    dfsize          ; Footer buffer
+.header_buffer SKIP    dhsize   ; Header buffer
+.footer_buffer SKIP    dfsize   ; Footer buffer
 
         ENDIF
 
@@ -40,13 +40,13 @@ dfsize  =       LEN(dftext)
 .SCNTHISTK SKIP &06
 .fieldmmxtab SKIP &0A
 .fieldofftab SKIP &0A
-.scrim  SKIP    &20
+.screen_image  SKIP    &20
         IF edit150
-.osvers SKIP    &01             ; OS version (0 if below 3)
-.frall  SKIP    &01             ; find and replace to the end of the file
-        SKIP    &01             ; (OSWORD 10 writes the first character code at chrbak - 1)
-.chrbak SKIP    nchars * 8      ; saved character definitions, see define_chars
-.prmcol SKIP    &01             ; column for prompts after the status texts
+.os_version SKIP    &01         ; OS version (0 if below 3)
+.replace_all  SKIP    &01       ; find and replace to the end of the file
+        SKIP    &01             ; (OSWORD 10 writes the first character code at saved_chars - 1)
+.saved_chars SKIP    nchars * 8 ; saved character definitions, see define_chars
+.prompt_column SKIP    &01      ; column for prompts after the status texts
         ENDIF
 
         ENDSECTION

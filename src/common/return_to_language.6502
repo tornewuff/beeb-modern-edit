@@ -1,64 +1,64 @@
 .RELANX
         RTS
-.retlan
+.return_to_language
         JSR     prompt
         EQUB    "Type language name:",&EA
-        JSR     readLS
+        JSR     read_line
         BEQ     RELANX
         LDY     #0
 .RELAPL
-        LDA     linbuf,Y
+        LDA     line_buffer,Y
         INY
         CMP     #cr
         BNE     RELAPL
-        STA     linbuf + 1,Y
+        STA     line_buffer + 1,Y
         LDA     #' '
-        STA     linbuf - 1,Y
+        STA     line_buffer - 1,Y
         LDA     #'@'
-        STA     linbuf,Y
+        STA     line_buffer,Y
         LDA     #thelot
-        STA     UPDATEREQD
-        JSR     stFILE
-        LDA     GE + 1
+        STA     update_required
+        JSR     cursor_text_start
+        LDA     gap_end + 1
         DEA
-        CMP     paje + 1
+        CMP     oshwm + 1
         BCS     RETLOK
         BRK
         EQUB    &02,"Not enough space to return to language",null
 .RETLOK
         LDA     #&FF
-        STA     brkaction       ; pretty lethal break action rqd
-        LDA     paje + 1
+        STA     brk_action      ; pretty lethal break action rqd
+        LDA     oshwm + 1
         INA
-        STA     argP + 1
-        STZ     argP
+        STA     src_ptr + 1
+        STZ     src_ptr
         LDA     #0
-        STA     (tmax)          ; terminating zero
-        LDA     GE
+        STA     (text_end)      ; terminating zero
+        LDA     gap_end
         STA     addr
-        LDA     GE + 1
+        LDA     gap_end + 1
         STA     addr + 1
 .RELLOP
         LDA     (addr)
-        STA     (argP)
-        INC     argP
+        STA     (src_ptr)
+        INC     src_ptr
         BNE     RELLOQ
-        INC     argP + 1
+        INC     src_ptr + 1
 .RELLOQ
         INC     addr
         BNE     RELLOP
         INC     addr + 1
         LDA     addr + 1
-        CMP     hymem + 1
+        CMP     himem + 1
         BNE     RELLOP
-        JSR     CURON
-        JSR     vstrng
+        JSR     cursor_on
+        JSR     print_inline
         EQUB    26,12,&EA
-        JSR     initus
-        LDA     paje + 1
+        JSR     restore_keys
+        LDA     oshwm + 1
         INA
         STA     string + 1  ; set 0 to PAGE + 256
         STZ     string
-        LDX     #<linbuf
-        LDY     #>linbuf
+        LDX     #<line_buffer
+        LDY     #>line_buffer
         JMP     oscli

@@ -1,9 +1,9 @@
-.EDRDCH
+.read_key
         ; Exit - A holds character read
-        LDA     NEXTREADFLAG
+        LDA     key_pending
         BEQ     EDRDOSRD
-        LDA     nxtchr
-        STZ     NEXTREADFLAG
+        LDA     pending_key
+        STZ     key_pending
         RTS
 .EDRDOSRD
         IF mouse=1
@@ -60,4 +60,4 @@
         JSR     osrdch
         ENDIF
 
-        JMP     escTST
+        JMP     test_escape

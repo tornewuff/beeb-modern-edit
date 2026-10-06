@@ -1,5 +1,5 @@
-.intpag
-        LDA     tutmode
+.init_page
+        LDA     options
         AND     #7
         CMP     #2
         BEQ     KEYONL
@@ -7,7 +7,7 @@
         BEQ     KEYONL
         BRA     NOTTUT
 .CLEARSCREEN
-        LDA     tutmode
+        LDA     options
         AND     #7
         CMP     #2
         BEQ     DOTUT
@@ -15,57 +15,57 @@
         BNE     NOTTUT
 .DOTUT
         PHA
-        JSR     vstrng
+        JSR     print_inline
         EQUB    26,home,&EA
-        JSR     STARTINV
+        JSR     inverse_on
         IF edit150
         JSR     define_chars
-        JSR     BIGMESS
+        JSR     print_key_strip
         PLA
         CMP     #2
         BEQ     DOTUTX
-        JSR     BIGMET
+        JSR     print_descriptive_help
 .DOTUTX
         JSR     restore_chars
         ELSE
-        JSR     BIGMESS
+        JSR     print_key_strip
         PLA
         CMP     #2
         BEQ     KEYONL
-        JSR     BIGMET
+        JSR     print_descriptive_help
         ENDIF
 .KEYONL
-        JSR     STOPINV
-        JSR     GETWIN          ; get size of total screen
-        STA     realPA          ; pagelength in A
-        JSR     DECWIN
+        JSR     inverse_off
+        JSR     read_window     ; get size of total screen
+        STA     full_page_length ; page_length in A
+        JSR     set_text_window
 .NOTTUT
-        JSR     GETWIN          ; get size of working area
-        TAX                     ; pagelength again in A
-        INX                     ; Initialize scrim.
-        LDA     PAGEWIDTH
+        JSR     read_window     ; get size of working area
+        TAX                     ; page_length again in A
+        INX                     ; Initialize screen_image.
+        LDA     page_width
 .SCMILO
-        STA     scrim,X
+        STA     screen_image,X
         DEX
         BPL     SCMILO
-        JSR     status
-        STZ     scrnPY
+        JSR     show_status
+        STZ     pending_update
         RTS
-.GETWIN
+.read_window
         LDA     #160
         LDX     #10
         JSR     osbyte
-        STX     PAGEWIDTH
-        STY     pagelength
+        STX     page_width
+        STY     page_length
         LDX     #8
         JSR     osbyte
         TYA
         CLC
-        SBC     pagelength
-        STA     pagelength
+        SBC     page_length
+        STA     page_length
         RTS
-.DECWIN
-        LDA     tutmode
+.set_text_window
+        LDA     options
         AND     #7
         LDY     #14
         CMP     #5
@@ -75,22 +75,22 @@
         BNE     NOWIND
 .WINDOW
         IF edit150
-        JSR     vstrng
+        JSR     print_inline
         EQUB    28,0,&EA
-        LDA     realPA
+        LDA     full_page_length
         INA
         JSR     oswrch
-        LDA     PAGEWIDTH
-        JMP     wray
+        LDA     page_width
+        JMP     vdu_ay
         ELSE
         LDA     #28
         JSR     oswrch
         LDA     #0
         JSR     oswrch
-        LDA     realPA
+        LDA     full_page_length
         INA
         JSR     oswrch
-        LDA     PAGEWIDTH
+        LDA     page_width
         JSR     oswrch
         TYA
         JMP     oswrch

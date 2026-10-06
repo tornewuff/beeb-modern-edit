@@ -1,5 +1,5 @@
-.WRITLINE
-        JSR     STARTINV
+.print_line_number
+        JSR     inverse_on
         LDX     #4;Outputs LINE in decimal, suppressing leading zeros.
         STX     string
 .WOPRNEXT

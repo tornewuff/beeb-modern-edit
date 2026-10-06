@@ -1,12 +1,12 @@
-.readns
-        ; Reads line to commandline (linbuf), & strips leading &
+.read_trimmed_line
+        ; Reads line to commandline (line_buffer), & strips leading &
         ; trailing spaces.
         ; Exit - temp --> 1st non-space char on line
         ; A      = 1st non-space char on line
         ; Y      = 0
         ; EQ if line was 'empty', else NE
 
-        JSR     readLS
+        JSR     read_line
         TYA
         BEQ     renSCR
 .renSST
@@ -42,47 +42,47 @@
         LDY     #&00
         BRA     readIM
 
-.readLS
+.read_line
         LDA     #' '
         JSR     oswrch
 
-        ; Read line into linbuf/commandline, testing for escape.
+        ; Read line into line_buffer/commandline, testing for escape.
         ; Exit - Y = No. of chars read (excluding CR).
 
         LDA     #thelot
-        STA     UPDATEREQD
-        JSR     rdlnre
+        STA     update_required
+        JSR     read_line_raw
         BCC     escCLR
 .escSET
-        JSR     vstrng
+        JSR     print_inline
         EQUB    &03,&0F,&0D,&EA
-        LDA     brkaction
+        LDA     brk_action
         CMP     #&02
         BNE     escSIM
-        JSR     closeX
-        JSR     stFILE
+        JSR     close_index_file
+        JSR     cursor_text_start
 .escSIM
-        STZ     cursED
+        STZ     cursor_editing
         JMP     brk_handler.escCON
         IF edit150
-.rdcesc                         ; read a character and check for escape
+.read_char_esc                  ; read a character and check for escape
         JSR     osrdch
         ENDIF
-.escTST
+.test_escape
         BIT     &FF
         BMI     escSET
         RTS
 
-.rdlnre
+.read_line_raw
         LDY     #0
 .RDLNLP
         IF edit150
-        JSR     EDRDCH
+        JSR     read_key
         ELSE
         JSR     osrdch
         BCS     RDLNEX
         ENDIF
-        STA     linbuf,Y
+        STA     line_buffer,Y
         CMP     #&7F
         BNE     RDLN2
         CPY     #0
@@ -104,11 +104,11 @@
         INY
         CMP     #cr
         BEQ     RDLNEG
-        JSR     PASWRCH
+        JSR     print_text_char
         BRA     RDLNLP
 .RDLNEG
         PHY
-        JSR     curOFF
+        JSR     cursor_off
         PLY
         DEY
         CLC

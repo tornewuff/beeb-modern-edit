@@ -13,77 +13,77 @@
         ;  + - +     } Number of object accepted by match
         ; |4| hi }
         ;  + - +
-        ; The first record is reserved (by chknrep) for match-start pointer.
-        ; Entry - MS   --> Search start position
+        ; The first record is reserved (by check_and_replace) for match-start pointer.
+        ; Entry - match_start   --> Search start position
         ;        EOSP    --> Top bit set charcater at required end of search.
         ;        Search-string in stracc, terminated by termch.
         ; Exit  - CC  Occurence of findstring found.
-        ;            MS  --> match
+        ;            match_start  --> match
         ;            me  --> matchend  +  1
         ;        CS  Search failed.
 .SEARCH
         LDY     #0
-        STZ     sstckx
-        ; Start of attempted match. See if have reached texp - either old
+        STZ     search_stack_index
+        ; Start of attempted match. See if have reached search_end - either old
         ; cursor position, or end of search block.
-        LDA     MS
-        STA     me
-        CMP     texp
-        LDA     MS + 1
-        STA     me + 1
-        SBC     texp + 1
+        LDA     match_start
+        STA     match_end
+        CMP     search_end
+        LDA     match_start + 1
+        STA     match_end + 1
+        SBC     search_end + 1
         BCC     SRCHCT
-        LDA     TEXPFLAG
+        LDA     search_end_flag
         BNE     SRCHFL
         JSR     MOVETOFOUNDPOSITION
-        LDA     GS
+        LDA     gap_start
         STA     string
-        LDA     GS + 1
+        LDA     gap_start + 1
         STA     string + 1
-        INC     TEXPFLAG
-        LDA     endp
-        STA     texp
-        LDA     endp + 1
-        STA     texp + 1
+        INC     search_end_flag
+        LDA     block_end
+        STA     search_end
+        LDA     block_end + 1
+        STA     search_end + 1
         LDY     #0
         BRA     SRCHCT
 .SRCHFL
         SEC
         RTS
 .SRCHL1
-        INC     me
+        INC     match_end
         BNE     SRCHCT
-        INC     me + 1
+        INC     match_end + 1
 .SRCHCT
         ; Expects Y (= linbufX), me --> next char valid.
-        JSR     escTST
+        JSR     test_escape
         LDA     stracc,Y
         CMP     #termsym
         BEQ     SRCHFD
         CMP     #multsym
         BEQ     SRCHMI
-        JSR     compmobj
+        JSR     compare_object
         BEQ     SRCHL1
 .SRCHIN
-        ; Increment current multiple match, or advance MS if there
-        ; isn't one. Search fails when MS reaches EOT.
-        LDX     sstckx
+        ; Increment current multiple match, or advance match_start if there
+        ; isn't one. Search fails when match_start reaches EOT.
+        LDX     search_stack_index
         BNE     SRCHFM
-        INC     MS
+        INC     match_start
         BNE     SEARCH
-        INC     MS + 1
+        INC     match_start + 1
         BRA     SEARCH
 .SRCHFD
-        LDA     MS ; Match found. Set sstk[0] = MS, (me-MS).
+        LDA     match_start ; Match found. Set sstk[0] = match_start, (me-match_start).
         STA     SSTTLOSTK
-        LDA     MS + 1
+        LDA     match_start + 1
         STA     SSTTHISTK
         SEC
-        LDA     me
-        SBC     MS
+        LDA     match_end
+        SBC     match_start
         STA     SCNTLOSTK
-        LDA     me + 1
-        SBC     MS + 1
+        LDA     match_end + 1
+        SBC     match_start + 1
         STA     SCNTHISTK
         CLC
         RTS
@@ -94,15 +94,15 @@
         CLC
         LDA     SSTTLOSTK,X
         ADC     SCNTLOSTK,X
-        STA     me
+        STA     match_end
         LDA     SSTTHISTK,X
         ADC     SCNTHISTK,X
-        STA     me + 1
+        STA     match_end + 1
         LDA     SINDEXSTK,X
         TAY
-        JSR     compmobj
+        JSR     compare_object
         BNE     SRCHBK
-        LDX     sstckx
+        LDX     search_stack_index
         INC     SCNTLOSTK,X
         BNE     SRCHL1
         INC     SCNTHISTK,X
@@ -115,28 +115,28 @@
         CMP     #BUTTSYM
         BNE     SRCHBC
         INY
-        LDX     sstckx
+        LDX     search_stack_index
         LDA     SCNTLOSTK,X
         ORA     SCNTHISTK,X
         BNE     SRCHCT
 .SRCHBC
-        DEC     sstckx
+        DEC     search_stack_index
         BRA     SRCHIN
 .SRCHMI
         ; 'Push' a new record onto backtrack-stack. Initially accept
         ; 0 characters into multiple match.
-        INC     sstckx
-        LDX     sstckx
+        INC     search_stack_index
+        LDX     search_stack_index
         INY
         TYA
         STA     SINDEXSTK,X
-        LDA     me
+        LDA     match_end
         STA     SSTTLOSTK,X
-        LDA     me + 1
+        LDA     match_end + 1
         STA     SSTTHISTK,X
         STZ     SCNTLOSTK,X
         STZ     SCNTHISTK,X
-        JSR     compmobj ; Cheap way to advance Y to next find-object.
+        JSR     compare_object ; Cheap way to advance Y to next find-object.
         JMP     SRCHCT
 .COMOFS
         PLP
@@ -144,17 +144,17 @@
         ; Have hit end of search text, so fail match.
         LDA     #1
         RTS
-.compmobj
+.compare_object
         ; Compares stracc,Y & (me).
         ; Exit  - Y indexes next ssobj
         ;        EQ  Objects match.
         ;        NE  Objects don't match.
         ; Match fails if have hit end of seach text.
-        LDA     me
-        CMP     endp
+        LDA     match_end
+        CMP     block_end
         BNE     COMOCO
-        LDA     me + 1
-        CMP     endp + 1
+        LDA     match_end + 1
+        CMP     block_end + 1
         BEQ     COMOFL
 .COMOCO
         ; Check for & store absence/presence of notsym, then branch depending
@@ -168,7 +168,7 @@
         INY
         LDA     stracc-1,Y
         BMI     COMOME
-        CMP     (me)
+        CMP     (match_end)
         BNE     CMOPRN
         BRA     CMOPRY
 .COMOME
@@ -191,13 +191,13 @@
         ;
         INY
         LDA     stracc-1,Y
-        CMP     (me)
+        CMP     (match_end)
         BNE     CMOPRN
         BEQ     CMOPRY
 .CMOSUB
         INY
         INY
-        LDA     (me)
+        LDA     (match_end)
         CMP     stracc-2,Y
         BCC     CMOPRN
         CMP     stracc-1,Y
@@ -206,13 +206,13 @@
         BRA     CMOPRY
 .CMONSEN
         INY
-        LDA     (me)
+        LDA     (match_end)
         ORA     #&20
         CMP     stracc-1,Y
         BNE     CMOPRN
         BRA     CMOPRY
 .COMOAL
-        LDA     (me)
+        LDA     (match_end)
         CMP     #'_'
         BEQ     CMOPRY
         CMP     #'A'
@@ -225,7 +225,7 @@
         BCC     CMOPRN
         BRA     CMOPRY
 .CMODG1
-        LDA     (me)
+        LDA     (match_end)
 .CMODG2
         CMP     #'0'
         BCC     CMOPRN
@@ -237,7 +237,7 @@
         STA     nextX
         INY
 .CMOSEL
-        JSR     compmobj
+        JSR     compare_object
         BEQ     CMOSEY
         CPY     nextX
         BNE     CMOSEL

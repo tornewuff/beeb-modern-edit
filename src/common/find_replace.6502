@@ -3,15 +3,15 @@
         ; sufficing as terminator -
         ; FR/ ....... [/.......] <CR>
         ; GR/ .......  /.......  <CR>
-.GETRESP
+.get_response
         ;Exit - A holds char - forced to lower case - read from keyboard
-        JSR     EDRDCH
+        JSR     read_key
         ORA     #&20
         RTS
 .MOVETOFOUNDPOSITION
-        LDX     MS
-        LDY     MS+1
-        JMP     gpfdXY
+        LDX     match_start
+        LDY     match_start+1
+        JMP     gap_forward_to_xy
 .GLOBREPLACE
         JSR     dfinit
         JSR     prompt
@@ -19,21 +19,21 @@
         IF extgf=1
         JSR     readlf
         ELSE
-        JSR     readLS
+        JSR     read_line
         ENDIF
         JSR     READINIT
         BNE     NEWGR
-        CMP     grbuff
+        CMP     global_replace_buffer
         BEQ     NOBUFF
 .OLDGR
-        LDA     grbuff,Y
+        LDA     global_replace_buffer,Y
         STA     (temp),Y
         INY
         BPL     OLDGR
         LDY     #0
 .NEWGR
         LDA     (temp),Y
-        STA     grbuff,Y
+        STA     global_replace_buffer,Y
         INY
         CPY     #100
         BNE     NEWGR
@@ -41,46 +41,46 @@
         JSR     dfblok
         STZ     line
         STZ     line+1
-        STZ     TEXPFLAG
+        STZ     search_end_flag
 .GREPLP
-        LDX     GE
-        LDY     GE+1
+        LDX     gap_end
+        LDY     gap_end+1
 .GREPNX
-        STX     MS
-        STY     MS+1
+        STX     match_start
+        STY     match_start+1
         JSR     SEARCH
         BCS     GREPEX
         INC     line
         BNE     GREPNH
         INC     line+1
 .GREPNH
-        LDA     replflag
+        LDA     replace_flag
         BNE     GREPRP
-        LDX     me
-        LDY     me+1
+        LDX     match_end
+        LDY     match_end+1
         BRA     GREPNX
 .GREPRP
-        JSR     chknrep
+        JSR     check_and_replace
         BRA     GREPLP
 .GREPEX
         ;Move cursor (as near as possible) to the place it started at, then
         ;output match count.
         LDX     string
         LDY     string+1
-        JSR     GPBKXY
+        JSR     gap_back_to_xy
         JSR     NORMALIZE
-        JSR     scrnud
+        JSR     screen_update
 .GREPCT                         ; report the count of replacements
         IF edit150
-        LDX     prmcol
+        LDX     prompt_column
         INX
         ELSE
         LDX     #prmptl
         ENDIF
-        JSR     PRMPTX
+        JSR     prompt_at_x
         EQUB    " ",&EA
-        JSR     WRITLINE
-        JSR     PRMPTX
+        JSR     print_line_number
+        JSR     prompt_at_x
         EQUB    " found",&EA
         RTS
 .NOBUFF
@@ -90,52 +90,52 @@
         JSR     prompt
         EQUB    "Find and replace:",&EA
         IF edit150
-        STZ     frall
+        STZ     replace_all
         ENDIF
         IF extgf=1
         JSR     readlf
         ELSE
-        JSR     readLS
+        JSR     read_line
         ENDIF
         JSR     READINIT
         BNE     NEWFR
-        CMP     frbuff
+        CMP     find_replace_buffer
         BEQ     NOBUFF
 .OLDFR
-        LDA     frbuff,Y
+        LDA     find_replace_buffer,Y
         STA     (temp),Y
         INY
         BPL     OLDFR
         LDY     #0
 .NEWFR
         LDA     (temp),Y
-        STA     frbuff,Y
+        STA     find_replace_buffer,Y
         INY
         CPY     #100
         BNE     NEWFR
         JSR     FINDTRANS
-        JSR     TEMPSX
+        JSR     clamp_cursor_x
         JSR     FINEPOSITIONGAP
         LDA     line
-        STA     scrnX
+        STA     cursor_x
         ;Set up search termination pointer & flag.
-        LDA     tmax
-        STA     texp
+        LDA     text_end
+        STA     search_end
         IF edit150
-        STA     endp
+        STA     block_end
         ENDIF
-        LDA     tmax+1
-        STA     texp+1
+        LDA     text_end+1
+        STA     search_end+1
         IF edit150
-        STA     endp+1
+        STA     block_end+1
         ENDIF
-        STA     TEXPFLAG
+        STA     search_end_flag
 .IMRPRL
-        LDX     GE
-        LDY     GE+1
+        LDX     gap_end
+        LDY     gap_end+1
 .IMRPCL
-        STX     MS
-        STY     MS+1
+        STX     match_start
+        STY     match_start+1
         JSR     SEARCH
         BCS     IMRPNF
         JSR     MOVETOFOUNDPOSITION
@@ -144,56 +144,56 @@
         BNE     IMRPLN
         INC     line+1
 .IMRPLN
-        LDA     frall           ; replacing to the end of the file?
+        LDA     replace_all     ; replacing to the end of the file?
         BNE     IMRPRP
         ENDIF
-        JSR     normax; get position of X back
-        LDA     BSM ;Move to BSM
-        STA     scrnY
-        JSR     scrnud
+        JSR     normalize_x ; get position of X back
+        LDA     bottom_margin ;Move to bottom_margin
+        STA     cursor_y
+        JSR     screen_update
         LDA     #fullscreen
-        STA     UPDATEREQD
+        STA     update_required
         IF edit150
-        JSR     FRPRMT
+        JSR     prompt_replace_action
         ELSE
         JSR     prompt
         EQUB    "R(eplace), C(ontinue) or ESCAPE",&EA
         ENDIF
 
-        JSR     CSRSCREENXY
-        JSR     CURON
+        JSR     move_to_cursor
+        JSR     cursor_on
 .IMRPPR
-        JSR     GETRESP
+        JSR     get_response
         IF edit150
         CMP     #'e'
         BNE     IMRPCC
-        STA     frall           ; replace this and all the rest
+        STA     replace_all     ; replace this and all the rest
         LDA     #1
         STA     line
         STZ     line+1
-        JSR     MKREFUSE
-        LDA     replflag
+        JSR     refuse_if_marked
+        LDA     replace_flag
         BNE     IMRPEX
-        JSR     FRRDRP
-        INC     replflag
+        JSR     read_replacement
+        INC     replace_flag
 .IMRPEX
         JMP     IMRPRP
 .IMRPCC
         ENDIF
         CMP     #'c'
         BNE     IMRPNC
-        LDX     me
-        LDY     me+1
+        LDX     match_end
+        LDY     match_end+1
         BRA     IMRPCL
 .IMRPNC
         CMP     #'r'
         BNE     IMRPPR
-        JSR     MKREFUSE
+        JSR     refuse_if_marked
         ;Either use supplied replace part, or prompt for one.
-        LDA     replflag
+        LDA     replace_flag
         BNE     IMRPRP
         IF edit150
-        JSR     FRRDRP
+        JSR     read_replacement
         ELSE
         JSR     prompt
         EQUB    "Replace by:",&EA
@@ -201,33 +201,33 @@
         IF extgf=1
         JSR     readlf
         ELSE
-        JSR     readLS
+        JSR     read_line
         ENDIF
         JSR     READINIT
         JSR     MININIT
-        LDA     replindex
-        STA     outindex
+        LDA     replace_index
+        STA     output_index
         JSR     REPLPART
         ENDIF
 .IMRPRP
-        JSR     chknrep
+        JSR     check_and_replace
         JMP     IMRPRL
 .IMRPNF
         JSR     NORMALIZE
         LDA     #thelot
-        STA     UPDATEREQD
-        JSR     scrnud
-        JSR     status
+        STA     update_required
+        JSR     screen_update
+        JSR     show_status
         IF edit150
-        LDA     frall           ; after replacing to the end, give the count
+        LDA     replace_all     ; after replacing to the end, give the count
         BEQ     IMRPN2
         JMP     GREPCT
 .IMRPN2
-        LDX     prmcol
+        LDX     prompt_column
         INX
         ELSE
         LDX     #prmptl
         ENDIF
-        JSR     PRMPTX
+        JSR     prompt_at_x
         EQUB    " Not found",&EA
         RTS

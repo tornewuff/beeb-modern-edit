@@ -1,4 +1,4 @@
-.promtF
+.prompt_filename
         JSR     prompt
         EQUB    "Type filename ",&EA
         IF edit150
@@ -9,32 +9,32 @@
         ENDIF
 
 .prompt
-        LDY pagelength
+        LDY page_length
         INY
-        JSR     wipeline
+        JSR     wipe_line
         LDX     #0
-.PRMPTX
-        LDY     pagelength
+.prompt_at_x
+        LDY     page_length
         INY
-        JSR     CSRXY
+        JSR     move_to_xy
 .PRMPT1
         LDX     #1
         BRA     STRMFL
-.strimo
+.print_inverse_inline
         LDX     #0
 .STRMFL
-        JSR     STARTINV
+        JSR     inverse_on
         PLA
         STA     string
         PLA
         STA     string + 1
-        JSR     VSTRLP
-        JSR     STOPINV
+        JSR     print_string
+        JSR     inverse_off
         TXA
         BEQ     STRMEX
-        LDA     PAGEWIDTH
+        LDA     page_width
         DEA
-        LDY     pagelength
-        STA     scrim + 1,Y
+        LDY     page_length
+        STA     screen_image + 1,Y
 .STRMEX
         JMP     (string)

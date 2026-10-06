@@ -4,13 +4,13 @@
         LDY     #>scratch
         RTS
 
-.readne
+.cmdline_next
         INC     scratch
         BNE     * + 4
         INC     scratch + 1
         RTS
 
-.readHX
+.read_hex
         LDX     #0
         STZ     scratch + 5
 .tsthex
@@ -39,10 +39,10 @@
         LDX     scratch + 5
         RTS
 
-.readnx
-        JSR     readne
+.read_next_io_byte
+        JSR     cmdline_next
 
-.readby
+.read_io_byte
         PHX
         PHY
         JSR     XYSCRATCH

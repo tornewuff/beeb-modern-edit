@@ -1,49 +1,49 @@
-.MODIFY
+.set_modified
         LDA     #1
-        LDX     modflg
-        STA     modflg
+        LDX     modified
+        STA     modified
         IF edit150
         CPX     #1
-        BNE     status
+        BNE     show_status
         ELSE
-        BEQ     status
+        BEQ     show_status
         ENDIF
         RTS
         IF edit150
-.IOtogg                         ; Insert/Over toggle
+.toggle_insert                  ; Insert/Over toggle
         LDA     #bit4
         BRA     modtog
-.tabctl
+.toggle_tab_mode
         LDA     #bit3
 .modtog
-        JSR     togmod
+        JSR     toggle_options
         ELSE
-.tabctl
+.toggle_tab_mode
         LDA     #8
-        EOR     tutmode
-        JSR     doMODE
+        EOR     options
+        JSR     write_options
         ENDIF
 
 .CstatU
-        STZ     UPDATEREQD      ; update required
-.status
-        JSR     CSR0STATUSY     ; Output status on status line.
-        JSR     STARTINV        ; Start inverse
-        JSR     TESTIF
+        STZ     update_required ; update required
+.show_status
+        JSR     move_to_status  ; Output status on status line.
+        JSR     inverse_on      ; Start inverse
+        JSR     test_insert_mode
         BEQ     STATSO
 
-        JSR     vstrng
+        JSR     print_inline
         EQUB    "Insert ",&EA
         BRA     STATSI
 
 .STATSO
-        JSR     vstrng
+        JSR     print_inline
         EQUB    "Over   ",&EA
 
 .STATSI
-        LDX     cursED
+        LDX     cursor_editing
         BEQ     STATSC
-        JSR     vstrng
+        JSR     print_inline
 
         IF phil=0
         IF edit150
@@ -58,72 +58,72 @@
         BRA     STATSX
 
 .STATSC
-        LDA     markX
+        LDA     mark_count
         BEQ     STATST
         DEA
         BNE     STATSM
-        JSR     vstrng
+        JSR     print_inline
         EQUB    "One mark ",&EA
         BRA     STATSS
 .STATSM
-        JSR     vstrng
+        JSR     print_inline
         EQUB    "Two marks",&EA
         BRA     STATSS
 .STATST
         LDA     #8
-        AND     tutmode
+        AND     options
         BNE     STATTW
-        JSR     vstrng
+        JSR     print_inline
         EQUB    "TAB cols ",&EA
         BRA     STATSS
 .STATTW
-        JSR     vstrng
+        JSR     print_inline
         EQUB    "TAB words",&EA
 .STATSS
         IF edit150
-        LDA     modflg          ; 0 original, 1 modified, else discarded
+        LDA     modified        ; 0 original, 1 modified, else discarded
         DEA
         BMI     STATOR
         BNE     STATDI
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Modified ",&EA
         BRA     STATSX
 .STATDI
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Discarded",&EA
         BRA     STATSX
 .STATOR
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Original ",&EA
         ELSE
-        LDA     modflg
+        LDA     modified
         BNE     STATMO
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Original",&EA
         BRA     STATSX
 .STATMO
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Modified",&EA
         ENDIF
 .STATSX
         IF cF8key=1
 
         IF edit150
-        LDA     tutmode
+        LDA     options
         AND     #bit6           ; LF line terminator selected
         BEQ     STATcr
         ELSE
-        LDA     clterm
+        LDA     line_terminator
         CMP     #cr
         BEQ     STATcr
         ENDIF
 
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " LF",&EA
 
         BRA     STATlf
 .STATcr
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " CR",&EA
 
 .STATlf
@@ -136,22 +136,22 @@
         INA
         BNE     STATNS
 
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Date",&EA
         BRA     STATNQ
 .STATNS
 
-        JSR     vstrng
+        JSR     print_inline
         EQUB    " Exec",&EA
 .STATNQ
         ENDIF
 
         IF edit150
         LDX     #prmptl + prmod1 + prmod2 + 1
-        STX     prmcol
+        STX     prompt_column
         ENDIF
-        JSR     STOPINV         ; stop inverse
-        LDY     pagelength
+        JSR     inverse_off     ; stop inverse
+        LDY     page_length
         INY
 
 prmptl  =       25              ; Prompt position
@@ -175,4 +175,4 @@ prmod2  =       0
         LDA     #(prmptl - 1 + prmod1 + prmod2)  ; plus any modifications
         ENDIF
 
-        JMP     WIPETAIL                ; and clear the rest of the line
+        JMP     wipe_tail               ; and clear the rest of the line

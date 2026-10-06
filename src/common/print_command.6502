@@ -1,13 +1,13 @@
         IF edit150
-.hexdig                         ; print the low nibble of A in hex (unused)
+.print_hex_byte                 ; print the low nibble of A in hex (unused)
         PHA
         LSR     A
         LSR     A
         LSR     A
         LSR     A
-        JSR     hexnyb
+        JSR     print_hex_digit
         PLA
-.hexnyb
+.print_hex_digit
         AND     #&0F
         SED
         CMP     #10
@@ -16,15 +16,15 @@
         JMP     oswrch
 
 .PRINTA                         ; print the text 'as is' to the screen
-        JSR     stFILE
-        JSR     TPGE
-        JSR     prtvdu
+        JSR     cursor_text_start
+        JSR     text_ptr_at_gap_end
+        JSR     enable_printer
         LDA     #2
-        STA     brkaction
+        STA     brk_action
 .PRINTB
-        JSR     escTST
-        LDA     (TP)
-        CMP     clterm
+        JSR     test_escape
+        LDA     (text_ptr)
+        CMP     line_terminator
         BNE     PRINTN
         LDA     #cr
 .PRINTN
@@ -41,10 +41,10 @@
 .PRINTH
         JMP         prinHL        ; help on print
 .print
-        JSR     MKREFUSE
+        JSR     refuse_if_marked
         LDX     #&FF
-        STX     pwtflg
-        STX     prtflg        ; bit 7 printer, bit 6 pay attention to bold/underlining
+        STX     page_wait_flag
+        STX     print_flags   ; bit 7 printer, bit 6 pay attention to bold/underlining
         STX     lineot        ; set needs header flag
         TXS
         JSR     prompt
@@ -54,7 +54,7 @@
         EQUB    "Screen, Printer, Help ?",&EA
         ENDIF
 .PRINTL
-        JSR     GETRESP
+        JSR     get_response
         IF edit150
         CMP     #'a'
         BEQ     PRINTA
@@ -65,50 +65,50 @@
         BEQ     PRINTS
         CMP     #'p'
         BNE     PRINTL
-        STZ     prtflg        ; 0 for printer
+        STZ     print_flags   ; 0 for printer
 .PRINTS
         JSR     prompt
         EQUB    "Continuous, Paged ?",&EA
 .PRINTM
-        JSR     GETRESP
+        JSR     get_response
         CMP     #'c'
         BEQ     PRINTC
         CMP     #'p'
         BNE     PRINTM
-        STZ     pwtflg        ; 0 for paged output
+        STZ     page_wait_flag ; 0 for paged output
 .PRINTC
-        JSR     MEMSTATE
-        LDA     tstart
+        JSR     save_text_bounds
+        LDA     text_start
         STA     addr
-        LDA     tstart+1
+        LDA     text_start+1
         STA     addr+1
         LDA     #'.'
-        STA     ctlcha
+        STA     control_char
         LDX     #0
 .clrreg
-        STZ     noregs,X      ; clears noregs, tablst, maclst
+        STZ     number_registers,X ; clears number_registers, tab_list, macro_list
         INX
         TXA
-        STA     trnlst,X      ; init translation
+        STA     translate_table,X ; init translation
         BNE     clrreg
 
         IF edit150
         LDA     #' '            ; hard space and the other line
-        STA     trnlst + &A0    ; terminator print as spaces
-        LDY     clterm
+        STA     translate_table + &A0 ; terminator print as spaces
+        LDY     line_terminator
         CPY     #cr
         BNE     trnlcr
-        STA     trnlst + lf
+        STA     translate_table + lf
         BRA     trnlex
 .trnlcr
-        STA     trnlst + cr
+        STA     translate_table + cr
 .trnlex
         ELSE
         IF cF8key=1
         PHX                     ; set X to correct offset
         SEC
         LDA     #cr
-        SBC     clterm
+        SBC     line_terminator
         CLC
         ADC     #lf
         TAX
@@ -117,48 +117,48 @@
         LDA     #' '
 
         IF cF8key=1
-        STA     trnlst,X
+        STA     translate_table,X
         PLX
         ELSE
-        STA     trnlst + lf + (cr - termin)
+        STA     translate_table + lf + (cr - termin)
         ENDIF
 
         ENDIF
 
         LDA     #&09
-        STA     tabcha
+        STA     tab_char
         DEA                   ; to 8
         CLC
 .DEFTAB
-        STA     tablst,X
+        STA     tab_list,X
         INX
         ADC     #8       ; carry clear
         CMP     #100
         BCC     DEFTAB
         LDA     #2
-        STA     brkaction
+        STA     brk_action
         DEA
         STA     page        ; A=1
         STA     vspace        ; single spacing
         STA     lineno
-        STZ     doindX        ; no indexing
-        STZ     indexH        ; index file handle
+        STZ     index_output  ; no indexing
+        STZ     index_handle  ; index file handle
         STZ     pundrl        ; persistent underline off
         STZ     pbold        ; persistent bold off
         STZ     indent        ; turn off indent
         STZ     fill        ; enable justification
-        STZ     offset        ; no page offset
+        STZ     page_offset   ; no page offset
         STZ     linfed        ; no overprinting
         LDA     #58
-        STA     lineDW        ; lines per page
+        STA     lines_per_page ; lines per page
         LDA     #76
         STA     len        ; characters per line
-        JSR     vstrng
+        JSR     print_inline
         EQUB    26,12,&EA
-        BIT     prtflg
+        BIT     print_flags
         BMI     PATCHA
         IF edit150
-        JSR     prtvdu
+        JSR     enable_printer
         ELSE
         LDX     #0       ; just for jes's code, set and reset printer type
         LDA     #5
@@ -168,24 +168,24 @@
         JSR     oswrch
         ENDIF
 .PATCHA
-        BIT     pwtflg
+        BIT     page_wait_flag
         BMI     CHAINB
-        BIT     prtflg
+        BIT     print_flags
         BPL     CHAINB
         LDA     #14
         JSR     oswrch        ; page mode if screen and page wait
 .CHAINB
         IF cF8key=1
-        LDA     clterm
+        LDA     line_terminator
         ELSE
         LDA     #termin
         ENDIF
-        STA     (GS)
+        STA     (gap_start)
 
         IF cF8key=1 AND NOT(edit150)
                                 ; Copy initial header and footer texts
                                 ; into their respective buffers, changing
-                                ; any nulls into the 'clterm' value
+                                ; any nulls into the 'line_terminator' value
 
                                 ; AX can be corrupted since X is loaded
                                 ; with an immediate value straight after
@@ -195,9 +195,9 @@
         LDA     defhdr,X        ; default header
         BNE     nhchan
 
-        LDA     clterm
+        LDA     line_terminator
 .nhchan
-        STA     dhbuff,X        ; and into the buffer
+        STA     header_buffer,X ; and into the buffer
 
         DEX
         BPL     mhlp            ; move header loop
@@ -207,27 +207,27 @@
         LDA     defftr,X        ; default footer
         BNE     nfchan
 
-        LDA     clterm
+        LDA     line_terminator
 .nfchan
-        STA     dfbuff,X        ; and into the buffer
+        STA     footer_buffer,X ; and into the buffer
 
         DEX
         BPL     mflp            ; move footer loop
 
 
-        LDA     #<dhbuff
-        STA     pageeh
-        STA     pageoh
-        LDA     #>dhbuff
-        STA     pageeh + 1
-        STA     pageoh + 1
+        LDA     #<header_buffer
+        STA     even_header
+        STA     odd_header
+        LDA     #>header_buffer
+        STA     even_header + 1
+        STA     odd_header + 1
 
-        LDA     #<dfbuff
-        STA     pageef
-        STA     pageof
-        LDA     #>dfbuff
-        STA     pageef + 1
-        STA     pageof + 1
+        LDA     #<footer_buffer
+        STA     even_footer
+        STA     odd_footer
+        LDA     #>footer_buffer
+        STA     even_footer + 1
+        STA     odd_footer + 1
         ELIF edit150
         LDX     #<defhdr        ; pick the texts for the line terminator
         LDY     #<defftr
@@ -236,58 +236,58 @@
         LDX     #<defhdl
         LDY     #<defftl
 .CHAINH
-        STX     pageeh
-        STX     pageoh
-        STY     pageef
-        STY     pageof
+        STX     even_header
+        STX     odd_header
+        STY     even_footer
+        STY     odd_footer
         LDY     #>defhdr        ; all in the same page
-        STY     pageeh+1
-        STY     pageoh+1
-        STY     pageef+1
-        STY     pageof+1
+        STY     even_header+1
+        STY     odd_header+1
+        STY     even_footer+1
+        STY     odd_footer+1
         ELSE
         LDA     #<defhdr
-        STA     pageeh
-        STA     pageoh
+        STA     even_header
+        STA     odd_header
         LDA     #>defhdr
-        STA     pageeh+1
-        STA     pageoh+1
+        STA     even_header+1
+        STA     odd_header+1
         LDA     #<defftr
-        STA     pageef
-        STA     pageof
+        STA     even_footer
+        STA     odd_footer
         LDA     #>defftr
-        STA     pageef+1
-        STA     pageof+1        ; initial header and footer info
+        STA     even_footer+1
+        STA     odd_footer+1    ; initial header and footer info
         ENDIF
 
         LDX     #maxMAC
 .CHAINC
-        STZ     maclst-1,X
+        STZ     macro_list-1,X
         DEX
         BNE     CHAINC
 .fine
         STZ     centre        ; turn centre off
-        STZ     rflush        ; turn right-flush off
+        STZ     right_flush   ; turn right-flush off
         LDA     #&FF
-        STA     tinden        ; no temp indent
+        STA     temp_indent   ; no temp indent
         LDA     pundrl
-        STA     underl
-        STA     undrrq        ; underline required?
+        STA     underline
+        STA     underline_request ; underline required?
         LDA     pbold
         STA     bold
-        STA     boldrq        ; bold required?
+        STA     bold_request  ; bold required?
         BRA     CTLIN
 .LASLEN
         JSR     ROUTBP
-        BIT     prtflg        ; print exit
+        BIT     print_flags   ; print exit
         BPL     DODWN
-        JSR     strimo
+        JSR     print_inverse_inline
         EQUB    "Print done. ",&EA
-        JSR     inkeys
+        JSR     wait_shift_prompt
 .DODWN
-        JSR     vstrng
+        JSR     print_inline
         EQUB    3,15,&EA
-        JSR     closeX
-        LDX     GS
-        LDY     GS+1
+        JSR     close_index_file
+        LDX     gap_start
+        LDY     gap_start+1
         JMP     EDITgs

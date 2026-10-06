@@ -15,14 +15,14 @@
                                 ; VDU 23,0,10,value,0,0,0,0,0,0
 
 .curupd                         ; cursor update
-                                ; 'tutmode' holds editing state
+                                ; 'options' holds editing state
         PHA
                                 ; bit4 = Insert/Over mode
-        LDA     tutmode
+        LDA     options
         AND     #bit4
         BEQ     ovrcur
 
-        LDA     cursED
+        LDA     cursor_editing
         BEQ     slowc1
 
         JSR     bff
@@ -31,7 +31,7 @@
         JSR     bsf
         BRA     curex
 .ovrcur
-        LDA     cursED
+        LDA     cursor_editing
         BEQ     slowc2
 
         JSR     lff

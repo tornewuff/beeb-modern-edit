@@ -1,7 +1,7 @@
 .brk_handler {
         ;Outputs 'brk' error message, & jumps to relevant re-entry
-        ;point. Detailed action depends on value of 'brkaction' on entry -
-        ; brkaction = 0 Moves cursor to editor status position,
+        ;point. Detailed action depends on value of 'brk_action' on entry -
+        ; brk_action = 0 Moves cursor to editor status position,
         ; outputs error message, then prompts for space
         ; before jumping to EDITcont.
         ; 1    Outputs error message, and jumps to starloop.
@@ -9,14 +9,14 @@
 
         LDX     #&FF
         TXS
-        STZ     cursED
+        STZ     cursor_editing
 IF edit150
         JSR     acknowledge_escape
 ELSE
         LDA     #osbyte_acknowledge_escape
         JSR     osbyte
 ENDIF
-        LDA     brkaction
+        LDA     brk_action
         CMP     #&FF
         BNE     simBRK
 .unret
@@ -25,12 +25,12 @@ ENDIF
         DEC     addr + 1
 .unretA
         DEC     addr
-        LDA     argP
+        LDA     src_ptr
         BNE     unretB
-        DEC     argP + 1
+        DEC     src_ptr + 1
 .unretB
-        DEC     argP
-        LDA     (argP)
+        DEC     src_ptr
+        LDA     (src_ptr)
         STA     (addr)
         LDA     addr
         BNE     unret
@@ -38,55 +38,55 @@ ENDIF
         CMP     string + 1
         BNE     unret
         LDA     #cr
-        STA     (tmax)
+        STA     (text_end)
         LDA     #&00
 .simBRK
         CMP     #&01
         BNE     simBK2
-        JSR     supvBR
+        JSR     print_error_nl
         JMP     starCN
 .simBK2
         BCC     norBRK
-        JSR     closeX
-        JSR     stFILE
+        JSR     close_index_file
+        JSR     cursor_text_start
 .norBRK
-        JSR     vstrng
+        JSR     print_inline
         EQUB    &03,&0F,&EA
-        JSR     CSR0STATUSY
+        JSR     move_to_status
 
 IF lerror=1
         IF edit150
         JSR     define_chars
         ENDIF
-        JSR     vstrng
+        JSR     print_inline
         EQUB    &0B,&0B,&0B,remap("┌"),&EA
         LDX     #remapchar("─")
         LDA     #59-80
-        JSR     BRKsub
+        JSR     print_repeat_inline
         EQUB    remap("Shift f5 D for info┐│"),&EA
         LDX     #' '
         LDA     #78-80
-        JSR     BRKsub
+        JSR     print_repeat_inline
         EQUB    remap("│└"),&EA
         LDX     #remapchar("─")
         LDA     #54-80
-        JSR     BRKsub
+        JSR     print_repeat_inline
         EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
-        JSR     BRKoy
+        JSR     print_error
         IF edit150
         JSR     restore_chars
         ENDIF
 ELSE
-        JSR     supvBR
-        JSR     curOFF
-        LDA     tutmode
+        JSR     print_error_nl
+        JSR     cursor_off
+        LDA     options
         AND     #&07
         CMP     #&05
         BEQ     nomess
         LDA     (&FD)
         CMP     #&01
         BNE     nomess
-        JSR     vstrng
+        JSR     print_inline
         IF 1=0
                 EQUB    lf,cr,"For help type: shf-f5 D",&EA
         ELSE
@@ -94,7 +94,7 @@ ELSE
         ENDIF
 .nomess
         JSR     osnewl
-        JSR     strimo
+        JSR     print_inverse_inline
         EQUB    "Press ESCAPE to continue",&EA
 ENDIF
 
@@ -118,9 +118,9 @@ IF edit150
         JMP     osbyte
 ENDIF
 
-.supvBR
+.print_error_nl
         JSR     osnewl
-.BRKoy
+.print_error
         LDY     #&01
 .BRKOLP
         LDA     (&FD),Y

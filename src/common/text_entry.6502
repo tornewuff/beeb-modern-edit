@@ -1,128 +1,128 @@
 .EDITTE
-        JSR     EDTEXT
-        JMP     EDITlo
-.EDTEXT
+        JSR     enter_text
+        JMP     main_loop
+.enter_text
         ; Entry - A holds ASCII char to be treated as text input
         ; Exit  - appropraite action taken depending on current
         ;        'mode' (insert, overtype, csr-edit).
         CMP     #delete
         BEQ     ECHRDE
-        STZ     oldsta + 3
+        STZ     old_text_bounds + 3
         CMP     #cr
         BNE     ECHRCO
-        JSR     TESTIF ;In insert mode put in the CR
+        JSR     test_insert_mode ;In insert mode put in the CR
         BNE     ECHRCR
         JSR     ENDTEST
         BCS     ECHRCR
-        STZ     scrnX
-        JMP     curDWN ;in overtype mode CR is start of line
+        STZ     cursor_x
+        JMP     cursor_down ;in overtype mode CR is start of line
 .ECHRCR
         IF cF8key=1
-        LDA     clterm
+        LDA     line_terminator
         ELSE
         LDA     #termin
         ENDIF
 .ECHRCO
         ; Insert character into text.
         PHA
-        JSR     ADDVIR
+        JSR     add_virtual_spaces
         ; Don't insert in overtype mode, unless at end of line.
-        JSR     TESTIF
+        JSR     test_insert_mode
         BNE     ECHRMV
-        LDY     scrnX
-        LDA     (GE),Y
+        LDY     cursor_x
+        LDA     (gap_end),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BNE     ECHRCH
 .ECHRMV
         LDX     #1
-        LDA     scrnX
+        LDA     cursor_x
         JSR     INSRTX
 .ECHRCH
         PLA
-        LDY     scrnX
-        STA     (GE),Y
+        LDY     cursor_x
+        STA     (gap_end),Y
         ; Write char to screen (cursor OK), wiping tail for TERMIN.
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BNE     ECHRNT
-        JSR     PASWCR
-        LDA     scrnX
-        LDY     scrnY
-        JSR     WIPETAIL
+        JSR     print_cr_char
+        LDA     cursor_x
+        LDY     cursor_y
+        JSR     wipe_tail
 .EHRCSU
-        STZ     scrnX
-        JSR     curDWN
+        STZ     cursor_x
+        JSR     cursor_down
 .ECHRUP
-        LDA     UPDATEREQD
+        LDA     update_required
         BEQ     ECHREL
-        JSR     scrnud
+        JSR     screen_update
 .ECHREL
         LDA     #csronwards
-        STA     UPDATEREQD
-        JMP     MODIFY
+        STA     update_required
+        JMP     set_modified
 .ECHRNT
-        JSR     PASWRCH
-        JSR     curRT
+        JSR     print_text_char
+        JSR     cursor_right
 .ECHRN0
-        LDA     UPDATEREQD
+        LDA     update_required
         BEQ     ECHRN1
-        JSR     scrnud
+        JSR     screen_update
 .ECHRN1
         LDA     #CSRTOCR
-        STA     UPDATEREQD
-        JMP     MODIFY
+        STA     update_required
+        JMP     set_modified
 .ECHRDE
         ; Delete virtual space implies csrleft. Can't delete start of file.
-        JSR     VSCOUN
+        JSR     count_virtual_spaces
         BEQ     EDELST
-        JMP     curLT
+        JMP     cursor_left
 .EDELST
-        LDA     scrnX
+        LDA     cursor_x
         BNE     EDELCO
         JSR     STARTTEST
         BCS     DELABX
 .EDELCO
         ; Get char to be deleted under cursor. In absence of VS check,
         ; this will give TERMIN delete when past end of line.
-        JSR     curLT
+        JSR     cursor_left
         JSR     LENGTHCALC      ; different line than current!
-        CMP     scrnX
+        CMP     cursor_x
         BCS     EDELMT
-        STA     scrnX
+        STA     cursor_x
 .EDELMT
         ; Branch on text-entry mode (insert/overtype).
-        LDY     scrnX
-        JSR     TESTIF
+        LDY     cursor_x
+        JSR     test_insert_mode
         BNE     EDELSL
-        LDA     (GE),Y
+        LDA     (gap_end),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BEQ     DELABX
         LDA     #space
-        STA     (GE),Y
+        STA     (gap_end),Y
         LDA     #CSRTOCR
-        STA     UPDATEREQD
-        JMP     MODIFY
+        STA     update_required
+        JMP     set_modified
 .EDELSL
-        LDA     (GE),Y
+        LDA     (gap_end),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BEQ     EDELS2
-        LDA     currlength
-        CMP     PAGEWIDTH
+        LDA     line_length
+        CMP     page_width
         BEQ     EDELS2
         JSR     EDEL1
         BRA     ECHRN0
@@ -130,80 +130,80 @@
         JSR     EDEL1
         BRA     ECHRUP
 .DELLIX
-        JSR     delabv
-.dellin
-        STZ     scrnX
-        LDA     (GE)
+        JSR     delete_above
+.delete_line
+        STZ     cursor_x
+        LDA     (gap_end)
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BNE     DELLIX
         JSR     LENGTHCALC
-        STA     currlength
-        JSR     delabv
+        STA     line_length
+        JSR     delete_above
         JMP     ECHREL
-.delabv
+.delete_above
         JSR     ENDTEST
         BCC     DELABY
-        LDA     scrnX
-        CMP     currlength
+        LDA     cursor_x
+        CMP     line_length
         BCC     DELABY
 .DELABX
         RTS
 .DELABY
-        LDA     currlength
-        CMP     scrnX
+        LDA     line_length
+        CMP     cursor_x
         BCC     DELABX
         LDY     #CSRTOCR
-        STY     UPDATEREQD
-        CMP     PAGEWIDTH
+        STY     update_required
+        CMP     page_width
         BEQ     EDEL0
-        LDY     scrnX
-        LDA     (GE),Y
+        LDY     cursor_x
+        LDA     (gap_end),Y
         IF cF8key=1
-        CMP     clterm
+        CMP     line_terminator
         ELSE
         CMP     #termin
         ENDIF
         BNE     EDEL1
 .EDEL0
-        INC     UPDATEREQD
+        INC     update_required
 .EDEL1
         ; Shift up start of line 'over' deleted character.
-        JSR     MODIFY
+        JSR     set_modified
         CLC
-        LDA     GE
+        LDA     gap_end
         STA     temp
-        ADC     scrnX
+        ADC     cursor_x
         STA     addr
-        LDA     GE + 1
+        LDA     gap_end + 1
         STA     temp + 1
         ADC     #0
         STA     addr + 1
-        INC     GE
+        INC     gap_end
         BNE     EDELNH
-        INC     GE + 1
+        INC     gap_end + 1
 .EDELNH
-        LDY     scrnX
+        LDY     cursor_x
         BRA     EDELDY
 .EDELLP
         LDA     (temp),Y
-        STA     (GE),Y
+        STA     (gap_end),Y
 .EDELDY
         DEY
         BPL     EDELLP
-        LDX     markX
+        LDX     mark_count
 .EDELMK
         DEX
         BMI     DELABX
-        LDY     SMATlo,X
+        LDY     set_marks_lo,X
         CPY     addr
-        LDA     smathi,X
+        LDA     set_marks_hi,X
         SBC     addr + 1
         BCS     EDELMK
-        INC     SMATlo,X
+        INC     set_marks_lo,X
         BNE     EDELMK
-        INC     smathi,X
+        INC     set_marks_hi,X
         BRA     EDELMK

@@ -1,80 +1,80 @@
-.ADDVIR
-        JSR     VSCOUN
+.add_virtual_spaces
+        JSR     count_virtual_spaces
         BEQ     ADVSEX
         PHA
         TAX
-        LDA     currlength
+        LDA     line_length
         JSR     INSRTX
         ; Wipe possible visible TERMIN.
-        LDX     currlength
-        LDY     scrnY
-        JSR     CSRXY
+        LDX     line_length
+        LDY     cursor_y
+        JSR     move_to_xy
         LDA     #space
         JSR     oswrch
-        PLX     ;number spaces from VSCOUN
-        LDY     scrnX
+        PLX     ;number spaces from count_virtual_spaces
+        LDY     cursor_x
 .ADVSLP
         DEY
-        STA     (GE),Y
+        STA     (gap_end),Y
         DEX
         BNE     ADVSLP
 .ADVSEX
-        JMP     CSRSCREENXY
-.VSCOUN
+        JMP     move_to_cursor
+.count_virtual_spaces
         ; Exit - A(Z) = Number of virtual spaces.
         SEC
-        LDA     scrnX
-        SBC     currlength
+        LDA     cursor_x
+        SBC     line_length
         BCS     VSCTEX
         LDA     #0
 .VSCTEX
         RTS
 .INSRTX
-        ; Entry - Require gap of XY ( > 0) opening up after GE  +  A
-        ; Exit  - GE -= XY (checked against GS)
-        ;         A chars moved back to new GE, to open up gap
-        STA     Atemp
+        ; Entry - Require gap of XY ( > 0) opening up after gap_end  +  A
+        ; Exit  - gap_end -= XY (checked against gap_start)
+        ;         A chars moved back to new gap_end, to open up gap
+        STA     temp_a
         CLC
-        ADC     GE
+        ADC     gap_end
         PHA
-        LDA     GE + 1
+        LDA     gap_end + 1
         ADC     #0
         PHA
         PHX
         LDY     #0
-        JSR     CHECKR
+        JSR     check_room
         LDY     #0
 .INSXLP
-        LDA     (GE),Y
+        LDA     (gap_end),Y
         STA     (temp),Y
         INY
-        CPY     Atemp
+        CPY     temp_a
         BCC     INSXLP
-        STX     GE
+        STX     gap_end
         LDA     temp + 1
-        STA     GE + 1
+        STA     gap_end + 1
         PLX
         STX     count
         PLA
         STA     temp + 1
         PLA
         STA     temp
-        LDY     markX
+        LDY     mark_count
 .INSXMK
         DEY
         BMI     INSXEX
-        LDX     SMATlo,Y
+        LDX     set_marks_lo,Y
         CPX     temp
-        LDA     smathi,Y
+        LDA     set_marks_hi,Y
         SBC     temp + 1
         BCS     INSXMK
         SEC
         TXA
         SBC     count
-        STA     SMATlo,Y
-        LDA     smathi,Y
+        STA     set_marks_lo,Y
+        LDA     set_marks_hi,Y
         SBC     #0
-        STA     smathi,Y
+        STA     set_marks_hi,Y
         BRA     INSXMK
 .INSXEX
         RTS

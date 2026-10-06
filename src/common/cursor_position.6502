@@ -1,18 +1,18 @@
-.CSRSCREENXY
-        LDX scrnX
-        LDY     scrnY
-        BPL     CSRXY
-.CSR0STATUSY
-        LDY pagelength
+.move_to_cursor
+        LDX cursor_x
+        LDY     cursor_y
+        BPL     move_to_xy
+.move_to_status
+        LDY page_length
         INY
-.CSR0Y
+.move_to_line
         LDX     #0
-.CSRXY
+.move_to_xy
         LDA     #31
-.wraxy                          ; VDU A,X,Y
+.vdu_axy                        ; VDU A,X,Y
         JSR     oswrch
         TXA
-.wray                           ; VDU A,Y
+.vdu_ay                         ; VDU A,Y
         JSR     oswrch
         TYA
         JMP     oswrch
