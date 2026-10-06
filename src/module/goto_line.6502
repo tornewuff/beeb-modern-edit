@@ -100,11 +100,15 @@
         STA     line+1
         BCC     EDLIBN
         JSR     stFILE
+        IF edit150
+        JSR     TPGE
+        ELSE
         LDA     GE
         STA     TP
         LDA     GE + 1
         STA     TP + 1
 
+        ENDIF
 .EDLIFW
         LDA     line
         ORA     line + 1

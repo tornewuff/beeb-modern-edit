@@ -11,9 +11,14 @@
 .getmod
         JSR     prompt
         EQUB    "New Mode:",&EA
+        IF edit150
+        JSR     rdcesc
+        JSR     oswrch
+        ELSE
         JSR     osrdch
         JSR     oswrch
         JSR     escTST
+        ENDIF
         CMP     #'7' + 1
         BCS     SETKEY
         SBC     #'0' - 1

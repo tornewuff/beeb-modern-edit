@@ -70,6 +70,10 @@ moureg  =       &FC50
 mouxlo  =       moureg + 2
 mouswi  =       moureg + 6
 
+        IF lfarro=1
+nlfarr  =       &FE
+        ENDIF
+
         ; EDIT symbolic constants
 osfind  =       &FFCE
 osbput  =       &FFD4
@@ -137,7 +141,7 @@ pundrl  =       UMATlo + 1
 bold    =       umathi
 vspace  =       umathi + 1
 
-        IF cF8key=1
+        IF cF8key=1 AND NOT(edit150)
 .clterm SKIP    &01     ; current line terminator
         ENDIF
         IF extgf=1      ; Extended search/replace characters
@@ -203,17 +207,29 @@ tabcha  =       MULFFLAG
 .markX  SKIP    &01
 .TSM    SKIP    &01
 .BSM    SKIP    &01
+        IF edit150
+.srchst SKIP    &0E             ; search/replace state, no longer in buff
+.scratch SKIP   &20
+        ELSE
 .scratch SKIP   &12
+        ENDIF
 buff    =       scratch + 10    ; (no.bffr len 15 {MMMDCCCLXXXVIII})
+        IF edit150
+TEXPFLAG =      srchst
+        ELSE
 TEXPFLAG =      buff
-SENSFLAG =      buff + 1
-BUTTFLAG =      buff + 2
-metaflag =      buff + 3
-replflag =      buff + 4
-endp    =       buff + 8
-scp     =       buff + 10
-texp    =       buff + 12
+        ENDIF
+SENSFLAG =      TEXPFLAG + 1
+BUTTFLAG =      TEXPFLAG + 2
+metaflag =      TEXPFLAG + 3
+replflag =      TEXPFLAG + 4
+endp    =       TEXPFLAG + 8
+scp     =       TEXPFLAG + 10
+texp    =       TEXPFLAG + 12
 mousel  =       buff + 15       ; # 10
+        IF cF8key=1 AND edit150
+.clterm SKIP    &01             ; current line terminator
+        ENDIF
 
         IF stamp=1
 .flexec SKIP    &04
@@ -244,7 +260,7 @@ maxMAC  =       stracc - maclst ; Number of macro posns *2
 
 trnlst  =       stracc          ; table of translateable characters
 
-        IF cF8key=1
+        IF cF8key=1 AND NOT(edit150)
 
 dhtext  =       remap(".he␀.en␀")                       ; default header text
 dftext  =       remap(".fo␀.ce␀Page .r0␀.ff.en␀")       ; default footer text
@@ -265,5 +281,12 @@ dfsize  =       LEN(dftext)
 .fieldmmxtab SKIP &0A
 .fieldofftab SKIP &0A
 .scrim  SKIP    &20
+        IF edit150
+.osvers SKIP    &01             ; OS version (0 if below 3)
+.frall  SKIP    &01             ; find and replace to the end of the file
+        SKIP    &01             ; (OSWORD 10 writes the first character code at chrbak - 1)
+.chrbak SKIP    nchars * 8      ; saved character definitions, see define_chars
+.prmcol SKIP    &01             ; column for prompts after the status texts
+        ENDIF
 
         ENDSECTION

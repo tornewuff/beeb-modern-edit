@@ -1,3 +1,42 @@
+        IF edit150
+.hexdig                         ; print the low nibble of A in hex (unused)
+        PHA
+        LSR     A
+        LSR     A
+        LSR     A
+        LSR     A
+        JSR     hexnyb
+        PLA
+.hexnyb
+        AND     #&0F
+        SED
+        CMP     #10
+        ADC     #'0'
+        CLD
+        JMP     oswrch
+
+.PRINTA                         ; print the text 'as is' to the screen
+        JSR     stFILE
+        JSR     TPGE
+        JSR     prtvdu
+        LDA     #2
+        STA     brkaction
+.PRINTB
+        JSR     escTST
+        LDA     (TP)
+        CMP     clterm
+        BNE     PRINTN
+        LDA     #cr
+.PRINTN
+        JSR     osasci
+        LDA     #0
+        JSR     TPPAP1
+        BCC     PRINTB
+        LDA     #3
+        JSR     oswrch
+        JMP     EDITcont
+        ENDIF
+
                 ; the formatter
 .PRINTH
         JMP         prinHL        ; help on print
@@ -9,9 +48,17 @@
         STX     lineot        ; set needs header flag
         TXS
         JSR     prompt
+        IF edit150
+        EQUB    "Screen, Printer, As is, Help ?",&EA
+        ELSE
         EQUB    "Screen, Printer, Help ?",&EA
+        ENDIF
 .PRINTL
         JSR     GETRESP
+        IF edit150
+        CMP     #'a'
+        BEQ     PRINTA
+        ENDIF
         CMP     #'h'
         BEQ     PRINTH
         CMP     #'s'
@@ -45,6 +92,18 @@
         STA     trnlst,X      ; init translation
         BNE     clrreg
 
+        IF edit150
+        LDA     #' '            ; hard space and the other line
+        STA     trnlst + &A0    ; terminator print as spaces
+        LDY     clterm
+        CPY     #cr
+        BNE     trnlcr
+        STA     trnlst + lf
+        BRA     trnlex
+.trnlcr
+        STA     trnlst + cr
+.trnlex
+        ELSE
         IF cF8key=1
         PHX                     ; set X to correct offset
         SEC
@@ -62,6 +121,8 @@
         PLX
         ELSE
         STA     trnlst + lf + (cr - termin)
+        ENDIF
+
         ENDIF
 
         LDA     #&09
@@ -96,12 +157,16 @@
         EQUB    26,12,&EA
         BIT     prtflg
         BMI     PATCHA
+        IF edit150
+        JSR     prtvdu
+        ELSE
         LDX     #0       ; just for jes's code, set and reset printer type
         LDA     #5
         JSR     osbyte
         JSR     osbyte
         LDA     #2
         JSR     oswrch
+        ENDIF
 .PATCHA
         BIT     pwtflg
         BMI     CHAINB
@@ -117,7 +182,7 @@
         ENDIF
         STA     (GS)
 
-        IF cF8key=1
+        IF cF8key=1 AND NOT(edit150)
                                 ; Copy initial header and footer texts
                                 ; into their respective buffers, changing
                                 ; any nulls into the 'clterm' value
@@ -163,6 +228,23 @@
         LDA     #>dfbuff
         STA     pageef + 1
         STA     pageof + 1
+        ELIF edit150
+        LDX     #<defhdr        ; pick the texts for the line terminator
+        LDY     #<defftr
+        CMP     #cr
+        BEQ     CHAINH
+        LDX     #<defhdl
+        LDY     #<defftl
+.CHAINH
+        STX     pageeh
+        STX     pageoh
+        STY     pageef
+        STY     pageof
+        LDY     #>defhdr        ; all in the same page
+        STY     pageeh+1
+        STY     pageoh+1
+        STY     pageef+1
+        STY     pageof+1
         ELSE
         LDA     #<defhdr
         STA     pageeh

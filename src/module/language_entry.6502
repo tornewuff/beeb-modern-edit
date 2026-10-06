@@ -150,7 +150,6 @@
         EQUB    23,remap("┼"),&18,&18,&18,&FF,&18,&18,&18,&18
         ENDIF
         IF lfarro=1
-nlfarr  =       &FE
         EQUB    23,nlfarr,&00,&18,&38,&7F,&38,&18,&00,&00
         ENDIF
 

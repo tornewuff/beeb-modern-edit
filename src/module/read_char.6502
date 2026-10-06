@@ -1,5 +1,47 @@
 .EDRDCH
         ; Exit - A holds character read
+        IF edit150
+        ; Keys that are editor commands arrive as 0 followed by the
+        ; command code. Exit EQ with the code in A for a command,
+        ; NE with the character in A for anything else.
+        LDA     NEXTREADFLAG
+        BEQ     EDRDOSRD
+        LDA     nxtchr
+        STZ     NEXTREADFLAG
+        BNE     EDRDNX
+.EDRDZ                          ; 0, 0 is a literal 0
+        TSX                     ; NE
+        RTS
+.EDRDNX
+        LDX     scratch + 31    ; flags saved with nxtchr
+        RTS
+.EDRDOSRD
+        JSR     rdcesc
+        TAX
+.EDRDCK
+        BNE     EDRDRT
+        JSR     rdcesc
+        CMP     #0
+        BEQ     EDRDZ
+        LDX     #0              ; EQ: command
+.EDRDRT
+        RTS
+
+.EDINKY                         ; as EDRDCH but with a timeout, A = 0 if none
+        LDA     #&81
+        TAX
+        LDY     #3
+        JSR     osbyte
+        TYA
+        BNE     EDINTO
+        TXA
+        BRA     EDRDCK
+.EDINTO
+        JSR     escTST
+        LDA     #0
+        TAX
+        RTS
+        ELSE
         LDA     NEXTREADFLAG
         BEQ     EDRDOSRD
         LDA     nxtchr
@@ -61,3 +103,4 @@
         ENDIF
 
         JMP     escTST
+        ENDIF

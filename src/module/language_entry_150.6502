@@ -1,0 +1,160 @@
+.language                       ; Language entry point
+        CLI
+        CLD
+        LDX     #&FF
+        TXS
+
+        ; Remember the OS version, treating anything below MOS 3 as 0
+        LDA     #osbyte_read_os_version
+        LDX     #1
+        JSR     osbyte
+        CPX     #3
+        BCC     mos_below_3
+        TXA
+.mos_below_3
+        STA     osvers
+
+        LDA     #osbyte_read_cmos_ram   ; read CMOS RAM into 'tutmode'
+        LDX     #&08            ; our byte
+        JSR     osbyte
+        STY     tutmode
+
+        ; Bit 6 of the CMOS byte selects LF rather than CR as the line
+        ; terminator
+        TYA
+        LDY     #cr
+        AND     #bit6
+        BEQ     set_clterm
+        LDY     #lf
+.set_clterm
+        STY     clterm
+
+        LDA     #<brk_handler
+        STA     BRKv
+        LDA     #>brk_handler
+        STA     BRKv + 1
+        STZ     oldsta + 3
+        LDA     #&F2
+        STA     scratch
+        STZ     scratch + 1
+        JSR     readby
+        TAX
+        JSR     readnx
+        STA     scratch + 1
+        STX     scratch
+        LDX     #20
+.EDITol
+        DEX
+        BEQ     EDITz2
+
+        JSR     readnx
+        CMP     #cr
+        BEQ     EDIToz
+
+        CMP     #' '
+        BEQ     EDITsp
+        CMP     #'.'
+        BNE     EDITol
+
+.EDITsp                         ; skip spaces before the filename
+        DEX
+        BEQ     EDIToz
+        JSR     readnx
+        CMP     #' '
+        BEQ     EDITsp
+        LDX     #&00
+.EDITgb
+        STA     &01A0,X
+        JSR     readnx
+        INX
+        CPX     #'@'
+        BNE     EDITgb
+        LDA     #cr
+        STA     &01A0 - 1,X
+        STA     nambuf
+        LDY     #&00
+        JSR     readHX
+        BCC     EDITon
+        CMP     #','
+        BNE     EDITon
+        LDA     &00,X
+        STA     oldsta
+        LDA     &01,X
+        STA     oldsta + 1
+        INY
+        JSR     readHX
+        BCC     EDITon
+        CMP     #cr
+        BNE     EDITon
+        LDA     &00,X
+        STA     oldsta + 2
+        LDA     &01,X
+        STA     oldsta + 3
+        STZ     cursED
+        BRA     EDIToy
+.EDITon
+        LDX     #&00
+        LDA     &01A0
+        CMP     #cr
+.EDITz2
+        BEQ     EDIToz
+.EDITn2
+        LDA     &01A0,X
+        CMP     #cr
+        BEQ     EDITn3
+        CMP     #' '
+        BCC     EDIToz
+        CMP     #delete
+        BCS     EDIToz
+
+.EDITn3
+        STA     nambuf,X
+        INX
+        CMP     #cr
+        BNE     EDITn2
+        LDA     #&01
+        STA     cursED
+        BRA     EDIToy
+
+.EDIToz
+        LDX     #&FF
+        STX     cursED
+        LDA     #cr
+        STA     nambuf
+
+        LDA     clterm          ; current line terminator
+        CMP     (paje)
+        BNE     EDIToy
+        CMP     (tmax)
+        BNE     EDIToy
+        JSR     MEMSTATE
+
+.EDIToy
+        LDA     #cr
+        STA     frbuff
+        STA     grbuff
+        STZ     indexH
+        STZ     modflg
+        LDA     #3              ; characters are now defined when needed
+        JSR     oswrch
+
+        LDA     cursED
+        BEQ     zippo
+        DEA
+        BEQ     zappo
+        JMP     EDIT    ; and away we go...
+.zippo
+        JSR     EDITmd
+        JMP     OLDTEXT
+
+.zappo
+        STZ     brkaction
+        JSR     EDITmd
+        JSR     EDITi2
+        LDY     #&00
+        LDA     #<nambuf
+        STA     temp
+        LDA     #>nambuf
+        STA     temp + 1
+        JSR     Tload
+        JMP     EDITgt

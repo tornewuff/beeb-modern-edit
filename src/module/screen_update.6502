@@ -130,10 +130,28 @@
         ;        scrim updated
         ;        A,Y preserved.
         STA     Atemp
+        IF edit150
+        CMP     scrim,Y
+        BCS     WTSCRM
+        LDA     osvers          ; MOS 3 can clear the tail directly
+        BEQ     WTWIND
+        LDA     #31
+        JSR     oswrch
+        LDA     Atemp
+        INA
+        JSR     oswrch
+        TYA
+        JSR     oswrch
+        JSR     vstrng          ; clear from the cursor to the end of line
+        EQUB    23,8,5,6,0,0,0,0,0,0,&EA
+        JMP     WTSCRM
+.WTWIND
+        ELSE
         LDA     scrim,Y
         CMP     Atemp
         BCC     WTSCRM
         BEQ     WTSCRM
+        ENDIF
         LDA     #28
         JSR     oswrch
         LDA     Atemp
@@ -262,13 +280,24 @@
         BNE     QUEUCS
         LDA     #&81
         LDX     #0
+        IF edit150
+        JSR     osbyt0
+        ELSE
         LDY     #0
         JSR     osbyte
+        ENDIF
         CPY     #&FF
         BEQ     QUEUEX
         JSR     escTST
         INC     NEXTREADFLAG
         STX     nxtchr
+        IF edit150
+        STX     scratch + 31    ; flags for EDRDCH
+        TXA
+        BNE     QUEUCS
+        JSR     rdcesc          ; 0 prefix: read the command code too
+        STA     nxtchr
+        ENDIF
 .QUEUCS
         SEC
         RTS

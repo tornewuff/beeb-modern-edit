@@ -9,8 +9,10 @@
         LDX     #0
 .CSRXY
         LDA     #31
+.wraxy                          ; VDU A,X,Y
         JSR     oswrch
         TXA
+.wray                           ; VDU A,Y
         JSR     oswrch
         TYA
         JMP     oswrch

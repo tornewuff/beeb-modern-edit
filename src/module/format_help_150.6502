@@ -1,0 +1,203 @@
+        ; Edit 1.50r formatter help (replaces format_help)
+        ;
+        ; The help texts are compressed: bytes &80 to &9F stand for entry
+        ; n - &80 (counting from 0) of the zero terminated entries in
+        ; prhdic, which may itself
+        ; contain further abbreviations. Bytes from &A0 are printed as
+        ; they are.
+
+.prinHL
+        JSR     prhist
+        EQUB    &0e, &0d, &0d, "Format comman"
+        EQUB    "ds:- {initial values}", &0d
+        EQUB    &83, "afrn assign format n to"
+        EQUB    " register r {0}", &83, "anrn"
+        EQUB    " assign number to register r"
+        EQUB    " {0}", &83, "bl", &81, "bold"
+        EQUB    &84, &83, "bp", &81, "begin"
+        EQUB    &85, &83, "cc c control", &86
+        EQUB    "is c {.}", &83, "ce", &81
+        EQUB    "centre", &84, &83, "ch*c cha"
+        EQUB    "in in next file", &83, "co"
+        EQUB    &81, "comment", &84, &83, "dm"
+        EQUB    "cc define macro to .en", &83
+        EQUB    "ds", &81, "double space", &84
+        EQUB    "s", &83, "ef", &81, &8f, &85
+        EQUB    "foot", &80, "eh", &81, &8f
+        EQUB    &85, "head", &80, "en", &81
+        EQUB    "end of .at, .ix or .ef etc"
+        EQUB    &83, "ep", &81, "begin ", &8f
+        EQUB    &85, &83, "ff", &81, "form fe"
+        EQUB    "ed", &93, "printer, wait if "
+        EQUB    "paged mode", &83, "fo", &81
+        EQUB    &8f, " and odd foot", &80, "h"
+        EQUB    "e", &81, &8f, " and odd head"
+        EQUB    &80, "ic", &81, "close indexf"
+        EQUB    "ile", &83, "ig", &81, "ignor"
+        EQUB    "e input until .en", &83, "in"
+        EQUB    "+- indent left margin n plac"
+        EQUB    "es {0}", &83, "io*c open ind"
+        EQUB    "exfile for output", &83, "ix"
+        EQUB    &81, "send", &88, "to indexfi"
+        EQUB    "le until .en", &83, "ju", &81
+        EQUB    "justify right margin of", &84
+        EQUB    "s {on}", &83, "ll+-", &84
+        EQUB    " length including indent {76"
+        EQUB    "}", &83, "ls+-", &84, " spac"
+        EQUB    "ing is n {1}", &83, "lv n le"
+        EQUB    "ave n blank", &84, "s (by .n"
+        EQUB    "e n and .sp n)", &83, "ne n "
+        EQUB    "needs n output", &84, "s, .b"
+        EQUB    "p if necessary", &83, "nj"
+        EQUB    &81, "no justification of"
+        EQUB    &84, "s", &83, "nn", &81, "no"
+        EQUB    " new", &84, " after this"
+        EQUB    &84, &83, "of", &81, "odd"
+        EQUB    &85, "foot", &80, "oh", &81
+        EQUB    "odd", &85, "head", &80, "op"
+        EQUB    &81, "begin odd", &85, &83
+        EQUB    "os*c call operating system w"
+        EQUB    "ith this string", &83, "pl+-"
+        EQUB    &88, "area length is n", &84
+        EQUB    "s {58}", &83, "po+-", &85
+        EQUB    "offset is n {0}", &83, "rf"
+        EQUB    &81, "right flush this", &84
+        EQUB    &83, "sp n insert n blank"
+        EQUB    &84, "s", &83, "ss", &81, "si"
+        EQUB    "ngle space", &84, "s", &83
+        EQUB    "ta", &81, "define tabs {8,16"
+        EQUB    ",24,...,96}", &83, "tcc  def"
+        EQUB    "ine tab", &86, "as c {ctrl I"
+        EQUB    "}", &83, "ti+- temporary ind"
+        EQUB    "ent n", &83, "trcc translate"
+        EQUB    " {NBSP is space}", &83, "ul"
+        EQUB    &81, "underline", &84, &0d
+        EQUB    &0d, "n represents a decimal "
+        EQUB    "number, 0 is used if not pre"
+        EQUB    "sent", &0d, "Spaces are allo"
+        EQUB    "wed before n. c represents a"
+        EQUB    "ny", &86, &0d, "+- allows n,"
+        EQUB    " +n or -n: .in+2 sets an ind"
+        EQUB    "ent 2 more than current", &83
+        EQUB    "ti+2 is a temporary indent o"
+        EQUB    "f 2 more than", &93, "curren"
+        EQUB    "t indent", &0d, &0d, "Format"
+        EQUB    "ting commands which can appe"
+        EQUB    "ar anywhere", &0d, &83, "bb"
+        EQUB    &81, "begin bold", &83, "bu"
+        EQUB    &81, "begin underline", &83
+        EQUB    "eb", &81, "end bold", &83
+        EQUB    "eu", &81, "end underline"
+        EQUB    &83, "oc", &82, "counted as 1"
+        EQUB    &86, &83, "on", &82, "without"
+        EQUB    " being counted", &83, "r0-9 "
+        EQUB    "contents of register e.g. .r"
+        EQUB    "0", &0f, &0d, &0d, &ea
+        JSR     inkeys
+        JMP     EDITcont
+
+.prhist                         ; print the inline text after the JSR
+        PLA
+        STA     scratch + 26
+        PLA
+        STA     scratch + 27
+        JSR     prhinc
+        JMP     (scratch + 26)
+
+.prhlp
+        JSR     prhchr
+.prhinc
+        INC     scratch + 26
+        BNE     prinHM
+        INC     scratch + 27
+.prinHM                         ; print text at (scratch + 26) up to &EA
+        LDA     (scratch + 26)
+        CMP     #&EA
+        BNE     prhlp
+        RTS
+
+.prhchr                         ; print a character or abbreviation
+        CMP     #&A0
+        BCS     prhasc
+        CMP     #&80
+        BCS     prhtok
+.prhasc
+        JMP     osasci
+
+.prhtok
+        PHY
+        PHX
+        LDY     #&FF
+        EOR     #&80
+        TAX
+        BEQ     prhtcp
+.prhtsk                         ; skip X entries
+        INY
+        LDA     prhdic,Y
+        BNE     prhtsk
+        DEX
+        BNE     prhtsk
+.prhtcp
+        INY
+        LDA     prhdic,Y
+        BEQ     prhtex
+        JSR     prhchr
+        BRA     prhtcp
+.prhtex
+        PLX
+        PLY
+        RTS
+
+.prhdic
+        EQUB    " title"
+        EQUB    &92
+        EQUB    ".en"
+        EQUB    &83, 0
+        EQUB    "   "
+        EQUB    0
+        EQUB    " n output CHR$(n)"
+        EQUB    &92
+        EQUB    "printer "
+        EQUB    0, &0d, &2e, 0
+        EQUB    " line"
+        EQUB    0
+        EQUB    " page "
+        EQUB    0
+        EQUB    " character "
+        EQUB    0
+        EQUB    "shf-f"
+        EQUB    0
+        EQUB    " text "
+        EQUB    0
+        EQUB    " marked "
+        EQUB    0
+        EQUB    "RETURN"
+        EQUB    0, &2e, &0d, &8a
+        EQUB    " uses"
+        EQUB    &93
+        EQUB    "name at the start of"
+        EQUB    &88
+        EQUB    "after a '>'"
+        EQUB    &0d
+        EQUB    "COPY, "
+        EQUB    &8a, &92
+        EQUB    "use"
+        EQUB    &93
+        EQUB    "current file name."
+        EQUB    0
+        EQUB    "The "
+        EQUB    0, &32, &0d, &41, &88
+        EQUB    "file will be loaded"
+        EQUB    0
+        EQUB    "text"
+        EQUB    0
+        EQUB    "even"
+        EQUB    0
+        EQUB    " scroll margins "
+        EQUB    0, &90
+        EQUB    "with ctrl-f"
+        EQUB    0
+        EQUB    " to "
+        EQUB    0
+        EQUB    " the "
+        EQUB    0

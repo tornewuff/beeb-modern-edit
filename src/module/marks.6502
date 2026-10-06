@@ -132,6 +132,7 @@
 .DBLKEP
         STX     endp
         STY     endp + 1
+.DBLKRT
         RTS
 .MVBLOK
         ;Ensure good marking (m-m-c or c-m-m) for a block 'move-op'
@@ -155,8 +156,12 @@
 .MVBLOJ
         LDA     marksbeforecsr
         DEA     ;cmp#1
+        IF edit150
+        BNE     DBLKRT
+        ELSE
         BEQ     BADMARKING
         RTS
+        ENDIF
 .BADMARKING
         BRK
         EQUB    1,"Bad marking",0

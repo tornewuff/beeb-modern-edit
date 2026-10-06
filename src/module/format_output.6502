@@ -40,10 +40,15 @@
         EOR     #&FF
         TSB     scratch+8
 .VDUDON
+        IF edit150
+        JSR     vstrng
+        EQUB    23,32,&EA
+        ELSE
         LDA     #23
         JSR     oswrch
         LDA     #32
         JSR     oswrch
+        ENDIF
         LDX     #1
 .VDUPRG
         LDA     scratch,X
@@ -57,8 +62,12 @@
         PLY
         RTS
 .ESCAP
+        IF edit150
+        JSR     brk_handler.acknowledge_escape
+        ELSE
         LDA     #&7E
         JSR     osbyte
+        ENDIF
         JMP     DODWN
 
 .fmwrch

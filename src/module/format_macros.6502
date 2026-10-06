@@ -16,6 +16,23 @@
         LDA     #15
         TRB     lineno+1; leave format alone!
         RTS
+        IF edit150
+.TPGE                           ; TP = GE
+        LDA     GE
+        STA     TP
+        LDA     GE + 1
+        STA     TP + 1
+        RTS
+
+.prtvdu                         ; select the printer and enable it
+        LDA     #5
+        LDX     #0
+        JSR     osbyte
+        JSR     osbyte
+        LDA     #2
+        JMP     oswrch
+        ENDIF
+
 .macro
         LDA     addr
         PHA

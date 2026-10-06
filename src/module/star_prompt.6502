@@ -20,7 +20,11 @@
         BCS     stares
         LDA     commandline
         CMP     #cr
+        IF edit150
+        BEQ     starfx
+        ELSE
         BEQ     starex
+        ENDIF
         LDX     #<commandline
         LDY     #>commandline
         JSR     oscli
@@ -31,11 +35,22 @@
         EQUB    " "
         EQUB    &FF
 .stares
+        IF edit150
+        JSR     brk_handler.acknowledge_escape
+.starfx
+        LDA     #&DA            ; flush the VDU queue
+        LDX     #0
+        JSR     osbyt0
+.starex
+        JSR     vstrng
+        EQUB    4,3,15,13,26,&EA
+        ELSE
         LDA     #&7E
         JSR     osbyte
 .starex
         JSR     vstrng
         EQUB    0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
+        ENDIF
         JSR     chkscr
         JSR     inited
         JMP     EDITcont

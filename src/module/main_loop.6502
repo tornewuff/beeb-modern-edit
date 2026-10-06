@@ -40,6 +40,7 @@
         TXS
         STZ     brkaction
         JSR     inited
+.EDITth                         ; redraw everything
         LDA     #thelot
         STA     UPDATEREQD
 
@@ -63,10 +64,15 @@
         ;   &8A, &9A, &AA is the TAB key
         ;   &B0 - &FF     are entered into text (e.g. icelandics)
         JSR     EDRDCH
+        IF edit150
+        BNE     EDITTE          ; EDRDCH classifies the key, NE for text
+        TAX
+        ELSE
         TAX
         BPL     EDITTE
         CMP     #&B0
         BCS     EDITTE
+        ENDIF
 
         IF phil = 0
         LDX     cursED
@@ -100,12 +106,22 @@
         ASL     A
         TAY
         JSR     vstrng
+        IF edit150
+        EQUB    28,0,12,53,9,12,&EA     ; text window for the help text
+        LDA     TXTTAB,Y
+        STA     scratch + 26
+        LDA     TXTTAB + 1,Y
+        STA     scratch + 27
+        JSR     prinHM
+        BRA     TUTDON
+        ELSE
         EQUB    26,30,31,0,8,&EA
         LDA     TXTTAB,Y
         STA     string
         LDA     TXTTAB + 1,Y
         STA     string + 1
-.TUTLIN
+        ENDIF
+.TUTLIN                         ; (unused in 1.50r)
         LDY     #&00
         JSR     osnewl
 .TUTOUT

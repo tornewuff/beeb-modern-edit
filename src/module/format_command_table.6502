@@ -90,7 +90,7 @@
 NOCMDS  =       ( * - CMDS )
 
 
-        IF cF8key=1
+        IF cF8key=1 AND NOT(edit150)
                                 ; before printing, defaults are copied
                                 ; into private workspace buffer
                                 ; and nulls replaced with 'clterm'
@@ -101,6 +101,8 @@ NOCMDS  =       ( * - CMDS )
 .defftr
         EQUB    dftext
 
+        ELIF edit150
+        ; in EDIT08 for 1.50r
         ELSE
 .defhdr
         EQUB    ".he",termin

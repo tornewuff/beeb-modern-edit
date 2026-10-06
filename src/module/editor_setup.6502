@@ -36,11 +36,13 @@
         JSR     gpfdXY
         JMP     normax
 
+        IF NOT(edit150)
 .IOtogg                 ; Insert/Over toggle
         LDA     tutmode
         EOR     #bit4   ; the correct bit
         JSR     doMODE
         JMP     CstatU
+        ENDIF
 
 .chkscr
         LDA     #&87    ; select mode if tutmode and screen mode NOT the same
@@ -71,7 +73,11 @@
         JSR     osbyte          ; Read paje
         STX     paje
         STY     paje + 1
+        IF edit150
+        INA                     ; &84
+        ELSE
         LDA     #&84
+        ENDIF
         JSR     osbyte          ; Read HIMEM
         STX     hymem
         STY     hymem + 1

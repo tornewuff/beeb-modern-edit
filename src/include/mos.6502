@@ -10,5 +10,11 @@ service_call_help               = &09
 
 ; OSBYTE calls
 
+osbyte_read_os_version          = &00
 osbyte_acknowledge_escape       = &7e
 osbyte_enter_language           = &8e
+osbyte_read_cmos_ram            = &a1
+
+; OSWORD calls
+
+osword_read_char                = &0a

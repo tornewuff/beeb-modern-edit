@@ -22,6 +22,30 @@
 .doneW2
         JSR     MEMSTATE
         JMP     EDITin
+        ELIF edit150
+        EQUB    "Clear text [Y,shf-f9 (exec),D (discard)]",&EA
+        JSR     EDINKY
+        BNE     newtk
+        TAX
+        BNE     newtk
+.newtn
+        JSR     status
+        JMP     EDITth
+.newtd                          ; discard: mark the text as discarded
+        LDA     #2
+        STA     modflg
+        BRA     newtn
+.newtk
+        CMP     #&99            ; shift-f9
+        BEQ     donew
+        ORA     #&20
+        CMP     #'d'
+        BEQ     newtd
+        CMP     #'y'
+        BNE     newtn
+.donew
+        JSR     MEMSTATE
+        JMP     EDITin
         ELSE
         EQUB    "Text will be cleared if a key is hit",&EA
         LDA     #&81
@@ -46,10 +70,22 @@
         ENDIF
 
         LDA     modflg
+        IF edit150
+        CMP     #1              ; only ask if modified
+        BNE     LOADF2
+        JSR     prompt
+        EQUB    "Overwrite text [Y,f2]:",7,&EA
+        JSR     EDINKY
+        BNE     LOADky
+        TAX
+        BEQ     newtn
+.LOADky
+        ELSE
         BEQ     LOADF2
         JSR     prompt
         EQUB    "Overwrite text [Y,f2]:",&EA
         JSR     osrdch
+        ENDIF
         CMP     #128+2
         BEQ     LOADF2
         AND     #&DF
@@ -132,6 +168,9 @@
         LDA     GE
         LDX     GE + 1
         LDY     #0
+        IF edit150
+        BIT     brk_handler + 1 ; (&FF) sets V: use the name in place
+        ENDIF
         JSR     PASLOAD
         STX     GS
         STY     GS+1

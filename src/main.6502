@@ -43,7 +43,11 @@ ELSE
         INCLUDE "module/brk_handler.6502"
         INCLUDE "module/service_entry.6502"
 ENDIF
-INCLUDE "module/language_entry.6502"
+IF edit150
+        INCLUDE "module/language_entry_150.6502"
+ELSE
+        INCLUDE "module/language_entry.6502"
+ENDIF
 INCLUDE "module/iomem_read.6502"
 INCLUDE "module/file_io.6502"
 INCLUDE "module/datestamp.6502"
@@ -57,7 +61,11 @@ INCLUDE "module/mouse.6502"
 INCLUDE "module/main_loop.6502"
 INCLUDE "module/text_entry.6502"
 INCLUDE "module/function_key_table.6502"
-INCLUDE "module/help_text.6502"
+IF edit150
+        INCLUDE "module/help_text_150.6502"
+ELSE
+        INCLUDE "module/help_text.6502"
+ENDIF
 
 ; EDIT03
 INCLUDE "module/softkeys.6502"
@@ -72,7 +80,11 @@ INCLUDE "module/gap_buffer.6502"
 INCLUDE "module/insert_text.6502"
 INCLUDE "module/tab_key.6502"
 INCLUDE "module/return_to_language.6502"
-INCLUDE "module/format_help.6502"
+IF edit150
+        INCLUDE "module/format_help_150.6502"
+ELSE
+        INCLUDE "module/format_help.6502"
+ENDIF
 
 ; EDIT04 (format_commands continues into EDIT05)
 INCLUDE "module/print_command.6502"
@@ -112,8 +124,10 @@ INCLUDE "module/find_replace.6502"
 INCLUDE "module/write_lineno.6502"
 INCLUDE "module/marks.6502"
 INCLUDE "module/block_ops.6502"
+INCLUDE "module/find_replace_prompts.6502"
 INCLUDE "module/cursor_type.6502"
 INCLUDE "module/extended_find.6502"
+INCLUDE "module/default_headers.6502"
 
         IF origin=&8000
 .theend
@@ -123,5 +137,10 @@ INCLUDE "module/extended_find.6502"
         ENDIF
 
 romlen  =       (theend - origin)
+
+IF edit150 AND origin == &8000 AND NOT(DEFINED(build_disc))
+        ; the ROM image is padded out to 16K
+        EQUB    REPEATED(&C000 - *, &FF)
+ENDIF
 
 ENDSECTION

@@ -4,6 +4,42 @@
         ; plain = &80
         ; shift = &90
         ; ctrl  = &A0
+        IF edit150
+        LDA     #4
+        LDX     #2
+        JSR     osbyte
+        LDA     #&DB
+        LDX     #128 + 10
+        JSR     osbyt0          ; tab key pretends to be soft key 10
+        LDA     #&E3
+        LDX     #2
+        JSR     osbyt0
+        DEA
+        LDX     #2
+        JSR     osbyt0
+        LDX     #2
+.INITEX
+        DEA
+.osbyt0                         ; OSBYTE A with X, Y = 0
+        LDY     #0
+        JMP     osbyte
+.initus
+        ; Return cursor-keys & softkeys to 'normal' state.
+        LDA     #&DB
+        LDX     #9
+        JSR     osbyt0          ; tab key emits 9
+        LDA     #4
+        LDX     #0
+        JSR     osbyte
+        LDA     #&E3
+        LDX     #&90
+        JSR     osbyt0
+        DEA
+        LDX     #&80
+        JSR     osbyt0
+        LDX     #1
+        BRA     INITEX
+        ELSE
         LDA     #4
         LDX     #2
         JSR     osbyte
@@ -35,3 +71,4 @@
         JSR     osbyte
         LDX     #1
         BRA     INITEX
+        ENDIF

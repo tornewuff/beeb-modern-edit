@@ -1,10 +1,16 @@
 .paslnm
+        IF edit150
+        PHP                     ; V set: use the name in place, don't copy it
+        ENDIF
         SEC
         SBC     addr
         STA     maxsiz
         TXA
         SBC     addr + 1
         STA     maxsiz + 1
+        IF edit150
+        PLP
+        ENDIF
 
 .filename
         ; Entry - IY temp points to input name. Exit - scratch -> filename.
@@ -13,6 +19,17 @@
         BEQ     textna
         CMP     #&8B
         BEQ     oldnam
+        IF edit150
+        BVC     cpynam
+        CLC                     ; point scratch at temp + Y
+        TYA
+        ADC     temp
+        TAX
+        LDA     temp + 1
+        ADC     #&00
+        BRA     setnam
+.cpynam
+        ENDIF
         LDX     #&00
 
 .memnam
@@ -27,10 +44,18 @@
         LDA     nambuf
         CMP     #cr
         BEQ     nonam
+        IF edit150
+        LDX     #<nambuf
+        LDA     #>nambuf
+.setnam
+        STX     scratch
+        STA     scratch + 1
+        ELSE
         LDA     #<nambuf
         STA     scratch
         LDA     #>nambuf
         STA     scratch + 1
+        ENDIF
         RTS
 
 .textna
@@ -142,6 +167,9 @@
         RTS
         ENDIF
 
+        IF edit150
+        CLV                     ; copy the name into nambuf
+        ENDIF
 .PASLOAD
         ; Entry - IY temp -> name, addr = load address, AX = max free address
         ; Exit - File checked for size (not on slow FS's)
@@ -205,6 +233,9 @@
         ; GE = Start of block
         ; endp = End of block
         ; Exit - specified memory saved as filename.
+        IF edit150
+        CLV                     ; copy the name into nambuf
+        ENDIF
         JSR     filename
 
 .inSAVE

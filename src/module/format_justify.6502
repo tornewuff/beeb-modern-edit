@@ -56,7 +56,11 @@
 .SCREEE
         JSR     CHKCTL
 
+        IF edit150
+        CMP     clterm
+        ELSE
         CMP     #cr             ; ++++
+        ENDIF
         BEQ     screeG
 
         CMP     tabcha
@@ -119,6 +123,10 @@
         CPX     count
         BCC     SCREEE
 
+        IF edit150
+        LDA     clterm
+        ELSE
         LDA     #cr             ; ++++
+        ENDIF
 .screeG
         JMP     fmwrch

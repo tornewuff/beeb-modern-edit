@@ -1,0 +1,16 @@
+        IF edit150
+.FRPRMT                         ; prompt for the find and replace action
+        JSR     prompt
+        EQUB    "C(ontinue), E(nd of file replace), R(eplace) or ESCAPE",&EA
+        RTS
+
+.FRRDRP                         ; read the replacement
+        JSR     prompt
+        EQUB    "Replace by:",&EA
+        JSR     readLS
+        JSR     READINIT
+        JSR     MININIT
+        LDA     replindex
+        STA     outindex
+        JMP     REPLPART
+        ENDIF

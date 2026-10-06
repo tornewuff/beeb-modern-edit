@@ -1,8 +1,12 @@
 .promtF
         JSR     prompt
         EQUB    "Type filename ",&EA
+        IF edit150
+        BRA     PRMPT1
+        ELSE
         LDX     #&01
         BRA     STRMFL
+        ENDIF
 
 .prompt
         LDY pagelength
@@ -13,6 +17,7 @@
         LDY     pagelength
         INY
         JSR     CSRXY
+.PRMPT1
         LDX     #1
         BRA     STRMFL
 .strimo

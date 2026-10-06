@@ -55,6 +55,9 @@ ENDIF
         JSR     CSR0STATUSY
 
 IF lerror=1
+        IF edit150
+        JSR     define_chars
+        ENDIF
         JSR     vstrng
         EQUB    &0B,&0B,&0B,remap("┌"),&EA
         LDX     #remapchar("─")
@@ -70,6 +73,9 @@ IF lerror=1
         JSR     BRKsub
         EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
         JSR     BRKoy
+        IF edit150
+        JSR     restore_chars
+        ENDIF
 ELSE
         JSR     supvBR
         JSR     curOFF

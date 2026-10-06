@@ -70,7 +70,13 @@
         JSR     GPBKXY
         JSR     NORMALIZE
         JSR     scrnud
+.GREPCT                         ; report the count of replacements
+        IF edit150
+        LDX     prmcol
+        INX
+        ELSE
         LDX     #prmptl
+        ENDIF
         JSR     PRMPTX
         EQUB    " ",&EA
         JSR     WRITLINE
@@ -83,6 +89,9 @@
 .FINDREPLACE
         JSR     prompt
         EQUB    "Find and replace:",&EA
+        IF edit150
+        STZ     frall
+        ENDIF
         IF extgf=1
         JSR     readlf
         ELSE
@@ -112,8 +121,14 @@
         ;Set up search termination pointer & flag.
         LDA     tmax
         STA     texp
+        IF edit150
+        STA     endp
+        ENDIF
         LDA     tmax+1
         STA     texp+1
+        IF edit150
+        STA     endp+1
+        ENDIF
         STA     TEXPFLAG
 .IMRPRL
         LDX     GE
@@ -124,19 +139,47 @@
         JSR     SEARCH
         BCS     IMRPNF
         JSR     MOVETOFOUNDPOSITION
+        IF edit150
+        INC     line            ; count the matches
+        BNE     IMRPLN
+        INC     line+1
+.IMRPLN
+        LDA     frall           ; replacing to the end of the file?
+        BNE     IMRPRP
+        ENDIF
         JSR     normax; get position of X back
         LDA     BSM ;Move to BSM
         STA     scrnY
         JSR     scrnud
         LDA     #fullscreen
         STA     UPDATEREQD
+        IF edit150
+        JSR     FRPRMT
+        ELSE
         JSR     prompt
         EQUB    "R(eplace), C(ontinue) or ESCAPE",&EA
+        ENDIF
 
         JSR     CSRSCREENXY
         JSR     CURON
 .IMRPPR
         JSR     GETRESP
+        IF edit150
+        CMP     #'e'
+        BNE     IMRPCC
+        STA     frall           ; replace this and all the rest
+        LDA     #1
+        STA     line
+        STZ     line+1
+        JSR     MKREFUSE
+        LDA     replflag
+        BNE     IMRPEX
+        JSR     FRRDRP
+        INC     replflag
+.IMRPEX
+        JMP     IMRPRP
+.IMRPCC
+        ENDIF
         CMP     #'c'
         BNE     IMRPNC
         LDX     me
@@ -149,6 +192,9 @@
         ;Either use supplied replace part, or prompt for one.
         LDA     replflag
         BNE     IMRPRP
+        IF edit150
+        JSR     FRRDRP
+        ELSE
         JSR     prompt
         EQUB    "Replace by:",&EA
 
@@ -162,6 +208,7 @@
         LDA     replindex
         STA     outindex
         JSR     REPLPART
+        ENDIF
 .IMRPRP
         JSR     chknrep
         JMP     IMRPRL
@@ -171,7 +218,16 @@
         STA     UPDATEREQD
         JSR     scrnud
         JSR     status
+        IF edit150
+        LDA     frall           ; after replacing to the end, give the count
+        BEQ     IMRPN2
+        JMP     GREPCT
+.IMRPN2
+        LDX     prmcol
+        INX
+        ELSE
         LDX     #prmptl
+        ENDIF
         JSR     PRMPTX
         EQUB    " Not found",&EA
         RTS

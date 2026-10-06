@@ -18,11 +18,22 @@
         JSR     vstrng
         EQUB    26,home,&EA
         JSR     STARTINV
+        IF edit150
+        JSR     define_chars
+        JSR     BIGMESS
+        PLA
+        CMP     #2
+        BEQ     DOTUTX
+        JSR     BIGMET
+.DOTUTX
+        JSR     restore_chars
+        ELSE
         JSR     BIGMESS
         PLA
         CMP     #2
         BEQ     KEYONL
         JSR     BIGMET
+        ENDIF
 .KEYONL
         JSR     STOPINV
         JSR     GETWIN          ; get size of total screen
@@ -63,6 +74,15 @@
         CMP     #2
         BNE     NOWIND
 .WINDOW
+        IF edit150
+        JSR     vstrng
+        EQUB    28,0,&EA
+        LDA     realPA
+        INA
+        JSR     oswrch
+        LDA     PAGEWIDTH
+        JMP     wray
+        ELSE
         LDA     #28
         JSR     oswrch
         LDA     #0
@@ -74,6 +94,7 @@
         JSR     oswrch
         TYA
         JMP     oswrch
+        ENDIF
 .NOWIND
         LDA     #26
         JMP     oswrch

@@ -2,12 +2,27 @@
         LDA     #1
         LDX     modflg
         STA     modflg
+        IF edit150
+        CPX     #1
+        BNE     status
+        ELSE
         BEQ     status
+        ENDIF
         RTS
+        IF edit150
+.IOtogg                         ; Insert/Over toggle
+        LDA     #bit4
+        BRA     modtog
+.tabctl
+        LDA     #bit3
+.modtog
+        JSR     togmod
+        ELSE
 .tabctl
         LDA     #8
         EOR     tutmode
         JSR     doMODE
+        ENDIF
 
 .CstatU
         STZ     UPDATEREQD      ; update required
@@ -31,7 +46,11 @@
         JSR     vstrng
 
         IF phil=0
+        IF edit150
+        EQUB    "     Cursor Editing",&EA
+        ELSE
         EQUB    "    Cursor Editing",&EA
+        ENDIF
         ELSE
         EQUB    "    Soft Key Entry",&EA
         ENDIF
@@ -61,6 +80,22 @@
         JSR     vstrng
         EQUB    "TAB words",&EA
 .STATSS
+        IF edit150
+        LDA     modflg          ; 0 original, 1 modified, else discarded
+        DEA
+        BMI     STATOR
+        BNE     STATDI
+        JSR     vstrng
+        EQUB    " Modified ",&EA
+        BRA     STATSX
+.STATDI
+        JSR     vstrng
+        EQUB    " Discarded",&EA
+        BRA     STATSX
+.STATOR
+        JSR     vstrng
+        EQUB    " Original ",&EA
+        ELSE
         LDA     modflg
         BNE     STATMO
         JSR     vstrng
@@ -69,12 +104,19 @@
 .STATMO
         JSR     vstrng
         EQUB    " Modified",&EA
+        ENDIF
 .STATSX
         IF cF8key=1
 
+        IF edit150
+        LDA     tutmode
+        AND     #bit6           ; LF line terminator selected
+        BEQ     STATcr
+        ELSE
         LDA     clterm
         CMP     #cr
         BEQ     STATcr
+        ENDIF
 
         JSR     vstrng
         EQUB    " LF",&EA
@@ -104,6 +146,10 @@
 .STATNQ
         ENDIF
 
+        IF edit150
+        LDX     #prmptl + prmod1 + prmod2 + 1
+        STX     prmcol
+        ENDIF
         JSR     STOPINV         ; stop inverse
         LDY     pagelength
         INY
@@ -123,6 +169,10 @@ prmod2  =       5               ; Date/Exec text
 prmod2  =       0
         ENDIF
 
+        IF edit150
+        LDA     #(prmptl + prmod1 + prmod2)     ; status texts are 1 longer
+        ELSE
         LDA     #(prmptl - 1 + prmod1 + prmod2)  ; plus any modifications
+        ENDIF
 
         JMP     WIPETAIL                ; and clear the rest of the line

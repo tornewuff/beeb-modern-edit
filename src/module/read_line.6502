@@ -64,6 +64,10 @@
 .escSIM
         STZ     cursED
         JMP     brk_handler.escCON
+        IF edit150
+.rdcesc                         ; read a character and check for escape
+        JSR     osrdch
+        ENDIF
 .escTST
         BIT     &FF
         BMI     escSET
@@ -72,8 +76,12 @@
 .rdlnre
         LDY     #0
 .RDLNLP
+        IF edit150
+        JSR     EDRDCH
+        ELSE
         JSR     osrdch
         BCS     RDLNEX
+        ENDIF
         STA     linbuf,Y
         CMP     #&7F
         BNE     RDLN2
