@@ -164,13 +164,13 @@
         STA     pageef + 1
         STA     pageof + 1
         ELSE
-        LDA     #defhdr
+        LDA     #<defhdr
         STA     pageeh
         STA     pageoh
         LDA     #>defhdr
         STA     pageeh+1
         STA     pageoh+1
-        LDA     #defftr
+        LDA     #<defftr
         STA     pageef
         STA     pageof
         LDA     #>defftr

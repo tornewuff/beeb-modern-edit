@@ -8,7 +8,7 @@
         IF reladd=0
         JMP     servic
         ELSE
-        JMP     ((servic - origin) + &8000)
+        JMP     servic - origin + &8000
         ENDIF
 
         IF reladd=0
@@ -1027,10 +1027,10 @@ nlfarr  =       &FE
         LDA     mousel
         STA     mousel + 5
         LDA     #&92
-        LDX     #mouswi
+        LDX     #<mouswi
         JSR     osbyte
         STY     mousel
-        LDX     #mouxlo
+        LDX     #<mouxlo
         JSR     osbyte
         PHY
         INX
