@@ -6,6 +6,10 @@ Based on the period source code for a modified earlier version of Edit and the R
 
 All credit is due to the various original authors.
 
+## LLM usage
+
+The small number of commits tagged with "CLAUDE:" were produced by Claude Code to automate a few specific repetitive and tedious tasks, with separate followup commits to correct and amend its output manually after thorough review.
+
 ## Requirements
 
 - The code is built using [Baron](https://github.com/waitingforvsync/baron), a modern cross-assembler for BBC Micro development.
@@ -14,9 +18,9 @@ All credit is due to the various original authors.
 
 ## Building
 
-Currently this builds HiEdit 1.24 using the default configuration from the period source code, and a work-in-progress version of Edit 1.50r that is mostly just the same as 1.24.
+Currently this builds HiEdit 1.24 using the default configuration from the period source code, and Edit 1.50r using the appropriate configuration.
 
 - `just build` will build both variants.
-- `just verify` verifies that HiEdit 1.24 matches the original (but does not check 1.50r because it definitely does not match yet).
+- `just verify` verifies that both variants match the original.
 - `just disc hiedit` will build an SSD image that boots HiEdit.
 - `just disc edit` will build an SSD image that boots Edit 1.50r.

@@ -7,6 +7,7 @@ build := "build"
 
 verify: build
     cd {{ build }} && sha1sum --check --quiet ../orig/hiedit.b800.rom.sha1
+    cd {{ build }} && sha1sum --check --quiet ../orig/edit.1.50r.rom.sha1
 
 build: _prep
     baron -p {{ build }} {{ roots }}
