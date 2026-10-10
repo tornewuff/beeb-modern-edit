@@ -1,4 +1,3 @@
-        ; -> EDIT06
         ; Entry - scrnY = desired screen Y coord of current line
         ;         (scrnX,scrnY) = final cursor position
         ; Exit  - screen & scrim updated

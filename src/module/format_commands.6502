@@ -332,7 +332,7 @@
         PLA
 .OKAYLV
         JMP     ALINES
-        ;                               > EDIT05
+
 .ROUTNE
         JSR     GETNO
         CMP     lineot

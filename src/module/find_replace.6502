@@ -1,4 +1,3 @@
-        ; -> EDIT08
         ; Find-Replace & Global-Replace should have their own seperate command
         ; keys, with the first delimeter 'built in' (i.e. not required), and CR
         ; sufficing as terminator -

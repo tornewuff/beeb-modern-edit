@@ -1,4 +1,4 @@
-        ; Find replace section -> EDIT07
+        ; Find replace section
         ; Use recursive descent to check syntax ;
         ; F_str ::= find_part CR
         ; find_part ::= { ['*'] (simple_item | set_item) }

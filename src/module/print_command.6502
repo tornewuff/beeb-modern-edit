@@ -1,4 +1,4 @@
-                ; the formatter -> EDIT04
+                ; the formatter
 .PRINTH
         JMP         prinHL        ; help on print
 .print
