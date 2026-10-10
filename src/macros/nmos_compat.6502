@@ -1,3 +1,5 @@
+; Compatibility macros to write code that works for CMOS or NMOS.
+
 IF build.cmos_host
         MACRO PHX_COMPAT : PHX : ENDMACRO
         MACRO PHY_COMPAT : PHY : ENDMACRO

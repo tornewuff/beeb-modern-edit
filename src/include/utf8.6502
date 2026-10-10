@@ -69,6 +69,8 @@ from = CONCAT(0..127, utf8_decode(CODES(codepoints)))
 pad_vals = REPEATED(LEN(byte_vals), ' ')
 to = CONCAT(0..127, FLATTEN(ZIP(byte_vals, pad_vals, pad_vals, pad_vals)))
 
+ASSERT LEN(from) == LEN(to)
+
 FUNCTION remap(s) = CHR(to[FIND(from, utf8_decode(CODES(s)))])
 
 FUNCTION remapchar(s)
