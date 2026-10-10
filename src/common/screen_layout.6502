@@ -74,27 +74,18 @@
         CMP     #2
         BNE     NOWIND
 .WINDOW
-        IF edit150
-        JSR     print_inline
-        EQUB    28,0,&EA
+        write_two_chars 28, 0
         LDA     screen_height
         INA
         JSR     oswrch
         LDA     page_width
+IF edit150_size_opt
         JMP     vdu_ay
-        ELSE
-        LDA     #28
-        JSR     oswrch
-        LDA     #0
-        JSR     oswrch
-        LDA     screen_height
-        INA
-        JSR     oswrch
-        LDA     page_width
+ELSE
         JSR     oswrch
         TYA
         JMP     oswrch
-        ENDIF
+ENDIF
 .NOWIND
         LDA     #26
         JMP     oswrch

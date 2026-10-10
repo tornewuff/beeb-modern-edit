@@ -156,12 +156,12 @@
 .MVBLOJ
         LDA     marks_before_cursor
         DEA     ;cmp#1
-        IF edit150
+IF edit150_size_opt
         BNE     DBLKRT
-        ELSE
+ELSE
         BEQ     BADMARKING
         RTS
-        ENDIF
+ENDIF
 .BADMARKING
         BRK
         EQUB    1,"Bad marking",0

@@ -10,12 +10,7 @@
         LDX     #&FF
         TXS
         STZ     cursor_editing
-IF edit150
-        JSR     acknowledge_escape
-ELSE
-        LDA     #osbyte_acknowledge_escape
-        JSR     osbyte
-ENDIF
+        acknowledge_escape
         LDA     brk_action
         CMP     #&FF
         BNE     simBRK
@@ -103,19 +98,16 @@ ENDIF
         CMP     #&1B
         BNE     esclop
 .escCON
-IF edit150
-        JSR     acknowledge_escape
-ELSE
-        LDA     #osbyte_acknowledge_escape
-        JSR     osbyte
-ENDIF
+        acknowledge_escape
         JSR     NORMALIZE
         JMP     EDITcont
+}
 
-IF edit150
-.acknowledge_escape
+IF edit150_size_opt
+.acknowledge_escape_impl {
         LDA     #osbyte_acknowledge_escape
         JMP     osbyte
+}
 ENDIF
 
 .print_nl_os_error
@@ -130,4 +122,3 @@ ENDIF
         BNE     BRKOLP
 .BRKOX
         RTS
-}

@@ -40,15 +40,7 @@
         EOR     #&FF
         TSB     scratch+8
 .VDUDON
-        IF edit150
-        JSR     print_inline
-        EQUB    23,32,&EA
-        ELSE
-        LDA     #23
-        JSR     oswrch
-        LDA     #32
-        JSR     oswrch
-        ENDIF
+        write_two_chars 23, 32
         LDX     #1
 .VDUPRG
         LDA     scratch,X
@@ -62,12 +54,7 @@
         PLY
         RTS
 .ESCAP
-        IF edit150
-        JSR     brk_handler.acknowledge_escape
-        ELSE
-        LDA     #&7E
-        JSR     osbyte
-        ENDIF
+        acknowledge_escape
         JMP     DODWN
 
 .format_write_char

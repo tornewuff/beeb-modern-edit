@@ -22,6 +22,7 @@ ENDIF
 
 .setconfig {
         edit150 = TRUE
+        edit150_size_opt = TRUE
         curtyp = FALSE
         lfarro = FALSE
 }

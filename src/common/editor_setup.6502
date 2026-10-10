@@ -69,16 +69,17 @@
 .setup_editor           ; Set up 'EDIT'
         JSR     select_screen_mode
 .read_memory_limits
-        LDA     #&83
-        JSR     osbyte          ; Read oshwm
+        LDA     #osbyte_read_oshwm
+        JSR     osbyte
         STX     oshwm
         STY     oshwm + 1
-        IF edit150
-        INA                     ; &84
-        ELSE
-        LDA     #&84
-        ENDIF
-        JSR     osbyte          ; Read HIMEM
+IF edit150_size_opt
+        ASSERT  osbyte_read_oshwm + 1 == osbyte_read_himem
+        INA
+ELSE
+        LDA     #osbyte_read_himem
+ENDIF
+        JSR     osbyte
         STX     himem
         STY     himem + 1
 

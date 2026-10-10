@@ -1,12 +1,12 @@
 .prompt_filename
         JSR     prompt
         EQUB    "Type filename ",&EA
-        IF edit150
+IF edit150_size_opt
         BRA     PRMPT1
-        ELSE
-        LDX     #&01
+ELSE
+        LDX     #1
         BRA     STRMFL
-        ENDIF
+ENDIF
 
 .prompt
         LDY page_length

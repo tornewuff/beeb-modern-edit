@@ -32,6 +32,9 @@ ENDIF
         curtyp = FALSE
         lfarro = FALSE
         extgf = TRUE
+
+        ; Also include nondefault options split out of edit150
+        edit150_size_opt = TRUE
 }
 
 

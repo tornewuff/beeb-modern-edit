@@ -25,6 +25,8 @@
         extgf = FALSE
         ; shuffle code around to build EDIT 1.50
         edit150 = FALSE
+        ; apply size optimizations from EDIT 1.50 (non-behavior-changing)
+        edit150_size_opt = FALSE
         ; omit the service handler to save space (formerly enabled by mouse=1)
         omit_service = FALSE
 }
@@ -43,3 +45,4 @@ IF DEFINED(setconfig.lfarro) : lfarro = setconfig.lfarro : ELSE : lfarro = defau
 IF DEFINED(setconfig.extgf) : extgf = setconfig.extgf : ELSE : extgf = default_config.extgf : ENDIF
 IF DEFINED(setconfig.edit150) : edit150 = setconfig.edit150 : ELSE : edit150 = default_config.edit150 : ENDIF
 IF DEFINED(setconfig.omit_service) : omit_service = setconfig.omit_service : ELSE : omit_service = default_config.omit_service : ENDIF
+IF DEFINED(setconfig.edit150_size_opt) : edit150_size_opt = setconfig.edit150_size_opt : ELSE : edit150_size_opt = default_config.edit150_size_opt : ENDIF

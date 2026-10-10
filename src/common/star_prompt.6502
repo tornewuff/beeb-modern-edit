@@ -35,8 +35,8 @@
         EQUB    " "
         EQUB    &FF
 .stares
+        acknowledge_escape
         IF edit150
-        JSR     brk_handler.acknowledge_escape
 .starfx
         LDA     #&DA            ; flush the VDU queue
         LDX     #0
@@ -45,8 +45,6 @@
         JSR     print_inline
         EQUB    4,3,15,13,26,&EA
         ELSE
-        LDA     #&7E
-        JSR     osbyte
 .starex
         JSR     print_inline
         EQUB    0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA

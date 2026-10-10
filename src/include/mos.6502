@@ -36,6 +36,8 @@ service_call_help               = &09
 
 osbyte_read_os_version          = &00
 osbyte_acknowledge_escape       = &7e
+osbyte_read_oshwm               = &83
+osbyte_read_himem               = &84
 osbyte_enter_language           = &8e
 osbyte_read_cmos_ram            = &a1
 

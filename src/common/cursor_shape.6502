@@ -9,17 +9,15 @@
         ; Entry - X = 1st byte, Y = 2nd byte
         ; Exit  - VDU 23,X,Y,0,0,0,0,0,0,0 Output.
 
-        IF edit150
         LDA     #23
+IF edit150_size_opt
         JSR     vdu_axy
         LDX     #8
         LDA     #0
-.VDU23L
-        JSR     oswrch
+.@      JSR     oswrch
         DEX
-        BNE     VDU23L
-        ELSE
-        LDA     #23
+        BNE     @-
+ELSE
         JSR     oswrch
         TXA
         JSR     oswrch
@@ -27,6 +25,6 @@
         JSR     oswrch
         JSR     print_inline
         EQUB    &00,&00,&00,&00,&00,&00,&00,&EA
-        ENDIF
+ENDIF
 .VDU23X
         RTS
