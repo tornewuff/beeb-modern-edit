@@ -39,14 +39,3 @@
         JSR     chkscr
         JSR     inited
         JMP     EDITcont
-
-.allowC
-        ; Allow cursor editing & softkey use. Terminated by CR.
-        LDA     #&01
-        STA     cursED
-
-        IF phil=0
-        JSR     initus
-        ENDIF
-
-        JMP     CstatU

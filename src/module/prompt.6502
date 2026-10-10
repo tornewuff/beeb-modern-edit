@@ -1,0 +1,35 @@
+.promtF
+        JSR     prompt
+        EQUB    "Type filename ",&EA
+        LDX     #&01
+        BRA     STRMFL
+
+.prompt
+        LDY pagelength
+        INY
+        JSR     wipeline
+        LDX     #0
+.PRMPTX
+        LDY     pagelength
+        INY
+        JSR     CSRXY
+        LDX     #1
+        BRA     STRMFL
+.strimo
+        LDX     #0
+.STRMFL
+        JSR     STARTINV
+        PLA
+        STA     string
+        PLA
+        STA     string + 1
+        JSR     VSTRLP
+        JSR     STOPINV
+        TXA
+        BEQ     STRMEX
+        LDA     PAGEWIDTH
+        DEA
+        LDY     pagelength
+        STA     scrim + 1,Y
+.STRMEX
+        JMP     (string)

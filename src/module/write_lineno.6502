@@ -1,0 +1,43 @@
+.WRITLINE
+        JSR     STARTINV
+        LDX     #4;Outputs LINE in decimal, suppressing leading zeros.
+        STX     string
+.WOPRNEXT
+        STZ     string+1
+.WOPRLOOP
+        SEC
+        LDA     line
+        SBC     WOPTBL,X
+        TAY
+        LDA     line+1
+        SBC     WOPTBH,X
+        BCC     WOPRDIGI
+        STY     line
+        STA     line+1
+        INC     string+1
+        BRA     WOPRLOOP
+.WOPRDIGI
+        LDA     string+1
+        BNE     WOPRGEN
+        DEC     string
+        BPL     WOPRCONT
+.WOPRGEN
+        ORA     #'0'
+        JSR     oswrch
+        STZ     string
+.WOPRCONT
+        DEX
+        BPL     WOPRNEXT
+        RTS
+.WOPTBL
+        EQUB    <1
+        EQUB    <10
+        EQUB    <100
+        EQUB    <1000
+        EQUB    <10000
+.WOPTBH
+        EQUB    >1
+        EQUB    >10
+        EQUB    >100
+        EQUB    >1000
+        EQUB    >10000
