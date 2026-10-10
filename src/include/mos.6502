@@ -1,3 +1,27 @@
+; MOS entry points
+
+osbyte = &fff4
+osword = &fff1
+oscli  = &fff7
+osrdch = &ffe0
+osrdsc = &ffb9
+oswrch = &ffee
+osnewl = &ffe7
+osasci = &ffe3
+oswrsc = &ffb3
+osfind = &ffce
+osfile = &ffdd
+osargs = &ffda
+osgbpb = &ffd1
+osbput = &ffd4
+osbget = &ffd7
+oseven = &ffbf
+gsinit = &ffc2
+gsread = &ffc5
+
+nvwrch = &ffcb
+nvrdch = &ffc8
+
 ; MOS zero page workspace locations
 
 os_text_ptr     =       &f2

@@ -1,0 +1,127 @@
+        SECTION ZeroPage, org = &00, guard = &90
+
+.string SKIP    &02
+.paje   SKIP    &02
+.tmax   SKIP    &02
+.temp   SKIP    &02
+.addr   SKIP    &02
+.argP   SKIP    &02
+.varp   SKIP    &02
+.TP     SKIP    &02
+.GS     SKIP    &02
+.GE     SKIP    &02
+.MS     SKIP    &02
+xeff    =       MS
+lastsp  =       MS + 1
+.me     SKIP    &02
+diff    =       me
+centre  =       me + 1
+.SMATlo SKIP    &02
+rflush  =       SMATlo
+linfed  =       SMATlo + 1
+.smathi SKIP    &02
+len     =       smathi
+indent  =       smathi + 1
+.UMATlo SKIP    &02
+underl  =       UMATlo
+pundrl  =       UMATlo + 1
+.umathi SKIP    &02
+bold    =       umathi
+vspace  =       umathi + 1
+
+        IF cF8key=1 AND NOT(edit150)
+.clterm SKIP    &01     ; current line terminator
+        ENDIF
+        IF extgf=1      ; Extended search/replace characters
+.ctptr  SKIP    &02     ; current text pointer
+        ENDIF
+
+.hymem  SKIP    &02
+.tstart SKIP    &02
+.brkaction SKIP &01
+.size   SKIP    &02
+.maxsiz SKIP    &02
+.pwtflg SKIP    &01
+.prtflg SKIP    &01
+.tutmode SKIP   &01
+.modflg SKIP    &01
+.Atemp  SKIP    &01
+.count  SKIP    &01
+.index  SKIP    &01
+.PAGEWIDTH SKIP &01
+.pagelength SKIP &01
+.realPA SKIP    &01
+.scrupY SKIP    &01
+.maxscrupY SKIP &01
+.UPDATEREQD SKIP &01
+.scrnPY SKIP    &01
+.scrnX  SKIP    &01
+.scrnY  SKIP    &01
+.lnbufx SKIP    &01
+.cursED SKIP    &01
+.sstckx SKIP    &01
+fill    =       sstckx
+.replindex SKIP &01
+tinden  =       replindex
+.chunksize SKIP &02
+juslen  =       chunksize
+spaces  =       chunksize + 1
+.nummarks SKIP  &01
+l       =       nummarks
+.marksbeforecsr SKIP &01
+Q       =       marksbeforecsr
+.currlength SKIP &01
+.NEXTREADFLAG SKIP &01
+.nxtchr SKIP    &01
+.lineDW SKIP    &01
+.fieldindex SKIP &01
+lineot  =       fieldindex
+.inpindex SKIP  &01
+ctlcha  =       inpindex
+.outindex SKIP  &01
+boldrq  =       outindex
+.mmx    SKIP    &01
+undrrq  =       mmx
+.offset SKIP    &01               ; page offset
+.SIMPCHAR SKIP  &01
+pbold   =       SIMPCHAR
+.nextX  SKIP    &01
+LASTTAB =       nextX
+.line   SKIP    &02
+doindX  =       line
+.indexH SKIP    &01
+.MULFFLAG SKIP  &01
+tabcha  =       MULFFLAG
+.markX  SKIP    &01
+.TSM    SKIP    &01
+.BSM    SKIP    &01
+        IF edit150
+.srchst SKIP    &0E             ; search/replace state, no longer in buff
+.scratch SKIP   &20
+        ELSE
+.scratch SKIP   &12
+        ENDIF
+buff    =       scratch + 10    ; (no.bffr len 15 {MMMDCCCLXXXVIII})
+        IF edit150
+TEXPFLAG =      srchst
+        ELSE
+TEXPFLAG =      buff
+        ENDIF
+SENSFLAG =      TEXPFLAG + 1
+BUTTFLAG =      TEXPFLAG + 2
+metaflag =      TEXPFLAG + 3
+replflag =      TEXPFLAG + 4
+endp    =       TEXPFLAG + 8
+scp     =       TEXPFLAG + 10
+texp    =       TEXPFLAG + 12
+mousel  =       buff + 15       ; # 10
+        IF cF8key=1 AND edit150
+.clterm SKIP    &01             ; current line terminator
+        ENDIF
+
+        IF stamp=1
+.flexec SKIP    &04
+.flload SKIP    &04
+        ENDIF
+
+        ENDSECTION

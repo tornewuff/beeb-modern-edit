@@ -1,0 +1,52 @@
+        SECTION Workspace, org = &0400, guard = &0800
+
+.frbuff SKIP    &64
+.grbuff SKIP    &64
+.nambuf SKIP    &34
+.oldsta SKIP    &04             ; start and end of incore text
+.linbuf SKIP    &0100
+commandline =   linbuf
+noregs  =       commandline     ; 10 number registers
+page    =       noregs          ; the page number is in 0
+lineno  =       page + 2        ; the line number is in 1
+pageeh  =       noregs + 10 * 2
+pageoh  =       pageeh + 2
+pageef  =       pageoh + 2
+pageof  =       pageef + 2      ; the header and footer pointers
+tablst  =       pageof + 2      ; list of tab positions, length 20
+maclst  =       tablst + 20     ; list of posible macro positions
+.stracc SKIP    &0100
+maxMAC  =       stracc - maclst ; Number of macro posns *2
+
+trnlst  =       stracc          ; table of translateable characters
+
+        IF cF8key=1 AND NOT(edit150)
+
+dhtext  =       remap(".he␀.en␀")                       ; default header text
+dftext  =       remap(".fo␀.ce␀Page .r0␀.ff.en␀")       ; default footer text
+
+dhsize  =       LEN(dhtext)
+dfsize  =       LEN(dftext)
+
+.dhbuff SKIP    dhsize          ; Header buffer
+.dfbuff SKIP    dfsize          ; Footer buffer
+
+        ENDIF
+
+.SINDEXSTK SKIP &06
+.SSTTLOSTK SKIP &06
+.SSTTHISTK SKIP &06
+.SCNTLOSTK SKIP &06
+.SCNTHISTK SKIP &06
+.fieldmmxtab SKIP &0A
+.fieldofftab SKIP &0A
+.scrim  SKIP    &20
+        IF edit150
+.osvers SKIP    &01             ; OS version (0 if below 3)
+.frall  SKIP    &01             ; find and replace to the end of the file
+        SKIP    &01             ; (OSWORD 10 writes the first character code at chrbak - 1)
+.chrbak SKIP    nchars * 8      ; saved character definitions, see define_chars
+.prmcol SKIP    &01             ; column for prompts after the status texts
+        ENDIF
+
+        ENDSECTION

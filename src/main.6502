@@ -30,7 +30,9 @@ ELSE
         ERROR "unknown relocation model: ", build.relocation_model
 ENDIF
 
-INCLUDE "EDIT00.6502"
+INCLUDE "include/constants.6502"
+INCLUDE "include/zero_page.6502"
+INCLUDE "include/workspace.6502"
 
 SECTION Main, cmos = TRUE, org = origin, filename = build.filename
 
