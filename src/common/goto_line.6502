@@ -52,7 +52,7 @@
         STA     string + 1
 .LOKLINE
         LDA     (string)
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -119,7 +119,7 @@
         JSR     text_ptr_forward_a
         BCS     EDLIBL
         LDA     temp_a
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin

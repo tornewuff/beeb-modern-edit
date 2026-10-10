@@ -90,7 +90,7 @@
 NOCMDS  =       ( * - CMDS )
 
 
-        IF cF8key=1 AND NOT(edit150)
+        IF cF8key AND NOT(edit150)
                                 ; before printing, defaults are copied
                                 ; into private workspace buffer
                                 ; and nulls replaced with 'line_terminator'

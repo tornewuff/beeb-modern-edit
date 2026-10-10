@@ -3,7 +3,7 @@
         LDA     #&01
         STA     cursor_editing
 
-        IF phil=0
+        IF NOT(phil)
         JSR     restore_keys
         ENDIF
 

@@ -82,7 +82,7 @@
         BMI     nonam
         LDA     stracc,Y
 
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -96,7 +96,7 @@
 .namsr3
         LDA     stracc,Y
 
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -113,7 +113,7 @@
 
 .namfnd
 
-        IF cF8key=1
+        IF cF8key
         LDA     #cr
         STA     stracc,Y
         ELSE
@@ -153,7 +153,7 @@
         LDA     text_end
         LDX     text_end + 1
 
-        IF stamp=1
+        IF stamp
         JSR     load_file
         PHX
         PHY
@@ -248,7 +248,7 @@
         DEX
         BPL     pasacl
 
-        IF stamp=1
+        IF stamp
         JSR     dstamp
         LDX     #flload
         LDY     #&02

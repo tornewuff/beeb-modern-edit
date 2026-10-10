@@ -1,6 +1,6 @@
 .new_text                       ; Clear text
         JSR     prompt
-        IF stamp=1
+        IF stamp
         EQUB    "Clear text [Y (dated),shf-f9 (exec)]",&EA
         LDA     #&81
         TAX
@@ -65,7 +65,7 @@
 .load_command
         ; Doesn't zap buffer until new file is correctly loaded.
 
-        IF curtyp=1
+        IF curtyp
         JSR     lsf
         ENDIF
 
@@ -100,7 +100,7 @@
         JMP     EDITgt
 
 .save_command                   ; Save file
-        IF curtyp=1
+        IF curtyp
         JSR     lsf
         ENDIF
 
@@ -130,7 +130,7 @@
         JSR     dfblok
         LDY     #&00
         LDA     (temp)
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -152,7 +152,7 @@
         EQUB    &01,"Bad use of stored name",null
 
 .insert_file
-        IF curtyp=1
+        IF curtyp
         JSR     lsf
         ENDIF
 

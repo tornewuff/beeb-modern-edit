@@ -17,7 +17,7 @@
         STZ     screen_x
         JMP     cursor_down ;in overtype mode CR is start of line
 .ECHRCR
-        IF cF8key=1
+        IF cF8key
         LDA     line_terminator
         ELSE
         LDA     #termin
@@ -31,7 +31,7 @@
         BNE     ECHRMV
         LDY     screen_x
         LDA     (gap_end),Y
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -46,7 +46,7 @@
         LDY     screen_x
         STA     (gap_end),Y
         ; Write char to screen (cursor OK), wiping tail for TERMIN.
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -102,7 +102,7 @@
         JSR     is_insert_mode
         BNE     EDELSL
         LDA     (gap_end),Y
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -115,7 +115,7 @@
         JMP     set_modified
 .EDELSL
         LDA     (gap_end),Y
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -134,7 +134,7 @@
 .delete_line
         STZ     screen_x
         LDA     (gap_end)
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -162,7 +162,7 @@
         BEQ     EDEL0
         LDY     screen_x
         LDA     (gap_end),Y
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin

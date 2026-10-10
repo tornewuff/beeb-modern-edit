@@ -215,7 +215,7 @@
         INY
 .UPDLL2
         LDA     (text_ptr),Y
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin

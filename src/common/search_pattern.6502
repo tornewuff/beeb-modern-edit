@@ -322,7 +322,7 @@
         SBC     #'@'
         BRA     CHSPBY
 .CHSPCR
-        IF cF8key=1
+        IF cF8key
         LDA     line_terminator
         ELSE
         LDA     #termin

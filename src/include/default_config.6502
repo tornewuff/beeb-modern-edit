@@ -1,32 +1,32 @@
 .default_config {
         ; assemble with phil's version of "cursor editing"
-        phil    =       0
+        phil = FALSE
         ; assemble with mouse options
-        mouse   =       0
+        mouse = FALSE
         ; assemble with long error box
-        lerror  =       1
+        lerror = TRUE
         ; assemble with character definitions
-        dchars  =       1
+        dchars = TRUE
         ; 'A SYZYGY prog' displayed, was under EXTRAS
-        syzygy  =       1
+        syzygy = TRUE
         ; date stamping
-        stamp   =       0
+        stamp = FALSE
         ; linefeed version
-        lfver   =       0
+        lfver = FALSE
         ; ctrl-f8 toggle (cr/lf)
-        cF8key  =       1
+        cF8key = TRUE
         ; shorter messages
-        shortm  =       1
+        shortm = TRUE
         ; different cursor types
-        curtyp  =       1
+        curtyp = TRUE
         ; linefeed arrow
-        lfarro  =       1
+        lfarro = TRUE
         ; extended FIND/REPLACE texts
-        extgf   =       0
+        extgf = FALSE
         ; shuffle code around to build EDIT 1.50
-        edit150 =       FALSE
+        edit150 = FALSE
         ; omit the service handler to save space (formerly enabled by mouse=1)
-        omit_service =  FALSE
+        omit_service = FALSE
 }
 
 IF DEFINED(setconfig.phil) : phil = setconfig.phil : ELSE : phil = default_config.phil : ENDIF

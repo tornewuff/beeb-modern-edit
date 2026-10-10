@@ -20,7 +20,7 @@ maxMAC                  = stracc - macro_list ; Number of macro posns *2
 
 translate_table         = stracc        ; table of translateable characters
 
-IF cF8key=1 AND NOT(edit150)
+IF cF8key AND NOT(edit150)
 dhtext = remap(".he␀.en␀")                      ; default header text
 dftext = remap(".fo␀.ce␀Page .r0␀.ff.en␀")      ; default footer text
 

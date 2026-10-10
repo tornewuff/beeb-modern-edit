@@ -25,7 +25,7 @@
 .EDIT
         JSR     setup_editor
 
-        IF stamp = 1
+        IF stamp
         JSR     nstamp
         ENDIF
 .EDITin
@@ -50,7 +50,7 @@
         JSR     cursor_to_screen_xy
         JSR     cursor_on
 
-        IF curtyp=1
+        IF curtyp
         JSR     curupd          ; update the cursor to relevant state
         ENDIF
 
@@ -74,7 +74,7 @@
         BCS     EDITTE
         ENDIF
 
-        IF phil = 0
+        IF NOT(phil)
         LDX     cursor_editing
         BNE     EDITTE
         TAX

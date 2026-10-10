@@ -22,8 +22,8 @@ ENDIF
 
 .setconfig {
         edit150 = TRUE
-        curtyp = 0
-        lfarro = 0
+        curtyp = FALSE
+        lfarro = FALSE
 }
 
 INCLUDE "main.6502"

@@ -34,7 +34,7 @@ home    =       &1E
 space   =       ' '
 delete  =       &7F
 
-IF lfver=0
+IF NOT(lfver)
 termin  =       cr      ; line terminator
 ELSE
 termin  =       lf      ; a different line terminator
@@ -64,7 +64,7 @@ moureg  =       &FC50
 mouxlo  =       moureg + 2
 mouswi  =       moureg + 6
 
-IF lfarro=1
+IF lfarro
 nlfarr  =       &FE
 ENDIF
 

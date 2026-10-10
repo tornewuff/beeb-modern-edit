@@ -54,7 +54,7 @@ ENDIF
         EQUB    &03,&0F,&EA
         JSR     cursor_to_status
 
-IF lerror=1
+IF lerror
         IF edit150
         JSR     define_chars
         ENDIF

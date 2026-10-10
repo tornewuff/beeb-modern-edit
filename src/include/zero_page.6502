@@ -29,11 +29,11 @@ pundrl          = used_marks_lo + 1
 bold            = used_marks_hi
 vspace          = used_marks_hi + 1
 
-IF cF8key=1 AND NOT(edit150)
+IF cF8key AND NOT(edit150)
 .line_terminator SKIP 1
 ENDIF
 
-IF extgf=1
+IF extgf
 .ctptr          SKIP 2          ; current text pointer
 ENDIF
 
@@ -121,11 +121,11 @@ scroll_ptr      = search_end_flag + 10
 search_end      = search_end_flag + 12
 mousel          = buff + 15     ; # 10
 
-IF cF8key=1 AND edit150
+IF cF8key AND edit150
 .line_terminator SKIP 1
 ENDIF
 
-IF stamp=1
+IF stamp
 .flexec         SKIP 4
 .flload         SKIP 4
 ENDIF

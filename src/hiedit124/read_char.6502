@@ -6,7 +6,7 @@
         STZ     key_pending_flag
         RTS
 .EDRDOSRD
-        IF mouse=1
+        IF mouse
         PHX
         PHY
 .MOUSLP

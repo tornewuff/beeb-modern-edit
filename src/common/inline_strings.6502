@@ -1,4 +1,4 @@
-        IF lerror=1
+        IF lerror
 .print_repeat_inline
         SEC
         ADC     page_width

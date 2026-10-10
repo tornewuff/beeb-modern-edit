@@ -16,7 +16,7 @@
         JSR     dfinit
         JSR     prompt
         EQUB    "Global replace:",&EA
-        IF extgf=1
+        IF extgf
         JSR     readlf
         ELSE
         JSR     read_line
@@ -92,7 +92,7 @@
         IF edit150
         STZ     replace_all
         ENDIF
-        IF extgf=1
+        IF extgf
         JSR     readlf
         ELSE
         JSR     read_line
@@ -198,7 +198,7 @@
         JSR     prompt
         EQUB    "Replace by:",&EA
 
-        IF extgf=1
+        IF extgf
         JSR     readlf
         ELSE
         JSR     read_line

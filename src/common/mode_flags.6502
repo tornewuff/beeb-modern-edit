@@ -1,4 +1,4 @@
-        IF cF8key=1 AND edit150
+        IF cF8key AND edit150
         ; ------------------------------------------------------------ ;
 
 .crlf_switch                    ; CR/LF switch

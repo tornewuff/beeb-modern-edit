@@ -13,7 +13,7 @@
         STZ     cursor_editing
         STZ     key_pending_flag
         STZ     num_marks_set
-        IF cF8key=1
+        IF cF8key
         LDA     line_terminator
         ELSE
         LDA     #termin

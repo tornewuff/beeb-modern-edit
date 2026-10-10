@@ -95,7 +95,7 @@
         CPY     #250
         BCS     LENFNE
         JSR     IGNCTL        ; main char count
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -144,7 +144,7 @@
         BEQ     LENFNA
         CMP     tab_char
         BEQ     LENFNA
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin
@@ -192,7 +192,7 @@
 .FINSEN
         STZ     linfed        ; back on, for next line
         JSR     SPACEY
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin

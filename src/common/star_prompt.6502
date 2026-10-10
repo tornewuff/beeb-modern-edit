@@ -5,7 +5,7 @@
         JSR     prompt
         EQUB    "Command line",&EA
 
-        IF curtyp = 1
+        IF curtyp
         JSR     lsf             ; slow line flash
         ENDIF
 .starCN

@@ -92,7 +92,7 @@
         LDA     #cr
         STA     filename_buffer
 
-        IF cF8key=1
+        IF cF8key
         LDA     line_terminator ; current line terminator
         ELSE
         IF termin<>cr
@@ -113,14 +113,14 @@
         JSR     osbyte
         STY     options         ; returns &00 on the BBC OS 1.2
 
-        IF mouse=1
+        IF mouse
         JSR     mouser
         ENDIF
 
         LDA     #cr
         STA     find_replace_buffer
         STA     global_replace_buffer
-        IF cF8key=1
+        IF cF8key
         STA     line_terminator ; initialise 'line_terminator' here
         ENDIF
         STZ     index_handle
@@ -131,7 +131,7 @@
         EQUB    23,remap("─"),&00,&00,&00,&FF,&00,&00,&00,&00
         EQUB    23,remap("│"),&18,&18,&18,&18,&18,&18,&18,&18
 
-        IF dchars=1      ; Character definitions for descriptive MODE
+        IF dchars        ; Character definitions for descriptive MODE
         EQUB    23,remap("┌"),&00,&00,&00,&07,&0C,&18,&18,&18
         EQUB    23,remap("┐"),&00,&00,&00,&E0,&30,&18,&18,&18
         EQUB    23,remap("└"),&18,&18,&0C,&07,&00,&00,&00,&00
@@ -149,7 +149,7 @@
         EQUB    23,remap("┴"),&18,&18,&18,&FF,&00,&00,&00,&00
         EQUB    23,remap("┼"),&18,&18,&18,&FF,&18,&18,&18,&18
         ENDIF
-        IF lfarro=1
+        IF lfarro
         EQUB    23,nlfarr,&00,&18,&38,&7F,&38,&18,&00,&00
         ENDIF
 
@@ -163,7 +163,7 @@
 .zippo
         JSR     setup_editor
 
-        IF stamp=1
+        IF stamp
         JSR      nstamp
         ENDIF
 

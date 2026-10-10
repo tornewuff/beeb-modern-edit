@@ -77,7 +77,7 @@
         BIT     index_output
         BMI     DOINDE
 
-        IF cF8key=1
+        IF cF8key
         CMP     line_terminator
         ELSE
         CMP     #termin       ; changed from CMPIM " "; BCC WRCHA
@@ -113,7 +113,7 @@
         TAY
         LDA     translate_table,Y
         PLY
-        IF cF8key=1
+        IF cF8key
 .wrch
         JMP     (&020E)
 .wrchen

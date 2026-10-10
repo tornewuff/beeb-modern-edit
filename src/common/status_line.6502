@@ -45,7 +45,7 @@
         BEQ     STATSC
         JSR     print_inline
 
-        IF phil=0
+        IF NOT(phil)
         IF edit150
         EQUB    "     Cursor Editing",&EA
         ELSE
@@ -106,7 +106,7 @@
         EQUB    " Modified",&EA
         ENDIF
 .STATSX
-        IF cF8key=1
+        IF cF8key
 
         IF edit150
         LDA     options
@@ -129,7 +129,7 @@
 .STATlf
         ENDIF
 
-        IF stamp=1
+        IF stamp
         LDA     flload + 1
         AND     flload + 2
         AND     flload + 3
@@ -157,13 +157,13 @@
 prmptl  =       25              ; Prompt position
 
 
-        IF cF8key=1
+        IF cF8key
 prmod1  =       3               ; CR/LF text
         ELSE
 prmod1  =       0
         ENDIF
 
-        IF stamp=1
+        IF stamp
 prmod2  =       5               ; Date/Exec text
         ELSE
 prmod2  =       0

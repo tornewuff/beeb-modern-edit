@@ -104,7 +104,7 @@
         STA     translate_table + cr
 .trnlex
         ELSE
-        IF cF8key=1
+        IF cF8key
         PHX                     ; set X to correct offset
         SEC
         LDA     #cr
@@ -116,7 +116,7 @@
 
         LDA     #' '
 
-        IF cF8key=1
+        IF cF8key
         STA     translate_table,X
         PLX
         ELSE
@@ -175,14 +175,14 @@
         LDA     #14
         JSR     oswrch        ; page mode if screen and page wait
 .CHAINB
-        IF cF8key=1
+        IF cF8key
         LDA     line_terminator
         ELSE
         LDA     #termin
         ENDIF
         STA     (gap_start)
 
-        IF cF8key=1 AND NOT(edit150)
+        IF cF8key AND NOT(edit150)
                                 ; Copy initial header and footer texts
                                 ; into their respective buffers, changing
                                 ; any nulls into the 'line_terminator' value
