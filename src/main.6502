@@ -68,11 +68,19 @@ ELSE
 ENDIF
 
 ; EDIT03
-INCLUDE "module/softkeys.6502"
+IF edit150
+        INCLUDE "module/softkeys_150.6502"
+ELSE
+        INCLUDE "module/softkeys.6502"
+ENDIF
 INCLUDE "module/text_limits.6502"
 INCLUDE "module/cursor_shape.6502"
 INCLUDE "module/screen_layout.6502"
-INCLUDE "module/read_char.6502"
+IF edit150
+        INCLUDE "module/read_char_150.6502"
+ELSE
+        INCLUDE "module/read_char.6502"
+ENDIF
 INCLUDE "module/status_line.6502"
 INCLUDE "module/prompt.6502"
 INCLUDE "module/cursor_position.6502"
