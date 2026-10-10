@@ -52,12 +52,16 @@ ELSE
 ENDIF
 INCLUDE "common/iomem_read.6502"
 INCLUDE "common/file_io.6502"
-INCLUDE "common/datestamp.6502"
+IF stamp=1
+        INCLUDE "common/datestamp.6502"
+ENDIF
 INCLUDE "common/read_line.6502"
 INCLUDE "common/memory.6502"
 INCLUDE "common/inline_strings.6502"
 INCLUDE "common/mode_flags.6502"
-INCLUDE "common/mouse.6502"
+IF mouse=1
+        INCLUDE "common/mouse.6502"
+ENDIF
 
 ; EDIT02
 INCLUDE "common/main_loop.6502"
@@ -122,7 +126,9 @@ INCLUDE "common/cursor_editing.6502"
 INCLUDE "common/mode_change.6502"
 INCLUDE "common/old_text.6502"
 INCLUDE "common/goto_line.6502"
-INCLUDE "common/crlf_switch.6502"
+IF cF8key=1 AND NOT(edit150)
+        INCLUDE "hiedit124/crlf_switch.6502"
+ENDIF
 
 ; EDIT07
 INCLUDE "common/search_pattern.6502"
@@ -134,10 +140,18 @@ INCLUDE "common/find_replace.6502"
 INCLUDE "common/write_lineno.6502"
 INCLUDE "common/marks.6502"
 INCLUDE "common/block_ops.6502"
-INCLUDE "common/find_replace_prompts.6502"
-INCLUDE "common/cursor_type.6502"
-INCLUDE "common/extended_find.6502"
-INCLUDE "common/default_headers.6502"
+IF edit150
+        INCLUDE "edit150/find_replace_prompts.6502"
+ENDIF
+IF curtyp=1
+        INCLUDE "common/cursor_type.6502"
+ENDIF
+IF extgf=1
+        INCLUDE "common/extended_find.6502"
+ENDIF
+IF edit150
+        INCLUDE "edit150/default_headers.6502"
+ENDIF
 
         IF origin=&8000
 .theend

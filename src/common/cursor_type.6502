@@ -1,4 +1,3 @@
-        IF curtyp=1
                                 ; different types of display cursor
                                 ;
                                 ; block/slow flash INSERT
@@ -93,4 +92,3 @@
         PLA
 
         RTS                     ; and away..
-        ENDIF

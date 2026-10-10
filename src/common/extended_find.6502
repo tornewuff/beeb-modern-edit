@@ -1,4 +1,4 @@
-        IF extgf=1               ; extended search and replace texts
+                                ; extended search and replace texts
 
                                 ; we will use the function and <Shift> function
                                 ; keys to insert the match characters
@@ -309,6 +309,3 @@ nktent  =       ( kttabe - kttab )
         PLA
         SEC
         RTS
-        ENDIF
-
-        ; ------------------------------------------------------------ ;

@@ -1,4 +1,3 @@
-        IF edit150
 .FRPRMT                         ; prompt for the find and replace action
         JSR     prompt
         EQUB    "C(ontinue), E(nd of file replace), R(eplace) or ESCAPE",&EA
@@ -13,4 +12,3 @@
         LDA     replindex
         STA     outindex
         JMP     REPLPART
-        ENDIF

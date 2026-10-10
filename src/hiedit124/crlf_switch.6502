@@ -1,6 +1,3 @@
-        IF cF8key=1 AND NOT(edit150)
-        ; ------------------------------------------------------------ ;
-
 .cf8swt                         ; CR/LF switch
         LDA     clterm
         CMP     #cr
@@ -25,6 +22,3 @@
         JSR     stFILE          ; move the cursor to the top
                                 ; of the text
         JMP     EDITcont        ; and continue editing
-
-        ; ------------------------------------------------------------ ;
-        ENDIF

@@ -1,4 +1,3 @@
-        IF edit150
         ; Default header and footer texts, for each line terminator. The
         ; header texts run on into the footers, which they share.
 .defhdr
@@ -10,4 +9,3 @@
 .defftl
         EQUB    ".fo",lf,".ce",lf,"Page .r0",lf,".ff.en",lf
         ASSERT  HI(defhdr) == HI(defftl)
-        ENDIF
