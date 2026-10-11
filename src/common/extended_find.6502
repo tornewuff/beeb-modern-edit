@@ -111,7 +111,7 @@ nktent  =       ( kttabe - kttab )
         JSR     cursor_text_start
 .ESCso
         STZ     cursor_editing
-        JMP     escCON
+        JMP     brk_handler.escCON
 
 .rdline
         LDY     #&00            ; index into 'line_buffer'

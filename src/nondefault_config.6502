@@ -1,0 +1,38 @@
+; Build configuration based on HiEdit 1.24 but using every non-default config
+; option from the original source, just to verify that it builds.
+
+.build {
+if DEFINED(build_disc)
+        filename = "HIEDTND"
+ELSE
+        filename = "nondefault.rom"
+ENDIF
+        relocation_model = "tube"
+        relocation_address = &b800
+        cmos_host = FALSE
+}
+
+.metadata {
+        title = "Edit"
+        copyright = "1984 Acorn"
+        version_byte = &02
+        version_str = "1.24"
+}
+
+.setconfig {
+        phil = TRUE
+        mouse = TRUE
+        lerror = FALSE
+        dchars = FALSE
+        syzygy = FALSE
+        stamp = TRUE
+        lfver = TRUE
+        cF8key = FALSE
+        shortm = FALSE
+        curtyp = FALSE
+        lfarro = FALSE
+        extgf = TRUE
+}
+
+
+INCLUDE "main.6502"

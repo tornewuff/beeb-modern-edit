@@ -4,7 +4,8 @@
   },
   "baron.sourceFiles": [
     "src/edit.1.50r.6502",
-    "src/hiedit.b800.6502"
+    "src/hiedit.b800.6502",
+    "src/nondefault_config.6502"
   ],
   "baron.outputFile": "build/disc.ssd",
   "baron.buildOverride": "just disc hiedit"
