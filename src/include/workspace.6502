@@ -1,52 +1,51 @@
-        SECTION Workspace, org = &0400, guard = &0800
+SECTION Workspace, org = &0400, guard = &0800
 
-.find_replace_buffer SKIP    &64
-.global_replace_buffer SKIP    &64
-.filename_buffer SKIP    &34
-.old_text_bounds SKIP    &04    ; start and end of incore text
-.line_buffer SKIP    &0100
-commandline =   line_buffer
-number_registers  =       commandline ; 10 number registers
-page    =       number_registers ; the page number is in 0
-lineno  =       page + 2        ; the line number is in 1
-even_header  =       number_registers + 10 * 2
-odd_header  =       even_header + 2
-even_footer  =       odd_header + 2
-odd_footer  =       even_footer + 2 ; the header and footer pointers
-tab_list  =       odd_footer + 2 ; list of tab positions, length 20
-macro_list  =       tab_list + 20 ; list of posible macro positions
-.stracc SKIP    &0100
-maxMAC  =       stracc - macro_list ; Number of macro posns *2
+.find_replace_buffer    SKIP &64
+.global_replace_buffer  SKIP &64
+.filename_buffer        SKIP &34
+.old_text_bounds        SKIP 4          ; start and end of incore text
+.line_buffer            SKIP &100
+commandline             = line_buffer
+number_registers        = commandline   ; 10 number registers
+page                    = number_registers ; the page number is in 0
+lineno                  = page + 2      ; the line number is in 1
+even_header             = number_registers + 10 * 2
+odd_header              = even_header + 2
+even_footer             = odd_header + 2
+odd_footer              = even_footer + 2 ; the header and footer pointers
+tab_list                = odd_footer + 2 ; list of tab positions, length 20
+macro_list              = tab_list + 20 ; list of posible macro positions
+.stracc                 SKIP &100
+maxMAC                  = stracc - macro_list ; Number of macro posns *2
 
-translate_table  =       stracc ; table of translateable characters
+translate_table         = stracc        ; table of translateable characters
 
-        IF cF8key=1 AND NOT(edit150)
+IF cF8key=1 AND NOT(edit150)
+dhtext = remap(".he␀.en␀")                      ; default header text
+dftext = remap(".fo␀.ce␀Page .r0␀.ff.en␀")      ; default footer text
 
-dhtext  =       remap(".he␀.en␀")                       ; default header text
-dftext  =       remap(".fo␀.ce␀Page .r0␀.ff.en␀")       ; default footer text
+dhsize = LEN(dhtext)
+dfsize = LEN(dftext)
 
-dhsize  =       LEN(dhtext)
-dfsize  =       LEN(dftext)
+.header_buffer          SKIP dhsize
+.footer_buffer          SKIP dfsize
+ENDIF
 
-.header_buffer SKIP    dhsize   ; Header buffer
-.footer_buffer SKIP    dfsize   ; Footer buffer
+.SINDEXSTK              SKIP 6
+.SSTTLOSTK              SKIP 6
+.SSTTHISTK              SKIP 6
+.SCNTLOSTK              SKIP 6
+.SCNTHISTK              SKIP 6
+.fieldmmxtab            SKIP 10
+.fieldofftab            SKIP 10
+.screen_image           SKIP &20
 
-        ENDIF
+IF edit150
+.os_version             SKIP 1          ; OS version (0 if below 3)
+.replace_all            SKIP 1          ; find and replace to the end of the file
+                        SKIP 1          ; (OSWORD 10 writes the first character code at chardef_backup - 1)
+.chardef_backup         SKIP nchars * 8 ; saved character definitions, see define_chars
+.prompt_column          SKIP 1          ; column for prompts after the status texts
+ENDIF
 
-.SINDEXSTK SKIP &06
-.SSTTLOSTK SKIP &06
-.SSTTHISTK SKIP &06
-.SCNTLOSTK SKIP &06
-.SCNTHISTK SKIP &06
-.fieldmmxtab SKIP &0A
-.fieldofftab SKIP &0A
-.screen_image  SKIP    &20
-        IF edit150
-.os_version SKIP    &01         ; OS version (0 if below 3)
-.replace_all  SKIP    &01       ; find and replace to the end of the file
-        SKIP    &01             ; (OSWORD 10 writes the first character code at chardef_backup - 1)
-.chardef_backup SKIP    nchars * 8 ; saved character definitions, see define_chars
-.prompt_column SKIP    &01      ; column for prompts after the status texts
-        ENDIF
-
-        ENDSECTION
+ENDSECTION

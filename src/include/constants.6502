@@ -34,11 +34,11 @@ home    =       &1E
 space   =       ' '
 delete  =       &7F
 
-        IF lfver=0
+IF lfver=0
 termin  =       cr      ; line terminator
-        ELSE
+ELSE
 termin  =       lf      ; a different line terminator
-        ENDIF
+ENDIF
 
 
 bit7    =       &80
@@ -64,11 +64,12 @@ moureg  =       &FC50
 mouxlo  =       moureg + 2
 mouswi  =       moureg + 6
 
-        IF lfarro=1
+IF lfarro=1
 nlfarr  =       &FE
-        ENDIF
+ENDIF
 
         ; EDIT symbolic constants
+
 escflg  =       &FF
 BRKv    =       &0202
 

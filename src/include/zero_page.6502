@@ -1,127 +1,133 @@
-        SECTION ZeroPage, org = &00, guard = &90
+SECTION ZeroPage, org = &00, guard = &90
 
-.string SKIP    &02
-.oshwm   SKIP    &02
-.text_end   SKIP    &02
-.temp   SKIP    &02
-.addr   SKIP    &02
-.src_ptr   SKIP    &02
-.dst_ptr   SKIP    &02
-.text_ptr     SKIP    &02
-.gap_start     SKIP    &02
-.gap_end     SKIP    &02
-.match_start     SKIP    &02
-xeff    =       match_start
-lastsp  =       match_start + 1
-.match_end     SKIP    &02
-diff    =       match_end
-centre  =       match_end + 1
-.set_marks_lo SKIP    &02
-right_flush  =       set_marks_lo
-linfed  =       set_marks_lo + 1
-.set_marks_hi SKIP    &02
-len     =       set_marks_hi
-indent  =       set_marks_hi + 1
-.used_marks_lo SKIP    &02
-underline  =       used_marks_lo
-pundrl  =       used_marks_lo + 1
-.used_marks_hi SKIP    &02
-bold    =       used_marks_hi
-vspace  =       used_marks_hi + 1
+.string         SKIP 2
+.oshwm          SKIP 2
+.text_end       SKIP 2
+.temp           SKIP 2
+.addr           SKIP 2
+.src_ptr        SKIP 2
+.dst_ptr        SKIP 2
+.text_ptr       SKIP 2
+.gap_start      SKIP 2
+.gap_end        SKIP 2
+.match_start    SKIP 2
+xeff            = match_start
+lastsp          = match_start + 1
+.match_end      SKIP 2
+diff            = match_end
+centre          = match_end + 1
+.set_marks_lo   SKIP 2
+right_flush     = set_marks_lo
+linfed          = set_marks_lo + 1
+.set_marks_hi   SKIP 2
+len             = set_marks_hi
+indent          = set_marks_hi + 1
+.used_marks_lo  SKIP 2
+underline       = used_marks_lo
+pundrl          = used_marks_lo + 1
+.used_marks_hi  SKIP 2
+bold            = used_marks_hi
+vspace          = used_marks_hi + 1
 
-        IF cF8key=1 AND NOT(edit150)
-.line_terminator SKIP    &01 ; current line terminator
-        ENDIF
-        IF extgf=1      ; Extended search/replace characters
-.ctptr  SKIP    &02     ; current text pointer
-        ENDIF
+IF cF8key=1 AND NOT(edit150)
+.line_terminator SKIP 1
+ENDIF
 
-.himem  SKIP    &02
-.text_start SKIP    &02
-.brk_action SKIP &01
-.size   SKIP    &02
-.max_size SKIP    &02
-.page_wait_flag SKIP    &01
-.print_flags SKIP    &01
-.options SKIP   &01
-.modified SKIP    &01
-.temp_a  SKIP    &01
-.count  SKIP    &01
-.index  SKIP    &01
-.page_width SKIP &01
-.page_length SKIP &01
-.screen_height SKIP    &01
-.update_y SKIP    &01
-.update_max_y SKIP &01
-.update_required SKIP &01
-.pending_update SKIP    &01
-.screen_x  SKIP    &01
-.screen_y  SKIP    &01
-.lnbufx SKIP    &01
-.cursor_editing SKIP    &01
-.search_stack_index SKIP    &01
-fill    =       search_stack_index
-.replace_index SKIP &01
-temp_indent  =       replace_index
-.chunk_size SKIP &02
-juslen  =       chunk_size
-spaces  =       chunk_size + 1
-.num_marks SKIP  &01
-l       =       num_marks
-.marks_before_cursor SKIP &01
-Q       =       marks_before_cursor
-.current_line_len SKIP &01
-.key_pending_flag SKIP &01
-.pending_key SKIP    &01
-.lines_per_page SKIP    &01
-.field_index SKIP &01
-lineot  =       field_index
-.input_index SKIP  &01
-control_char  =       input_index
-.output_index SKIP  &01
-bold_required  =       output_index
-.mmx    SKIP    &01
-underline_required  =       mmx
-.page_offset SKIP    &01          ; page offset
-.simple_char SKIP  &01
-pbold   =       simple_char
-.nextX  SKIP    &01
-last_tab =       nextX
-.line   SKIP    &02
-index_output  =       line
-.index_handle SKIP    &01
-.MULFFLAG SKIP  &01
-tab_char  =       MULFFLAG
-.num_marks_set  SKIP    &01
-.top_scroll_margin    SKIP    &01
-.bottom_scroll_margin    SKIP    &01
-        IF edit150
-.search_state SKIP    &0E       ; search/replace state, no longer in buff
-.scratch SKIP   &20
-        ELSE
-.scratch SKIP   &12
-        ENDIF
-buff    =       scratch + 10    ; (no.bffr len 15 {MMMDCCCLXXXVIII})
-        IF edit150
-search_end_flag =      search_state
-        ELSE
-search_end_flag =      buff
-        ENDIF
-SENSFLAG =      search_end_flag + 1
-BUTTFLAG =      search_end_flag + 2
-metaflag =      search_end_flag + 3
-replace_flag =      search_end_flag + 4
-block_end    =       search_end_flag + 8
-scroll_ptr     =       search_end_flag + 10
-search_end    =       search_end_flag + 12
-mousel  =       buff + 15       ; # 10
-        IF cF8key=1 AND edit150
-.line_terminator SKIP    &01    ; current line terminator
-        ENDIF
+IF extgf=1
+.ctptr          SKIP 2          ; current text pointer
+ENDIF
 
-        IF stamp=1
-.flexec SKIP    &04
-.flload SKIP    &04
-        ENDIF
+.himem          SKIP 2
+.text_start     SKIP 2
+.brk_action     SKIP 1
+.size           SKIP 2
+.max_size       SKIP 2
+.page_wait_flag SKIP 1
+.print_flags    SKIP 1
+.options        SKIP 1
+.modified       SKIP 1
+.temp_a         SKIP 1
+.count          SKIP 1
+.index          SKIP 1
+.page_width     SKIP 1
+.page_length    SKIP 1
+.screen_height  SKIP 1
+.update_y       SKIP 1
+.update_max_y   SKIP 1
+.update_required SKIP 1
+.pending_update SKIP 1
+.screen_x       SKIP 1
+.screen_y       SKIP 1
+.lnbufx         SKIP 1
+.cursor_editing SKIP 1
+.search_stack_index SKIP 1
+fill            = search_stack_index
+.replace_index  SKIP 1
+temp_indent     = replace_index
+.chunk_size     SKIP 2
+juslen          = chunk_size
+spaces          = chunk_size + 1
+.num_marks      SKIP 1
+l               = num_marks
+.marks_before_cursor SKIP 1
+Q               = marks_before_cursor
+.current_line_len SKIP 1
+.key_pending_flag SKIP 1
+.pending_key    SKIP 1
+.lines_per_page SKIP 1
+.field_index    SKIP 1
+lineot          = field_index
+.input_index    SKIP 1
+control_char    = input_index
+.output_index   SKIP 1
+bold_required   = output_index
+.mmx            SKIP 1
+underline_required = mmx
+.page_offset    SKIP 1
+.simple_char    SKIP 1
+pbold           = simple_char
+.nextX          SKIP 1
+last_tab        = nextX
+.line           SKIP 2
+index_output    = line
+.index_handle   SKIP 1
+.MULFFLAG       SKIP 1
+tab_char        = MULFFLAG
+.num_marks_set  SKIP 1
+.top_scroll_margin SKIP 1
+.bottom_scroll_margin SKIP 1
 
-        ENDSECTION
+IF edit150
+.search_state   SKIP &E         ; search/replace state, no longer in buff
+.scratch        SKIP &20
+ELSE
+.scratch        SKIP &12
+ENDIF
+
+buff            = scratch + 10  ; (no.bffr len 15 {MMMDCCCLXXXVIII})
+
+IF edit150
+search_end_flag = search_state
+ELSE
+search_end_flag = buff
+ENDIF
+
+SENSFLAG        = search_end_flag + 1
+BUTTFLAG        = search_end_flag + 2
+metaflag        = search_end_flag + 3
+replace_flag    = search_end_flag + 4
+block_end       = search_end_flag + 8
+scroll_ptr      = search_end_flag + 10
+search_end      = search_end_flag + 12
+mousel          = buff + 15     ; # 10
+
+IF cF8key=1 AND edit150
+.line_terminator SKIP 1
+ENDIF
+
+IF stamp=1
+.flexec         SKIP 4
+.flload         SKIP 4
+ENDIF
+
+ENDSECTION
