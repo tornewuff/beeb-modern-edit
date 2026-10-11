@@ -73,10 +73,10 @@
         BCC     LOKLINE
         JSR     prompt
         EQUB    "At line ",&EA
-        JSR     print_line_number
+        JSR     write_lineno
         JSR     print_inline
         EQUB    ", new line:",&EA
-        JSR     inverse_off
+        JSR     write_char.inverse_off
         JSR     read_trimmed_line
         BNE     LOLI4
 
@@ -101,7 +101,7 @@
         BCC     EDLIBN
         JSR     cursor_text_start
         IF edit150
-        JSR     text_ptr_at_gap_end
+        JSR     set_text_ptr_to_gap_end
         ELSE
         LDA     gap_end
         STA     text_ptr
@@ -116,7 +116,7 @@
 
 .EDLICR
         LDA     #1
-        JSR     text_ptr_forward
+        JSR     text_ptr_forward_a
         BCS     EDLIBL
         LDA     temp_a
         IF cF8key=1
@@ -134,11 +134,11 @@
         BRA     EDLIFW
 
 .EDLIGO
-        ; Move to bottom_margin.
-        LDA     top_margin
+        ; Move to bottom_scroll_margin.
+        LDA     top_scroll_margin
         BNE     EDLIGJ
         LDA     #4
 
 .EDLIGJ
-        STA     cursor_y
+        STA     screen_y
         JMP     gap_forward_to_text_ptr

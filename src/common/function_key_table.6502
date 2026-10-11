@@ -1,6 +1,6 @@
 .command_table
         EQUW    goto_line       ; f0
-        EQUW    star_command    ; f1
+        EQUW    star_prompt    ; f1
         EQUW    load_command    ; f2
         EQUW    save_command    ; f3
         EQUW    FINDREPLACE     ; f4
@@ -17,7 +17,7 @@
         EQUW    cursor_up       ; up
         ;
         EQUW    toggle_show_cr  ; shift-f0
-        EQUW    toggle_insert   ; shift-f1
+        EQUW    toggle_insert_overwrite   ; shift-f1
         EQUW    insert_file     ; shift-f2
         EQUW    clear_scroll_margins ; shift-f3
         EQUW    return_to_language ; shift-f4
@@ -25,9 +25,9 @@
         EQUW    CLEARMARKS      ; shift-f6
         EQUW    move_marked     ; shift-f7
         EQUW    delete_marked   ; shift-f8
-        EQUW    clear_text      ; shift-f9
+        EQUW    new_text      ; shift-f9
         EQUW    toggle_tab_mode ; shift-f10
-        EQUW    cursor_edit_mode ; shift-copy
+        EQUW    allow_cursor_editing ; shift-copy
         EQUW    WORDLEFT        ; shift-left
         EQUW    WORDRIGHT       ; shift-right
         EQUW    page_down       ; shift-down
@@ -39,10 +39,10 @@
         EQUW    main_loop       ; ctrl-f3
         EQUW    main_loop       ; ctrl-f4
         EQUW    main_loop       ; ctrl-f5
-        EQUW    set_top_margin  ; ctrl-f6
-        EQUW    set_bottom_margin ; ctrl-f7
+        EQUW    set_top_scroll_margin_to_cursor  ; ctrl-f6
+        EQUW    set_bottom_scroll_margin_to_cursor ; ctrl-f7
         IF cF8key=1
-        EQUW    toggle_line_terminator ; ctrl-f8
+        EQUW    crlf_switch ; ctrl-f8
         ELSE
         EQUW    main_loop       ; ctrl-f8
         ENDIF

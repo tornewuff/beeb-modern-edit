@@ -16,20 +16,20 @@
 .prompt_at_x
         LDY     page_length
         INY
-        JSR     move_to_xy
+        JSR     cursor_to_xy
 .PRMPT1
         LDX     #1
         BRA     STRMFL
-.print_inverse_inline
+.print_inline_inverse
         LDX     #0
 .STRMFL
-        JSR     inverse_on
+        JSR     write_char.inverse_on
         PLA
         STA     string
         PLA
         STA     string + 1
         JSR     print_string
-        JSR     inverse_off
+        JSR     write_char.inverse_off
         TXA
         BEQ     STRMEX
         LDA     page_width

@@ -17,7 +17,7 @@
         TRB     lineno+1; leave format alone!
         RTS
         IF edit150
-.text_ptr_at_gap_end            ; text_ptr = gap_end
+.set_text_ptr_to_gap_end        ; text_ptr = gap_end
         LDA     gap_end
         STA     text_ptr
         LDA     gap_end + 1
@@ -50,13 +50,13 @@
         PHA
         LDA     pbold
         PHA
-        LDA     bold_request
+        LDA     bold_required
         PHA
         LDA     underline
         PHA
         LDA     pundrl
         PHA
-        LDA     underline_request
+        LDA     underline_required
         PHA
         LDA     fill
         PHA
@@ -94,13 +94,13 @@
         PLA
         STA     fill
         PLA
-        STA     underline_request
+        STA     underline_required
         PLA
         STA     pundrl
         PLA
         STA     underline
         PLA
-        STA     bold_request
+        STA     bold_required
         PLA
         STA     pbold
         PLA

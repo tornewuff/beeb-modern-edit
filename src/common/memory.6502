@@ -1,4 +1,4 @@
-.copy_back
+.copy_backward
         ; Copy block backwards (i.e. to lower address).
         ; Entry - src_ptr --> block of size XY
         ; dst_ptr --> destination address

@@ -18,7 +18,7 @@
         ; set_sym <nextX> ... <next item>
         ;                     ^
         ;                     nextX
-        ; Matching of subranges & sets should be internal to compare_object. nextX is
+        ; Matching of subranges & sets should be internal to compare_match_object. nextX is
         ; used to step on to the next find item after successfully matching one
         ; of the set alternatives (set match fails when hit tes_sym).
 

@@ -70,7 +70,7 @@
         ENDIF
         JMP     DODWN
 
-.format_wrch
+.format_write_char
         BIT     escflg
         BMI     ESCAP        ; must not go via SENTRY,
                              ; because of marked mode (SWOPCH)
@@ -185,7 +185,7 @@
         JSR     DOSCRE
         PLA
         STA     bold
-        BIT     bold_request
+        BIT     bold_required
         BPL     writeX
         LDA     #&20
         TRB     print_flags

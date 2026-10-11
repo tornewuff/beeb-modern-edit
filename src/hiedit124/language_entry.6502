@@ -22,7 +22,7 @@
         BEQ     EDIToz
 
         JSR     read_io_byte
-        JSR     cmdline_next
+        JSR     next_cmdline_byte
         CMP     #cr
         BEQ     EDIToz
 
@@ -31,7 +31,7 @@
         LDX     #&00
 .EDITgb
         JSR     read_io_byte
-        JSR     cmdline_next
+        JSR     next_cmdline_byte
         STA     &01A0,X
         INX
         CPX     #'@'

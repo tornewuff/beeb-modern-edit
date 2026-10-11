@@ -1,5 +1,5 @@
 .ROUTAF
-        JSR     get_number
+        JSR     get_number_register
         AND     #15
         ASL     A
         TAX
@@ -8,7 +8,7 @@
         STA     number_registers+1,X
         INY            ; skip some delimter
         PHX
-        JSR     get_number
+        JSR     get_number_register
         PLX
         ASL     A
         ASL     A
@@ -18,14 +18,14 @@
         STA     number_registers+1,X
         RTS
 .ROUTAN
-        JSR     get_number
+        JSR     get_number_register
         AND     #15
         ASL     A
         PHA
         LDA     (addr),Y
         INY            ; skip delimter
         PHA
-        JSR     get_number
+        JSR     get_number_register
         PLA
         CMP     #'+'
         BEQ     ADDREG
@@ -79,7 +79,7 @@
         RTS
 .ROUTBL
         STA     bold
-        STA     bold_request
+        STA     bold_required
         RTS
 .ROUTCC
         LDA     (addr),Y
@@ -268,7 +268,7 @@
         RTS
 .ROUTIN
         LDX     indent
-        JSR     modify_number
+        JSR     modify_number_register
         STX     indent
         RTS
 .ROUTIO
@@ -314,16 +314,16 @@
         RTS
 .ROUTLL
         LDX     len
-        JSR     modify_number
+        JSR     modify_number_register
         STA     len
         RTS
 .ROUTLS
         LDX     vspace
-        JSR     modify_number
+        JSR     modify_number_register
         STX     vspace
         RTS
 .ROUTLV
-        JSR     get_number
+        JSR     get_number_register
         CMP     lineot
         BEQ     OKAYLV
         BCC     OKAYLV
@@ -334,7 +334,7 @@
         JMP     ALINES
 
 .ROUTNE
-        JSR     get_number
+        JSR     get_number_register
         CMP     lineot
         BEQ     OKAY
         BCC     OKAY
@@ -364,7 +364,7 @@
         JMP     ROUTCO
 .ROUTPL
         LDX     lines_per_page
-        JSR     modify_number
+        JSR     modify_number_register
         TXA
         BEQ     WZERO
         STA     lines_per_page
@@ -376,7 +376,7 @@
         RTS
 .ROUTPO
         LDX     page_offset
-        JSR     modify_number
+        JSR     modify_number_register
         STA     page_offset
         RTS
 .ROUTRF
@@ -384,7 +384,7 @@
         STZ     centre        ; can't have both
         RTS
 .ROUTSP
-        JSR     get_number
+        JSR     get_number_register
 .ALINES
         TAX
         BEQ     ALINEX
@@ -418,7 +418,7 @@
 .ROUTTA
         STZ     last_tab
 .SETTAB
-        JSR     get_number
+        JSR     get_number_register
         LDX     last_tab
         STA     tab_list,X
         STZ     tab_list+1,X
@@ -439,7 +439,7 @@
         BNE     ROUSTI
         LDX     indent        ; if no temp indent then use indent as base
 .ROUSTI
-        JSR     modify_number
+        JSR     modify_number_register
         STX     temp_indent
         RTS
 .ROUTTR
@@ -467,5 +467,5 @@
         RTS
 .ROUTUL
         STA     underline
-        STA     underline_request
+        STA     underline_required
         RTS

@@ -37,7 +37,7 @@
 
         ; The box drawing characters used by the help displays are now
         ; only defined while they are on screen. define_chars saves the
-        ; current definitions of characters &80 onwards in saved_chars before
+        ; current definitions of characters &80 onwards in chardef_backup before
         ; redefining them, and restore_chars puts them back.
 
 nchars  =       18              ; number of characters redefined
@@ -45,8 +45,8 @@ nchars  =       18              ; number of characters redefined
 .define_chars
         LDX     #nchars - 1
         STX     scratch + 30
-        LDX     #<(saved_chars + (nchars - 1) * 8 - 1)
-        LDY     #>(saved_chars + (nchars - 1) * 8 - 1)
+        LDX     #<(chardef_backup + (nchars - 1) * 8 - 1)
+        LDY     #>(chardef_backup + (nchars - 1) * 8 - 1)
         STX     scratch + 28
         STY     scratch + 29
 .dfchlp                         ; save character definitions, last first
@@ -99,8 +99,8 @@ nchars  =       18              ; number of characters redefined
         RTS
 
 .restore_chars
-        LDX     #<saved_chars
-        LDY     #>saved_chars
+        LDX     #<chardef_backup
+        LDY     #>chardef_backup
         BRA     setchr
 
 .chrdef

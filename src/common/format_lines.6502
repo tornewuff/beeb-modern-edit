@@ -172,7 +172,7 @@
         JSR     write
         PLA
         STA     underline
-        BIT     underline_request
+        BIT     underline_required
         BPL     LINCTL
         LDA     #&40       ; now do underline
         TRB     print_flags
@@ -246,7 +246,7 @@
 .WSCTON
         PHX
         INY
-        JSR     get_number
+        JSR     get_number_register
         PLX
         BRA     IGNCTL
 .WSCTRR
@@ -304,12 +304,12 @@
         LDA     #&FF
         STA     underline
         STA     pundrl
-        STA     underline_request
+        STA     underline_required
         BRA     WASCTL
 .WASCTA
         LDA     #&FF
         STA     pbold
-        STA     bold_request
+        STA     bold_required
         STA     bold
         BRA     WASCTL
 .WASCTO
@@ -323,7 +323,7 @@
 .WASCON
         PHX
         INY
-        JSR     get_number
+        JSR     get_number_register
         LDA     #1
         JSR     oswrch
         TXA
@@ -342,7 +342,7 @@
         LDX     temp
 .OUTCON
         LDA     buff,X
-        JSR     format_wrch   ; ul!!
+        JSR     format_write_char   ; ul!!
         DEX
         BPL     OUTCON
         PLX

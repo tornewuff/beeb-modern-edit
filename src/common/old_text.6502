@@ -27,7 +27,7 @@
         STA     dst_ptr + 1
         PHY
         PHX
-        JSR     copy_back
+        JSR     copy_backward
         PLA
         CLC
         ADC     text_start

@@ -4,7 +4,7 @@
         LDY     #>scratch
         RTS
 
-.cmdline_next
+.next_cmdline_byte
         INC     scratch
         BNE     * + 4
         INC     scratch + 1
@@ -40,7 +40,7 @@
         RTS
 
 .read_next_io_byte
-        JSR     cmdline_next
+        JSR     next_cmdline_byte
 
 .read_io_byte
         PHX

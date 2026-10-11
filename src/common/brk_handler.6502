@@ -43,7 +43,7 @@ ENDIF
 .simBRK
         CMP     #&01
         BNE     simBK2
-        JSR     print_error_nl
+        JSR     print_nl_os_error
         JMP     starCN
 .simBK2
         BCC     norBRK
@@ -52,7 +52,7 @@ ENDIF
 .norBRK
         JSR     print_inline
         EQUB    &03,&0F,&EA
-        JSR     move_to_status
+        JSR     cursor_to_status
 
 IF lerror=1
         IF edit150
@@ -72,12 +72,12 @@ IF lerror=1
         LDA     #54-80
         JSR     print_repeat_inline
         EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
-        JSR     print_error
+        JSR     print_os_error
         IF edit150
         JSR     restore_chars
         ENDIF
 ELSE
-        JSR     print_error_nl
+        JSR     print_nl_os_error
         JSR     cursor_off
         LDA     options
         AND     #&07
@@ -94,7 +94,7 @@ ELSE
         ENDIF
 .nomess
         JSR     osnewl
-        JSR     print_inverse_inline
+        JSR     print_inline_inverse
         EQUB    "Press ESCAPE to continue",&EA
 ENDIF
 
@@ -118,9 +118,9 @@ IF edit150
         JMP     osbyte
 ENDIF
 
-.print_error_nl
+.print_nl_os_error
         JSR     osnewl
-.print_error
+.print_os_error
         LDY     #&01
 .BRKOLP
         LDA     (&FD),Y

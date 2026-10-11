@@ -1,4 +1,4 @@
-.clear_text                     ; Clear text
+.new_text                       ; Clear text
         JSR     prompt
         IF stamp=1
         EQUB    "Clear text [Y (dated),shf-f9 (exec)]",&EA
@@ -10,7 +10,7 @@
         TYA
         BEQ     doneW1
 .newtn
-        JMP     show_status
+        JMP     update_status_line
 .doneW1
         PHX
         JSR     nstamp
@@ -29,7 +29,7 @@
         TAX
         BNE     newtk
 .newtn
-        JSR     show_status
+        JSR     update_status_line
         JMP     EDITth
 .newtd                          ; discard: mark the text as discarded
         LDA     #2
@@ -56,7 +56,7 @@
         CPY     #0
         BEQ     donew
 .newtn
-        JMP     show_status
+        JMP     update_status_line
 .donew
         JSR     save_text_bounds
         JMP     EDITin

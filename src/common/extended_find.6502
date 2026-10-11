@@ -177,7 +177,7 @@ nktent  =       ( kttabe - kttab )
 
         BCC     rdloop
 
-        JSR     print_text_char ; write character after parsing
+        JSR     write_char      ; write character after parsing
                                 ; ctrl chars - inverse
                                 ; delete     - inverse "?"
                                 ; any other character just echoed
@@ -217,7 +217,7 @@ nktent  =       ( kttabe - kttab )
         RTS                     ; well it wasn't one of ours
 
 .gotit1
-        JSR     inverse_on
+        JSR     write_char.inverse_on
 
         LDY     #&01            ; the index to the text
 .ncoutl
@@ -229,7 +229,7 @@ nktent  =       ( kttabe - kttab )
         INY
         BRA     ncoutl
 .tdone
-        JSR     inverse_off
+        JSR     write_char.inverse_off
 
         PLA
         CLC

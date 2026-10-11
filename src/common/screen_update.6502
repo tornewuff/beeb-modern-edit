@@ -1,12 +1,12 @@
-        ; Entry - cursor_y = desired screen Y coord of current line
-        ;         (cursor_x,cursor_y) = final cursor position
+        ; Entry - screen_y = desired screen Y coord of current line
+        ;         (screen_x,screen_y) = final cursor position
         ; Exit  - screen & screen_image updated
-        ;         cursor_y forced if necessary
+        ;         screen_y forced if necessary
         ;         update possibly aborted by incoming char.
-        ;         line_length valid
+        ;         current_line_len valid
 .screen_update
         JSR     LENGTHCALC
-        STA     line_length
+        STA     current_line_len
         TAY
         BEQ     SCRNU0
         CMP     page_width
@@ -33,23 +33,23 @@
         BNE     SCUDTI
         JSR     CLEARSCREEN
         ; If fullscreen update is required, then find internal start
-        ; of screen, possibly forcing cursor_y, and update top half.
+        ; of screen, possibly forcing screen_y, and update top half.
 .SCUDTI
         LDA     update_required
         BEQ     SCUDEX ; 'none'
         CMP     #fullscreen
         BCC     SCUDBO
 .SCUDFS
-        LDA     cursor_y
+        LDA     screen_y
         JSR     TPGSBK
-        STA     cursor_y
+        STA     screen_y
         DEA
         STA     update_max_y
         BMI     SCUDBO
         LDA     #0
         LDX     text_ptr
         LDY     text_ptr+1
-        JSR     update_line
+        JSR     update_lines
         BCS     SCUDAB
 .SCUDBO
         ; Output bottom half of screen, branching for hardscrolls.
@@ -61,10 +61,10 @@
         LDY     page_length
         STY     update_max_y
         ; Set up A,X,Y for bottom half update.
-        LDA     cursor_y
+        LDA     screen_y
         LDX     gap_end
         LDY     gap_end+1
-        JSR     update_line
+        JSR     update_lines
         BCC     SCUDEX
 .SCUDAB
         ; Record the fact that screen isn't totally up-to-date.
@@ -79,7 +79,7 @@
         RTS
 .SCUDHU
         ; Push against bottom to scroll up.
-        JSR     move_to_status
+        JSR     cursor_to_status
         LDA     #down
         JSR     oswrch
         ; Scroll screen_image up.
@@ -91,7 +91,7 @@
         CPX     page_length
         BNE     SCHULP
         STZ     screen_image+1,X
-        JSR     show_status
+        JSR     update_status_line
         LDA     page_length
         BRA     SCHUDC
 .SCUDHD
@@ -106,18 +106,18 @@
         DEY
         BPL     SCHDLP
         STZ     screen_image
-        JSR     show_status
+        JSR     update_status_line
         LDA     #0
 .SCHUDC
         STA     update_max_y
         LDX     scroll_ptr
         LDY     scroll_ptr+1
-        BNE     update_line
+        BNE     update_lines
         TAY
 .wipe_line
         ; Clear a line, assigning new screen_image value. Y is line to clear.
         PHY
-        JSR     move_to_line
+        JSR     cursor_to_0y
         LDA     #' '
         JSR     oswrch
         LDA     #0
@@ -174,13 +174,13 @@
         LDA     #12
         JSR     oswrch
         PHY
-        JSR     set_text_window
+        JSR     setup_text_window
         PLY
 .WTSCRM
         LDA     temp_a
         STA     screen_image,Y
         RTS
-.update_line
+.update_lines
         ; Entry - A = Y-coord of 1st line to be output.
         ;        XY --> 1st line to be output.
         ;        update_max_y = last line to be updated.
@@ -201,14 +201,14 @@
         CMP     #csronwards
         BNE     UPDLCO
 .UPDLC0
-        LDX     cursor_x
-        CPX     line_length
+        LDX     screen_x
+        CPX     current_line_len
         BCC     UPDLCO
-        LDX     line_length
+        LDX     current_line_len
 .UPDLCO
         PHX
         LDY     update_y
-        JSR     move_to_xy
+        JSR     cursor_to_xy
         PLY
         DEY
 .UPDLLP
@@ -221,16 +221,16 @@
         CMP     #termin
         ENDIF
         BEQ     UPDLCR
-        JSR     print_text_char
+        JSR     write_char
         CPY     page_width
         BNE     UPDLLP
         BRA     UPDLEN
 .UPDLCR
-        JSR     print_cr_char
+        JSR     write_char.line_end
 .UPDLEN
         STY     count ; Max csrX on this line.
         ; Superimpose marks, if any, onto this line.
-        LDY     mark_count
+        LDY     num_marks_set
 .MOUTLP
         DEY
         BMI     MOUTEX
@@ -249,14 +249,14 @@
         BCS     MOUTLP
 .MOUTMO
         LDY     update_y
-        JSR     move_to_xy
+        JSR     cursor_to_xy
         LDA     index
         CLC
         ADC     #'1'
-        JSR     print_inverse
+        JSR     write_char.inverse
         LDX     count
         INX
-        JSR     move_to_xy
+        JSR     cursor_to_xy
         LDY     index
         BRA     MOUTLP
 .MOUTEX
@@ -276,7 +276,7 @@
         LDA     update_required
         CMP     #thelot
         BEQ     QUEUEX
-        LDA     key_pending
+        LDA     key_pending_flag
         BNE     QUEUCS
         LDA     #&81
         LDX     #0
@@ -289,13 +289,13 @@
         CPY     #&FF
         BEQ     QUEUEX
         JSR     test_escape
-        INC     key_pending
+        INC     key_pending_flag
         STX     pending_key
         IF edit150
-        STX     scratch + 31    ; flags for read_key
+        STX     scratch + 31    ; flags for read_char
         TXA
         BNE     QUEUCS
-        JSR     read_char_esc   ; 0 prefix: read the command code too
+        JSR     read_char_test_escape   ; 0 prefix: read the command code too
         STA     pending_key
         ENDIF
 .QUEUCS
@@ -309,9 +309,9 @@
 .UPDLNE
         LDX     count
         LDY     update_y
-        JSR     move_to_xy
+        JSR     cursor_to_xy
         LDA     #'*'
-        JSR     print_inverse
+        JSR     write_char.inverse
         BRA     UDLET1
 .UDLEOT
         LDY     update_y

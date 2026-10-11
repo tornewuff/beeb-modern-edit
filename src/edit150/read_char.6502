@@ -1,12 +1,12 @@
-.read_key
+.read_char
         ; Exit - A holds character read
         ; Keys that are editor commands arrive as 0 followed by the
         ; command code. Exit EQ with the code in A for a command,
         ; NE with the character in A for anything else.
-        LDA     key_pending
+        LDA     key_pending_flag
         BEQ     EDRDOSRD
         LDA     pending_key
-        STZ     key_pending
+        STZ     key_pending_flag
         BNE     EDRDNX
 .EDRDZ                          ; 0, 0 is a literal 0
         TSX                     ; NE
@@ -15,18 +15,18 @@
         LDX     scratch + 31    ; flags saved with pending_key
         RTS
 .EDRDOSRD
-        JSR     read_char_esc
+        JSR     read_char_test_escape
         TAX
 .EDRDCK
         BNE     EDRDRT
-        JSR     read_char_esc
+        JSR     read_char_test_escape
         CMP     #0
         BEQ     EDRDZ
         LDX     #0              ; EQ: command
 .EDRDRT
         RTS
 
-.read_key_timeout               ; as read_key but with a timeout, A = 0 if none
+.read_key_timeout               ; as read_char but with a timeout, A = 0 if none
         LDA     #&81
         TAX
         LDY     #3

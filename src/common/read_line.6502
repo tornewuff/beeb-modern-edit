@@ -51,7 +51,7 @@
 
         LDA     #thelot
         STA     update_required
-        JSR     read_line_raw
+        JSR     do_read_line
         BCC     escCLR
 .escSET
         JSR     print_inline
@@ -65,7 +65,7 @@
         STZ     cursor_editing
         JMP     brk_handler.escCON
         IF edit150
-.read_char_esc                  ; read a character and check for escape
+.read_char_test_escape                  ; read a character and check for escape
         JSR     osrdch
         ENDIF
 .test_escape
@@ -73,11 +73,11 @@
         BMI     escSET
         RTS
 
-.read_line_raw
+.do_read_line
         LDY     #0
 .RDLNLP
         IF edit150
-        JSR     read_key
+        JSR     read_char
         ELSE
         JSR     osrdch
         BCS     RDLNEX
@@ -104,7 +104,7 @@
         INY
         CMP     #cr
         BEQ     RDLNEG
-        JSR     print_text_char
+        JSR     write_char
         BRA     RDLNLP
 .RDLNEG
         PHY

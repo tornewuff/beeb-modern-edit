@@ -127,8 +127,8 @@
         STA     scratch + 1
         RTS
 
-.print_filename
-        JSR     inverse_on
+.write_filename
+        JSR     write_char.inverse_on
         LDY     #&FF
 .wrispc
         INY
@@ -143,7 +143,7 @@
         INY
         BRA     wrilop
 .wriex
-        JMP     inverse_off
+        JMP     write_char.inverse_off
 
 .load_text
         LDA     text_start
@@ -177,7 +177,7 @@
         JSR     paslnm
         JSR     prompt
         EQUB    "Loading ",&EA
-        JSR     print_filename
+        JSR     write_filename
 
 .pasGO
         LDY     #&00
@@ -241,7 +241,7 @@
 .inSAVE
         JSR     prompt
         EQUB    "Saving to ",&EA
-        JSR     print_filename
+        JSR     write_filename
         LDX     #&0F
 .pasacl
         STZ     scratch + 2,X

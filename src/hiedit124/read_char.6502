@@ -1,9 +1,9 @@
-.read_key
+.read_char
         ; Exit - A holds character read
-        LDA     key_pending
+        LDA     key_pending_flag
         BEQ     EDRDOSRD
         LDA     pending_key
-        STZ     key_pending
+        STZ     key_pending_flag
         RTS
 .EDRDOSRD
         IF mouse=1

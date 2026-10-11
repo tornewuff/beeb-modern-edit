@@ -31,7 +31,7 @@
 .MOVEX
         RTS
 .wait_shift_prompt
-        JSR     print_inverse_inline
+        JSR     print_inline_inverse
         EQUB    "Press SHIFT to continue",&EA
 .wait_shift
         PHX

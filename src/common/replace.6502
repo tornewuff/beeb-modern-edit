@@ -89,7 +89,7 @@
         TAY
         ADC     gap_start + 1
         STA     gap_start + 1
-        JSR     copy_back
+        JSR     copy_backward
         JMP     CHNRLP
 .CHNREX
         RTS

@@ -5,7 +5,7 @@
         ; GR/ .......  /.......  <CR>
 .get_response
         ;Exit - A holds char - forced to lower case - read from keyboard
-        JSR     read_key
+        JSR     read_char
         ORA     #&20
         RTS
 .MOVETOFOUNDPOSITION
@@ -79,7 +79,7 @@
         ENDIF
         JSR     prompt_at_x
         EQUB    " ",&EA
-        JSR     print_line_number
+        JSR     write_lineno
         JSR     prompt_at_x
         EQUB    " found",&EA
         RTS
@@ -114,10 +114,10 @@
         CPY     #100
         BNE     NEWFR
         JSR     FINDTRANS
-        JSR     clamp_cursor_x
+        JSR     clamp_screen_x
         JSR     FINEPOSITIONGAP
         LDA     line
-        STA     cursor_x
+        STA     screen_x
         ;Set up search termination pointer & flag.
         LDA     text_end
         STA     search_end
@@ -148,8 +148,8 @@
         BNE     IMRPRP
         ENDIF
         JSR     normalize_x ; get position of X back
-        LDA     bottom_margin ;Move to bottom_margin
-        STA     cursor_y
+        LDA     bottom_scroll_margin ;Move to bottom_scroll_margin
+        STA     screen_y
         JSR     screen_update
         LDA     #fullscreen
         STA     update_required
@@ -160,7 +160,7 @@
         EQUB    "R(eplace), C(ontinue) or ESCAPE",&EA
         ENDIF
 
-        JSR     move_to_cursor
+        JSR     cursor_to_screen_xy
         JSR     cursor_on
 .IMRPPR
         JSR     get_response
@@ -217,7 +217,7 @@
         LDA     #thelot
         STA     update_required
         JSR     screen_update
-        JSR     show_status
+        JSR     update_status_line
         IF edit150
         LDA     replace_all     ; after replacing to the end, give the count
         BEQ     IMRPN2

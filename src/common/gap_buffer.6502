@@ -52,7 +52,7 @@
         LDY     gap_end + 1
         STX     text_ptr
         STY     text_ptr + 1
-.text_ptr_forward
+.text_ptr_forward_a
         ; Moves pointer text_ptr forward A lines.
         ; Entry - A = No. of lines to advance text_ptr
         ; Exit  - text_ptr advanced (possibly by less than A lines if hit EOT)
@@ -259,14 +259,14 @@
         TYA
         ADC     gap_end + 1
         STA     gap_end + 1
-        JMP     copy_back
+        JMP     copy_backward
 .FINEPOSITIONGAP
         ; Entry - Gap line positioned, without VS in text.
         ; Exit  - Gap character positioned, with VS added.
         JSR     add_virtual_spaces
         CLC
         LDA     gap_end
-        ADC     cursor_x
+        ADC     screen_x
         TAX
         LDA     gap_end + 1
         ADC     #0

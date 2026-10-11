@@ -1,4 +1,4 @@
-.print_text_char
+.write_char {
         ; Entry - A = char to output.
         ; Exit  - Y preserved
         ;        ctrl ch     --> inverted or chr(255) depending on mode
@@ -9,10 +9,10 @@
         CMP     #delete
         BNE     PASWOS
         LDA     #'?'
-        BRA     print_inverse
+        BRA     inverse
 .PASWOS
         JMP     oswrch
-.print_cr_char
+.line_end
         LDA     #&20
         BIT     options
         BEQ     PASWOS
@@ -21,10 +21,10 @@
         ELSE
         LDA     #'$'      ; **
         ENDIF
-        BRA     print_inverse ; **
+        BRA     inverse   ; **
 .PASWNC
         ORA     #&40; Output control character as inverted keytop.
-.print_inverse
+.inverse
         ; Output character in inverse video (blob in mode 7).
         ; Entry - A = character
         ;        mode IN [0..7]
@@ -53,3 +53,4 @@
         JSR     print_inline
         EQUB    17,135,17,0,&EA
         RTS
+}

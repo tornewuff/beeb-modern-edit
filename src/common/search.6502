@@ -19,7 +19,7 @@
         ;        Search-string in stracc, terminated by termch.
         ; Exit  - CC  Occurence of findstring found.
         ;            match_start  --> match
-        ;            me  --> matchend  +  1
+        ;            match_end  --> matchend  +  1
         ;        CS  Search failed.
 .SEARCH
         LDY     #0
@@ -55,14 +55,14 @@
         BNE     SRCHCT
         INC     match_end + 1
 .SRCHCT
-        ; Expects Y (= linbufX), me --> next char valid.
+        ; Expects Y (= linbufX), match_end --> next char valid.
         JSR     test_escape
         LDA     stracc,Y
         CMP     #termsym
         BEQ     SRCHFD
         CMP     #multsym
         BEQ     SRCHMI
-        JSR     compare_object
+        JSR     compare_match_object
         BEQ     SRCHL1
 .SRCHIN
         ; Increment current multiple match, or advance match_start if there
@@ -74,7 +74,7 @@
         INC     match_start + 1
         BRA     SEARCH
 .SRCHFD
-        LDA     match_start ; Match found. Set sstk[0] = match_start, (me-match_start).
+        LDA     match_start ; Match found. Set sstk[0] = match_start, (match_end-match_start).
         STA     SSTTLOSTK
         LDA     match_start + 1
         STA     SSTTHISTK
@@ -100,7 +100,7 @@
         STA     match_end + 1
         LDA     SINDEXSTK,X
         TAY
-        JSR     compare_object
+        JSR     compare_match_object
         BNE     SRCHBK
         LDX     search_stack_index
         INC     SCNTLOSTK,X
@@ -136,7 +136,7 @@
         STA     SSTTHISTK,X
         STZ     SCNTLOSTK,X
         STZ     SCNTHISTK,X
-        JSR     compare_object ; Cheap way to advance Y to next find-object.
+        JSR     compare_match_object ; Cheap way to advance Y to next find-object.
         JMP     SRCHCT
 .COMOFS
         PLP
@@ -144,8 +144,8 @@
         ; Have hit end of search text, so fail match.
         LDA     #1
         RTS
-.compare_object
-        ; Compares stracc,Y & (me).
+.compare_match_object
+        ; Compares stracc,Y & (match_end).
         ; Exit  - Y indexes next ssobj
         ;        EQ  Objects match.
         ;        NE  Objects don't match.
@@ -237,7 +237,7 @@
         STA     nextX
         INY
 .CMOSEL
-        JSR     compare_object
+        JSR     compare_match_object
         BEQ     CMOSEY
         CPY     nextX
         BNE     CMOSEL

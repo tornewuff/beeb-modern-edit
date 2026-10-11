@@ -1,4 +1,4 @@
-.star_command                   ; oscli processing
+.star_prompt                    ; oscli processing
         LDA     #&01
         STA     brk_action
         JSR     restore_keys

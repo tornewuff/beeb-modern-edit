@@ -8,7 +8,7 @@
 .normalize_x
         JSR     NORMALIZE
         LDA     string
-        STA     cursor_x
+        STA     screen_x
         RTS
 .copy_marked
         ;Marked copy. Either m-m-c or c-m-m.
@@ -53,8 +53,8 @@
         LDX     #1
         STX     modified
         INX
-        STX     mark_count
-        JSR     show_status
+        STX     num_marks_set
+        JSR     update_status_line
         JMP     NORMALIZE
 .move_marked
         ;If marks are before cursor, then do a bit of tweaking to
@@ -165,12 +165,12 @@
         INC     temp + 1
         INC     addr + 1
         BRA     MVNINC
-.clamp_cursor_x
-        LDA     cursor_x
+.clamp_screen_x
+        LDA     screen_x
         STA     line
-        LDA     line_length
-        CMP     cursor_x
+        LDA     current_line_len
+        CMP     screen_x
         BCS     TEMPSE
-        STA     cursor_x
+        STA     screen_x
 .TEMPSE
         RTS

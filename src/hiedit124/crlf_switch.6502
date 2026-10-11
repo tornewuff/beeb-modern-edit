@@ -1,4 +1,4 @@
-.toggle_line_terminator         ; CR/LF switch
+.crlf_switch                    ; CR/LF switch
         LDA     line_terminator
         CMP     #cr
         BEQ     setLF
@@ -10,14 +10,14 @@
         STA     line_terminator
 .cont99
         STZ     cursor_editing
-        STZ     key_pending
-        STZ     mark_count
+        STZ     key_pending_flag
+        STZ     num_marks_set
 
         LDA     line_terminator
         STA     (oshwm)
         STA     (text_end)
 
-        STZ     cursor_x        ; STZ cursor_y will be forced by screen_update
+        STZ     screen_x        ; STZ screen_y will be forced by screen_update
 
         JSR     cursor_text_start ; move the cursor to the top
                                 ; of the text

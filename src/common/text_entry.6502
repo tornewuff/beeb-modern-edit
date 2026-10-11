@@ -10,11 +10,11 @@
         STZ     old_text_bounds + 3
         CMP     #cr
         BNE     ECHRCO
-        JSR     test_insert_mode ;In insert mode put in the CR
+        JSR     is_insert_mode ;In insert mode put in the CR
         BNE     ECHRCR
         JSR     ENDTEST
         BCS     ECHRCR
-        STZ     cursor_x
+        STZ     screen_x
         JMP     cursor_down ;in overtype mode CR is start of line
 .ECHRCR
         IF cF8key=1
@@ -27,9 +27,9 @@
         PHA
         JSR     add_virtual_spaces
         ; Don't insert in overtype mode, unless at end of line.
-        JSR     test_insert_mode
+        JSR     is_insert_mode
         BNE     ECHRMV
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         IF cF8key=1
         CMP     line_terminator
@@ -39,11 +39,11 @@
         BNE     ECHRCH
 .ECHRMV
         LDX     #1
-        LDA     cursor_x
+        LDA     screen_x
         JSR     INSRTX
 .ECHRCH
         PLA
-        LDY     cursor_x
+        LDY     screen_x
         STA     (gap_end),Y
         ; Write char to screen (cursor OK), wiping tail for TERMIN.
         IF cF8key=1
@@ -52,12 +52,12 @@
         CMP     #termin
         ENDIF
         BNE     ECHRNT
-        JSR     print_cr_char
-        LDA     cursor_x
-        LDY     cursor_y
+        JSR     write_char.line_end
+        LDA     screen_x
+        LDY     screen_y
         JSR     wipe_tail
 .EHRCSU
-        STZ     cursor_x
+        STZ     screen_x
         JSR     cursor_down
 .ECHRUP
         LDA     update_required
@@ -68,7 +68,7 @@
         STA     update_required
         JMP     set_modified
 .ECHRNT
-        JSR     print_text_char
+        JSR     write_char
         JSR     cursor_right
 .ECHRN0
         LDA     update_required
@@ -84,7 +84,7 @@
         BEQ     EDELST
         JMP     cursor_left
 .EDELST
-        LDA     cursor_x
+        LDA     screen_x
         BNE     EDELCO
         JSR     STARTTEST
         BCS     DELABX
@@ -93,13 +93,13 @@
         ; this will give TERMIN delete when past end of line.
         JSR     cursor_left
         JSR     LENGTHCALC      ; different line than current!
-        CMP     cursor_x
+        CMP     screen_x
         BCS     EDELMT
-        STA     cursor_x
+        STA     screen_x
 .EDELMT
         ; Branch on text-entry mode (insert/overtype).
-        LDY     cursor_x
-        JSR     test_insert_mode
+        LDY     screen_x
+        JSR     is_insert_mode
         BNE     EDELSL
         LDA     (gap_end),Y
         IF cF8key=1
@@ -121,7 +121,7 @@
         CMP     #termin
         ENDIF
         BEQ     EDELS2
-        LDA     line_length
+        LDA     current_line_len
         CMP     page_width
         BEQ     EDELS2
         JSR     EDEL1
@@ -132,7 +132,7 @@
 .DELLIX
         JSR     delete_above
 .delete_line
-        STZ     cursor_x
+        STZ     screen_x
         LDA     (gap_end)
         IF cF8key=1
         CMP     line_terminator
@@ -141,26 +141,26 @@
         ENDIF
         BNE     DELLIX
         JSR     LENGTHCALC
-        STA     line_length
+        STA     current_line_len
         JSR     delete_above
         JMP     ECHREL
 .delete_above
         JSR     ENDTEST
         BCC     DELABY
-        LDA     cursor_x
-        CMP     line_length
+        LDA     screen_x
+        CMP     current_line_len
         BCC     DELABY
 .DELABX
         RTS
 .DELABY
-        LDA     line_length
-        CMP     cursor_x
+        LDA     current_line_len
+        CMP     screen_x
         BCC     DELABX
         LDY     #CSRTOCR
         STY     update_required
         CMP     page_width
         BEQ     EDEL0
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         IF cF8key=1
         CMP     line_terminator
@@ -176,7 +176,7 @@
         CLC
         LDA     gap_end
         STA     temp
-        ADC     cursor_x
+        ADC     screen_x
         STA     addr
         LDA     gap_end + 1
         STA     temp + 1
@@ -186,7 +186,7 @@
         BNE     EDELNH
         INC     gap_end + 1
 .EDELNH
-        LDY     cursor_x
+        LDY     screen_x
         BRA     EDELDY
 .EDELLP
         LDA     (temp),Y
@@ -194,7 +194,7 @@
 .EDELDY
         DEY
         BPL     EDELLP
-        LDX     mark_count
+        LDX     num_marks_set
 .EDELMK
         DEX
         BMI     DELABX

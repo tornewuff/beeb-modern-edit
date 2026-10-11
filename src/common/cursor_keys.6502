@@ -1,29 +1,29 @@
 .cursor_left
         JSR     STARTTEST
         BCC     CLCONT
-        LDA     cursor_x
+        LDA     screen_x
         BEQ     CSREXI
 .CLCONT
-        DEC     cursor_x
+        DEC     screen_x
         BPL     CSREXI
         LDA     page_width
-        STA     cursor_x
+        STA     screen_x
         ; C set if at start of text
 .cursor_up
         JSR     STARTTEST
         BCS     CSREXI
         LDA     #1
         JSR     move_lines_back
-        LDA     top_margin
-        CMP     cursor_y
+        LDA     top_scroll_margin
+        CMP     screen_y
         BCS     CUUPSC
 .CUUPNS
-        DEC     cursor_y
+        DEC     screen_y
         BPL     CSREXI
 .CUUPSC
-        LDA     cursor_y ; In Top Scroll Margin. If more than Top Scroll Margin Width
+        LDA     screen_y ; In Top Scroll Margin. If more than Top Scroll Margin Width
         JSR     TPGSBK ; from top of file, then assign Scroll Pointer, else move cursor up.
-        CMP     cursor_y
+        CMP     screen_y
         CLC
         BNE     CUUPNS
         LDA     text_ptr
@@ -34,7 +34,7 @@
         STA     update_required
         RTS
 .WORDRT
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         IF cF8key=1
         CMP     line_terminator
@@ -46,7 +46,7 @@
         BCS     WORDXX
         JSR     screen_update
 .cursor_line_start
-        STZ     cursor_x
+        STZ     screen_x
         BRA     CSREXI
 .WORDXX
         PLA
@@ -57,37 +57,37 @@
         JSR     screen_update
         BRA     CSREXI
 .WORDLT
-        LDA     cursor_x
+        LDA     screen_x
         BNE     cursor_left
         JSR     cursor_up
         BCS     WORDXX
         JSR     screen_update
 .cursor_line_end
-        LDA     line_length
-        STA     cursor_x
+        LDA     current_line_len
+        STA     screen_x
 .CSREXI
         STZ     update_required
         RTS
 .cursor_right
-        LDA     cursor_x
+        LDA     screen_x
         CMP     page_width
         BEQ     CURRCO
-        INC     cursor_x
+        INC     screen_x
         BRA     CSREXI
 .CURRCO
         JSR     ENDTEST
         BCS     CSREXI
-        STZ     cursor_x
+        STZ     screen_x
         ; C set if at text end
 .cursor_down
         JSR     ENDTEST
         BCS     CSREXI
         LDA     #1
         JSR     move_lines_forward
-        LDA     cursor_y
-        CMP     bottom_margin
+        LDA     screen_y
+        CMP     bottom_scroll_margin
         BCS     CUDOSC
-        INC     cursor_y
+        INC     screen_y
         BRA     CSREXI
 .CUDOSC
         ; In Bottom Scroll Margin.
@@ -99,7 +99,7 @@
                               ; blank line required for scroll.
         SEC
         LDA     page_length
-        SBC     bottom_margin
+        SBC     bottom_scroll_margin
         JSR     TPGEFD
         LDA     count
         BNE     CUDOWS
@@ -114,20 +114,20 @@
 .WORDRX
         RTS
 .WORDRIGHT
-        LDA     line_length
-        CMP     cursor_x
+        LDA     current_line_len
+        CMP     screen_x
         BCS     WORDR3
-        STA     cursor_x
+        STA     screen_x
         BRA     WORDR3
 .WORDR1
         JSR     WORDRT
 .WORDR3
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         JSR     is_word_char
         BCC     WORDR1
 .WORDR2
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         JSR     is_word_char
         BCC     WORDRX
@@ -135,22 +135,22 @@
         BRA     WORDR2
 .WORDL1
         JSR     WORDLT
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         JSR     is_word_char
         BCC     WORDL1
 .WORDL2
-        LDY     cursor_x
+        LDY     screen_x
         LDA     (gap_end),Y
         JSR     is_word_char
         BCC     cursor_right
         JSR     WORDLT
         BRA     WORDL2
 .WORDLEFT
-        LDA     line_length
-        CMP     cursor_x
+        LDA     current_line_len
+        CMP     screen_x
         BCS     WORDL1
-        STA     cursor_x
+        STA     screen_x
 .WORDCX
         SEC
         RTS

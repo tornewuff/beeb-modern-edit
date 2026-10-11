@@ -9,7 +9,7 @@
         JSR     MKUDCH
 .MKUDKN
         STZ     marks_before_cursor
-        LDX     mark_count
+        LDX     num_marks_set
 .MKUDLP
         DEX
         BMI     MKUDEX
@@ -54,7 +54,7 @@
         JSR     MKUDKN
 
         ;If Mark2 (exists) < Mark1, then swap.
-        LDX     mark_count
+        LDX     num_marks_set
         CPX     #2
         BNE     CLRMCO
         LDA     used_marks_lo+1
@@ -71,16 +71,16 @@
         STA     used_marks_hi+1
         STY     used_marks_hi
 .CLRMCO
-        LDA     mark_count
+        LDA     num_marks_set
         STA     num_marks
-        STZ     mark_count
-        JSR     show_status
+        STZ     num_marks_set
+        JSR     update_status_line
         LDA     num_marks
 .MKRFEX
         RTS
 .refuse_if_marked
         ;Complain if any marks are set.
-        LDA     mark_count
+        LDA     num_marks_set
         BEQ     MKRFEX
         BRK
         EQUB    1,"Mark(s) set",0
@@ -111,13 +111,13 @@
         RTS
 .dfinit
         ;Seperated this way to avoid grotty command-line escape.
-        JSR     clamp_cursor_x
+        JSR     clamp_screen_x
         JSR     CLRMARKS
         CMP     #2
         BEQ     BADMARKING
         PHA
         LDA     line
-        STA     cursor_x
+        STA     screen_x
         PLA
         RTS
 .dfblok
@@ -167,7 +167,7 @@
         EQUB    1,"Bad marking",0
 .SETMARK
         JSR     FINEPOSITIONGAP
-        LDX     mark_count
+        LDX     num_marks_set
         CPX     #2
         BEQ     BADMARKING
         ;Save mark address.
@@ -176,8 +176,8 @@
         LDA     gap_end+1
         STA     set_marks_hi,X
         JSR     NORMALIZE
-        INC     mark_count
-        JMP     show_status
+        INC     num_marks_set
+        JMP     update_status_line
 .CLEARMARKS
         JSR     CLRMARKS
         JMP     NORMALIZE

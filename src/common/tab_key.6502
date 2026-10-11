@@ -3,21 +3,21 @@
         BIT     options
         BNE     TABSTR
 .TABPOS
-        INC cursor_x
-        LDA     cursor_x
+        INC screen_x
+        LDA     screen_x
         AND     #7
         BNE     TABPOS
-        LDA     cursor_x
+        LDA     screen_x
         CMP     page_width
         BCC     TABX
-        STZ     cursor_x
+        STZ     screen_x
         BRA     TABX
 .TABSTR
         LDA     #1
         JSR     TPGSBK
         CMP     #1
         BNE     INSXEX
-        LDY     cursor_x
+        LDY     screen_x
         DEY
 .TABS1
         INY
@@ -43,6 +43,6 @@
         CMP     #' '
         BEQ     TABS2
 .TABSEX
-        STY     cursor_x
+        STY     screen_x
 .TABX
         STZ     update_required

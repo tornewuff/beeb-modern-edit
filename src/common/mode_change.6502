@@ -12,7 +12,7 @@
         JSR     prompt
         EQUB    "New Mode:",&EA
         IF edit150
-        JSR     read_char_esc
+        JSR     read_char_test_escape
         JSR     oswrch
         ELSE
         JSR     osrdch
@@ -79,8 +79,8 @@
         LDA     #26
         JSR     oswrch
         JSR     read_memory_limits
-        LDA     bottom_margin
-        STA     cursor_y
-        STZ     cursor_x
+        LDA     bottom_scroll_margin
+        STA     screen_y
+        STZ     screen_x
         JMP     EDITcont
         ENDIF

@@ -50,13 +50,13 @@ vspace  =       used_marks_hi + 1
 .index  SKIP    &01
 .page_width SKIP &01
 .page_length SKIP &01
-.full_page_length SKIP    &01
+.screen_height SKIP    &01
 .update_y SKIP    &01
 .update_max_y SKIP &01
 .update_required SKIP &01
 .pending_update SKIP    &01
-.cursor_x  SKIP    &01
-.cursor_y  SKIP    &01
+.screen_x  SKIP    &01
+.screen_y  SKIP    &01
 .lnbufx SKIP    &01
 .cursor_editing SKIP    &01
 .search_stack_index SKIP    &01
@@ -70,8 +70,8 @@ spaces  =       chunk_size + 1
 l       =       num_marks
 .marks_before_cursor SKIP &01
 Q       =       marks_before_cursor
-.line_length SKIP &01
-.key_pending SKIP &01
+.current_line_len SKIP &01
+.key_pending_flag SKIP &01
 .pending_key SKIP    &01
 .lines_per_page SKIP    &01
 .field_index SKIP &01
@@ -79,9 +79,9 @@ lineot  =       field_index
 .input_index SKIP  &01
 control_char  =       input_index
 .output_index SKIP  &01
-bold_request  =       output_index
+bold_required  =       output_index
 .mmx    SKIP    &01
-underline_request  =       mmx
+underline_required  =       mmx
 .page_offset SKIP    &01          ; page offset
 .simple_char SKIP  &01
 pbold   =       simple_char
@@ -92,9 +92,9 @@ index_output  =       line
 .index_handle SKIP    &01
 .MULFFLAG SKIP  &01
 tab_char  =       MULFFLAG
-.mark_count  SKIP    &01
-.top_margin    SKIP    &01
-.bottom_margin    SKIP    &01
+.num_marks_set  SKIP    &01
+.top_scroll_margin    SKIP    &01
+.bottom_scroll_margin    SKIP    &01
         IF edit150
 .search_state SKIP    &0E       ; search/replace state, no longer in buff
 .scratch SKIP   &20

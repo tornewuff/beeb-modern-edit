@@ -1,13 +1,13 @@
-.move_to_cursor
-        LDX cursor_x
-        LDY     cursor_y
-        BPL     move_to_xy
-.move_to_status
+.cursor_to_screen_xy
+        LDX screen_x
+        LDY     screen_y
+        BPL     cursor_to_xy
+.cursor_to_status
         LDY page_length
         INY
-.move_to_line
+.cursor_to_0y
         LDX     #0
-.move_to_xy
+.cursor_to_xy
         LDA     #31
 .vdu_axy                        ; VDU A,X,Y
         JSR     oswrch

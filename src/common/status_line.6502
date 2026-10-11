@@ -4,13 +4,13 @@
         STA     modified
         IF edit150
         CPX     #1
-        BNE     show_status
+        BNE     update_status_line
         ELSE
-        BEQ     show_status
+        BEQ     update_status_line
         ENDIF
         RTS
         IF edit150
-.toggle_insert                  ; Insert/Over toggle
+.toggle_insert_overwrite        ; Insert/Over toggle
         LDA     #bit4
         BRA     modtog
 .toggle_tab_mode
@@ -26,10 +26,10 @@
 
 .CstatU
         STZ     update_required ; update required
-.show_status
-        JSR     move_to_status  ; Output status on status line.
-        JSR     inverse_on      ; Start inverse
-        JSR     test_insert_mode
+.update_status_line
+        JSR     cursor_to_status  ; Output status on status line.
+        JSR     write_char.inverse_on      ; Start inverse
+        JSR     is_insert_mode
         BEQ     STATSO
 
         JSR     print_inline
@@ -58,7 +58,7 @@
         BRA     STATSX
 
 .STATSC
-        LDA     mark_count
+        LDA     num_marks_set
         BEQ     STATST
         DEA
         BNE     STATSM
@@ -150,7 +150,7 @@
         LDX     #prmptl + prmod1 + prmod2 + 1
         STX     prompt_column
         ENDIF
-        JSR     inverse_off     ; stop inverse
+        JSR     write_char.inverse_off     ; stop inverse
         LDY     page_length
         INY
 

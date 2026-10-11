@@ -8,7 +8,7 @@
 .ENDTEST
         ; Returns CS if on last line (gap_end + scrimcreenY = text_end), else CC.
         CLC
-        LDA     line_length
+        LDA     current_line_len
         ADC     gap_end
         TAX
         LDA     #0

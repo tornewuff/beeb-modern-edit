@@ -100,7 +100,7 @@
         DEX
         BEQ     NOMOV
         LDA     #' '
-        JSR     format_wrch
+        JSR     format_write_char
         BRA     SCRJUS
 .NOMOV
         PLX
@@ -112,11 +112,11 @@
         ADC     spaces
         STA     l
         LDA     #' '
-        JSR     format_wrch
+        JSR     format_write_char
 .ENDJUS
         LDA     #' '
 .SCREEF
-        JSR     format_wrch
+        JSR     format_write_char
 .NOUL
         INY
         INX
@@ -129,4 +129,4 @@
         LDA     #cr             ; ++++
         ENDIF
 .screeG
-        JMP     format_wrch
+        JMP     format_write_char

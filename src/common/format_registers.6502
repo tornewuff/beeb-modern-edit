@@ -6,7 +6,7 @@
         INC     addr+1
 .ENDADD
         RTS
-.modify_number
+.modify_number_register
         JSR     SPACEY
         CMP     #'-'
         BEQ     SUBNO
@@ -16,7 +16,7 @@
         LDX     #0
 .ADDNO
         PHX
-        JSR     get_number
+        JSR     get_number_register
         PLX
         CLC
         STX     temp
@@ -28,7 +28,7 @@
         RTS
 .SUBNO
         PHX
-        JSR     get_number
+        JSR     get_number_register
         STA     temp
         PLA
         SEC
@@ -37,7 +37,7 @@
         LDA     #0
         TAX
         RTS
-.get_number
+.get_number_register
         LDX     #0
         JSR     SPACEY
         DEY

@@ -1,4 +1,4 @@
-.cursor_edit_mode
+.allow_cursor_editing
         ; Allow cursor editing & softkey use. Terminated by CR.
         LDA     #&01
         STA     cursor_editing

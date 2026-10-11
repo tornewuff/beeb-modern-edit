@@ -8,8 +8,8 @@
         ;    ^             ^                   ^               ^
         ; text_start           gap_start                  gap_end            text_end
         ; scrnXAs is X coord of cursor. (gap_end)creenX is char under cursor,
-        ; unless $ isA0 in (gap_end) .. (gap_end),cursor_x (when it is that $).
-        ; cursor_y is Y coord of current line on screen, and may be forced by the
+        ; unless $ isA0 in (gap_end) .. (gap_end),screen_x (when it is that $).
+        ; screen_y is Y coord of current line on screen, and may be forced by the
         ; screen update routine.
         ; Screen update types:-
         ;  none   ; Simple cursor movements
@@ -47,7 +47,7 @@
 .main_loop                      ; Update screen to reflect previous command.
 
         JSR     screen_update
-        JSR     move_to_cursor
+        JSR     cursor_to_screen_xy
         JSR     cursor_on
 
         IF curtyp=1
@@ -63,9 +63,9 @@
         ;   &A0 - &AF     are ctrl-sofkkey values  }
         ;   &8A, &9A, &AA is the TAB key
         ;   &B0 - &FF     are entered into text (e.g. icelandics)
-        JSR     read_key
+        JSR     read_char
         IF edit150
-        BNE     EDITTE          ; read_key classifies the key, NE for text
+        BNE     EDITTE          ; read_char classifies the key, NE for text
         TAX
         ELSE
         TAX
@@ -146,8 +146,8 @@
         INY
         BRA     TUTWIP
 .TUTDON
-        JSR     set_text_window
-        JSR     move_to_cursor
+        JSR     setup_text_window
+        JSR     cursor_to_screen_xy
         PLX
 .GOMAN
         TXA

@@ -5,9 +5,9 @@
         LSR     A
         LSR     A
         LSR     A
-        JSR     print_hex_digit
+        JSR     print_hex_nibble
         PLA
-.print_hex_digit
+.print_hex_nibble
         AND     #&0F
         SED
         CMP     #10
@@ -17,7 +17,7 @@
 
 .PRINTA                         ; print the text 'as is' to the screen
         JSR     cursor_text_start
-        JSR     text_ptr_at_gap_end
+        JSR     set_text_ptr_to_gap_end
         JSR     enable_printer
         LDA     #2
         STA     brk_action
@@ -272,16 +272,16 @@
         STA     temp_indent   ; no temp indent
         LDA     pundrl
         STA     underline
-        STA     underline_request ; underline required?
+        STA     underline_required ; underline required?
         LDA     pbold
         STA     bold
-        STA     bold_request  ; bold required?
+        STA     bold_required  ; bold required?
         BRA     CTLIN
 .LASLEN
         JSR     ROUTBP
         BIT     print_flags   ; print exit
         BPL     DODWN
-        JSR     print_inverse_inline
+        JSR     print_inline_inverse
         EQUB    "Print done. ",&EA
         JSR     wait_shift_prompt
 .DODWN

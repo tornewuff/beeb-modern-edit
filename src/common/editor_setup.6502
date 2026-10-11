@@ -11,8 +11,8 @@
         STA     gap_end + 1
 .EDITxx
         STZ     cursor_editing
-        STZ     key_pending
-        STZ     mark_count
+        STZ     key_pending_flag
+        STZ     num_marks_set
         IF cF8key=1
         LDA     line_terminator
         ELSE
@@ -24,20 +24,20 @@
         LDX     text_start
         LDY     text_start + 1
         JSR     gap_back_to_xy
-        STZ     cursor_x ; STZ cursor_y will be forced by screen_update
+        STZ     screen_x ; STZ screen_y will be forced by screen_update
 .STFILX
         RTS
 
 .cursor_text_end
-        LDA     bottom_margin ; Try to glue bottom of file to bottom_margin.
-        STA     cursor_y
+        LDA     bottom_scroll_margin ; Try to glue bottom of file to bottom_scroll_margin.
+        STA     screen_y
         LDX     text_end
         LDY     text_end + 1
         JSR     gap_forward_to_xy
         JMP     normalize_x
 
         IF NOT(edit150)
-.toggle_insert          ; Insert/Over toggle
+.toggle_insert_overwrite          ; Insert/Over toggle
         LDA     options
         EOR     #bit4   ; the correct bit
         JSR     write_options
@@ -100,7 +100,7 @@
         LDA     page_length
         SEC
         SBC     #4
-        STA     bottom_margin
+        STA     bottom_scroll_margin
         LDA     #4
-        STA     top_margin
+        STA     top_scroll_margin
         RTS

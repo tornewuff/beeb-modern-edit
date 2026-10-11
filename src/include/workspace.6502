@@ -44,8 +44,8 @@ dfsize  =       LEN(dftext)
         IF edit150
 .os_version SKIP    &01         ; OS version (0 if below 3)
 .replace_all  SKIP    &01       ; find and replace to the end of the file
-        SKIP    &01             ; (OSWORD 10 writes the first character code at saved_chars - 1)
-.saved_chars SKIP    nchars * 8 ; saved character definitions, see define_chars
+        SKIP    &01             ; (OSWORD 10 writes the first character code at chardef_backup - 1)
+.chardef_backup SKIP    nchars * 8 ; saved character definitions, see define_chars
 .prompt_column SKIP    &01      ; column for prompts after the status texts
         ENDIF
 
