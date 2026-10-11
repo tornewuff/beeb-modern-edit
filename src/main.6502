@@ -3,6 +3,7 @@ INCLUDE "include/utf8.6502"
 INCLUDE "include/mos.6502"
 INCLUDE "include/relocation.6502"
 
+INCLUDE "macros/line_terminator.6502"
 INCLUDE "macros/nmos_compat.6502"
 INCLUDE "macros/size_opt.6502"
 

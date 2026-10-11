@@ -130,11 +130,7 @@
         JSR     dfblok
         LDY     #&00
         LDA     (temp)
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     msbad
         CMP     #&8B
         BEQ     msbad

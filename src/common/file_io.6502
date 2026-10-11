@@ -81,13 +81,7 @@
         INY
         BMI     nonam
         LDA     stracc,Y
-
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
-
+        cmp_line_terminator
         BEQ     nonam
         CMP     #'>'
         BNE     namsrc
@@ -95,13 +89,7 @@
         STY     scratch
 .namsr3
         LDA     stracc,Y
-
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
-
+        cmp_line_terminator
         BEQ     namfnd
         INY
         BPL     namsr3

@@ -21,11 +21,7 @@
         LDY     #0
 .LECCLO
         LDA     (gap_end),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     LECCRE
         INY
         CPY     page_width

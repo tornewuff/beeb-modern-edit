@@ -64,11 +64,7 @@
         BIT     index_output
         BMI     DOINDE
 
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin       ; changed from CMPIM " "; BCC WRCHA
-        ENDIF
+        cmp_line_terminator
         BEQ     wrchen
 
         BIT     print_flags

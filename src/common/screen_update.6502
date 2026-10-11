@@ -215,11 +215,7 @@
         INY
 .UPDLL2
         LDA     (text_ptr),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     UPDLCR
         JSR     write_char
         CPY     page_width

@@ -24,11 +24,7 @@
         CPY     page_width
         BCS     TABSSP
         LDA     (text_ptr),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     TABSSP
         CMP     #' '
         BNE     TABS1

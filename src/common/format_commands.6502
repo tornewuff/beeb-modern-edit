@@ -147,21 +147,13 @@
         RTS
 .ROUTDM
         JSR     SPACEY
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     DMEXIT
         CMP     control_char
         BEQ     DMEXIT
         STA     temp+1
         LDA     (addr),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     DMEXIT
         JSR     MACCHK
         BNE     DMEXIT
@@ -282,11 +274,7 @@
         STA     index_handle
         LDY     #0
 .ROUTCO
-        IF cF8key
-        LDA     line_terminator
-        ELSE
-        LDA     #termin
-        ENDIF
+        lda_line_terminator
         BRA     SKIPL1
 .SKIPLP
         INY
@@ -444,21 +432,13 @@
         RTS
 .ROUTTR
         LDA     (addr),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     SETTRX
         TAX
         INY
         LDA     (addr),Y
         DEY
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     SETTRX
         INY
         INY

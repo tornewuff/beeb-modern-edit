@@ -95,11 +95,7 @@
         CPY     #250
         BCS     LENFNE
         JSR     IGNCTL        ; main char count
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     LENFNE
         CMP     tab_char
         BNE     NOTTAB
@@ -144,11 +140,7 @@
         BEQ     LENFNA
         CMP     tab_char
         BEQ     LENFNA
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     LENFNA
         LDA     spaces
         BEQ     LENFNA
@@ -192,11 +184,7 @@
 .FINSEN
         STZ     linfed        ; back on, for next line
         JSR     SPACEY
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     NICEDL
         DEY
 .NICEDL

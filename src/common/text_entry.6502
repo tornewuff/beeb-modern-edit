@@ -17,11 +17,7 @@
         STZ     screen_x
         JMP     cursor_down ;in overtype mode CR is start of line
 .ECHRCR
-        IF cF8key
-        LDA     line_terminator
-        ELSE
-        LDA     #termin
-        ENDIF
+        lda_line_terminator
 .ECHRCO
         ; Insert character into text.
         PHA
@@ -31,11 +27,7 @@
         BNE     ECHRMV
         LDY     screen_x
         LDA     (gap_end),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BNE     ECHRCH
 .ECHRMV
         LDX     #1
@@ -46,11 +38,7 @@
         LDY     screen_x
         STA     (gap_end),Y
         ; Write char to screen (cursor OK), wiping tail for TERMIN.
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BNE     ECHRNT
         JSR     write_char.line_end
         LDA     screen_x
@@ -102,11 +90,7 @@
         JSR     is_insert_mode
         BNE     EDELSL
         LDA     (gap_end),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     DELABX
         LDA     #space
         STA     (gap_end),Y
@@ -115,11 +99,7 @@
         JMP     set_modified
 .EDELSL
         LDA     (gap_end),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     EDELS2
         LDA     current_line_len
         CMP     page_width
@@ -134,11 +114,7 @@
 .delete_line
         STZ     screen_x
         LDA     (gap_end)
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BNE     DELLIX
         JSR     LENGTHCALC
         STA     current_line_len
@@ -162,11 +138,7 @@
         BEQ     EDEL0
         LDY     screen_x
         LDA     (gap_end),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BNE     EDEL1
 .EDEL0
         INC     update_required

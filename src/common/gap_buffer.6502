@@ -29,11 +29,7 @@
         LDY page_width
 .FIPOLP
         LDA     (temp),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     FIPOL2
 .FIPOE2
         ; Entry point, when called from tempbacklines.
@@ -66,11 +62,7 @@
 .TPTPSE
         INY
         LDA     (text_ptr),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BEQ     TPTPFD
         CPY     page_width
         BNE     TPTPSE
@@ -127,11 +119,7 @@
 .TPXYND
         LDY page_width
         LDA     (text_ptr),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BNE     TPXYCO
         LDA     text_ptr
         STA     temp

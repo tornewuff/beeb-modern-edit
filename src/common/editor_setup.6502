@@ -13,11 +13,7 @@
         STZ     cursor_editing
         STZ     key_pending_flag
         STZ     num_marks_set
-        IF cF8key
-        LDA     line_terminator
-        ELSE
-        LDA     #termin
-        ENDIF
+        lda_line_terminator
         STA     (oshwm)
         STA     (text_end)
 .cursor_text_start

@@ -175,11 +175,7 @@
         LDA     #14
         JSR     oswrch        ; page mode if screen and page wait
 .CHAINB
-        IF cF8key
-        LDA     line_terminator
-        ELSE
-        LDA     #termin
-        ENDIF
+        lda_line_terminator
         STA     (gap_start)
 
         IF cF8key AND NOT(edit150)

@@ -36,11 +36,7 @@
 .WORDRT
         LDY     screen_x
         LDA     (gap_end),Y
-        IF cF8key
-        CMP     line_terminator
-        ELSE
-        CMP     #termin
-        ENDIF
+        cmp_line_terminator
         BNE     EASYRT
         JSR     cursor_down
         BCS     WORDXX
