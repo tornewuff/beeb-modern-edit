@@ -1,4 +1,4 @@
-.prHELP
+.format_help_data {
         EQUB    14,cr,cr,"Format commands:- {initial values}",cr
         EQUB    cr
         EQUB    ".afrn assign format n to register r {0}",cr
@@ -58,20 +58,20 @@
         EQUB    ".on n output CHR$(n) to printer without being counted",cr
         EQUB    ".r0-9 contents of register e.g. .r0",15,cr,cr
         EQUB    &EA
+}
 
-.prinHL
-        LDA     #<prHELP
+.print_format_help {
+        LDA     #<format_help_data
         STA     string
-        LDA     #>prHELP
+        LDA     #>format_help_data
         STA     string + 1
         LDA     (string)
-.prinHK
-        JSR     osasci
+.loop   JSR     osasci
         INC     string
-        BNE     prinHM
+        BNE     @+
         INC     string + 1
-.prinHM
-        LDA     (string)
-        BPL     prinHK
+.@      LDA     (string)
+        BPL     loop
         JSR     wait_shift_prompt
         JMP     EDITcont
+}

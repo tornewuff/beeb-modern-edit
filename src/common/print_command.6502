@@ -39,7 +39,7 @@
 
                 ; the formatter
 .PRINTH
-        JMP         prinHL        ; help on print
+        JMP     print_format_help
 .print
         JSR     refuse_if_marked
         LDX     #&FF

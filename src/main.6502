@@ -79,6 +79,7 @@ INCLUDE "common/tab_key.6502"
 INCLUDE "common/return_to_language.6502"
 IF edit150
         INCLUDE "edit150/format_help.6502"
+        INCLUDE "edit150/compressed_text.6502"
 ELSE
         INCLUDE "hiedit124/format_help.6502"
 ENDIF

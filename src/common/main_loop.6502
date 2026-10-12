@@ -112,7 +112,7 @@
         STA     compressed_string
         LDA     help_text_table + 1,Y
         STA     compressed_string + 1
-        JSR     prinHM
+        JSR     compressed_text.print_string
         BRA     TUTDON
         ELSE
         EQUB    26,30,31,0,8,&EA

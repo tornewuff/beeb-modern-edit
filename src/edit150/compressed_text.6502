@@ -1,0 +1,86 @@
+; Various help text is compressed with a simple abbreviation dictionary.
+; Bytes &80 to &9F expand to entry n - &80 of the zero terminated entries in
+; abbreviation_data, which may contain further abbreviations.
+.compressed_text {
+
+; Decompress and print inline text
+.print_inline
+        PLA
+        STA     compressed_string
+        PLA
+        STA     compressed_string + 1
+        JSR     increment
+        JMP     (compressed_string)
+
+.@      JSR     print_byte
+.increment
+        INC     compressed_string
+        BNE     print_string
+        INC     compressed_string + 1
+; Decompress and print text at (compressed_string)
+.print_string
+        LDA     (compressed_string)
+        CMP     #&EA
+        BNE     @-
+        RTS
+
+; print a character or abbreviation
+.print_byte {
+        CMP     #&A0
+        BCS     ascii
+        CMP     #&80
+        BCS     abbreviation
+.ascii
+        JMP     osasci
+
+.abbreviation
+        PHY
+        PHX
+        LDY     #&FF
+        EOR     #&80
+        TAX
+        BEQ     print_entry
+.skip_x_entries
+        INY
+        LDA     abbreviation_data,Y
+        BNE     skip_x_entries
+        DEX
+        BNE     skip_x_entries
+.print_entry
+        INY
+        LDA     abbreviation_data,Y
+        BEQ     return
+        JSR     print_byte
+        BRA     print_entry
+.return
+        PLX
+        PLY
+        RTS
+}
+
+.abbreviation_data {
+        EQUB    " title", &92, ".en", &83, 0                    ; &80
+        EQUB    "   ", 0                                        ; &81
+        EQUB    " n output CHR$(n)", &92, "printer ", 0         ; &82
+        EQUB    cr, ".", 0                                      ; &83
+        EQUB    " line", 0                                      ; &84
+        EQUB    " page ", 0                                     ; &85
+        EQUB    " character ", 0                                ; &86
+        EQUB    "shf-f", 0                                      ; &87
+        EQUB    " text ", 0                                     ; &88
+        EQUB    " marked ", 0                                   ; &89
+        EQUB    "RETURN", 0                                     ; &8a
+        EQUB    ".", cr, &8a, " uses", &93, "name at the start of"
+        EQUB    &88, "after a '>'", cr, "COPY, ", &8a, &92, "use"
+        EQUB    &93, "current file name.", 0                    ; &8b
+        EQUB    "The ", 0                                       ; &8c
+        EQUB    "2", cr, "A", &88, "file will be loaded", 0     ; &8d
+        EQUB    "text", 0                                       ; &8e
+        EQUB    "even", 0                                       ; &8f
+        EQUB    " scroll margins ", 0                           ; &90
+        EQUB    &90, "with ctrl-f", 0                           ; &91
+        EQUB    " to ", 0                                       ; &92
+        EQUB    " the ", 0                                      ; &93
+}
+
+}
