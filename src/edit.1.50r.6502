@@ -16,6 +16,7 @@ ENDIF
 .metadata {
         title = "EDIT"
         copyright = CONCAT("1989 Acorn", lf, cr)
+        copyright_year = "1989"
         version_byte = &0a
         version_str = "1.50r"
 }
@@ -23,8 +24,10 @@ ENDIF
 .setconfig {
         edit150 = TRUE
         edit150_size_opt = TRUE
+        edit150_updated_help = TRUE
         curtyp = FALSE
         lfarro = FALSE
+        syzygy = FALSE
 }
 
 INCLUDE "main.6502"

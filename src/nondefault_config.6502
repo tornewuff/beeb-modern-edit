@@ -15,6 +15,7 @@ ENDIF
 .metadata {
         title = "Edit"
         copyright = "1984 Acorn"
+        copyright_year = "1984"
         version_byte = &02
         version_str = "1.24"
 }
@@ -35,6 +36,7 @@ ENDIF
 
         ; Also include nondefault options split out of edit150
         edit150_size_opt = TRUE
+        edit150_updated_help = TRUE
 }
 
 

@@ -44,6 +44,7 @@ ENDIF
 INCLUDE "common/main_loop.6502"
 INCLUDE "common/text_entry.6502"
 INCLUDE "common/function_key_table.6502"
+INCLUDE "common/descriptive_mode.6502"
 IF edit150
         INCLUDE "edit150/help_text.6502"
 ELSE
