@@ -12,7 +12,7 @@ The small number of commits tagged with "CLAUDE:" were produced by Claude Code t
 
 ## Contributing
 
-I'm primarily doing this as a learning exercise to re-familiarize myself with 6502 assembly and Beeb programmings, and to explore how to do the kind of engineering I enjoy in this environment that was such a big part of my childhood.
+I'm primarily doing this as a learning exercise to re-familiarize myself with 6502 assembly and Beeb programming, and to explore how to do the kind of engineering I enjoy in this environment that was such a big part of my childhood.
 
 I'm publishing the repository in case it's useful or interesting to other BBC Micro enthusiasts, as I was unable to find an existing reverse-engineered copy of Edit 1.50. You are welcome to use my work however you wish.
 
