@@ -104,18 +104,12 @@ tab_char        = MULFFLAG
 .bottom_scroll_margin SKIP 1
 
 IF edit150
-.search_state   SKIP &E         ; search/replace state, no longer in buff
-.scratch        SKIP &1A
-.compressed_string SKIP 2
-.chardef_backup_ptr SKIP 2
-.chardef_backup_count SKIP 1
-
-; Value to be used to set the zero flag (indicating the key type) when returning
-; from read_char, if key_queued_flag is set.
-.queued_key_type SKIP 1
-ELSE
-.scratch        SKIP &12
+; Search and replace state, formerly stored in buff
+.search_state   SKIP 14
 ENDIF
+
+; At minimum used as buffer for OSFILE (18 bytes) and OSWORD 10 (9 bytes)
+.scratch        SKIP 26
 
 buff            = scratch + 10  ; (no.bffr len 15 {MMMDCCCLXXXVIII})
 
@@ -132,15 +126,25 @@ replace_flag    = search_end_flag + 4
 block_end       = search_end_flag + 8
 scroll_ptr      = search_end_flag + 10
 search_end      = search_end_flag + 12
-mousel          = buff + 15     ; # 10
+mousel          = buff + 15
+
+IF stamp
+flexec          = scratch + 18  ; 4 bytes
+flload          = scratch + 22  ; 4 bytes
+ENDIF
+
+IF edit150
+.compressed_string SKIP 2
+.chardef_backup_ptr SKIP 2
+.chardef_backup_count SKIP 1
+
+; Value to be used to set the zero flag (indicating the key type) when returning
+; from read_char, if key_queued_flag is set.
+.queued_key_type SKIP 1
+ENDIF
 
 IF cF8key AND edit150
 .line_terminator SKIP 1
-ENDIF
-
-IF stamp
-.flexec         SKIP 4
-.flload         SKIP 4
 ENDIF
 
 ENDSECTION
