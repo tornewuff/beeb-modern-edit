@@ -6,9 +6,9 @@
 
 .next_cmdline_byte
         INC     scratch
-        BNE     * + 4
+        BNE     @+
         INC     scratch + 1
-        RTS
+.@      RTS
 
 .read_hex
         LDX     #0
