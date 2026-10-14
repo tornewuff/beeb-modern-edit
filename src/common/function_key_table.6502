@@ -41,11 +41,11 @@
     EQUW main_loop              ; ctrl-f5
     EQUW set_top_scroll_margin_to_cursor         ; ctrl-f6
     EQUW set_bottom_scroll_margin_to_cursor        ; ctrl-f7
-    IF cF8key
+IF cF8key
     EQUW crlf_switch        ; ctrl-f8
-    ELSE
+ELSE
     EQUW main_loop              ; ctrl-f8
-    ENDIF
+ENDIF
     EQUW main_loop              ; ctrl-f9
     EQUW main_loop              ; ctrl-f10
     EQUW delete_line            ; ctrl-copy

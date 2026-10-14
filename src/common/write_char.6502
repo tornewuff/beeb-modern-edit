@@ -16,11 +16,11 @@
     LDA #&20
     BIT options
     BEQ PASWOS
-    IF lfarro
+IF lfarro
     LDA #nlfarr
-    ELSE
+ELSE
     LDA #'$'              ; **
-    ENDIF
+ENDIF
     BRA inverse           ; **
 .PASWNC
     ORA #&40        ; Output control character as inverted keytop.

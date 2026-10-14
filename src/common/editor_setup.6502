@@ -32,13 +32,13 @@
     JSR gap_forward_to_xy
     JMP normalize_x
 
-    IF NOT(edit150)
+IF NOT(edit150)
 .toggle_insert_overwrite          ; Insert/Over toggle
     LDA options
     EOR #bit4           ; the correct bit
     JSR write_options
     JMP CstatU
-    ENDIF
+ENDIF
 
 .check_screen_mode
     LDA #&87            ; select mode if options and screen mode NOT the same

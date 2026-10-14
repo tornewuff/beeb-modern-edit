@@ -96,25 +96,23 @@
     TAY
     LDA translate_table,Y
     PLY
-    IF cF8key
+IF cF8key
 .wrch
     JMP (&020E)
 .wrchen
     LDA #cr
     BRA wrch
-    ELSE
-    IF termin=cr
+ELIF termin=cr
 .wrchen
 .wrch
     JMP (&20E)
-    ELSE
+ELSE
 .wrch
     JMP (&20E)
 .wrchen
     LDA #cr
     BRA wrch
-    ENDIF
-    ENDIF
+ENDIF
 .DOINDE
     PHY
     TAY

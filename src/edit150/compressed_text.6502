@@ -24,43 +24,43 @@
     BNE @-
     RTS
 
-; print a character or abbreviation
-.print_byte {
-    CMP #&A0
-    BCS ascii
-    CMP #&80
-    BCS abbreviation
-.ascii
-    JMP osasci
+    ; print a character or abbreviation
+    .print_byte {
+        CMP #&A0
+        BCS ascii
+        CMP #&80
+        BCS abbreviation
+    .ascii
+        JMP osasci
 
-.abbreviation
-    PHY
-    PHX
-    LDY #&FF
-    EOR #&80
-    TAX
-    BEQ print_entry
-.skip_x_entries
-    INY
-    LDA abbreviation_data,Y
-    BNE skip_x_entries
-    DEX
-    BNE skip_x_entries
-.print_entry
-    INY
-    LDA abbreviation_data,Y
-    BEQ return
-    JSR print_byte
-    BRA print_entry
-.return
-    PLX
-    PLY
-    RTS
-}
+    .abbreviation
+        PHY
+        PHX
+        LDY #&FF
+        EOR #&80
+        TAX
+        BEQ print_entry
+    .skip_x_entries
+        INY
+        LDA abbreviation_data,Y
+        BNE skip_x_entries
+        DEX
+        BNE skip_x_entries
+    .print_entry
+        INY
+        LDA abbreviation_data,Y
+        BEQ return
+        JSR print_byte
+        BRA print_entry
+    .return
+        PLX
+        PLY
+        RTS
+    }
 
-.abbreviation_data {
-    ; Null-terminate the entries from abbreviation_list
-    EQUB ZIP(abbreviation_list, REPEATED(LEN(abbreviation_list), 0))
-}
+    .abbreviation_data {
+        ; Null-terminate the entries from abbreviation_list
+        EQUB ZIP(abbreviation_list, REPEATED(LEN(abbreviation_list), 0))
+    }
 
 }

@@ -1,4 +1,4 @@
-    IF lerror
+IF lerror
 .print_repeat_inline
     SEC
     ADC page_width
@@ -8,7 +8,7 @@
     JSR oswrch
     DEY
     BNE BRKSB1
-    ENDIF
+ENDIF
 
 .print_inline
     PLA

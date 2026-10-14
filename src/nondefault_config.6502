@@ -2,7 +2,7 @@
 ; option from the original source, just to verify that it builds.
 
 .build {
-if DEFINED(build_disc)
+IF DEFINED(build_disc)
     filename = "HIEDTND"
 ELSE
     filename = "nondefault.rom"

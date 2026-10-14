@@ -1,4 +1,4 @@
-    IF edit150
+IF edit150
 .print_hex_byte                 ; print the low nibble of A in hex (unused)
     PHA
     LSR A
@@ -35,7 +35,7 @@
     LDA #3
     JSR oswrch
     JMP EDITcont
-    ENDIF
+ENDIF
 
         ; the formatter
 .PRINTH
@@ -48,17 +48,17 @@
     STX lineot                ; set needs header flag
     TXS
     JSR prompt
-    IF edit150
+IF edit150
     EQUB "Screen, Printer, As is, Help ?",&EA
-    ELSE
+ELSE
     EQUB "Screen, Printer, Help ?",&EA
-    ENDIF
+ENDIF
 .PRINTL
     JSR get_response
-    IF edit150
+IF edit150
     CMP #'a'
     BEQ PRINTA
-    ENDIF
+ENDIF
     CMP #'h'
     BEQ PRINTH
     CMP #'s'
@@ -92,7 +92,7 @@
     STA translate_table,X         ; init translation
     BNE clrreg
 
-    IF edit150
+IF edit150
     LDA #' '                    ; hard space and the other line
     STA translate_table + &A0         ; terminator print as spaces
     LDY line_terminator
@@ -103,27 +103,27 @@
 .trnlcr
     STA translate_table + cr
 .trnlex
-    ELSE
+ELSE
     IF cF8key
-    PHX                         ; set X to correct offset
-    SEC
-    LDA #cr
-    SBC line_terminator
-    CLC
-    ADC #lf
-    TAX
+        PHX                     ; set X to correct offset
+        SEC
+        LDA #cr
+        SBC line_terminator
+        CLC
+        ADC #lf
+        TAX
     ENDIF
 
     LDA #' '
 
     IF cF8key
-    STA translate_table,X
-    PLX
+        STA translate_table,X
+        PLX
     ELSE
-    STA translate_table + lf + (cr - termin)
+        STA translate_table + lf + (cr - termin)
     ENDIF
 
-    ENDIF
+ENDIF
 
     LDA #&09
     STA tab_char
@@ -157,16 +157,16 @@
     EQUB 26,12,&EA
     BIT print_flags
     BMI PATCHA
-    IF edit150
+IF edit150
     JSR enable_printer
-    ELSE
+ELSE
     LDX #0               ; just for jes's code, set and reset printer type
     LDA #5
     JSR osbyte
     JSR osbyte
     LDA #2
     JSR oswrch
-    ENDIF
+ENDIF
 .PATCHA
     BIT page_wait_flag
     BMI CHAINB
@@ -178,7 +178,7 @@
     lda_line_terminator
     STA (gap_start)
 
-    IF cF8key AND NOT(edit150)
+IF cF8key AND NOT(edit150)
                 ; Copy initial header and footer texts
                 ; into their respective buffers, changing
                 ; any nulls into the 'line_terminator' value
@@ -224,7 +224,7 @@
     LDA #>footer_buffer
     STA even_footer + 1
     STA odd_footer + 1
-    ELIF edit150
+ELIF edit150
     LDX #<defhdr                ; pick the texts for the line terminator
     LDY #<defftr
     CMP #cr
@@ -241,7 +241,7 @@
     STY odd_header+1
     STY even_footer+1
     STY odd_footer+1
-    ELSE
+ELSE
     LDA #<defhdr
     STA even_header
     STA odd_header
@@ -254,7 +254,7 @@
     LDA #>defftr
     STA even_footer+1
     STA odd_footer+1            ; initial header and footer info
-    ENDIF
+ENDIF
 
     LDX #maxMAC
 .CHAINC

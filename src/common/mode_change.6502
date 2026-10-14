@@ -11,14 +11,14 @@
 .change_mode
     JSR prompt
     EQUB "New Mode:",&EA
-    IF edit150
+IF edit150
     JSR read_char_test_escape
     JSR oswrch
-    ELSE
+ELSE
     JSR osrdch
     JSR oswrch
     JSR test_escape
-    ENDIF
+ENDIF
     CMP #'7' + 1
     BCS SETKEY
     SBC #'0' - 1
@@ -41,7 +41,7 @@
 .SETMODE
     PHA
 
-    IF origin=&8000
+IF origin=&8000
     TAY
     LDA MODEtb,Y
     PHA
@@ -64,7 +64,7 @@
     BCC MODEsp
 .inTUBE
     PLX
-    ENDIF
+ENDIF
 
     LDA #&7
     TRB options
@@ -72,9 +72,9 @@
     ORA options
     JSR write_options
 
-    IF origin=&8000
+IF origin=&8000
     JSR setup_editor
-    ELSE
+ELSE
     JSR check_screen_mode
     LDA #26
     JSR oswrch
@@ -83,4 +83,4 @@
     STA screen_y
     STZ screen_x
     JMP EDITcont
-    ENDIF
+ENDIF

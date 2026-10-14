@@ -130,7 +130,7 @@
     ;        screen_image updated
     ;        A,Y preserved.
     STA temp_a
-    IF edit150
+IF edit150
     CMP screen_image,Y
     BCS WTSCRM
     LDA os_version              ; MOS 3 can clear the tail directly
@@ -146,12 +146,12 @@
     EQUB 23,8,5,6,0,0,0,0,0,0,&EA
     JMP WTSCRM
 .WTWIND
-    ELSE
+ELSE
     LDA screen_image,Y
     CMP temp_a
     BCC WTSCRM
     BEQ WTSCRM
-    ENDIF
+ENDIF
     LDA #28
     JSR oswrch
     LDA temp_a
@@ -276,24 +276,24 @@
     BNE QUEUCS
     LDA #&81
     LDX #0
-    IF edit150
+IF edit150
     JSR osbyte_y0
-    ELSE
+ELSE
     LDY #0
     JSR osbyte
-    ENDIF
+ENDIF
     CPY #&FF
     BEQ QUEUEX
     JSR test_escape
     INC key_queued_flag
     STX queued_key
-    IF edit150
+IF edit150
     STX queued_key_type                 ; flags for read_char
     TXA
     BNE QUEUCS
     JSR read_char_test_escape           ; 0 prefix: read the command code too
     STA queued_key
-    ENDIF
+ENDIF
 .QUEUCS
     SEC
     RTS

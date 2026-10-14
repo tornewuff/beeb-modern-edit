@@ -3,8 +3,8 @@
     LDA #&01
     STA cursor_editing
 
-    IF NOT(phil)
+IF NOT(phil)
     JSR restore_keys
-    ENDIF
+ENDIF
 
     JMP CstatU

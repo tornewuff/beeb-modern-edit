@@ -1,5 +1,5 @@
 .build {
-if DEFINED(build_disc)
+IF DEFINED(build_disc)
     filename = "HIEDIT"
 ELSE
     filename = "hiedit.b800.rom"

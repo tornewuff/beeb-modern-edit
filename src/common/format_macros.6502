@@ -16,7 +16,7 @@
     LDA #15
     TRB lineno+1        ; leave format alone!
     RTS
-    IF edit150
+IF edit150
 .set_text_ptr_to_gap_end        ; text_ptr = gap_end
     LDA gap_end
     STA text_ptr
@@ -31,7 +31,7 @@
     JSR osbyte
     LDA #2
     JMP oswrch
-    ENDIF
+ENDIF
 
 .macro
     LDA addr

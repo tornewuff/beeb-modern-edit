@@ -1,6 +1,6 @@
 .new_text                       ; Clear text
     JSR prompt
-    IF stamp
+IF stamp
     EQUB "Clear text [Y (dated),shf-f9 (exec)]",&EA
     LDA #&81
     TAX
@@ -22,7 +22,7 @@
 .doneW2
     JSR save_text_bounds
     JMP EDITin
-    ELIF edit150
+ELIF edit150
     EQUB "Clear text [Y,shf-f9 (exec),D (discard)]",&EA
     JSR read_char.with_timeout
     BNE newtk
@@ -46,7 +46,7 @@
 .donew
     JSR save_text_bounds
     JMP EDITin
-    ELSE
+ELSE
     EQUB "Text will be cleared if a key is hit",&EA
     LDA #&81
     TAX
@@ -60,17 +60,17 @@
 .donew
     JSR save_text_bounds
     JMP EDITin
-    ENDIF
+ENDIF
 
 .load_command
     ; Doesn't zap buffer until new file is correctly loaded.
 
-    IF curtyp
+IF curtyp
     JSR lsf
-    ENDIF
+ENDIF
 
     LDA modified
-    IF edit150
+IF edit150
     CMP #1                      ; only ask if modified
     BNE LOADF2
     JSR prompt
@@ -80,12 +80,12 @@
     TAX
     BEQ newtn
 .LOADky
-    ELSE
+ELSE
     BEQ LOADF2
     JSR prompt
     EQUB "Overwrite text [Y,f2]:",&EA
     JSR osrdch
-    ENDIF
+ENDIF
     CMP #128+2
     BEQ LOADF2
     AND #&DF
@@ -100,9 +100,9 @@
     JMP EDITgt
 
 .save_command                   ; Save file
-    IF curtyp
+IF curtyp
     JSR lsf
-    ENDIF
+ENDIF
 
     JSR dfinit
     CMP #&01
@@ -148,9 +148,9 @@
     EQUB &01,"Bad use of stored name",null
 
 .insert_file
-    IF curtyp
+IF curtyp
     JSR lsf
-    ENDIF
+ENDIF
 
     JSR refuse_if_marked
     JSR FINEPOSITIONGAP
@@ -164,9 +164,9 @@
     LDA gap_end
     LDX gap_end + 1
     LDY #0
-    IF edit150
+IF edit150
     BIT brk_handler + 1         ; (&FF) sets V: use the name in place
-    ENDIF
+ENDIF
     JSR load_file
     STX gap_start
     STY gap_start+1

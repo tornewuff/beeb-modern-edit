@@ -1,10 +1,10 @@
 ; See include/fancy_char_definitions.6502 for a detailed explanation.
 .fancy_chars {
 
-count = LEN(fancy_char_definitions)
-; Characters will be defined at first_character..<first_character+count
-first_character = &80
-bytes_per_char = 8
+    count = LEN(fancy_char_definitions)
+    ; Characters will be defined at first_character..<first_character+count
+    first_character = &80
+    bytes_per_char = 8
 
 ; Back up the current character definitions for &80 onward and define the fancy
 ; chars instead.

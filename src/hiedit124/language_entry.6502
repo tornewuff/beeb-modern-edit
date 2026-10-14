@@ -92,13 +92,11 @@
     LDA #cr
     STA filename_buffer
 
-    IF cF8key
+IF cF8key
     LDA line_terminator         ; current line terminator
-    ELSE
-    IF termin<>cr
+ELIF termin<>cr
     LDA #termin
-    ENDIF
-    ENDIF
+ENDIF
 
     CMP (oshwm)
     BNE EDIToy
@@ -113,16 +111,16 @@
     JSR osbyte
     STY options                 ; returns &00 on the BBC OS 1.2
 
-    IF mouse
+IF mouse
     JSR mouse_read
-    ENDIF
+ENDIF
 
     LDA #cr
     STA find_replace_buffer
     STA global_replace_buffer
-    IF cF8key
+IF cF8key
     STA line_terminator         ; initialise 'line_terminator' here
-    ENDIF
+ENDIF
     STZ index_handle
     STZ modified
     JSR print_inline            ; define characters
@@ -148,9 +146,9 @@ ENDIF
 .zippo
     JSR setup_editor
 
-    IF stamp
+IF stamp
     JSR nstamp
-    ENDIF
+ENDIF
 
     JMP OLDTEXT
 

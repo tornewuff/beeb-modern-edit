@@ -64,10 +64,10 @@
 .escSIM
     STZ cursor_editing
     JMP ack_escape_continue_editing
-    IF edit150
+IF edit150
 .read_char_test_escape                  ; read a character and check for escape
     JSR osrdch
-    ENDIF
+ENDIF
 .test_escape
     BIT &FF
     BMI escSET
@@ -76,12 +76,12 @@
 .do_read_line
     LDY #0
 .RDLNLP
-    IF edit150
+IF edit150
     JSR read_char
-    ELSE
+ELSE
     JSR osrdch
     BCS RDLNEX
-    ENDIF
+ENDIF
     STA line_buffer,Y
     CMP #&7F
     BNE RDLN2

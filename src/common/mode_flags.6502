@@ -1,4 +1,4 @@
-    IF cF8key AND edit150
+IF cF8key AND edit150
     ; ------------------------------------------------------------ ;
 
 .crlf_switch                    ; CR/LF switch
@@ -14,7 +14,8 @@
     JMP update_status_line
 
     ; ------------------------------------------------------------ ;
-    ENDIF
+ENDIF
+
 .toggle_show_cr
     LDA #&20
 .toggle_options                 ; toggle the bits in A in options

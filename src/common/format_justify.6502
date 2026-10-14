@@ -56,11 +56,11 @@
 .SCREEE
     JSR CHKCTL
 
-    IF edit150
+IF edit150
     CMP line_terminator
-    ELSE
+ELSE
     CMP #cr                     ; ++++
-    ENDIF
+ENDIF
     BEQ screeG
 
     CMP tab_char
@@ -123,10 +123,10 @@
     CPX count
     BCC SCREEE
 
-    IF edit150
+IF edit150
     LDA line_terminator
-    ELSE
+ELSE
     LDA #cr                     ; ++++
-    ENDIF
+ENDIF
 .screeG
     JMP format_write_char

@@ -1,16 +1,16 @@
 .paslnm
-    IF edit150
+IF edit150
     PHP                         ; V set: use the name in place, don't copy it
-    ENDIF
+ENDIF
     SEC
     SBC addr
     STA max_size
     TXA
     SBC addr + 1
     STA max_size + 1
-    IF edit150
+IF edit150
     PLP
-    ENDIF
+ENDIF
 
 .filename
     ; Entry - IY temp points to input name. Exit - scratch -> filename.
@@ -19,7 +19,7 @@
     BEQ textna
     CMP #&8B
     BEQ oldnam
-    IF edit150
+IF edit150
     BVC cpynam
     CLC                         ; point scratch at temp + Y
     TYA
@@ -29,7 +29,7 @@
     ADC #&00
     BRA setnam
 .cpynam
-    ENDIF
+ENDIF
     LDX #&00
 
 .memnam
@@ -44,18 +44,18 @@
     LDA filename_buffer
     CMP #cr
     BEQ nonam
-    IF edit150
+IF edit150
     LDX #<filename_buffer
     LDA #>filename_buffer
 .setnam
     STX scratch
     STA scratch + 1
-    ELSE
+ELSE
     LDA #<filename_buffer
     STA scratch
     LDA #>filename_buffer
     STA scratch + 1
-    ENDIF
+ENDIF
     RTS
 
 .textna
@@ -101,15 +101,15 @@
 
 .namfnd
 
-    IF cF8key
+IF cF8key
     LDA #cr
     STA stracc,Y
-    ELSE
+ELSE
     IF termin<>cr
-    LDA #cr
-    STA stracc,Y
+        LDA #cr
+        STA stracc,Y
     ENDIF
-    ENDIF
+ENDIF
 
     LDA #>stracc
     STA scratch + 1
@@ -141,7 +141,7 @@
     LDA text_end
     LDX text_end + 1
 
-    IF stamp
+IF stamp
     JSR load_file
     PHX
     PHY
@@ -153,11 +153,11 @@
     PLY
     PLX
     RTS
-    ENDIF
+ENDIF
 
-    IF edit150
+IF edit150
     CLV                         ; copy the name into filename_buffer
-    ENDIF
+ENDIF
 .load_file
     ; Entry - IY temp -> name, addr = load address, AX = max free address
     ; Exit - File checked for size (not on slow FS's)
@@ -221,9 +221,9 @@
     ; gap_end = Start of block
     ; block_end = End of block
     ; Exit - specified memory saved as filename.
-    IF edit150
+IF edit150
     CLV                         ; copy the name into filename_buffer
-    ENDIF
+ENDIF
     JSR filename
 
 .inSAVE
@@ -236,7 +236,7 @@
     DEX
     BPL pasacl
 
-    IF stamp
+IF stamp
     JSR dstamp
     LDX #flload
     LDY #&02
@@ -248,7 +248,7 @@
     LDY #&0E
     LDX #block_end
     JSR toscr2
-    ELSE
+ELSE
     DEC scratch + 6
     DEC scratch + 7
     DEC scratch + 8
@@ -261,7 +261,7 @@
     STA scratch + &0E
     LDA block_end + 1
     STA scratch + &0F
-    ENDIF
+ENDIF
 
     LDA #&00
     JSR XYSCRATCH
