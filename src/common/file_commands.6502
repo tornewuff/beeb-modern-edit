@@ -24,7 +24,7 @@
         JMP     EDITin
         ELIF edit150
         EQUB    "Clear text [Y,shf-f9 (exec),D (discard)]",&EA
-        JSR     read_key_timeout
+        JSR     read_char.with_timeout
         BNE     newtk
         TAX
         BNE     newtk
@@ -75,7 +75,7 @@
         BNE     LOADF2
         JSR     prompt
         EQUB    "Overwrite text [Y,f2]:",7,&EA
-        JSR     read_key_timeout
+        JSR     read_char.with_timeout
         BNE     LOADky
         TAX
         BEQ     newtn

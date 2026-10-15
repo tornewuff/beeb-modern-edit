@@ -1,42 +1,46 @@
-.read_char
-        ; Exit - A holds character read
-        ; Keys that are editor commands arrive as 0 followed by the
-        ; command code. Exit EQ with the code in A for a command,
-        ; NE with the character in A for anything else.
-        LDA     key_pending_flag
-        BEQ     EDRDOSRD
-        LDA     pending_key
-        STZ     key_pending_flag
-        BNE     EDRDNX
-.EDRDZ                          ; 0, 0 is a literal 0
-        TSX                     ; NE
+; Reads the next key pressed into A. Returns with the zero flag set if this
+; should be interpreted as a function/soft key, otherwise a literal character.
+; Handles ESC.
+.read_char {
+        LDA     key_queued_flag
+        BEQ     read_from_os
+        LDA     queued_key
+        STZ     key_queued_flag
+        BNE     load_queued_type
+.literal_nul
+        TSX                     ; clear zero flag; stack ptr must be nonzero
         RTS
-.EDRDNX
-        LDX     scratch + 31    ; flags saved with pending_key
+.load_queued_type
+        LDX     queued_key_type ; just to set/clear zero flag
         RTS
-.EDRDOSRD
+.read_from_os
         JSR     read_char_test_escape
         TAX
-.EDRDCK
-        BNE     EDRDRT
+.check_for_nul
+        ; Function/soft keys are prefixed with a NUL
+        BNE     return
         JSR     read_char_test_escape
         CMP     #0
-        BEQ     EDRDZ
-        LDX     #0              ; EQ: command
-.EDRDRT
+        BEQ     literal_nul     ; 0, 0 is a literal NUL
+        LDX     #0              ; just to set zero flag
+.return
         RTS
 
-.read_key_timeout               ; as read_char but with a timeout, A = 0 if none
-        LDA     #&81
-        TAX
-        LDY     #3
+; Reads the next key pressed into A with a timeout of 8.97s; A=0 if timeout.
+; Returns with the zero flag set if this should be interpreted as a
+; function/soft key, otherwise a literal character. Handles ESC.
+.with_timeout
+        LDA     #osbyte_inkey
+        TAX                     ; reuses osbyte_inkey (&81) as the low byte of
+        LDY     #3              ; the timeout.
         JSR     osbyte
         TYA
-        BNE     EDINTO
+        BNE     no_key
         TXA
-        BRA     EDRDCK
-.EDINTO
+        BRA     check_for_nul
+.no_key
         JSR     test_escape
         LDA     #0
         TAX
         RTS
+}

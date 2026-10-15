@@ -114,7 +114,7 @@
         STY     options         ; returns &00 on the BBC OS 1.2
 
         IF mouse
-        JSR     mouser
+        JSR     mouse_read
         ENDIF
 
         LDA     #cr

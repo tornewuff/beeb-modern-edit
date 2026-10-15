@@ -272,7 +272,7 @@
         LDA     update_required
         CMP     #thelot
         BEQ     QUEUEX
-        LDA     key_pending_flag
+        LDA     key_queued_flag
         BNE     QUEUCS
         LDA     #&81
         LDX     #0
@@ -285,14 +285,14 @@
         CPY     #&FF
         BEQ     QUEUEX
         JSR     test_escape
-        INC     key_pending_flag
-        STX     pending_key
+        INC     key_queued_flag
+        STX     queued_key
         IF edit150
-        STX     scratch + 31    ; flags for read_char
+        STX     queued_key_type         ; flags for read_char
         TXA
         BNE     QUEUCS
         JSR     read_char_test_escape   ; 0 prefix: read the command code too
-        STA     pending_key
+        STA     queued_key
         ENDIF
 .QUEUCS
         SEC

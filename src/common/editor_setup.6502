@@ -11,7 +11,7 @@
         STA     gap_end + 1
 .EDITxx
         STZ     cursor_editing
-        STZ     key_pending_flag
+        STZ     key_queued_flag
         STZ     num_marks_set
         lda_line_terminator
         STA     (oshwm)

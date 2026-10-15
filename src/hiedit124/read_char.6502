@@ -1,23 +1,23 @@
-.read_char
-        ; Exit - A holds character read
-        LDA     key_pending_flag
-        BEQ     EDRDOSRD
-        LDA     pending_key
-        STZ     key_pending_flag
+; Reads the next key pressed into A. Handles ESC.
+.read_char {
+        LDA     key_queued_flag
+        BEQ     read_from_os
+        LDA     queued_key
+        STZ     key_queued_flag
         RTS
-.EDRDOSRD
-        IF mouse
+.read_from_os
+IF mouse
         PHX
         PHY
-.MOUSLP
-        LDA     #&81
+        ; Poll for either a keypress or mouse input
+.@      LDA     #osbyte_inkey
         LDX     #0
         LDY     #0
         JSR     osbyte
         TXA
         CPY     #&FF
-        BNE     NOMOUSE
-        JSR     mouser
+        BNE     return
+        JSR     mouse_read
         LDA     mousel + 8
         ORA     mousel + 9
         BNE     MOUSLY
@@ -26,38 +26,39 @@
         BNE     MOUSLX
         LDA     mousel
         CMP     mousel + 5
-        BEQ     MOUSLP
+        BEQ     @-
         AND     #&7
         BIT     #&1
         BNE     MOUSK1
         BIT     #&2
         BNE     MOUSK2
         BIT     #&4
-        BEQ     MOUSLP
+        BEQ     @-
         LDA     #&86
-        BRA     NOMOUSE
+        BRA     return
 .MOUSK1
         LDA     #&98
-        BRA     NOMOUSE
+        BRA     return
 .MOUSK2
         LDA     #&97
-        BRA     NOMOUSE
+        BRA     return
 .MOUSLX
         LDA     #&8D
         LDX     mousel + 7
-        BPL     NOMOUSE
+        BPL     return
         LDA     #&8C
-        BNE     NOMOUSE
+        BNE     return
 .MOUSLY
         LDA     #&8F
         LDX     mousel + 9
-        BPL     NOMOUSE
+        BPL     return
         LDA     #&8E
-.NOMOUSE
+.return
         PLX
         PLY
-        ELSE
+ELSE
         JSR     osrdch
-        ENDIF
+ENDIF
 
         JMP     test_escape
+}

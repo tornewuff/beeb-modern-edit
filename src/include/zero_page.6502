@@ -72,8 +72,14 @@ l               = num_marks
 .marks_before_cursor SKIP 1
 Q               = marks_before_cursor
 .current_line_len SKIP 1
-.key_pending_flag SKIP 1
-.pending_key    SKIP 1
+
+; Nonzero when the next read_char call should return the key in queued_key.
+; Set by the screen update routine if a keypress interrupts an update.
+.key_queued_flag SKIP 1
+; The key to be returned by the next read_char call, if key_queued_flag is set.
+; Stored by the screen update routine if a keypress interrupts an update.
+.queued_key     SKIP 1
+
 .lines_per_page SKIP 1
 .field_index    SKIP 1
 lineot          = field_index
@@ -99,7 +105,11 @@ tab_char        = MULFFLAG
 
 IF edit150
 .search_state   SKIP &E         ; search/replace state, no longer in buff
-.scratch        SKIP &20
+.scratch        SKIP &1F
+
+; Value to be used to set the zero flag (indicating the key type) when returning
+; from read_char, if key_queued_flag is set.
+.queued_key_type SKIP 1
 ELSE
 .scratch        SKIP &12
 ENDIF

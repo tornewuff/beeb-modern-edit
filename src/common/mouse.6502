@@ -1,4 +1,4 @@
-.mouser
+.mouse_read {
         LDA     mousel
         STA     mousel + 5
         LDA     #&92
@@ -39,3 +39,4 @@
         PLY
         STY     mousel + 3
         RTS
+}
