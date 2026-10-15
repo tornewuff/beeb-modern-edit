@@ -105,7 +105,10 @@ tab_char        = MULFFLAG
 
 IF edit150
 .search_state   SKIP &E         ; search/replace state, no longer in buff
-.scratch        SKIP &1F
+.scratch        SKIP &1A
+.compressed_string SKIP 2
+.chardef_backup_ptr SKIP 2
+.chardef_backup_count SKIP 1
 
 ; Value to be used to set the zero flag (indicating the key type) when returning
 ; from read_char, if key_queued_flag is set.

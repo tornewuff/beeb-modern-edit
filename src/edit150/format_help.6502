@@ -98,20 +98,20 @@
 
 .prhist                         ; print the inline text after the JSR
         PLA
-        STA     scratch + 26
+        STA     compressed_string
         PLA
-        STA     scratch + 27
+        STA     compressed_string + 1
         JSR     prhinc
-        JMP     (scratch + 26)
+        JMP     (compressed_string)
 
 .prhlp
         JSR     prhchr
 .prhinc
-        INC     scratch + 26
+        INC     compressed_string
         BNE     prinHM
-        INC     scratch + 27
-.prinHM                         ; print text at (scratch + 26) up to &EA
-        LDA     (scratch + 26)
+        INC     compressed_string + 1
+.prinHM                         ; print text at (compressed_string) up to &EA
+        LDA     (compressed_string)
         CMP     #&EA
         BNE     prhlp
         RTS

@@ -109,9 +109,9 @@
         IF edit150
         EQUB    28,0,12,53,9,12,&EA     ; text window for the help text
         LDA     help_text_table,Y
-        STA     scratch + 26
+        STA     compressed_string
         LDA     help_text_table + 1,Y
-        STA     scratch + 27
+        STA     compressed_string + 1
         JSR     prinHM
         BRA     TUTDON
         ELSE

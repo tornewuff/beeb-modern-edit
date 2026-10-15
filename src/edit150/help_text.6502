@@ -44,34 +44,34 @@ nchars  =       18              ; number of characters redefined
 
 .define_chars
         LDX     #nchars - 1
-        STX     scratch + 30
+        STX     chardef_backup_count
         LDX     #<(chardef_backup + (nchars - 1) * 8 - 1)
         LDY     #>(chardef_backup + (nchars - 1) * 8 - 1)
-        STX     scratch + 28
-        STY     scratch + 29
+        STX     chardef_backup_ptr
+        STY     chardef_backup_ptr + 1
 .dfchlp                         ; save character definitions, last first
         CLC
-        LDA     scratch + 30
+        LDA     chardef_backup_count
         ADC     #remapchar("─") ; first redefined character
-        STA     (scratch + 28)  ; character code for OSWORD 10
+        STA     (chardef_backup_ptr)  ; character code for OSWORD 10
         LDA     #osword_read_char
-        LDX     scratch + 28
-        LDY     scratch + 29
+        LDX     chardef_backup_ptr
+        LDY     chardef_backup_ptr + 1
         JSR     osword
         SEC
-        LDA     scratch + 28
+        LDA     chardef_backup_ptr
         SBC     #8
-        STA     scratch + 28
+        STA     chardef_backup_ptr
         BCS     dfchnc
-        DEC     scratch + 29
+        DEC     chardef_backup_ptr + 1
 .dfchnc
-        DEC     scratch + 30
+        DEC     chardef_backup_count
         BPL     dfchlp
         LDX     #<chrdef
         LDY     #>chrdef
 .setchr                         ; define characters from 8 byte rows at XY
-        STX     scratch + 28
-        STY     scratch + 29
+        STX     chardef_backup_ptr
+        STY     chardef_backup_ptr + 1
         LDX     #&00
 .setclp
         LDA     #23
@@ -82,16 +82,16 @@ nchars  =       18              ; number of characters redefined
         JSR     oswrch
         LDY     #&00
 .setcby
-        LDA     (scratch + 28),Y
+        LDA     (chardef_backup_ptr),Y
         JSR     oswrch
         INY
         CPY     #8
         BNE     setcby
-        LDA     scratch + 28
+        LDA     chardef_backup_ptr
         ADC     #7              ; C is set by the CPY
-        STA     scratch + 28
+        STA     chardef_backup_ptr
         BCC     setcnc
-        INC     scratch + 29
+        INC     chardef_backup_ptr + 1
 .setcnc
         INX
         CPX     #nchars
@@ -274,4 +274,3 @@ nchars  =       18              ; number of characters redefined
         EQUB    "as normal.", &0d, "All chara"
         EQUB    "cters except ESCAPE are put "
         EQUB    "into ", &8e, ".", &ea
-
