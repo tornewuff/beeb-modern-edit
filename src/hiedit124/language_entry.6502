@@ -128,31 +128,16 @@
         JSR     print_inline    ; define characters
 
         EQUB    3
-        EQUB    23,remap("─"),&00,&00,&00,&FF,&00,&00,&00,&00
-        EQUB    23,remap("│"),&18,&18,&18,&18,&18,&18,&18,&18
+IF define_fancy_chars == "startup"
+        FOR i = 0..<LEN(fancy_char_definitions)
+                definition = fancy_char_definitions[i]
+                EQUB    23, remap_codepoint(definition[0]), definition[2]
+        NEXT
 
-        IF dchars        ; Character definitions for descriptive MODE
-        EQUB    23,remap("┌"),&00,&00,&00,&07,&0C,&18,&18,&18
-        EQUB    23,remap("┐"),&00,&00,&00,&E0,&30,&18,&18,&18
-        EQUB    23,remap("└"),&18,&18,&0C,&07,&00,&00,&00,&00
-        EQUB    23,remap("┘"),&18,&18,&30,&E0,&00,&00,&00,&00
-        EQUB    23,remap("©"),&7E,&C3,&9D,&B1,&9D,&C3,&7E,&00
-        EQUB    23,remap("⯇"),&00,&18,&38,&7F,&38,&18,&00,&00
-        EQUB    23,remap("⯈"),&00,&18,&1C,&FE,&1C,&18,&00,&00
-        EQUB    23,remap("⭣"),&18,&18,&18,&18,&7E,&3C,&18,&00
-        EQUB    23,remap("⭡"),&00,&18,&3C,&7E,&18,&18,&18,&18
-        EQUB    23,remap("╶"),&00,&00,&00,&1F,&00,&00,&00,&00
-        EQUB    23,remap("╴"),&00,&00,&00,&F8,&00,&00,&00,&00
-        EQUB    23,remap("┬"),&00,&00,&00,&FF,&18,&18,&18,&18
-        EQUB    23,remap("├"),&18,&18,&18,&1F,&18,&18,&18,&18
-        EQUB    23,remap("┤"),&18,&18,&18,&F8,&18,&18,&18,&18
-        EQUB    23,remap("┴"),&18,&18,&18,&FF,&00,&00,&00,&00
-        EQUB    23,remap("┼"),&18,&18,&18,&FF,&18,&18,&18,&18
-        ENDIF
         IF lfarro
-        EQUB    23,nlfarr,&00,&18,&38,&7F,&38,&18,&00,&00
+                EQUB    23, nlfarr, &00,&18,&38,&7F,&38,&18,&00,&00
         ENDIF
-
+ENDIF
         EQUB    &EA
 
         LDA     cursor_editing

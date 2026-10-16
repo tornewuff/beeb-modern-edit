@@ -44,4 +44,4 @@ osbyte_read_cmos_ram            = &a1
 
 ; OSWORD calls
 
-osword_read_char                = &0a
+osword_read_character_definiton = &0a

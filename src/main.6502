@@ -1,5 +1,6 @@
 INCLUDE "include/default_config.6502"
 INCLUDE "include/utf8.6502"
+INCLUDE "include/fancy_char_definitions.6502"
 INCLUDE "include/mos.6502"
 INCLUDE "include/relocation.6502"
 
@@ -45,6 +46,9 @@ INCLUDE "common/main_loop.6502"
 INCLUDE "common/text_entry.6502"
 INCLUDE "common/function_key_table.6502"
 INCLUDE "common/descriptive_mode.6502"
+IF define_fancy_chars == "temporary"
+        INCLUDE "optional/fancy_chars_temporary.6502"
+ENDIF
 IF edit150
         INCLUDE "edit150/help_text.6502"
 ELSE

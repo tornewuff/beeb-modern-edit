@@ -43,8 +43,18 @@ ENDIF
 IF edit150
 .os_version             SKIP 1          ; OS version (0 if below 3)
 .replace_all            SKIP 1          ; find and replace to the end of the file
-                        SKIP 1          ; (OSWORD 10 writes the first character code at chardef_backup - 1)
-.chardef_backup         SKIP nchars * 8 ; saved character definitions, see define_chars
+ENDIF
+
+IF define_fancy_chars == "temporary"
+; We need one extra byte at the beginning for the character code in the
+; osword_read_character_definition call.
+.chardef_extra_byte     SKIP 1
+; Temporary backup of old character definitions to restore after fancy char
+; printing is done.
+.chardef_backup         SKIP fancy_chars.count * fancy_chars.bytes_per_char
+ENDIF
+
+IF edit150
 .prompt_column          SKIP 1          ; column for prompts after the status texts
 ENDIF
 

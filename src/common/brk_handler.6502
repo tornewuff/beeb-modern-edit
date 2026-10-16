@@ -50,12 +50,12 @@
         JSR     cursor_to_status
 
 IF lerror
-        IF edit150
-        JSR     define_chars
+        IF define_fancy_chars == "temporary"
+                JSR     fancy_chars.define
         ENDIF
         JSR     print_inline
         EQUB    &0B,&0B,&0B,remap("┌"),&EA
-        LDX     #remapchar("─")
+        LDX     #remap_char("─")
         LDA     #59-80
         JSR     print_repeat_inline
         EQUB    remap("Shift f5 D for info┐│"),&EA
@@ -63,13 +63,13 @@ IF lerror
         LDA     #78-80
         JSR     print_repeat_inline
         EQUB    remap("│└"),&EA
-        LDX     #remapchar("─")
+        LDX     #remap_char("─")
         LDA     #54-80
         JSR     print_repeat_inline
         EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
         JSR     print_os_error
-        IF edit150
-        JSR     restore_chars
+        IF define_fancy_chars == "temporary"
+                JSR     fancy_chars.restore_previous
         ENDIF
 ELSE
         JSR     print_nl_os_error

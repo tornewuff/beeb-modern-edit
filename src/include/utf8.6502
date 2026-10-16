@@ -25,59 +25,25 @@ FUNCTION utf8_cut(cs, i)
 
 ; Split in half and recurse, nudging the split point back onto a character boundary.
 ; Depth is log2(n) + 8, so string length is effectively unlimited.
-FUNCTION utf8_decode(cs)
+FUNCTION utf8_decode_recursive(cs)
     n = LEN(cs)
     IF n <= 8
         r = utf8_decode_core(cs)
     ELSE
         m = utf8_cut(cs, n DIV 2)
-        r = CONCAT(utf8_decode(cs[0..<m]), utf8_decode(cs[m..]))
+        r = CONCAT(utf8_decode_recursive(cs[0..<m]), utf8_decode_recursive(cs[m..]))
     ENDIF
 = r
 
-; The non-ASCII glyphs in HiEdit 1.24 are all existing glyphs in MOS 3.x's font,
-; and are encoded as the corresponding bytes. When running on a Master it's
-; therefore possible to omit the custom character definitions and everything
-; still draws the same, but they need to be defined for a model B with a 6502SP.
-;
-; However, MOS 3.50 added official support for 8-bit text, so Edit 1.50r doesn't
-; want to assume that these byte values still have the default MOS 3.x glyphs or
-; that it's safe to redefine them - the user might have loaded a custom font
-; that uses bytes 128-255 to accomodate their language and may be editing a text
-; file that contains these bytes. Instead it saves the existing definition to a
-; temporary buffer, defines its custom glyphs, prints its descriptive help text,
-; then restores the original definitions, each time. To simplify this code, the
-; byte values used are just the contiguous range &80-&91.
-;
-; NUL is never actually printed by either version, but is used as a placeholder
-; in the default header/footer strings. Having an actual zero byte in the source
-; is very unfriendly to modern editors and version control tools which often
-; assume the file is binary, so we just map U+2400 back to &00 for both.
+; Decode a string of UTF-8 characters into a list of codepoints.
+FUNCTION utf8_decode(s) = utf8_decode_recursive(CODES(s))
 
-; Each codepoint is followed by three spaces to align nicely with the byte values.
-codepoints = "␀   ©   ⯇   ⯈   ⭣   ⭡   ╶   ╴   ─   ┬   │   ├   ┤   ┴   ┼   ┌   ┐   └   ┘   "
-IF edit150
-byte_vals = {&00,&86,&87,&88,&89,&8A,&8B,&8C,&80,&8D,&81,&8E,&8F,&90,&91,&82,&83,&84,&85}
-ELSE
-byte_vals = {&00,&87,&88,&89,&8A,&8B,&A2,&A4,&A6,&A7,&A9,&AB,&AD,&AE,&AF,&B0,&B1,&B2,&B3}
-ENDIF
-
-; Decoded list still has three space codepoints after each "significant" codepoint...
-from = CONCAT(0..127, utf8_decode(CODES(codepoints)))
-
-; ...so insert three space bytes after each element of byte_vals as well.
-pad_vals = REPEATED(LEN(byte_vals), ' ')
-to = CONCAT(0..127, FLATTEN(ZIP(byte_vals, pad_vals, pad_vals, pad_vals)))
-
-ASSERT LEN(from) == LEN(to)
-
-FUNCTION remap(s) = CHR(to[FIND(from, utf8_decode(CODES(s)))])
-
-FUNCTION remapchar(s)
-    u = utf8_decode(CODES(s))
-    if LEN(u) == 1
-        r = to[FIND(from, u[0])]
+; Decode a string containing a single UTF-8 character into a codepoint.
+FUNCTION utf8_decode_char(s)
+    u = utf8_decode(s)
+    IF LEN(u) == 1
+        r = u[0]
     ELSE
-        r = ERROR("bad char: ", s)
+        r = ERROR("not a single UTF-8 character: ", s)
     ENDIF
-= r
+=r

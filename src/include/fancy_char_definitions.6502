@@ -1,0 +1,65 @@
+; The non-ASCII glyphs in HiEdit 1.24 are all existing glyphs in MOS 3.x's font,
+; and are encoded as the corresponding bytes. When running on a Master it's
+; therefore possible to omit the custom character definitions and everything
+; still draws the same, but they need to be defined for a model B with a 6502SP.
+;
+; However, MOS 3.50 added official support for 8-bit text, so Edit 1.50r doesn't
+; want to assume that these byte values still have the default MOS 3.x glyphs or
+; that it's safe to redefine them - the user might have loaded a custom font
+; that uses bytes 128-255 to accomodate their language and may be editing a text
+; file that contains these bytes. Instead it saves the existing definition to a
+; temporary buffer, defines its custom glyphs, prints its descriptive help text,
+; then restores the original definitions, each time. To simplify this code, the
+; byte values used are just the contiguous range &80-&91.
+
+
+; List of fancy characters. Each entry is a 3-tuple of:
+;   - Unicode codepoint number used to represent it in the source code.
+;   - Byte value for the character in the MOS 3.x font.
+;   - 8 byte list of the actual character definition (for VDU 23).
+fancy_char_definitions = {
+    {utf8_decode_char("─"), &A6, {&00,&00,&00,&FF,&00,&00,&00,&00}},
+    {utf8_decode_char("│"), &A9, {&18,&18,&18,&18,&18,&18,&18,&18}},
+    {utf8_decode_char("┌"), &B0, {&00,&00,&00,&07,&0C,&18,&18,&18}},
+    {utf8_decode_char("┐"), &B1, {&00,&00,&00,&E0,&30,&18,&18,&18}},
+    {utf8_decode_char("└"), &B2, {&18,&18,&0C,&07,&00,&00,&00,&00}},
+    {utf8_decode_char("┘"), &B3, {&18,&18,&30,&E0,&00,&00,&00,&00}},
+    {utf8_decode_char("©"), &87, {&7E,&C3,&9D,&B1,&9D,&C3,&7E,&00}},
+    {utf8_decode_char("⯇"), &88, {&00,&18,&38,&7F,&38,&18,&00,&00}},
+    {utf8_decode_char("⯈"), &89, {&00,&18,&1C,&FE,&1C,&18,&00,&00}},
+    {utf8_decode_char("⭣"), &8A, {&18,&18,&18,&18,&7E,&3C,&18,&00}},
+    {utf8_decode_char("⭡"), &8B, {&00,&18,&3C,&7E,&18,&18,&18,&18}},
+    {utf8_decode_char("╶"), &A2, {&00,&00,&00,&1F,&00,&00,&00,&00}},
+    {utf8_decode_char("╴"), &A4, {&00,&00,&00,&F8,&00,&00,&00,&00}},
+    {utf8_decode_char("┬"), &A7, {&00,&00,&00,&FF,&18,&18,&18,&18}},
+    {utf8_decode_char("├"), &AB, {&18,&18,&18,&1F,&18,&18,&18,&18}},
+    {utf8_decode_char("┤"), &AD, {&18,&18,&18,&F8,&18,&18,&18,&18}},
+    {utf8_decode_char("┴"), &AE, {&18,&18,&18,&FF,&00,&00,&00,&00}},
+    {utf8_decode_char("┼"), &AF, {&18,&18,&18,&FF,&18,&18,&18,&18}},
+}
+
+; NUL is never actually printed by either version, but is used as a placeholder
+; in the default header/footer strings. Having an actual zero byte in the source
+; is very unfriendly to modern editors and version control tools which often
+; assume the file is binary, so we just map U+2400 back to &00 for both.
+nul_glyph = utf8_decode_char("␀")
+
+; Allow source strings to contain ASCII 1-127, the Unicode codepoints for the
+; fancy characters, and the codepoint of the NUL glyph.
+fancy_charmap_from = CONCAT(1..127, fancy_char_definitions[.., 0], nul_glyph)
+
+IF fancy_chars_at_80
+; Just map the fancy characters to &80 onward in definition order.
+fancy_charmap_to = CONCAT(1..127, &80..<&80+LEN(fancy_char_definitions), 0)
+ELSE
+; Map the fancy characters to the MOS 3.x font values.
+fancy_charmap_to = CONCAT(1..127, fancy_char_definitions[.., 1], 0)
+ENDIF
+
+ASSERT LEN(fancy_charmap_from) == LEN(fancy_charmap_to)
+
+FUNCTION remap(s) = CHR(fancy_charmap_to[FIND(fancy_charmap_from, utf8_decode(s))])
+
+FUNCTION remap_codepoint(c) = fancy_charmap_to[FIND(fancy_charmap_from, c)]
+
+FUNCTION remap_char(s) = remap_codepoint(utf8_decode_char(s))

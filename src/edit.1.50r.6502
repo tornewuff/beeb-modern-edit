@@ -25,6 +25,8 @@ ENDIF
         edit150 = TRUE
         edit150_size_opt = TRUE
         edit150_updated_help = TRUE
+        define_fancy_chars = "temporary"
+        fancy_chars_at_80 = TRUE
         curtyp = FALSE
         lfarro = FALSE
         syzygy = FALSE

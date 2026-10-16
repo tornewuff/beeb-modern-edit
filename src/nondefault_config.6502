@@ -37,6 +37,7 @@ ENDIF
         ; Also include nondefault options split out of edit150
         edit150_size_opt = TRUE
         edit150_updated_help = TRUE
+        define_fancy_chars = "never"
 }
 
 

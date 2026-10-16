@@ -5,8 +5,15 @@
         mouse = FALSE
         ; assemble with long error box
         lerror = TRUE
-        ; assemble with character definitions
-        dchars = TRUE
+        ; when to define fancy (box-drawing, etc) chars used in help text:
+        ;  startup      - define them once when the program starts
+        ;  temporary    - define them temporarily while printing help
+        ;  never        - assume they are already defined
+        define_fancy_chars = "startup"
+        ; which byte values should be used to represent fancy chars:
+        ;  true         - sequential values starting at &80
+        ;  false        - appropriate values for MOS 3.x default font
+        fancy_chars_at_80 = FALSE
         ; 'A SYZYGY prog' displayed, was under EXTRAS
         syzygy = TRUE
         ; date stamping
@@ -39,7 +46,8 @@
 IF DEFINED(setconfig.phil) : phil = setconfig.phil : ELSE : phil = default_config.phil : ENDIF
 IF DEFINED(setconfig.mouse) : mouse = setconfig.mouse : ELSE : mouse = default_config.mouse : ENDIF
 IF DEFINED(setconfig.lerror) : lerror = setconfig.lerror : ELSE : lerror = default_config.lerror : ENDIF
-IF DEFINED(setconfig.dchars) : dchars = setconfig.dchars : ELSE : dchars = default_config.dchars : ENDIF
+IF DEFINED(setconfig.define_fancy_chars) : define_fancy_chars = setconfig.define_fancy_chars : ELSE : define_fancy_chars = default_config.define_fancy_chars : ENDIF
+IF DEFINED(setconfig.fancy_chars_at_80) : fancy_chars_at_80 = setconfig.fancy_chars_at_80 : ELSE : fancy_chars_at_80 = default_config.fancy_chars_at_80 : ENDIF
 IF DEFINED(setconfig.syzygy) : syzygy = setconfig.syzygy : ELSE : syzygy = default_config.syzygy : ENDIF
 IF DEFINED(setconfig.stamp) : stamp = setconfig.stamp : ELSE : stamp = default_config.stamp : ENDIF
 IF DEFINED(setconfig.lfver) : lfver = setconfig.lfver : ELSE : lfver = default_config.lfver : ENDIF
@@ -52,3 +60,8 @@ IF DEFINED(setconfig.edit150) : edit150 = setconfig.edit150 : ELSE : edit150 = d
 IF DEFINED(setconfig.edit150_size_opt) : edit150_size_opt = setconfig.edit150_size_opt : ELSE : edit150_size_opt = default_config.edit150_size_opt : ENDIF
 IF DEFINED(setconfig.edit150_updated_help) : edit150_updated_help = setconfig.edit150_updated_help : ELSE : edit150_updated_help = default_config.edit150_size_opt : ENDIF
 IF DEFINED(setconfig.omit_service) : omit_service = setconfig.omit_service : ELSE : omit_service = default_config.omit_service : ENDIF
+
+ASSERT fancy_chars_at_80 OR define_fancy_chars != "temporary", "must use &80 font mapping when defining fancy chars temporarily"
+ASSERT NOT(fancy_chars_at_80 AND define_fancy_chars == "never"), "must define fancy chars if not using MOS 3.x default font mapping"
+; TODO: unify language_entry to make this work
+ASSERT NOT(define_fancy_chars == "startup" AND edit150), "can't currently define chars at startup in edit150"

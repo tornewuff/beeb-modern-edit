@@ -1,0 +1,80 @@
+; See include/fancy_char_definitions.6502 for a detailed explanation.
+.fancy_chars {
+
+count = LEN(fancy_char_definitions)
+; Characters will be defined at first_character..<first_character+count
+first_character = &80
+bytes_per_char = 8
+
+; Back up the current character definitions for &80 onward and define the fancy
+; chars instead.
+.define
+        ; osword_read_character_definition uses a 9-byte parameter block where
+        ; the first byte is the character index and the definition is read into
+        ; the other 8 bytes, so loop over the indices backwards and let the last
+        ; byte of each character definition overwrite the index of the previous
+        ; definition read. One byte is reserved before chardef_backup to hold
+        ; the index of the first character without overwriting unrelated data.
+        last_idx = count - 1
+        last_ptr = chardef_backup + last_idx * bytes_per_char - 1
+        LDX     #last_idx
+        STX     chardef_idx
+        LDX     #<last_ptr
+        LDY     #>last_ptr
+        STX     chardef_ptr
+        STY     chardef_ptr + 1
+.backup_loop
+        CLC
+        LDA     chardef_idx
+        ADC     #first_character
+        STA     (chardef_ptr)
+        LDA     #osword_read_character_definiton
+        LDX     chardef_ptr
+        LDY     chardef_ptr + 1
+        JSR     osword
+        SEC
+        LDA     chardef_ptr
+        SBC     #bytes_per_char
+        STA     chardef_ptr
+        BCS     @+
+        DEC     chardef_ptr + 1
+.@      DEC     chardef_idx
+        BPL     backup_loop
+        LDX     #<fancy_char_definition_data
+        LDY     #>fancy_char_definition_data
+.define_chars_from_xy
+        STX     chardef_ptr
+        STY     chardef_ptr + 1
+        LDX     #&00
+.define_char_loop
+        LDA     #23
+        JSR     oswrch
+        TXA
+        CLC
+        ADC     #first_character
+        JSR     oswrch
+        LDY     #&00
+.@      LDA     (chardef_ptr),Y
+        JSR     oswrch
+        INY
+        CPY     #bytes_per_char
+        BNE     @-
+        LDA     chardef_ptr
+        ADC     #bytes_per_char - 1     ; C is set by the CPY
+        STA     chardef_ptr
+        BCC     @+
+        INC     chardef_ptr + 1
+.@      INX
+        CPX     #count
+        BNE     define_char_loop
+        RTS
+
+; Restore the previous character definitions backed up by fancy_chars.define.
+.restore_previous
+        LDX     #<chardef_backup
+        LDY     #>chardef_backup
+        BRA     define_chars_from_xy
+
+.fancy_char_definition_data
+        EQUB    fancy_char_definitions[..,2]
+}

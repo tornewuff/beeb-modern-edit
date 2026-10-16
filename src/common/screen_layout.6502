@@ -18,22 +18,18 @@
         JSR     print_inline
         EQUB    26,home,&EA
         JSR     write_char.inverse_on
-        IF edit150
-        JSR     define_chars
+IF define_fancy_chars == "temporary"
+        JSR     fancy_chars.define
+ENDIF
         JSR     print_key_strip
         PLA
         CMP     #2
-        BEQ     DOTUTX
+        BEQ     skip_descriptive
         JSR     print_descriptive_help
-.DOTUTX
-        JSR     restore_chars
-        ELSE
-        JSR     print_key_strip
-        PLA
-        CMP     #2
-        BEQ     KEYONL
-        JSR     print_descriptive_help
-        ENDIF
+.skip_descriptive
+IF define_fancy_chars == "temporary"
+        JSR     fancy_chars.restore_previous
+ENDIF
 .KEYONL
         JSR     write_char.inverse_off
         JSR     get_text_window     ; get size of total screen
