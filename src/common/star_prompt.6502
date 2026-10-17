@@ -1,5 +1,5 @@
 .star_prompt                    ; oscli processing
-        LDA     #&01
+        LDA     #brk_action.continue_star_prompt
         STA     brk_action
         JSR     restore_keys
         JSR     prompt

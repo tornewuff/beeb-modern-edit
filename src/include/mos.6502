@@ -26,6 +26,7 @@ nvrdch = &ffc8
 
 os_text_ptr     =       &f2
 romsel_copy     =       &f4
+os_error_ptr    =       &fd
 
 ; Service call numbers
 
@@ -45,3 +46,9 @@ osbyte_read_cmos_ram            = &a1
 ; OSWORD calls
 
 osword_read_character_definiton = &0a
+
+; VDU commands
+
+vdu_disable_printer             = 3
+vdu_previous_line               = 11
+vdu_disable_paged_mode          = 15

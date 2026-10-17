@@ -1,52 +1,43 @@
+; Handle BRK according to the current value of brk_action.
 .brk_handler {
-        ;Outputs 'brk' error message, & jumps to relevant re-entry
-        ;point. Detailed action depends on value of 'brk_action' on entry -
-        ; brk_action = 0 Moves cursor to editor status position,
-        ; outputs error message, then prompts for space
-        ; before jumping to EDITcont.
-        ; 1    Outputs error message, and jumps to starloop.
-        ; 2    resets to start of file and closes indexfile, then as 0
-
         LDX     #&FF
-        TXS
+        TXS                             ; reset stack
         STZ     cursor_editing
         acknowledge_escape
         LDA     brk_action
-        CMP     #&FF
-        BNE     simBRK
-.unret
+        CMP     #brk_action.undo_return_to_language
+        BNE     simple_break
+.undo_return_to_language
         LDA     addr
-        BNE     unretA
+        BNE     @+
         DEC     addr + 1
-.unretA
-        DEC     addr
+.@      DEC     addr
         LDA     src_ptr
-        BNE     unretB
+        BNE     @+
         DEC     src_ptr + 1
-.unretB
-        DEC     src_ptr
+.@      DEC     src_ptr
         LDA     (src_ptr)
         STA     (addr)
         LDA     addr
-        BNE     unret
+        BNE     undo_return_to_language
         LDA     addr + 1
         CMP     string + 1
-        BNE     unret
+        BNE     undo_return_to_language
         LDA     #cr
         STA     (text_end)
         LDA     #&00
-.simBRK
-        CMP     #&01
-        BNE     simBK2
+.simple_break
+        CMP     #brk_action.continue_star_prompt
+        BNE     not_star_prompt
         JSR     print_nl_os_error
         JMP     starCN
-.simBK2
-        BCC     norBRK
+.not_star_prompt
+        BCC     normal_break
         JSR     close_index_file
         JSR     cursor_text_start
-.norBRK
+.normal_break
         JSR     print_inline
-        EQUB    &03,&0F,&EA
+        EQUB    vdu_disable_printer, vdu_disable_paged_mode, &EA
         JSR     cursor_to_status
 
 IF lerror
@@ -54,7 +45,7 @@ IF lerror
                 JSR     fancy_chars.define
         ENDIF
         JSR     print_inline
-        EQUB    &0B,&0B,&0B,remap("┌"),&EA
+        EQUB    REPEATED(3, vdu_previous_line), remap("┌"), &EA
         LDX     #remap_char("─")
         LDA     #59-80
         JSR     print_repeat_inline
@@ -93,11 +84,13 @@ ELSE
         EQUB    "Press ESCAPE to continue",&EA
 ENDIF
 
-.esclop
-        JSR     osrdch
+.@      JSR     osrdch
         CMP     #&1B
-        BNE     esclop
-.escCON
+        BNE     @-
+}
+
+; Return to normal editing after ESC pressed.
+.ack_escape_continue_editing {
         acknowledge_escape
         JSR     NORMALIZE
         JMP     EDITcont
@@ -112,13 +105,14 @@ ENDIF
 
 .print_nl_os_error
         JSR     osnewl
-.print_os_error
+
+.print_os_error {
         LDY     #&01
-.BRKOLP
-        LDA     (&FD),Y
-        BEQ     BRKOX
+.@      LDA     (os_error_ptr),Y
+        BEQ     return
         JSR     osasci
         INY
-        BNE     BRKOLP
-.BRKOX
+        BNE     @-
+.return
         RTS
+}

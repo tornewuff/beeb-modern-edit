@@ -57,13 +57,13 @@
         JSR     print_inline
         EQUB    &03,&0F,&0D,&EA
         LDA     brk_action
-        CMP     #&02
+        CMP     #brk_action.close_index_continue_editing
         BNE     escSIM
         JSR     close_index_file
         JSR     cursor_text_start
 .escSIM
         STZ     cursor_editing
-        JMP     brk_handler.escCON
+        JMP     ack_escape_continue_editing
         IF edit150
 .read_char_test_escape                  ; read a character and check for escape
         JSR     osrdch

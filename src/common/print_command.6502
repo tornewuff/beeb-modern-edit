@@ -19,7 +19,7 @@
         JSR     cursor_text_start
         JSR     set_text_ptr_to_gap_end
         JSR     enable_printer
-        LDA     #2
+        LDA     #brk_action.close_index_continue_editing
         STA     brk_action
 .PRINTB
         JSR     test_escape
@@ -135,7 +135,7 @@
         ADC     #8       ; carry clear
         CMP     #100
         BCC     DEFTAB
-        LDA     #2
+        LDA     #brk_action.close_index_continue_editing
         STA     brk_action
         DEA
         STA     page        ; A=1

@@ -26,8 +26,8 @@
         BRK
         EQUB    &02,"Not enough space to return to language",null
 .RETLOK
-        LDA     #&FF
-        STA     brk_action      ; pretty lethal break action rqd
+        LDA     #brk_action.undo_return_to_language
+        STA     brk_action
         LDA     oshwm + 1
         INA
         STA     src_ptr + 1

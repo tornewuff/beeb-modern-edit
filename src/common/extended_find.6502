@@ -104,14 +104,14 @@ nktent  =       ( kttabe - kttab )
         EQUB    &03,&0F,&0D,&EA
 
         LDA     brk_action
-        CMP     #&02
+        CMP     #brk_action.close_index_continue_editing
         BNE     ESCso
 
         JSR     close_index_file
         JSR     cursor_text_start
 .ESCso
         STZ     cursor_editing
-        JMP     brk_handler.escCON
+        JMP     ack_escape_continue_editing
 
 .rdline
         LDY     #&00            ; index into 'line_buffer'

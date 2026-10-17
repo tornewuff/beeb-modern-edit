@@ -148,7 +148,7 @@
         JMP     OLDTEXT
 
 .zappo
-        STZ     brk_action
+        STZ     brk_action      ; brk_action.continue_editing
         JSR     setup_editor
         JSR     clear_buffer
         LDY     #&00

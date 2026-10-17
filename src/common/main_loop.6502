@@ -38,7 +38,7 @@
 .EDITcont
         LDX     #&FF            ; Re-entry point for brk-handler.
         TXS
-        STZ     brk_action
+        STZ     brk_action      ; brk_action.continue_editing
         JSR     init_edit_keys
 .EDITth                         ; redraw everything
         LDA     #thelot
