@@ -1,4 +1,5 @@
 INCLUDE "include/default_config.6502"
+INCLUDE "include/functions.6502"
 INCLUDE "include/utf8.6502"
 INCLUDE "include/fancy_char_definitions.6502"
 INCLUDE "include/mos.6502"

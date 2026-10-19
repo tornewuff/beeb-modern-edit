@@ -1,0 +1,3 @@
+; Miscellaneous utility functions
+
+FUNCTION str_concat(l) = CHR(FLATTEN(CODES(l)))

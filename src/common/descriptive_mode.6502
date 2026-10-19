@@ -50,14 +50,14 @@ ELSE
         version_suffix = " "
 ENDIF
 
-        line1 = CHR(FLATTEN(CODES({     ; TODO: awkward wrapping
+        line1 = str_concat({
                 remap("The Acorn Screen Editor © "),
                 metadata.copyright_year,
                 " Acorn Computers ",
                 version_prefix,
                 metadata.version_str,
                 version_suffix,
-        })))
+        })
         ASSERT LEN(line1) == 56, "descriptive help line 1 length bad: ", LEN(line1)
 
         ; construct the second line of text (excluding the diagram part)
@@ -91,12 +91,12 @@ ELSE
         line2_crlfmode = "     "
 ENDIF
 
-        line2 = CHR(FLATTEN(CODES({
+        line2 = str_concat({
                 line2_prefix,
                 line2_filler,
                 "Descriptive Mode ",
                 line2_crlfmode,
-        })))
+        })
         ASSERT LEN(line2) - line2_invisible_bytes == 53, "descriptive help line 2 length bad: ", LEN(line2)
 
         ; actually print the lines
