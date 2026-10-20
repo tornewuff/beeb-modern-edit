@@ -1,3 +1,10 @@
 ; Miscellaneous utility functions
 
-FUNCTION str_concat(l) = CHR(FLATTEN(CODES(l)))
+; Takes a string, and a list of {from, to} replacements, and applies them all.
+FUNCTION multi_replace(str, replacements)
+    FOR x = replacements
+        needle = x[0]
+        replacement = x[1]
+        str = REPLACE(str, needle, replacement)
+    NEXT
+= str

@@ -1,23 +1,28 @@
 .print_key_strip {
-        JSR print_inline
-if edit150_updated_help
-        ; Edit 1.50 uses title case consistently.
-        EQUB    remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐")
-        EQUB    remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │")
-        EQUB    remap("│Returns│Over   │ File  │Margins│Languag│ Mode  │ Marks │Move   │Delete │Text  │")
-        EQUB    remap("├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤")
-        EQUB    remap("│ Goto  │Command│ Load  │ Save  │ Find  │Global │ Mark  │Marked │ Print │ Old  │")
-        EQUB    remap("│ Line  │Line   │ File  │ File  │String │Replace│ Place │Copy   │ Text  │ Text │")
+
+        edit150_key_strip = SUM({
+                remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐"),
+                remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │"),
+                remap("│Returns│Over   │ File  │Margins│Languag│ Mode  │ Marks │Move   │Delete │Text  │"),
+                remap("├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤"),
+                remap("│ Goto  │Command│ Load  │ Save  │ Find  │Global │ Mark  │Marked │ Print │ Old  │"),
+                remap("│ Line  │Line   │ File  │ File  │String │Replace│ Place │Copy   │ Text  │ Text │"),
+        })
+
+IF edit150_updated_help
+        key_strip = edit150_key_strip
 ELSE
-        ; HiEdit had lowercase "file", "line", "text".
-        EQUB    remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐")
-        EQUB    remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │")
-        EQUB    remap("│Returns│Over   │ file  │Margins│Languag│ Mode  │ Marks │Move   │Delete │text  │")
-        EQUB    remap("├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤")
-        EQUB    remap("│ Goto  │Command│ Load  │ Save  │Find   │Global │ Mark  │Marked │ Print │ Old  │")
-        EQUB    remap("│ line  │line   │ file  │ file  │String │Replace│ Place │Copy   │ text  │ text │")
+        ; HiEdit used different casing and a differently placed space.
+        key_strip = multi_replace(edit150_key_strip, {
+                {"File", "file"},
+                {"Line", "line"},
+                {"Text", "text"},
+                {" Find", "Find "},
+        })
 ENDIF
 
+        JSR     print_inline
+        EQUB    key_strip
 IF edit150_size_opt
         EQUB    remap("└"),&EA
         LDX     #8
@@ -50,7 +55,7 @@ ELSE
         version_suffix = " "
 ENDIF
 
-        line1 = str_concat({
+        line1 = SUM({
                 remap("The Acorn Screen Editor © "),
                 metadata.copyright_year,
                 " Acorn Computers ",
@@ -91,7 +96,7 @@ ELSE
         line2_crlfmode = "     "
 ENDIF
 
-        line2 = str_concat({
+        line2 = SUM({
                 line2_prefix,
                 line2_filler,
                 "Descriptive Mode ",
@@ -99,22 +104,30 @@ ENDIF
         })
         ASSERT LEN(line2) - line2_invisible_bytes == 53, "descriptive help line 2 length bad: ", LEN(line2)
 
+        edit150_descriptive_help = SUM({
+                line1,                                                  remap("┌───┐Shift: screen up   "),
+                line2,                                               remap("   │ ⭡ │Control: text start"),
+                remap("TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  "),
+                remap("COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         "),
+                remap("Shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  "),
+                remap("       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down "),
+                remap("Control COPY deletes the current line (to next RETURN)  └───┘Control: text end  "),
+        })
+
+IF edit150_updated_help
+        descriptive_help = edit150_descriptive_help
+ELSE
+        ; HiEdit used different casing and wording around newline.
+        descriptive_help = multi_replace(edit150_descriptive_help, {
+                {"Shift COPY", "shift COPY"},
+                {"Control COPY", "control COPY"},
+                {"(to next RETURN)", "to next new line"},
+        })
+ENDIF
+
         ; actually print the lines
         JSR     print_inline
-        EQUB    line1,                                                  remap("┌───┐Shift: screen up   ")
-        EQUB    line2,                                               remap("   │ ⭡ │Control: text start")
-        EQUB    remap("TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  ")
-        EQUB    remap("COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         ")
-IF edit150_updated_help
-        ; Title case again, and wording change around newline
-        EQUB    remap("Shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  ")
-        EQUB    remap("       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down ")
-        EQUB    remap("Control COPY deletes the current line (to next RETURN)  └───┘Control: text end  ")
-ELSE
-        EQUB    remap("shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  ")
-        EQUB    remap("       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down ")
-        EQUB    remap("control COPY deletes the current line to next new line  └───┘Control: text end  ")
-ENDIF
+        EQUB    descriptive_help
         NOP
         RTS
 }
