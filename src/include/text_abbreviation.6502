@@ -1,0 +1,68 @@
+abbreviation_base = &80
+; The runtime expansion code treats up to &9f as an abbreviation even though the
+; table has fewer entries in practice.
+abbreviation_max = &9f
+
+; The abbreviation list contains the raw data used in the original ROM (without
+; the null terminators) rather than in the expanded form, because some entries
+; were not abbreviated optimally, so recompressing it "correctly" is awkward.
+abbreviation_list = stringify_all({
+        {" title", &92, ".en", &83},                                    ; &80
+        "   ",                                                          ; &81
+        {" n output CHR$(n)", &92, "printer "},                         ; &82
+        {cr, "."},                                                      ; &83
+        " line",                                                        ; &84
+        " page ",                                                       ; &85
+        " character ",                                                  ; &86
+        "shf-f",                                                        ; &87
+        " text ",                                                       ; &88
+        " marked ",                                                     ; &89
+        "RETURN",                                                       ; &8a
+        {".", cr, &8a, " uses", &93, "name at the start of", &88, "after a '>'",
+         cr, "COPY, ", &8a, &92, "use", &93, "current file name."},     ; &8b
+        "The ",                                                         ; &8c
+        {"2", cr, "A", &88, "file will be loaded"},                     ; &8d
+        "text",                                                         ; &8e
+        "even",                                                         ; &8f
+        " scroll margins ",                                             ; &90
+        {&90, "with ctrl-f"},                                           ; &91
+        " to ",                                                         ; &92
+        " the ",                                                        ; &93
+})
+
+; Recursively expands any abbreviations in the input string using the provided
+; list of abbreviation definitions, with index 0 being the expansion for
+; `abbreviation_base`.
+FUNCTION expand_abbreviations(in, abbreviations)
+    out = ""
+    FOR x = CODES(in)
+        IF x >= abbreviation_base AND x <= abbreviation_max
+            out = out + expand_abbreviations(abbreviations[x - abbreviation_base], abbreviations)
+        ELSE
+            out = out + CHR(x)
+        ENDIF
+    NEXT
+= out
+
+; Turn an abbreviation list that may itself include abbreviations into a fully
+; expanded list of {byte_value, string} tuples.
+FUNCTION build_abbreviation_table(abbreviations)
+    out = {}
+    FOR x = abbreviations
+        out = CONCAT(out, expand_abbreviations(x, abbreviations))
+    NEXT
+= enumerate(out, abbreviation_base)
+
+abbreviation_table = build_abbreviation_table(abbreviation_list)
+
+; Given an abbreviation table of {byte_value, string} tuples, produces a mapping
+; suitable for use with multi_replace to abbreviate a string. Sorts by
+; descending length of expansion.
+FUNCTION build_abbreviation_mapping(table)
+    out = {}
+    FOR x = table
+        byte_value = x[0]
+        expansion = x[1]
+        out = CONCAT(out, {{expansion, CHR(byte_value), LEN(expansion)}})
+    NEXT
+= REVERSE(SORT(out, 2))[.., 0..1]

@@ -1,90 +1,76 @@
+; The format help text for Edit 1.50.
+format_help_text = stringify({
+        14, cr, cr,
+        "Format commands:- {initial values}", cr,
+        cr,
+        ".afrn assign format n to register r {0}", cr,
+        ".anrn assign number to register r {0}", cr,
+        ".bl   bold line", cr,
+        ".bp   begin page ", cr,
+        ".cc c control character is c {.}", cr,
+        ".ce   centre line", cr,
+        ".ch*c chain in next file", cr,
+        ".co   comment line", cr,
+        ".dmcc define macro to .en", cr,
+        ".ds   double space lines", cr,
+        ".ef   even page foot title to .en", cr,
+        ".eh   even page head title to .en", cr,
+        ".en   end of .at, .ix or .ef etc", cr,
+        ".ep   begin even page ", cr,
+        ".ff   form feed the printer, wait if paged mode", cr,
+        ".fo   even and odd foot title to .en", cr,
+        ".he   even and odd head title to .en", cr,
+        ".ic   close indexfile", cr,
+        ".ig   ignore input until .en", cr,
+        ".in+- indent left margin n places {0}", cr,
+        ".io*c open indexfile for output", cr,
+        ".ix   send text to indexfile until .en", cr,
+        ".ju   justify right margin of lines {on}", cr,
+        ".ll+- line length including indent {76}", cr,
+        ".ls+- line spacing is n {1}", cr,
+        ".lv n leave n blank lines (by .ne n and .sp n)", cr,
+        ".ne n needs n output lines, .bp if necessary", cr,
+        ".nj   no justification of lines", cr,
+        ".nn   no new line after this line", cr,
+        ".of   odd page foot title to .en", cr,
+        ".oh   odd page head title to .en", cr,
+        ".op   begin odd page ", cr,
+        ".os*c call operating system with this string", cr,
+        ".pl+- text area length is n lines {58}", cr,
+        ".po+- page offset is n {0}", cr,
+        ".rf   right flush this line", cr,
+        ".sp n insert n blank lines", cr,
+        ".ss   single space lines", cr,
+        ".ta   define tabs {8,16,24,...,96}", cr,
+        ".tcc  define tab character as c {ctrl I}", cr,
+        ".ti+- temporary indent n", cr,
+        ".trcc translate {NBSP is space}", cr,
+        ".ul   underline line", cr,
+        cr,
+        "n represents a decimal number, 0 is used if not present", cr,
+        "Spaces are allowed before n. c represents any character ", cr,
+        "+- allows n, +n or -n: .in+2 sets an indent 2 more than current", cr,
+        ".ti+2 is a temporary indent of 2 more than the current indent", cr,
+        cr,
+        "Formatting commands which can appear anywhere", cr,
+        cr,
+        ".bb   begin bold", cr,
+        ".bu   begin underline", cr,
+        ".eb   end bold", cr,
+        ".eu   end underline", cr,
+        ".oc n output CHR$(n) to printer counted as 1 character ", cr,
+        ".on n output CHR$(n) to printer without being counted", cr,
+        ".r0-9 contents of register e.g. .r0", 15, cr, cr,
+        &ea,
+})
+
+; The format help text was not optimally abbreviated as it doesn't make use of
+; &92 even though it could. Exclude it from the table to get matching results.
+format_help_mapping = build_abbreviation_mapping(without(abbreviation_table, &92 - abbreviation_base))
+
 .print_format_help {
         JSR     compressed_text.print_inline
-        EQUB    &0e, &0d, &0d, "Format comman"
-        EQUB    "ds:- {initial values}", &0d
-        EQUB    &83, "afrn assign format n to"
-        EQUB    " register r {0}", &83, "anrn"
-        EQUB    " assign number to register r"
-        EQUB    " {0}", &83, "bl", &81, "bold"
-        EQUB    &84, &83, "bp", &81, "begin"
-        EQUB    &85, &83, "cc c control", &86
-        EQUB    "is c {.}", &83, "ce", &81
-        EQUB    "centre", &84, &83, "ch*c cha"
-        EQUB    "in in next file", &83, "co"
-        EQUB    &81, "comment", &84, &83, "dm"
-        EQUB    "cc define macro to .en", &83
-        EQUB    "ds", &81, "double space", &84
-        EQUB    "s", &83, "ef", &81, &8f, &85
-        EQUB    "foot", &80, "eh", &81, &8f
-        EQUB    &85, "head", &80, "en", &81
-        EQUB    "end of .at, .ix or .ef etc"
-        EQUB    &83, "ep", &81, "begin ", &8f
-        EQUB    &85, &83, "ff", &81, "form fe"
-        EQUB    "ed", &93, "printer, wait if "
-        EQUB    "paged mode", &83, "fo", &81
-        EQUB    &8f, " and odd foot", &80, "h"
-        EQUB    "e", &81, &8f, " and odd head"
-        EQUB    &80, "ic", &81, "close indexf"
-        EQUB    "ile", &83, "ig", &81, "ignor"
-        EQUB    "e input until .en", &83, "in"
-        EQUB    "+- indent left margin n plac"
-        EQUB    "es {0}", &83, "io*c open ind"
-        EQUB    "exfile for output", &83, "ix"
-        EQUB    &81, "send", &88, "to indexfi"
-        EQUB    "le until .en", &83, "ju", &81
-        EQUB    "justify right margin of", &84
-        EQUB    "s {on}", &83, "ll+-", &84
-        EQUB    " length including indent {76"
-        EQUB    "}", &83, "ls+-", &84, " spac"
-        EQUB    "ing is n {1}", &83, "lv n le"
-        EQUB    "ave n blank", &84, "s (by .n"
-        EQUB    "e n and .sp n)", &83, "ne n "
-        EQUB    "needs n output", &84, "s, .b"
-        EQUB    "p if necessary", &83, "nj"
-        EQUB    &81, "no justification of"
-        EQUB    &84, "s", &83, "nn", &81, "no"
-        EQUB    " new", &84, " after this"
-        EQUB    &84, &83, "of", &81, "odd"
-        EQUB    &85, "foot", &80, "oh", &81
-        EQUB    "odd", &85, "head", &80, "op"
-        EQUB    &81, "begin odd", &85, &83
-        EQUB    "os*c call operating system w"
-        EQUB    "ith this string", &83, "pl+-"
-        EQUB    &88, "area length is n", &84
-        EQUB    "s {58}", &83, "po+-", &85
-        EQUB    "offset is n {0}", &83, "rf"
-        EQUB    &81, "right flush this", &84
-        EQUB    &83, "sp n insert n blank"
-        EQUB    &84, "s", &83, "ss", &81, "si"
-        EQUB    "ngle space", &84, "s", &83
-        EQUB    "ta", &81, "define tabs {8,16"
-        EQUB    ",24,...,96}", &83, "tcc  def"
-        EQUB    "ine tab", &86, "as c {ctrl I"
-        EQUB    "}", &83, "ti+- temporary ind"
-        EQUB    "ent n", &83, "trcc translate"
-        EQUB    " {NBSP is space}", &83, "ul"
-        EQUB    &81, "underline", &84, &0d
-        EQUB    &0d, "n represents a decimal "
-        EQUB    "number, 0 is used if not pre"
-        EQUB    "sent", &0d, "Spaces are allo"
-        EQUB    "wed before n. c represents a"
-        EQUB    "ny", &86, &0d, "+- allows n,"
-        EQUB    " +n or -n: .in+2 sets an ind"
-        EQUB    "ent 2 more than current", &83
-        EQUB    "ti+2 is a temporary indent o"
-        EQUB    "f 2 more than", &93, "curren"
-        EQUB    "t indent", &0d, &0d, "Format"
-        EQUB    "ting commands which can appe"
-        EQUB    "ar anywhere", &0d, &83, "bb"
-        EQUB    &81, "begin bold", &83, "bu"
-        EQUB    &81, "begin underline", &83
-        EQUB    "eb", &81, "end bold", &83
-        EQUB    "eu", &81, "end underline"
-        EQUB    &83, "oc", &82, "counted as 1"
-        EQUB    &86, &83, "on", &82, "without"
-        EQUB    " being counted", &83, "r0-9 "
-        EQUB    "contents of register e.g. .r"
-        EQUB    "0", &0f, &0d, &0d, &ea
+        EQUB    multi_replace(format_help_text, format_help_mapping)
         JSR     wait_shift_prompt
         JMP     EDITcont
 }

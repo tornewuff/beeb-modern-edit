@@ -59,28 +59,8 @@
 }
 
 .abbreviation_data {
-        EQUB    " title", &92, ".en", &83, 0                    ; &80
-        EQUB    "   ", 0                                        ; &81
-        EQUB    " n output CHR$(n)", &92, "printer ", 0         ; &82
-        EQUB    cr, ".", 0                                      ; &83
-        EQUB    " line", 0                                      ; &84
-        EQUB    " page ", 0                                     ; &85
-        EQUB    " character ", 0                                ; &86
-        EQUB    "shf-f", 0                                      ; &87
-        EQUB    " text ", 0                                     ; &88
-        EQUB    " marked ", 0                                   ; &89
-        EQUB    "RETURN", 0                                     ; &8a
-        EQUB    ".", cr, &8a, " uses", &93, "name at the start of"
-        EQUB    &88, "after a '>'", cr, "COPY, ", &8a, &92, "use"
-        EQUB    &93, "current file name.", 0                    ; &8b
-        EQUB    "The ", 0                                       ; &8c
-        EQUB    "2", cr, "A", &88, "file will be loaded", 0     ; &8d
-        EQUB    "text", 0                                       ; &8e
-        EQUB    "even", 0                                       ; &8f
-        EQUB    " scroll margins ", 0                           ; &90
-        EQUB    &90, "with ctrl-f", 0                           ; &91
-        EQUB    " to ", 0                                       ; &92
-        EQUB    " the ", 0                                      ; &93
+        ; Null-terminate the entries from abbreviation_list
+        EQUB ZIP(abbreviation_list, REPEATED(LEN(abbreviation_list), 0))
 }
 
 }

@@ -8,3 +8,50 @@ FUNCTION multi_replace(str, replacements)
         str = REPLACE(str, needle, replacement)
     NEXT
 = str
+
+; Turns a list of strings and numbers into a single string, assuming numbers are
+; to be interpreted as character codes. If the input is already a string, not a
+; list, it's returned unchanged. This can be used as a kind of escaping - e.g.
+; stringify({"hello", &0D, "world"}) will create a string with a CR embedded.
+FUNCTION stringify(in)
+    IF IS_STRING(in)
+        out = in
+    ELSE
+        out = ""
+        FOR x = in
+            IF IS_NUMBER(x)
+                out = out + CHR(x)
+            ELIF IS_STRING(x)
+                out = out + x
+            ELSE
+                out = ERROR("can't stringify ", x)
+            ENDIF
+        NEXT
+    ENDIF
+= out
+
+; Apply stringify to each element of a list, returning a list of strings.
+FUNCTION stringify_all(in)
+    ASSERT RANK(in) > 0, "not a list: ", in
+    out = {}
+    FOR x = in
+        out = CONCAT(out, stringify(x))
+    NEXT
+= out
+
+; Turn a list into a list of {index, value} tuples, with optional start offset.
+FUNCTION enumerate(in, offset) = ZIP(offset..<offset+LEN(in), in)
+FUNCTION enumerate(in) = enumerate(in, 0)
+
+; Remove an index or list of indices from a list.
+FUNCTION without(in, exclude)
+    IF RANK(exclude) == 0
+        exclude = {exclude}
+    ENDIF
+    out = {}
+    FOR i = 0..<LEN(in)
+        IF FIND(exclude, i, -1) == -1
+            out = CONCAT(out, {in[i]})
+        ENDIF
+    NEXT
+= out

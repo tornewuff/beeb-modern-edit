@@ -2,6 +2,9 @@ INCLUDE "include/default_config.6502"
 INCLUDE "include/functions.6502"
 INCLUDE "include/utf8.6502"
 INCLUDE "include/fancy_char_definitions.6502"
+IF edit150
+        INCLUDE "include/text_abbreviation.6502"
+ENDIF
 INCLUDE "include/mos.6502"
 INCLUDE "include/relocation.6502"
 
