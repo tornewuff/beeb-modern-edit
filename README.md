@@ -8,21 +8,21 @@ All credit is due to the various original authors.
 
 ## LLM usage
 
-The small number of commits tagged with "CLAUDE:" were produced by Claude Code to automate a few specific repetitive and tedious tasks, with separate followup commits to correct and amend the most egregious issues with its output manually after review. I'm unlikely to use further LLM assistance on this project - the most mechanical parts are done.
+The small number of commits tagged with "CLAUDE:" were produced by Claude Code to automate a few specific repetitive and tedious tasks, with separate followup commits to correct and amend the most egregious issues with its output manually after review. I'm unlikely to use further LLM assistance on this project - the most mechanical parts are done, and I don't think it actually saves significant time or improves things for the rest of the work.
 
 ## Contributing
 
-I'm primarily doing this as a learning exercise to re-familiarize myself with 6502 assembly and Beeb programming, and to explore how to do the kind of engineering I enjoy in this environment that was such a big part of my childhood.
+I'm primarily doing this as a learning exercise to re-familiarize myself with 6502 assembly and Beeb programming, and to explore how to do the kind of engineering I now enjoy in this environment that was such a big part of my childhood.
 
 I'm publishing the repository in case it's useful or interesting to other BBC Micro enthusiasts, as I was unable to find an existing reverse-engineered copy of Edit 1.50. You are welcome to use my work however you wish.
 
-However, I'm not particularly interested in accepting contributions at the moment. This is a hobby project I'm tinkering with and learning from, for a specific kind of fun; I already have a job working on open source projects and don't want this hobby to become another one.
+However, I'm not particularly interested in accepting contributions at the moment. This is a hobby project I'm tinkering with and learning from, for a specific kind of fun; I already have a job working on open source projects and don't want this hobby to become another one. If you have a particular interest in this project and want to get in touch about it, you can reach out via the Stardot forums (where I am "torne") - I don't pay much attention to email.
 
 ## Requirements
 
-- The code is built using [Baron](https://github.com/waitingforvsync/baron), a modern cross-assembler for BBC Micro development.
+- The code is built using [Baron](https://github.com/waitingforvsync/baron), a modern cross-assembler for BBC Micro development. @waitingforvsync has kindly implemented various feature requests that I have made, and as a result this project relies on the very latest Baron changes. I rebuild Baron from the latest source frequently in my local development environment rather than using a specific release, so if you are using a prebuilt binary for Baron it may occasionally be too old to build this project successfully.
 
-- The build process is handled by [just](https://github.com/casey/just), a straightforward command runner.
+- The build process is handled by [just](https://github.com/casey/just), a straightforward command runner, and currently requires 1.55 or later.
 
 ## Building
 
@@ -32,7 +32,7 @@ Currently this builds three variants:
 
 - HiEdit 1.24 using the default configuration from the period source code.
 - Edit 1.50r using the appropriate configuration to match the version included in MOS 3.50.
-- The "nondefault config": based on HiEdit 1.24 but with all the build options supported by the original source code toggled, to ensure these alternate branches at least build.
+- The "nondefault config": based on HiEdit 1.24 but with all the build options supported by the original source code toggled. I have not tested that this binary actually works correctly, but it should at least ensure that there are no entirely dead code branches in the project that aren't getting built at all.
 
 ### Build targets
 
