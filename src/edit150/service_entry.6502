@@ -7,60 +7,61 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
 
 ; Recognise *help and *edit
 .service_entry {
-        PHA
-        TAX
-        TYA
-        PHA
-        CPX     #service_call_offer_command
-        BEQ     parse_command
-        CPX     #service_call_help
-        BNE     return
+    PHA
+    TAX
+    TYA
+    PHA
+    CPX #service_call_offer_command
+    BEQ parse_command
+    CPX #service_call_help
+    BNE return
 
 .help {
-        LDA     (os_text_ptr),Y
-        CMP     #cr
-        BNE     return       ; don't say anything unless there are no keywords
-        JSR     osnewl
-        ; print title and version from rom header, converting nul to space
-        counter_start = &100 - (rom_header.copyright - rom_header.title)
-        LDX     #counter_start
-.@      LDA     rom_header.title - counter_start,X
-        BNE     ascii
-        LDA     #' '
-.ascii  JSR     osasci
-        INX
-        BNE     @-
-        JSR     osnewl
-        }
+    LDA (os_text_ptr),Y
+    CMP #cr
+    BNE return               ; don't say anything unless there are no keywords
+    JSR osnewl
+    ; print title and version from rom header, converting nul to space
+    counter_start = &100 - (rom_header.copyright - rom_header.title)
+    LDX #counter_start
+.@  LDA rom_header.title - counter_start,X
+    BNE ascii
+    LDA #' '
+.ascii
+    JSR osasci
+    INX
+    BNE @-
+    JSR osnewl
+    }
 
 .return
-        PLA
-        TAY
-        LDX     romsel_copy
-        PLA
-        RTS
+    PLA
+    TAY
+    LDX romsel_copy
+    PLA
+    RTS
 
 .parse_command {
-        ; Recognise *edit as command to enter language.
-        counter_start = &100 - (rom_header.title_end - rom_header.title)
-        LDX     #counter_start
-.@      LDA     (os_text_ptr),Y
-        CMP     #'.'
-        BEQ     edit_command
-        AND     #&DF            ; convert to uppercase
-        CMP     rom_header.title - counter_start,X
-        BNE     return
-        INY
-        INX
-        BNE     @-
-        LDA     (os_text_ptr),Y
-        CMP     #space + 1
-        BCS     return          ; not space or control char
-        ; Command recognised - enter self as a language.
+    ; Recognise *edit as command to enter language.
+    counter_start = &100 - (rom_header.title_end - rom_header.title)
+    LDX #counter_start
+.@  LDA (os_text_ptr),Y
+    CMP #'.'
+    BEQ edit_command
+    AND #&DF                    ; convert to uppercase
+    CMP rom_header.title - counter_start,X
+    BNE return
+    INY
+    INX
+    BNE @-
+    LDA (os_text_ptr),Y
+    CMP #space + 1
+    BCS return                  ; not space or control char
+    ; Command recognised - enter self as a language.
 .edit_command
-        LDX     romsel_copy
-        LDA     #osbyte_enter_language
-        JMP     osbyte
+    LDX romsel_copy
+    LDA #osbyte_enter_language
+    JMP osbyte
 }
 }
 

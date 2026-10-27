@@ -1,38 +1,38 @@
-        IF cF8key AND edit150
-        ; ------------------------------------------------------------ ;
+    IF cF8key AND edit150
+    ; ------------------------------------------------------------ ;
 
 .crlf_switch                    ; CR/LF switch
-        LDA     line_terminator
-        EOR     #cr EOR lf      ; swap between CR and LF
-        STA     line_terminator
-        STA     (oshwm)
-        STA     (text_end)
-        LDA     #bit6           ; and remember the choice in CMOS RAM
-        JSR     toggle_options
-        JSR     cursor_text_start ; move the cursor to the top
-                                ; of the text
-        JMP     update_status_line
+    LDA line_terminator
+    EOR #cr EOR lf              ; swap between CR and LF
+    STA line_terminator
+    STA (oshwm)
+    STA (text_end)
+    LDA #bit6                   ; and remember the choice in CMOS RAM
+    JSR toggle_options
+    JSR cursor_text_start         ; move the cursor to the top
+                ; of the text
+    JMP update_status_line
 
-        ; ------------------------------------------------------------ ;
-        ENDIF
+    ; ------------------------------------------------------------ ;
+    ENDIF
 .toggle_show_cr
-        LDA     #&20
-        IF edit150
+    LDA #&20
+    IF edit150
 .toggle_options                 ; toggle the bits in A in options
-        ENDIF
-        EOR     options
+    ENDIF
+    EOR options
 .write_options
-        STA     options
-        PHX
-        PHY
-        TAY
-        LDA     #162
-        LDX     #8
-        JSR     osbyte
-        PLY
-        PLX
-        RTS
+    STA options
+    PHX
+    PHY
+    TAY
+    LDA #162
+    LDX #8
+    JSR osbyte
+    PLY
+    PLX
+    RTS
 .is_insert_mode
-        LDA     #&10
-        BIT     options
-        RTS
+    LDA #&10
+    BIT options
+    RTS

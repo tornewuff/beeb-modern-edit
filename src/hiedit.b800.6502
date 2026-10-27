@@ -1,20 +1,20 @@
 .build {
 if DEFINED(build_disc)
-        filename = "HIEDIT"
+    filename = "HIEDIT"
 ELSE
-        filename = "hiedit.b800.rom"
+    filename = "hiedit.b800.rom"
 ENDIF
-        relocation_model = "none"
-        destination_address = &b800
-        cmos_host = TRUE
+    relocation_model = "none"
+    destination_address = &b800
+    cmos_host = TRUE
 }
 
 .metadata {
-        title = "Edit"
-        copyright = "1984 Acorn"
-        copyright_year = "1984"
-        version_byte = &02
-        version_str = "1.24"
+    title = "Edit"
+    copyright = "1984 Acorn"
+    copyright_year = "1984"
+    version_byte = &02
+    version_str = "1.24"
 }
 
 INCLUDE "main.6502"

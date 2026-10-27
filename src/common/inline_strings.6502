@@ -1,30 +1,30 @@
-        IF lerror
+    IF lerror
 .print_repeat_inline
-        SEC
-        ADC     page_width
-        TAY
-        TXA
+    SEC
+    ADC page_width
+    TAY
+    TXA
 .BRKSB1
-        JSR     oswrch
-        DEY
-        BNE     BRKSB1
-        ENDIF
+    JSR oswrch
+    DEY
+    BNE BRKSB1
+    ENDIF
 
 .print_inline
-        PLA
-        STA     string
-        PLA
-        STA     string + 1
-        JSR     print_string
-        JMP     (string)
+    PLA
+    STA string
+    PLA
+    STA string + 1
+    JSR print_string
+    JMP (string)
 .VSTRLM
-        JSR     oswrch
+    JSR oswrch
 .print_string
-        INC     string
-        BNE     STRINOT
-        INC     string + 1
+    INC string
+    BNE STRINOT
+    INC string + 1
 .STRINOT
-        LDA     (string)        ; enter here for normal string
-        CMP     #&EA
-        BNE     VSTRLM
-        RTS
+    LDA (string)                ; enter here for normal string
+    CMP #&EA
+    BNE VSTRLM
+    RTS

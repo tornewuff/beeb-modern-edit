@@ -1,64 +1,64 @@
 .RELANX
-        RTS
+    RTS
 .return_to_language
-        JSR     prompt
-        EQUB    "Type language name:",&EA
-        JSR     read_line
-        BEQ     RELANX
-        LDY     #0
+    JSR prompt
+    EQUB "Type language name:",&EA
+    JSR read_line
+    BEQ RELANX
+    LDY #0
 .RELAPL
-        LDA     line_buffer,Y
-        INY
-        CMP     #cr
-        BNE     RELAPL
-        STA     line_buffer + 1,Y
-        LDA     #' '
-        STA     line_buffer - 1,Y
-        LDA     #'@'
-        STA     line_buffer,Y
-        LDA     #thelot
-        STA     update_required
-        JSR     cursor_text_start
-        LDA     gap_end + 1
-        DEA
-        CMP     oshwm + 1
-        BCS     RETLOK
-        BRK
-        EQUB    &02,"Not enough space to return to language",null
+    LDA line_buffer,Y
+    INY
+    CMP #cr
+    BNE RELAPL
+    STA line_buffer + 1,Y
+    LDA #' '
+    STA line_buffer - 1,Y
+    LDA #'@'
+    STA line_buffer,Y
+    LDA #thelot
+    STA update_required
+    JSR cursor_text_start
+    LDA gap_end + 1
+    DEA
+    CMP oshwm + 1
+    BCS RETLOK
+    BRK
+    EQUB &02,"Not enough space to return to language",null
 .RETLOK
-        LDA     #brk_action.undo_return_to_language
-        STA     brk_action
-        LDA     oshwm + 1
-        INA
-        STA     src_ptr + 1
-        STZ     src_ptr
-        LDA     #0
-        STA     (text_end)      ; terminating zero
-        LDA     gap_end
-        STA     addr
-        LDA     gap_end + 1
-        STA     addr + 1
+    LDA #brk_action.undo_return_to_language
+    STA brk_action
+    LDA oshwm + 1
+    INA
+    STA src_ptr + 1
+    STZ src_ptr
+    LDA #0
+    STA (text_end)              ; terminating zero
+    LDA gap_end
+    STA addr
+    LDA gap_end + 1
+    STA addr + 1
 .RELLOP
-        LDA     (addr)
-        STA     (src_ptr)
-        INC     src_ptr
-        BNE     RELLOQ
-        INC     src_ptr + 1
+    LDA (addr)
+    STA (src_ptr)
+    INC src_ptr
+    BNE RELLOQ
+    INC src_ptr + 1
 .RELLOQ
-        INC     addr
-        BNE     RELLOP
-        INC     addr + 1
-        LDA     addr + 1
-        CMP     himem + 1
-        BNE     RELLOP
-        JSR     cursor_on
-        JSR     print_inline
-        EQUB    26,12,&EA
-        JSR     restore_keys
-        LDA     oshwm + 1
-        INA
-        STA     string + 1  ; set 0 to PAGE + 256
-        STZ     string
-        LDX     #<line_buffer
-        LDY     #>line_buffer
-        JMP     oscli
+    INC addr
+    BNE RELLOP
+    INC addr + 1
+    LDA addr + 1
+    CMP himem + 1
+    BNE RELLOP
+    JSR cursor_on
+    JSR print_inline
+    EQUB 26,12,&EA
+    JSR restore_keys
+    LDA oshwm + 1
+    INA
+    STA string + 1          ; set 0 to PAGE + 256
+    STZ string
+    LDX #<line_buffer
+    LDY #>line_buffer
+    JMP oscli

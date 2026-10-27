@@ -1,181 +1,181 @@
 .EDITTE
-        JSR     enter_text
-        JMP     main_loop
+    JSR enter_text
+    JMP main_loop
 .enter_text
-        ; Entry - A holds ASCII char to be treated as text input
-        ; Exit  - appropraite action taken depending on current
-        ;        'mode' (insert, overtype, csr-edit).
-        CMP     #delete
-        BEQ     ECHRDE
-        STZ     old_text_bounds + 3
-        CMP     #cr
-        BNE     ECHRCO
-        JSR     is_insert_mode ;In insert mode put in the CR
-        BNE     ECHRCR
-        JSR     ENDTEST
-        BCS     ECHRCR
-        STZ     screen_x
-        JMP     cursor_down ;in overtype mode CR is start of line
+    ; Entry - A holds ASCII char to be treated as text input
+    ; Exit  - appropraite action taken depending on current
+    ;        'mode' (insert, overtype, csr-edit).
+    CMP #delete
+    BEQ ECHRDE
+    STZ old_text_bounds + 3
+    CMP #cr
+    BNE ECHRCO
+    JSR is_insert_mode         ;In insert mode put in the CR
+    BNE ECHRCR
+    JSR ENDTEST
+    BCS ECHRCR
+    STZ screen_x
+    JMP cursor_down         ;in overtype mode CR is start of line
 .ECHRCR
-        lda_line_terminator
+    lda_line_terminator
 .ECHRCO
-        ; Insert character into text.
-        PHA
-        JSR     add_virtual_spaces
-        ; Don't insert in overtype mode, unless at end of line.
-        JSR     is_insert_mode
-        BNE     ECHRMV
-        LDY     screen_x
-        LDA     (gap_end),Y
-        cmp_line_terminator
-        BNE     ECHRCH
+    ; Insert character into text.
+    PHA
+    JSR add_virtual_spaces
+    ; Don't insert in overtype mode, unless at end of line.
+    JSR is_insert_mode
+    BNE ECHRMV
+    LDY screen_x
+    LDA (gap_end),Y
+    cmp_line_terminator
+    BNE ECHRCH
 .ECHRMV
-        LDX     #1
-        LDA     screen_x
-        JSR     INSRTX
+    LDX #1
+    LDA screen_x
+    JSR INSRTX
 .ECHRCH
-        PLA
-        LDY     screen_x
-        STA     (gap_end),Y
-        ; Write char to screen (cursor OK), wiping tail for TERMIN.
-        cmp_line_terminator
-        BNE     ECHRNT
-        JSR     write_char.line_end
-        LDA     screen_x
-        LDY     screen_y
-        JSR     wipe_tail
+    PLA
+    LDY screen_x
+    STA (gap_end),Y
+    ; Write char to screen (cursor OK), wiping tail for TERMIN.
+    cmp_line_terminator
+    BNE ECHRNT
+    JSR write_char.line_end
+    LDA screen_x
+    LDY screen_y
+    JSR wipe_tail
 .EHRCSU
-        STZ     screen_x
-        JSR     cursor_down
+    STZ screen_x
+    JSR cursor_down
 .ECHRUP
-        LDA     update_required
-        BEQ     ECHREL
-        JSR     screen_update
+    LDA update_required
+    BEQ ECHREL
+    JSR screen_update
 .ECHREL
-        LDA     #csronwards
-        STA     update_required
-        JMP     set_modified
+    LDA #csronwards
+    STA update_required
+    JMP set_modified
 .ECHRNT
-        JSR     write_char
-        JSR     cursor_right
+    JSR write_char
+    JSR cursor_right
 .ECHRN0
-        LDA     update_required
-        BEQ     ECHRN1
-        JSR     screen_update
+    LDA update_required
+    BEQ ECHRN1
+    JSR screen_update
 .ECHRN1
-        LDA     #CSRTOCR
-        STA     update_required
-        JMP     set_modified
+    LDA #CSRTOCR
+    STA update_required
+    JMP set_modified
 .ECHRDE
-        ; Delete virtual space implies csrleft. Can't delete start of file.
-        JSR     count_virtual_spaces
-        BEQ     EDELST
-        JMP     cursor_left
+    ; Delete virtual space implies csrleft. Can't delete start of file.
+    JSR count_virtual_spaces
+    BEQ EDELST
+    JMP cursor_left
 .EDELST
-        LDA     screen_x
-        BNE     EDELCO
-        JSR     STARTTEST
-        BCS     DELABX
+    LDA screen_x
+    BNE EDELCO
+    JSR STARTTEST
+    BCS DELABX
 .EDELCO
-        ; Get char to be deleted under cursor. In absence of VS check,
-        ; this will give TERMIN delete when past end of line.
-        JSR     cursor_left
-        JSR     LENGTHCALC      ; different line than current!
-        CMP     screen_x
-        BCS     EDELMT
-        STA     screen_x
+    ; Get char to be deleted under cursor. In absence of VS check,
+    ; this will give TERMIN delete when past end of line.
+    JSR cursor_left
+    JSR LENGTHCALC              ; different line than current!
+    CMP screen_x
+    BCS EDELMT
+    STA screen_x
 .EDELMT
-        ; Branch on text-entry mode (insert/overtype).
-        LDY     screen_x
-        JSR     is_insert_mode
-        BNE     EDELSL
-        LDA     (gap_end),Y
-        cmp_line_terminator
-        BEQ     DELABX
-        LDA     #space
-        STA     (gap_end),Y
-        LDA     #CSRTOCR
-        STA     update_required
-        JMP     set_modified
+    ; Branch on text-entry mode (insert/overtype).
+    LDY screen_x
+    JSR is_insert_mode
+    BNE EDELSL
+    LDA (gap_end),Y
+    cmp_line_terminator
+    BEQ DELABX
+    LDA #space
+    STA (gap_end),Y
+    LDA #CSRTOCR
+    STA update_required
+    JMP set_modified
 .EDELSL
-        LDA     (gap_end),Y
-        cmp_line_terminator
-        BEQ     EDELS2
-        LDA     current_line_len
-        CMP     page_width
-        BEQ     EDELS2
-        JSR     EDEL1
-        BRA     ECHRN0
+    LDA (gap_end),Y
+    cmp_line_terminator
+    BEQ EDELS2
+    LDA current_line_len
+    CMP page_width
+    BEQ EDELS2
+    JSR EDEL1
+    BRA ECHRN0
 .EDELS2
-        JSR     EDEL1
-        BRA     ECHRUP
+    JSR EDEL1
+    BRA ECHRUP
 .DELLIX
-        JSR     delete_above
+    JSR delete_above
 .delete_line
-        STZ     screen_x
-        LDA     (gap_end)
-        cmp_line_terminator
-        BNE     DELLIX
-        JSR     LENGTHCALC
-        STA     current_line_len
-        JSR     delete_above
-        JMP     ECHREL
+    STZ screen_x
+    LDA (gap_end)
+    cmp_line_terminator
+    BNE DELLIX
+    JSR LENGTHCALC
+    STA current_line_len
+    JSR delete_above
+    JMP ECHREL
 .delete_above
-        JSR     ENDTEST
-        BCC     DELABY
-        LDA     screen_x
-        CMP     current_line_len
-        BCC     DELABY
+    JSR ENDTEST
+    BCC DELABY
+    LDA screen_x
+    CMP current_line_len
+    BCC DELABY
 .DELABX
-        RTS
+    RTS
 .DELABY
-        LDA     current_line_len
-        CMP     screen_x
-        BCC     DELABX
-        LDY     #CSRTOCR
-        STY     update_required
-        CMP     page_width
-        BEQ     EDEL0
-        LDY     screen_x
-        LDA     (gap_end),Y
-        cmp_line_terminator
-        BNE     EDEL1
+    LDA current_line_len
+    CMP screen_x
+    BCC DELABX
+    LDY #CSRTOCR
+    STY update_required
+    CMP page_width
+    BEQ EDEL0
+    LDY screen_x
+    LDA (gap_end),Y
+    cmp_line_terminator
+    BNE EDEL1
 .EDEL0
-        INC     update_required
+    INC update_required
 .EDEL1
-        ; Shift up start of line 'over' deleted character.
-        JSR     set_modified
-        CLC
-        LDA     gap_end
-        STA     temp
-        ADC     screen_x
-        STA     addr
-        LDA     gap_end + 1
-        STA     temp + 1
-        ADC     #0
-        STA     addr + 1
-        INC     gap_end
-        BNE     EDELNH
-        INC     gap_end + 1
+    ; Shift up start of line 'over' deleted character.
+    JSR set_modified
+    CLC
+    LDA gap_end
+    STA temp
+    ADC screen_x
+    STA addr
+    LDA gap_end + 1
+    STA temp + 1
+    ADC #0
+    STA addr + 1
+    INC gap_end
+    BNE EDELNH
+    INC gap_end + 1
 .EDELNH
-        LDY     screen_x
-        BRA     EDELDY
+    LDY screen_x
+    BRA EDELDY
 .EDELLP
-        LDA     (temp),Y
-        STA     (gap_end),Y
+    LDA (temp),Y
+    STA (gap_end),Y
 .EDELDY
-        DEY
-        BPL     EDELLP
-        LDX     num_marks_set
+    DEY
+    BPL EDELLP
+    LDX num_marks_set
 .EDELMK
-        DEX
-        BMI     DELABX
-        LDY     set_marks_lo,X
-        CPY     addr
-        LDA     set_marks_hi,X
-        SBC     addr + 1
-        BCS     EDELMK
-        INC     set_marks_lo,X
-        BNE     EDELMK
-        INC     set_marks_hi,X
-        BRA     EDELMK
+    DEX
+    BMI DELABX
+    LDY set_marks_lo,X
+    CPY addr
+    LDA set_marks_hi,X
+    SBC addr + 1
+    BCS EDELMK
+    INC set_marks_lo,X
+    BNE EDELMK
+    INC set_marks_hi,X
+    BRA EDELMK

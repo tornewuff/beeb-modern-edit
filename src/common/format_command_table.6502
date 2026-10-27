@@ -1,115 +1,115 @@
 .chars
-        EQUB    "I IVV IXX XLL XCC CDD DMM "
+    EQUB "I IVV IXX XLL XCC CDD DMM "
 .CMDS
-        EQUB    "af"
-        EQUW    ROUTAF
-        EQUB    "an"
-        EQUW    ROUTAN
-        EQUB    "bl"
-        EQUW    ROUTBL
-        EQUB    "bp"
-        EQUW    ROUTBP
-        EQUB    "cc"
-        EQUW    ROUTCC
-        EQUB    "ce"
-        EQUW    ROUTCE
-        EQUB    "ch"
-        EQUW    ROUTCH
-        EQUB    "co"
-        EQUW    ROUTCO
-        EQUB    "dm"
-        EQUW    ROUTDM
-        EQUB    "ds"
-        EQUW    ROUTDS
-        EQUB    "ef"
-        EQUW    ROUTEF
-        EQUB    "eh"
-        EQUW    ROUTEH
-        EQUB    "en"
-        EQUW    ROUTEN
-        EQUB    "ep"
-        EQUW    ROUTEP
-        EQUB    "ff"
-        EQUW    ROUTFF
-        EQUB    "fo"
-        EQUW    ROUTFO
-        EQUB    "he"
-        EQUW    ROUTHE
-        EQUB    "ic"
-        EQUW    ROUTIC
-        EQUB    "ig"
-        EQUW    ROUTIG
-        EQUB    "in"
-        EQUW    ROUTIN
-        EQUB    "io"
-        EQUW    ROUTIO
-        EQUB    "ix"
-        EQUW    ROUTIX
-        EQUB    "ju"
-        EQUW    ROUTJU
-        EQUB    "ll"
-        EQUW    ROUTLL
-        EQUB    "ls"
-        EQUW    ROUTLS
-        EQUB    "lv"
-        EQUW    ROUTLV
-        EQUB    "ne"
-        EQUW    ROUTNE
-        EQUB    "nj"
-        EQUW    ROUTNJ
-        EQUB    "nn"
-        EQUW    ROUTNN
-        EQUB    "of"
-        EQUW    ROUTOF
-        EQUB    "oh"
-        EQUW    ROUTOH
-        EQUB    "op"
-        EQUW    ROUTOP
-        EQUB    "os"
-        EQUW    ROUTOS
-        EQUB    "pl"
-        EQUW    ROUTPL
-        EQUB    "po"
-        EQUW    ROUTPO
-        EQUB    "rf"
-        EQUW    ROUTRF
-        EQUB    "sp"
-        EQUW    ROUTSP
-        EQUB    "ss"
-        EQUW    ROUTSS
-        EQUB    "ta"
-        EQUW    ROUTTA
-        EQUB    "tc"
-        EQUW    ROUTTC
-        EQUB    "ti"
-        EQUW    ROUTTI
-        EQUB    "tr"
-        EQUW    ROUTTR
-        EQUB    "ul"
-        EQUW    ROUTUL
-NOCMDS  =       ( * - CMDS )
+    EQUB "af"
+    EQUW ROUTAF
+    EQUB "an"
+    EQUW ROUTAN
+    EQUB "bl"
+    EQUW ROUTBL
+    EQUB "bp"
+    EQUW ROUTBP
+    EQUB "cc"
+    EQUW ROUTCC
+    EQUB "ce"
+    EQUW ROUTCE
+    EQUB "ch"
+    EQUW ROUTCH
+    EQUB "co"
+    EQUW ROUTCO
+    EQUB "dm"
+    EQUW ROUTDM
+    EQUB "ds"
+    EQUW ROUTDS
+    EQUB "ef"
+    EQUW ROUTEF
+    EQUB "eh"
+    EQUW ROUTEH
+    EQUB "en"
+    EQUW ROUTEN
+    EQUB "ep"
+    EQUW ROUTEP
+    EQUB "ff"
+    EQUW ROUTFF
+    EQUB "fo"
+    EQUW ROUTFO
+    EQUB "he"
+    EQUW ROUTHE
+    EQUB "ic"
+    EQUW ROUTIC
+    EQUB "ig"
+    EQUW ROUTIG
+    EQUB "in"
+    EQUW ROUTIN
+    EQUB "io"
+    EQUW ROUTIO
+    EQUB "ix"
+    EQUW ROUTIX
+    EQUB "ju"
+    EQUW ROUTJU
+    EQUB "ll"
+    EQUW ROUTLL
+    EQUB "ls"
+    EQUW ROUTLS
+    EQUB "lv"
+    EQUW ROUTLV
+    EQUB "ne"
+    EQUW ROUTNE
+    EQUB "nj"
+    EQUW ROUTNJ
+    EQUB "nn"
+    EQUW ROUTNN
+    EQUB "of"
+    EQUW ROUTOF
+    EQUB "oh"
+    EQUW ROUTOH
+    EQUB "op"
+    EQUW ROUTOP
+    EQUB "os"
+    EQUW ROUTOS
+    EQUB "pl"
+    EQUW ROUTPL
+    EQUB "po"
+    EQUW ROUTPO
+    EQUB "rf"
+    EQUW ROUTRF
+    EQUB "sp"
+    EQUW ROUTSP
+    EQUB "ss"
+    EQUW ROUTSS
+    EQUB "ta"
+    EQUW ROUTTA
+    EQUB "tc"
+    EQUW ROUTTC
+    EQUB "ti"
+    EQUW ROUTTI
+    EQUB "tr"
+    EQUW ROUTTR
+    EQUB "ul"
+    EQUW ROUTUL
+NOCMDS = ( * - CMDS )
 
 
-        IF cF8key AND NOT(edit150)
-                                ; before printing, defaults are copied
-                                ; into private workspace buffer
-                                ; and nulls replaced with 'line_terminator'
+    IF cF8key AND NOT(edit150)
+                ; before printing, defaults are copied
+                ; into private workspace buffer
+                ; and nulls replaced with 'line_terminator'
 
 .defhdr
-        EQUB    dhtext
+    EQUB dhtext
 
 .defftr
-        EQUB    dftext
+    EQUB dftext
 
-        ELIF edit150
-        ; in EDIT08 for 1.50r
-        ELSE
+    ELIF edit150
+    ; in EDIT08 for 1.50r
+    ELSE
 .defhdr
-        EQUB    ".he",termin
-        EQUB    ".en",termin
+    EQUB ".he",termin
+    EQUB ".en",termin
 .defftr
-        EQUB    ".fo",termin
-        EQUB    ".ce",termin
-        EQUB    "Page .r0",termin
-        EQUB    ".ff.en",termin
-        ENDIF
+    EQUB ".fo",termin
+    EQUB ".ce",termin
+    EQUB "Page .r0",termin
+    EQUB ".ff.en",termin
+    ENDIF

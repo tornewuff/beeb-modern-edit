@@ -1,120 +1,120 @@
 .DOHDR
-        LDX     even_header
-        LDY     even_header+1
-        LDA     page
-        LSR     A
-        BCC     DOHDR1
-        LDX     odd_header
-        LDY     odd_header+1
+    LDX even_header
+    LDY even_header+1
+    LDA page
+    LSR A
+    BCC DOHDR1
+    LDX odd_header
+    LDY odd_header+1
 .DOHDR1
-        DEC     lineot
-        JSR     macro
-        LDA     lines_per_page
-        STA     lineot
-        LDA     #1
-        STA     lineno
-        LDA     #15
-        TRB     lineno+1; leave format alone!
-        RTS
-        IF edit150
+    DEC lineot
+    JSR macro
+    LDA lines_per_page
+    STA lineot
+    LDA #1
+    STA lineno
+    LDA #15
+    TRB lineno+1        ; leave format alone!
+    RTS
+    IF edit150
 .set_text_ptr_to_gap_end        ; text_ptr = gap_end
-        LDA     gap_end
-        STA     text_ptr
-        LDA     gap_end + 1
-        STA     text_ptr + 1
-        RTS
+    LDA gap_end
+    STA text_ptr
+    LDA gap_end + 1
+    STA text_ptr + 1
+    RTS
 
 .enable_printer                 ; select the printer and enable it
-        LDA     #5
-        LDX     #0
-        JSR     osbyte
-        JSR     osbyte
-        LDA     #2
-        JMP     oswrch
-        ENDIF
+    LDA #5
+    LDX #0
+    JSR osbyte
+    JSR osbyte
+    LDA #2
+    JMP oswrch
+    ENDIF
 
 .macro
-        LDA     addr
-        PHA
-        LDA     addr+1
-        PHA
-        LDA     control_char
-        PHA
-        LDA     len
-        PHA
-        LDA     indent
-        PHA
-        LDA     temp_indent
-        PHA
-        LDA     bold
-        PHA
-        LDA     pbold
-        PHA
-        LDA     bold_required
-        PHA
-        LDA     underline
-        PHA
-        LDA     pundrl
-        PHA
-        LDA     underline_required
-        PHA
-        LDA     fill
-        PHA
-        LDA     vspace
-        PHA
-        LDA     centre
-        PHA
-        LDA     right_flush
-        PHA
-        LDA     linfed
-        PHA
-        STZ     linfed
-        STZ     fill
-        STZ     pbold
-        STZ     pundrl
-        STZ     indent
-        LDA     #1
-        STA     vspace
-        STX     addr
-        STY     addr+1
-        LDA     (addr)
-        STA     control_char
-        LDY     #3
-        CLC
-        JSR     add_y_to_addr ; skip definition
-        JSR     fine
-        PLA
-        STA     linfed
-        PLA
-        STA     right_flush
-        PLA
-        STA     centre
-        PLA
-        STA     vspace
-        PLA
-        STA     fill
-        PLA
-        STA     underline_required
-        PLA
-        STA     pundrl
-        PLA
-        STA     underline
-        PLA
-        STA     bold_required
-        PLA
-        STA     pbold
-        PLA
-        STA     bold
-        PLA
-        STA     temp_indent
-        PLA
-        STA     indent
-        PLA
-        STA     len
-        PLA
-        STA     control_char
-        PLA
-        STA     addr+1
-        PLA
-        STA     addr
-        RTS
+    LDA addr
+    PHA
+    LDA addr+1
+    PHA
+    LDA control_char
+    PHA
+    LDA len
+    PHA
+    LDA indent
+    PHA
+    LDA temp_indent
+    PHA
+    LDA bold
+    PHA
+    LDA pbold
+    PHA
+    LDA bold_required
+    PHA
+    LDA underline
+    PHA
+    LDA pundrl
+    PHA
+    LDA underline_required
+    PHA
+    LDA fill
+    PHA
+    LDA vspace
+    PHA
+    LDA centre
+    PHA
+    LDA right_flush
+    PHA
+    LDA linfed
+    PHA
+    STZ linfed
+    STZ fill
+    STZ pbold
+    STZ pundrl
+    STZ indent
+    LDA #1
+    STA vspace
+    STX addr
+    STY addr+1
+    LDA (addr)
+    STA control_char
+    LDY #3
+    CLC
+    JSR add_y_to_addr         ; skip definition
+    JSR fine
+    PLA
+    STA linfed
+    PLA
+    STA right_flush
+    PLA
+    STA centre
+    PLA
+    STA vspace
+    PLA
+    STA fill
+    PLA
+    STA underline_required
+    PLA
+    STA pundrl
+    PLA
+    STA underline
+    PLA
+    STA bold_required
+    PLA
+    STA pbold
+    PLA
+    STA bold
+    PLA
+    STA temp_indent
+    PLA
+    STA indent
+    PLA
+    STA len
+    PLA
+    STA control_char
+    PLA
+    STA addr+1
+    PLA
+    STA addr
+    RTS

@@ -2,45 +2,45 @@
 ; should be interpreted as a function/soft key, otherwise a literal character.
 ; Handles ESC.
 .read_char {
-        LDA     key_queued_flag
-        BEQ     read_from_os
-        LDA     queued_key
-        STZ     key_queued_flag
-        BNE     load_queued_type
+    LDA key_queued_flag
+    BEQ read_from_os
+    LDA queued_key
+    STZ key_queued_flag
+    BNE load_queued_type
 .literal_nul
-        TSX                     ; clear zero flag; stack ptr must be nonzero
-        RTS
+    TSX                         ; clear zero flag; stack ptr must be nonzero
+    RTS
 .load_queued_type
-        LDX     queued_key_type ; just to set/clear zero flag
-        RTS
+    LDX queued_key_type         ; just to set/clear zero flag
+    RTS
 .read_from_os
-        JSR     read_char_test_escape
-        TAX
+    JSR read_char_test_escape
+    TAX
 .check_for_nul
-        ; Function/soft keys are prefixed with a NUL
-        BNE     return
-        JSR     read_char_test_escape
-        CMP     #0
-        BEQ     literal_nul     ; 0, 0 is a literal NUL
-        LDX     #0              ; just to set zero flag
+    ; Function/soft keys are prefixed with a NUL
+    BNE return
+    JSR read_char_test_escape
+    CMP #0
+    BEQ literal_nul             ; 0, 0 is a literal NUL
+    LDX #0                      ; just to set zero flag
 .return
-        RTS
+    RTS
 
 ; Reads the next key pressed into A with a timeout of 8.97s; A=0 if timeout.
 ; Returns with the zero flag set if this should be interpreted as a
 ; function/soft key, otherwise a literal character. Handles ESC.
 .with_timeout
-        LDA     #osbyte_inkey
-        TAX                     ; reuses osbyte_inkey (&81) as the low byte of
-        LDY     #3              ; the timeout.
-        JSR     osbyte
-        TYA
-        BNE     no_key
-        TXA
-        BRA     check_for_nul
+    LDA #osbyte_inkey
+    TAX                         ; reuses osbyte_inkey (&81) as the low byte of
+    LDY #3                      ; the timeout.
+    JSR osbyte
+    TYA
+    BNE no_key
+    TXA
+    BRA check_for_nul
 .no_key
-        JSR     test_escape
-        LDA     #0
-        TAX
-        RTS
+    JSR test_escape
+    LDA #0
+    TAX
+    RTS
 }

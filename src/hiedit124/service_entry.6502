@@ -7,66 +7,66 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
 
 ; Recognise *help and *edit
 .service_entry {
-        CMP     #service_call_offer_command
-        BEQ     parse_command
-        CMP     #service_call_help
-        BNE     return
+    CMP #service_call_offer_command
+    BEQ parse_command
+    CMP #service_call_help
+    BNE return
 
-        ; *help
-        LDA     (os_text_ptr),Y
-        CMP     #cr
-        BNE     help_return  ; don't say anything unless there are no keywords
-        PHY_COMPAT
-        LDY     #help_message_last - help_message
-.@      LDA     help_message,Y
-        JSR     osasci
-        DEY
-        BPL     @-
-        PLY_COMPAT
+    ; *help
+    LDA (os_text_ptr),Y
+    CMP #cr
+    BNE help_return          ; don't say anything unless there are no keywords
+    PHY_COMPAT
+    LDY #help_message_last - help_message
+.@  LDA help_message,Y
+    JSR osasci
+    DEY
+    BPL @-
+    PLY_COMPAT
 .help_return
-        LDA     #service_call_help
+    LDA #service_call_help
 .return
-        RTS
+    RTS
 .help_message
-        EQUB    cr, "5 "
+    EQUB cr, "5 "
 .help_message_edit  ; used for command matching as well as help
-        EQUB    REVERSE("EDIT")
+    EQUB REVERSE("EDIT")
 .help_message_last
-        EQUB    cr
+    EQUB cr
 
 .parse_command
-        ; Recognise *edit as command to enter language.
-        PHY_COMPAT
-        PHX_COMPAT
-        LDX     #help_message_last - help_message_edit - 1
-.@      LDA     (os_text_ptr),Y
-        CMP     #'.'
-        BEQ     edit_command
-        AND     #&DF            ; convert to uppercase
-        CMP     help_message_edit,X
-        BNE     command_return
-        INY
-        DEX
-        BPL     @-
-        LDA     (os_text_ptr),Y
-        CMP     #space + 1
-        BCC     edit_command    ; if space or control char
+    ; Recognise *edit as command to enter language.
+    PHY_COMPAT
+    PHX_COMPAT
+    LDX #help_message_last - help_message_edit - 1
+.@  LDA (os_text_ptr),Y
+    CMP #'.'
+    BEQ edit_command
+    AND #&DF                    ; convert to uppercase
+    CMP help_message_edit,X
+    BNE command_return
+    INY
+    DEX
+    BPL @-
+    LDA (os_text_ptr),Y
+    CMP #space + 1
+    BCC edit_command            ; if space or control char
 .command_return
-        PLX_COMPAT
-        PLY_COMPAT
-        LDA     #service_call_offer_command
-        RTS
+    PLX_COMPAT
+    PLY_COMPAT
+    LDA #service_call_offer_command
+    RTS
 .edit_command
-        ; Command recognised - enter self as a language.
-        IF build.cmos_host
-        LDA     #osbyte_enter_language
-        PLX
-        ELSE
-        PLA
-        TAX
-        LDA     #osbyte_enter_language
-        ENDIF
-        JMP     osbyte
+    ; Command recognised - enter self as a language.
+    IF build.cmos_host
+    LDA #osbyte_enter_language
+    PLX
+    ELSE
+    PLA
+    TAX
+    LDA #osbyte_enter_language
+    ENDIF
+    JMP osbyte
 }
 
 ENDSECTION

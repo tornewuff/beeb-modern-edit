@@ -1,262 +1,262 @@
 .NORMALIZE
-        ; Entry : gap character positioned
-        ; Exit : gap moved to start of current line
-        LDA     gap_start
-        STA     temp
-        LDA     gap_start + 1
-        STA     temp + 1
-        JSR     FINDPO
-        STA     string
-        SEC
-        LDA     gap_start
-        SBC     string
-        TAX
-        LDA     gap_start + 1
-        SBC     #0
-        TAY
-        JMP     gap_back_to_xy
+    ; Entry : gap character positioned
+    ; Exit : gap moved to start of current line
+    LDA gap_start
+    STA temp
+    LDA gap_start + 1
+    STA temp + 1
+    JSR FINDPO
+    STA string
+    SEC
+    LDA gap_start
+    SBC string
+    TAX
+    LDA gap_start + 1
+    SBC #0
+    TAY
+    JMP gap_back_to_xy
 .FINDPO
-        ; Entry : temp-> middle of line in 1st half of text
-        ; Exit  : A[Z]  = xcoord (0..page..width) of pointer within line.
-        ;         Y(=temp_a) = page_width - A
-        CLC     ;-1
-        LDA     temp
-        SBC     page_width
-        STA     temp
-        BCS     FIPOND
-        DEC     temp + 1
+    ; Entry : temp-> middle of line in 1st half of text
+    ; Exit  : A[Z]  = xcoord (0..page..width) of pointer within line.
+    ;         Y(=temp_a) = page_width - A
+    CLC         ;-1
+    LDA temp
+    SBC page_width
+    STA temp
+    BCS FIPOND
+    DEC temp + 1
 .FIPOND
-        LDY page_width
+    LDY page_width
 .FIPOLP
-        LDA     (temp),Y
-        cmp_line_terminator
-        BEQ     FIPOL2
+    LDA (temp),Y
+    cmp_line_terminator
+    BEQ FIPOL2
 .FIPOE2
-        ; Entry point, when called from tempbacklines.
-        DEY
-        BPL     FIPOLP
-        BMI     FINDPO
+    ; Entry point, when called from tempbacklines.
+    DEY
+    BPL FIPOLP
+    BMI FINDPO
 .FIPOL2
-        STY temp_a
-        SEC
-        LDA     page_width
-        SBC     temp_a
-        RTS
+    STY temp_a
+    SEC
+    LDA page_width
+    SBC temp_a
+    RTS
 .TPGEFD
-        ; text_ptr := gap_end  +  A lines
-        LDX     gap_end
-        LDY     gap_end + 1
-        STX     text_ptr
-        STY     text_ptr + 1
+    ; text_ptr := gap_end  +  A lines
+    LDX gap_end
+    LDY gap_end + 1
+    STX text_ptr
+    STY text_ptr + 1
 .text_ptr_forward_a
-        ; Moves pointer text_ptr forward A lines.
-        ; Entry - A = No. of lines to advance text_ptr
-        ; Exit  - text_ptr advanced (possibly by less than A lines if hit EOT)
-        ;         count = No. of lines remaining from original request.
-        ;         temp_a = Last end of line character.
-        TAX
-        STX     count
-        BEQ     TPTPEX
+    ; Moves pointer text_ptr forward A lines.
+    ; Entry - A = No. of lines to advance text_ptr
+    ; Exit  - text_ptr advanced (possibly by less than A lines if hit EOT)
+    ;         count = No. of lines remaining from original request.
+    ;         temp_a = Last end of line character.
+    TAX
+    STX count
+    BEQ TPTPEX
 .TPTPLP
-        LDY     #&FF
+    LDY #&FF
 .TPTPSE
-        INY
-        LDA     (text_ptr),Y
-        cmp_line_terminator
-        BEQ     TPTPFD
-        CPY     page_width
-        BNE     TPTPSE
+    INY
+    LDA (text_ptr),Y
+    cmp_line_terminator
+    BEQ TPTPFD
+    CPY page_width
+    BNE TPTPSE
 .TPTPFD
-        STA temp_a
-        TYA
-        JSR     TPPAP1
-        BCS     TPTPEX
-        DEC     count
-        BNE     TPTPLP
+    STA temp_a
+    TYA
+    JSR TPPAP1
+    BCS TPTPEX
+    DEC count
+    BNE TPTPLP
 .TPTPEX
-        RTS
+    RTS
 .TPPAP1
-        ; Exit  -  CC text_ptr = text_ptr  +  (A + 1). CS text_ptr + (A + 1) = himem,
-        ;          text_ptr unchanged.
-        SEC     ; + 1
-        ADC     text_ptr
-        TAX
-        LDA     #0
-        ADC     text_ptr + 1
-        TAY
-        CPX     himem
-        SBC     himem + 1
-        BCS     TPPAPX
-        STX     text_ptr
-        STY     text_ptr + 1
+    ; Exit  -  CC text_ptr = text_ptr  +  (A + 1). CS text_ptr + (A + 1) = himem,
+    ;          text_ptr unchanged.
+    SEC         ; + 1
+    ADC text_ptr
+    TAX
+    LDA #0
+    ADC text_ptr + 1
+    TAY
+    CPX himem
+    SBC himem + 1
+    BCS TPPAPX
+    STX text_ptr
+    STY text_ptr + 1
 .TPPAPX
-        RTS
+    RTS
 .TPGSBK
-        ; text_ptr := gap_start - A lines
-        ; Entry - A = No. of lines to retreat XY.
-        ; Exit  - text_ptr retreated
-        ;         A = No. of lines was able to go back.
-        LDX     gap_start
-        LDY     gap_start + 1
-        STX     text_ptr
-        STY     text_ptr + 1
-        TAX
-        STX     count
-        BEQ     TPXYEX
-        LDX     #0
+    ; text_ptr := gap_start - A lines
+    ; Entry - A = No. of lines to retreat XY.
+    ; Exit  - text_ptr retreated
+    ;         A = No. of lines was able to go back.
+    LDX gap_start
+    LDY gap_start + 1
+    STX text_ptr
+    STY text_ptr + 1
+    TAX
+    STX count
+    BEQ TPXYEX
+    LDX #0
 .TPXYLP
-        LDA text_start
-        CMP     text_ptr
-        LDA     text_start + 1
-        SBC     text_ptr + 1
-        BCS     TPXYAB
-        CLC     ; - 1
-        LDA     text_ptr
-        SBC     page_width
-        STA     text_ptr
-        BCS     TPXYND
-        DEC     text_ptr + 1
+    LDA text_start
+    CMP text_ptr
+    LDA text_start + 1
+    SBC text_ptr + 1
+    BCS TPXYAB
+    CLC         ; - 1
+    LDA text_ptr
+    SBC page_width
+    STA text_ptr
+    BCS TPXYND
+    DEC text_ptr + 1
 .TPXYND
-        LDY page_width
-        LDA     (text_ptr),Y
-        cmp_line_terminator
-        BNE     TPXYCO
-        LDA     text_ptr
-        STA     temp
-        LDA     text_ptr + 1
-        STA     temp + 1
-        JSR     FIPOE2
-        BEQ     TPXYCO
-        TYA                     ; answer from FINDPO in Y
-        ADC     text_ptr        ; + 1 from CS
-        STA     text_ptr
-        BCC     TPXYCO
-        INC     text_ptr + 1
+    LDY page_width
+    LDA (text_ptr),Y
+    cmp_line_terminator
+    BNE TPXYCO
+    LDA text_ptr
+    STA temp
+    LDA text_ptr + 1
+    STA temp + 1
+    JSR FIPOE2
+    BEQ TPXYCO
+    TYA                         ; answer from FINDPO in Y
+    ADC text_ptr                ; + 1 from CS
+    STA text_ptr
+    BCC TPXYCO
+    INC text_ptr + 1
 .TPXYCO
-        INX
-        CPX     count
-        BCC     TPXYLP
+    INX
+    CPX count
+    BCC TPXYLP
 .TPXYAB
-        TXA
+    TXA
 .TPXYEX
-        RTS
+    RTS
 .page_up
-        LDA page_length
-        INA
+    LDA page_length
+    INA
 .move_lines_back
-        ; Entry - A = No. of lines to move gap back.
-        ; Exit  - Gap moved back A lines. May be moved less if
-        ;         hits start of file.
-        JSR     TPGSBK
-        LDX     text_ptr
-        LDY     text_ptr + 1
+    ; Entry - A = No. of lines to move gap back.
+    ; Exit  - Gap moved back A lines. May be moved less if
+    ;         hits start of file.
+    JSR TPGSBK
+    LDX text_ptr
+    LDY text_ptr + 1
 .gap_back_to_xy
-        ; Move gap back so that gap_start := XY
-        STX     src_ptr
-        STY     src_ptr + 1
-        SEC
-        LDA     gap_start
-        SBC     src_ptr
-        STX     gap_start
-        TAX
-        LDA     gap_start + 1
-        SBC     src_ptr + 1
-        STY     gap_start + 1
-        TAY
-        STX     size
-        STY     size + 1
-        LDA     gap_end
-        SBC     size
-        STA     dst_ptr
-        STA     gap_end
-        LDA     gap_end + 1
-        SBC     size + 1
-        STA     dst_ptr + 1
-        STA     gap_end + 1
+    ; Move gap back so that gap_start := XY
+    STX src_ptr
+    STY src_ptr + 1
+    SEC
+    LDA gap_start
+    SBC src_ptr
+    STX gap_start
+    TAX
+    LDA gap_start + 1
+    SBC src_ptr + 1
+    STY gap_start + 1
+    TAY
+    STX size
+    STY size + 1
+    LDA gap_end
+    SBC size
+    STA dst_ptr
+    STA gap_end
+    LDA gap_end + 1
+    SBC size + 1
+    STA dst_ptr + 1
+    STA gap_end + 1
 .copy_forward
-        ; Copy block forward (i.e. to higher address).
-        ; Entry - src_ptr --> block of size XY
-        ;         dst_ptr --> destination address
-        ; Exit  - src_ptr,dst_ptr uncorrupted.
-        STX     size
-        STY     size + 1
+    ; Copy block forward (i.e. to higher address).
+    ; Entry - src_ptr --> block of size XY
+    ;         dst_ptr --> destination address
+    ; Exit  - src_ptr,dst_ptr uncorrupted.
+    STX size
+    STY size + 1
 .CPFD2
-        LDA size
-        TAY
-        ORA     size + 1
-        BEQ     CPFDEX
-        LDX     size + 1
-        CLC
-        TXA
-        ADC     src_ptr + 1
-        STA     src_ptr + 1
-        TXA
-        ADC     dst_ptr + 1
-        STA     dst_ptr + 1
-        INX
-        BCC     CPFDL2
+    LDA size
+    TAY
+    ORA size + 1
+    BEQ CPFDEX
+    LDX size + 1
+    CLC
+    TXA
+    ADC src_ptr + 1
+    STA src_ptr + 1
+    TXA
+    ADC dst_ptr + 1
+    STA dst_ptr + 1
+    INX
+    BCC CPFDL2
 .CPFDLP
-        LDA     (src_ptr),Y
-        STA     (dst_ptr),Y
+    LDA (src_ptr),Y
+    STA (dst_ptr),Y
 .CPFDL2
-        DEY
-        CPY     #&FF
-        BNE     CPFDLP
-        DEX
-        BEQ     CPFDEX
-        DEC     src_ptr + 1
-        DEC     dst_ptr + 1
-        BNE     CPFDLP
+    DEY
+    CPY #&FF
+    BNE CPFDLP
+    DEX
+    BEQ CPFDEX
+    DEC src_ptr + 1
+    DEC dst_ptr + 1
+    BNE CPFDLP
 .CPFDEX
-        RTS
+    RTS
 .page_down
-        LDA page_length
-        INA
+    LDA page_length
+    INA
 .move_lines_forward
-        JSR TPGEFD
+    JSR TPGEFD
 .gap_forward_to_text_ptr
-        LDX text_ptr
-        LDY     text_ptr + 1
+    LDX text_ptr
+    LDY text_ptr + 1
 .gap_forward_to_xy
-        ; Move gap forward so that gap_end := XY
-        LDA     gap_end
-        STA     src_ptr
-        LDA     gap_end + 1
-        STA     src_ptr + 1
-        LDA     gap_start
-        STA     dst_ptr
-        LDA     gap_start + 1
-        STA     dst_ptr + 1
-        SEC
-        TXA
-        SBC     gap_end
-        TAX
-        TYA
-        SBC     gap_end + 1
-        TAY
-        CLC
-        TXA
-        ADC     gap_start
-        STA     gap_start
-        TYA
-        ADC     gap_start + 1
-        STA     gap_start + 1
-        TXA
-        ADC     gap_end
-        STA     gap_end
-        TYA
-        ADC     gap_end + 1
-        STA     gap_end + 1
-        JMP     copy_backward
+    ; Move gap forward so that gap_end := XY
+    LDA gap_end
+    STA src_ptr
+    LDA gap_end + 1
+    STA src_ptr + 1
+    LDA gap_start
+    STA dst_ptr
+    LDA gap_start + 1
+    STA dst_ptr + 1
+    SEC
+    TXA
+    SBC gap_end
+    TAX
+    TYA
+    SBC gap_end + 1
+    TAY
+    CLC
+    TXA
+    ADC gap_start
+    STA gap_start
+    TYA
+    ADC gap_start + 1
+    STA gap_start + 1
+    TXA
+    ADC gap_end
+    STA gap_end
+    TYA
+    ADC gap_end + 1
+    STA gap_end + 1
+    JMP copy_backward
 .FINEPOSITIONGAP
-        ; Entry - Gap line positioned, without VS in text.
-        ; Exit  - Gap character positioned, with VS added.
-        JSR     add_virtual_spaces
-        CLC
-        LDA     gap_end
-        ADC     screen_x
-        TAX
-        LDA     gap_end + 1
-        ADC     #0
-        TAY
-        BRA     gap_forward_to_xy
+    ; Entry - Gap line positioned, without VS in text.
+    ; Exit  - Gap character positioned, with VS added.
+    JSR add_virtual_spaces
+    CLC
+    LDA gap_end
+    ADC screen_x
+    TAX
+    LDA gap_end + 1
+    ADC #0
+    TAY
+    BRA gap_forward_to_xy

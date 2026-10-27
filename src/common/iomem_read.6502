@@ -1,54 +1,54 @@
 .XYSCRATCH
-        ; Load XY with address of scratch.
-        LDX     #<scratch
-        LDY     #>scratch
-        RTS
+    ; Load XY with address of scratch.
+    LDX #<scratch
+    LDY #>scratch
+    RTS
 
 .next_cmdline_byte
-        INC     scratch
-        BNE     @+
-        INC     scratch + 1
-.@      RTS
+    INC scratch
+    BNE @+
+    INC scratch + 1
+.@  RTS
 
 .read_hex
-        LDX     #0
-        STZ     scratch + 5
+    LDX #0
+    STZ scratch + 5
 .tsthex
-        LDA     &01A0,Y
-        CMP     #'0'
-        BCC     hexend
-        CMP     #'9' + 1
-        BCC     OKhex
-        SBC     #&37
-        CMP     #10
-        BCC     hexend
-        CMP     #16
-        BCS     hexend
+    LDA &01A0,Y
+    CMP #'0'
+    BCC hexend
+    CMP #'9' + 1
+    BCC OKhex
+    SBC #&37
+    CMP #10
+    BCC hexend
+    CMP #16
+    BCS hexend
 .OKhex
-        ASL     scratch + 5
-        ASL     scratch + 5
-        ASL     scratch + 5
-        ASL     scratch + 5
-        AND     #&0F
-        TSB     scratch + 5
-        INY
-        INX
-        BRA     tsthex
+    ASL scratch + 5
+    ASL scratch + 5
+    ASL scratch + 5
+    ASL scratch + 5
+    AND #&0F
+    TSB scratch + 5
+    INY
+    INX
+    BRA tsthex
 .hexend
-        CPX     #&01            ; CC status for not found
-        LDX     scratch + 5
-        RTS
+    CPX #&01                    ; CC status for not found
+    LDX scratch + 5
+    RTS
 
 .read_next_io_byte
-        JSR     next_cmdline_byte
+    JSR next_cmdline_byte
 
 .read_io_byte
-        PHX
-        PHY
-        JSR     XYSCRATCH
-        LDA     #5
-        JSR     osword
-        PLY
-        PLX
-        LDA     scratch + 4
-        RTS
+    PHX
+    PHY
+    JSR XYSCRATCH
+    LDA #5
+    JSR osword
+    PLY
+    PLX
+    LDA scratch + 4
+    RTS

@@ -1,15 +1,15 @@
 MACRO cmp_line_terminator
-        IF cF8key
-                CMP     line_terminator
-        ELSE
-                CMP     #termin
-        ENDIF
+    IF cF8key
+        CMP line_terminator
+    ELSE
+        CMP #termin
+    ENDIF
 ENDMACRO
 
 MACRO lda_line_terminator
-        IF cF8key
-                LDA     line_terminator
-        ELSE
-                LDA     #termin
-        ENDIF
+    IF cF8key
+        LDA line_terminator
+    ELSE
+        LDA #termin
+    ENDIF
 ENDMACRO

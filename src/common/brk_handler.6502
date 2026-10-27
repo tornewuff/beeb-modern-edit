@@ -1,118 +1,118 @@
 ; Handle BRK according to the current value of brk_action.
 .brk_handler {
-        LDX     #&FF
-        TXS                             ; reset stack
-        STZ     cursor_editing
-        acknowledge_escape
-        LDA     brk_action
-        CMP     #brk_action.undo_return_to_language
-        BNE     simple_break
+    LDX #&FF
+    TXS                                 ; reset stack
+    STZ cursor_editing
+    acknowledge_escape
+    LDA brk_action
+    CMP #brk_action.undo_return_to_language
+    BNE simple_break
 .undo_return_to_language
-        LDA     addr
-        BNE     @+
-        DEC     addr + 1
-.@      DEC     addr
-        LDA     src_ptr
-        BNE     @+
-        DEC     src_ptr + 1
-.@      DEC     src_ptr
-        LDA     (src_ptr)
-        STA     (addr)
-        LDA     addr
-        BNE     undo_return_to_language
-        LDA     addr + 1
-        CMP     string + 1
-        BNE     undo_return_to_language
-        LDA     #cr
-        STA     (text_end)
-        LDA     #&00
+    LDA addr
+    BNE @+
+    DEC addr + 1
+.@  DEC addr
+    LDA src_ptr
+    BNE @+
+    DEC src_ptr + 1
+.@  DEC src_ptr
+    LDA (src_ptr)
+    STA (addr)
+    LDA addr
+    BNE undo_return_to_language
+    LDA addr + 1
+    CMP string + 1
+    BNE undo_return_to_language
+    LDA #cr
+    STA (text_end)
+    LDA #&00
 .simple_break
-        CMP     #brk_action.continue_star_prompt
-        BNE     not_star_prompt
-        JSR     print_nl_os_error
-        JMP     starCN
+    CMP #brk_action.continue_star_prompt
+    BNE not_star_prompt
+    JSR print_nl_os_error
+    JMP starCN
 .not_star_prompt
-        BCC     normal_break
-        JSR     close_index_file
-        JSR     cursor_text_start
+    BCC normal_break
+    JSR close_index_file
+    JSR cursor_text_start
 .normal_break
-        JSR     print_inline
-        EQUB    vdu_disable_printer, vdu_disable_paged_mode, &EA
-        JSR     cursor_to_status
+    JSR print_inline
+    EQUB vdu_disable_printer, vdu_disable_paged_mode, &EA
+    JSR cursor_to_status
 
 IF lerror
-        IF define_fancy_chars == "temporary"
-                JSR     fancy_chars.define
-        ENDIF
-        JSR     print_inline
-        EQUB    REPEATED(3, vdu_previous_line), remap("┌"), &EA
-        LDX     #remap_char("─")
-        LDA     #59-80
-        JSR     print_repeat_inline
-        EQUB    remap("Shift f5 D for info┐│"),&EA
-        LDX     #' '
-        LDA     #78-80
-        JSR     print_repeat_inline
-        EQUB    remap("│└"),&EA
-        LDX     #remap_char("─")
-        LDA     #54-80
-        JSR     print_repeat_inline
-        EQUB    remap("Press ESCAPE to continue┘"),11,11,9,&EA
-        JSR     print_os_error
-        IF define_fancy_chars == "temporary"
-                JSR     fancy_chars.restore_previous
-        ENDIF
+    IF define_fancy_chars == "temporary"
+        JSR fancy_chars.define
+    ENDIF
+    JSR print_inline
+    EQUB REPEATED(3, vdu_previous_line), remap("┌"), &EA
+    LDX #remap_char("─")
+    LDA #59-80
+    JSR print_repeat_inline
+    EQUB remap("Shift f5 D for info┐│"),&EA
+    LDX #' '
+    LDA #78-80
+    JSR print_repeat_inline
+    EQUB remap("│└"),&EA
+    LDX #remap_char("─")
+    LDA #54-80
+    JSR print_repeat_inline
+    EQUB remap("Press ESCAPE to continue┘"),11,11,9,&EA
+    JSR print_os_error
+    IF define_fancy_chars == "temporary"
+        JSR fancy_chars.restore_previous
+    ENDIF
 ELSE
-        JSR     print_nl_os_error
-        JSR     cursor_off
-        LDA     options
-        AND     #&07
-        CMP     #&05
-        BEQ     nomess
-        LDA     (&FD)
-        CMP     #&01
-        BNE     nomess
-        JSR     print_inline
-        IF 1=0
-                EQUB    lf,cr,"For help type: shf-f5 D",&EA
-        ELSE
-                EQUB    lf,cr,"Shift f5 D for info",&EA ; Slightly shorter
-        ENDIF
+    JSR print_nl_os_error
+    JSR cursor_off
+    LDA options
+    AND #&07
+    CMP #&05
+    BEQ nomess
+    LDA (&FD)
+    CMP #&01
+    BNE nomess
+    JSR print_inline
+    IF 1=0
+        EQUB lf,cr,"For help type: shf-f5 D",&EA
+    ELSE
+        EQUB lf,cr,"Shift f5 D for info",&EA            ; Slightly shorter
+    ENDIF
 .nomess
-        JSR     osnewl
-        JSR     print_inline_inverse
-        EQUB    "Press ESCAPE to continue",&EA
+    JSR osnewl
+    JSR print_inline_inverse
+    EQUB "Press ESCAPE to continue",&EA
 ENDIF
 
-.@      JSR     osrdch
-        CMP     #&1B
-        BNE     @-
+.@  JSR osrdch
+    CMP #&1B
+    BNE @-
 }
 
 ; Return to normal editing after ESC pressed.
 .ack_escape_continue_editing {
-        acknowledge_escape
-        JSR     NORMALIZE
-        JMP     EDITcont
+    acknowledge_escape
+    JSR NORMALIZE
+    JMP EDITcont
 }
 
 IF edit150_size_opt
 .acknowledge_escape_impl {
-        LDA     #osbyte_acknowledge_escape
-        JMP     osbyte
+    LDA #osbyte_acknowledge_escape
+    JMP osbyte
 }
 ENDIF
 
 .print_nl_os_error
-        JSR     osnewl
+    JSR osnewl
 
 .print_os_error {
-        LDY     #&01
-.@      LDA     (os_error_ptr),Y
-        BEQ     return
-        JSR     osasci
-        INY
-        BNE     @-
+    LDY #&01
+.@  LDA (os_error_ptr),Y
+    BEQ return
+    JSR osasci
+    INY
+    BNE @-
 .return
-        RTS
+    RTS
 }

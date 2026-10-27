@@ -1,48 +1,48 @@
 .OLDTEXT
-        LDA     old_text_bounds + 3
-        CMP     oshwm + 1
-        BCC     NOOLD
-        CMP     himem + 1
-        BCS     NOOLD
-        CMP     old_text_bounds + 1
-        BCC     NOOLD
-        LDA     old_text_bounds + 1
-        CMP     oshwm + 1
-        BCC     NOOLD
-        LDA     old_text_bounds
-        STA     src_ptr
-        LDA     old_text_bounds + 1
-        STA     src_ptr + 1
-        SEC
-        LDA     old_text_bounds + 2
-        SBC     src_ptr
-        TAX
-        LDA     old_text_bounds + 3
-        SBC     src_ptr + 1
-        TAY
-        BCC     NOOLD
-        LDA     text_start
-        STA     dst_ptr
-        LDA     text_start + 1
-        STA     dst_ptr + 1
-        PHY
-        PHX
-        JSR     copy_backward
-        PLA
-        CLC
-        ADC     text_start
-        TAX
-        PLA
-        ADC     text_start + 1
-        TAY
-        STZ     old_text_bounds + 3
-        JMP     EDITgs
+    LDA old_text_bounds + 3
+    CMP oshwm + 1
+    BCC NOOLD
+    CMP himem + 1
+    BCS NOOLD
+    CMP old_text_bounds + 1
+    BCC NOOLD
+    LDA old_text_bounds + 1
+    CMP oshwm + 1
+    BCC NOOLD
+    LDA old_text_bounds
+    STA src_ptr
+    LDA old_text_bounds + 1
+    STA src_ptr + 1
+    SEC
+    LDA old_text_bounds + 2
+    SBC src_ptr
+    TAX
+    LDA old_text_bounds + 3
+    SBC src_ptr + 1
+    TAY
+    BCC NOOLD
+    LDA text_start
+    STA dst_ptr
+    LDA text_start + 1
+    STA dst_ptr + 1
+    PHY
+    PHX
+    JSR copy_backward
+    PLA
+    CLC
+    ADC text_start
+    TAX
+    PLA
+    ADC text_start + 1
+    TAY
+    STZ old_text_bounds + 3
+    JMP EDITgs
 
 .MODEsp
-        JSR     cursor_text_start
-        BRK
-        EQUB    2,"No room"
+    JSR cursor_text_start
+    BRK
+    EQUB 2,"No room"
 
 .NOOLD
-        BRK
-        EQUB    2,"No old text found",0
+    BRK
+    EQUB 2,"No old text found",0

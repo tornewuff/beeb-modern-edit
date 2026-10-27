@@ -1,95 +1,95 @@
 .check_and_replace
-        ; Check for size, then replace found string with replace string.
-        ; Entry - Match just found; s*****stk[0] set up for %0 ('&')
-        ;        replace_index = start index of replace part in stracc
-        ; Exit  - Found string replaced.
-        JSR     MOVETOFOUNDPOSITION
-        LDA     #1
-        STA     modified
-        LDA     match_end
-        STA     gap_end
-        LDA     match_end + 1
-        STA     gap_end + 1
-        LDA     replace_index
-        STA     lnbufx
+    ; Check for size, then replace found string with replace string.
+    ; Entry - Match just found; s*****stk[0] set up for %0 ('&')
+    ;        replace_index = start index of replace part in stracc
+    ; Exit  - Found string replaced.
+    JSR MOVETOFOUNDPOSITION
+    LDA #1
+    STA modified
+    LDA match_end
+    STA gap_end
+    LDA match_end + 1
+    STA gap_end + 1
+    LDA replace_index
+    STA lnbufx
 .CHNRLP
-        LDA     gap_start
-        CMP     match_start
-        LDA     gap_start + 1
-        SBC     match_start + 1
-        BCS     CHNRRERR
-        LDY     lnbufx
-        INC     lnbufx
-        LDA     stracc,Y
-        BPL     CHNRSI
-        CMP     #termsym
-        BEQ     CHNREX
-        CMP     #FIELDSYM
-        BEQ     CHNRFI
-        CMP     #FOUNDSYM
-        BEQ     CHNRFO
-        ; Must be escsym ch
-        INC     lnbufx
-        LDA     stracc + 1,Y
-        BRA     CHNRSI
+    LDA gap_start
+    CMP match_start
+    LDA gap_start + 1
+    SBC match_start + 1
+    BCS CHNRRERR
+    LDY lnbufx
+    INC lnbufx
+    LDA stracc,Y
+    BPL CHNRSI
+    CMP #termsym
+    BEQ CHNREX
+    CMP #FIELDSYM
+    BEQ CHNRFI
+    CMP #FOUNDSYM
+    BEQ CHNRFO
+    ; Must be escsym ch
+    INC lnbufx
+    LDA stracc + 1,Y
+    BRA CHNRSI
 .CHNRFO
-        ; '&' has been frigged to look like MM 0
-        LDY     #0
-        BRA     CHNRAM
+    ; '&' has been frigged to look like MM 0
+    LDY #0
+    BRA CHNRAM
 .CHNRFI
-        INC     lnbufx
-        LDA     stracc + 1,Y
-        TAX
-        LDA     fieldmmxtab,X
-        BMI     CHNRMF
-        TAY
-        BEQ     CHNRMS
-        CLC
-        LDA     SSTTLOSTK,Y
-        ADC     SCNTLOSTK,Y
-        STA     temp
-        LDA     SSTTHISTK,Y
-        ADC     SCNTHISTK,Y
-        BNE     CHNRTM
+    INC lnbufx
+    LDA stracc + 1,Y
+    TAX
+    LDA fieldmmxtab,X
+    BMI CHNRMF
+    TAY
+    BEQ CHNRMS
+    CLC
+    LDA SSTTLOSTK,Y
+    ADC SCNTLOSTK,Y
+    STA temp
+    LDA SSTTHISTK,Y
+    ADC SCNTHISTK,Y
+    BNE CHNRTM
 .CHNRMS
-        LDA     match_start
-        STA     temp
-        LDA     match_start + 1
+    LDA match_start
+    STA temp
+    LDA match_start + 1
 .CHNRTM
-        STA     temp + 1
-        LDY     fieldofftab,X
-        LDA     (temp),Y
+    STA temp + 1
+    LDY fieldofftab,X
+    LDA (temp),Y
 .CHNRSI
-        STA     (gap_start)
-        INC     gap_start
-        BNE     CHNRLP
-        INC     gap_start + 1
-        BRA     CHNRLP
+    STA (gap_start)
+    INC gap_start
+    BNE CHNRLP
+    INC gap_start + 1
+    BRA CHNRLP
 .CHNRRERR
-        BRK
-        EQUB    2,"No room",0
+    BRK
+    EQUB 2,"No room",0
 .CHNRMF
-        AND     #&7F
-        TAY
+    AND #&7F
+    TAY
 .CHNRAM
-        LDA     SSTTLOSTK,Y
-        STA     src_ptr
-        LDA     SSTTHISTK,Y
-        STA     src_ptr + 1
-        LDA     gap_start
-        STA     dst_ptr
-        LDA     gap_start + 1
-        STA     dst_ptr + 1
-        CLC
-        LDA     SCNTLOSTK,Y
-        TAX
-        ADC     gap_start
-        STA     gap_start
-        LDA     SCNTHISTK,Y
-        TAY
-        ADC     gap_start + 1
-        STA     gap_start + 1
-        JSR     copy_backward
-        JMP     CHNRLP
+    LDA SSTTLOSTK,Y
+    STA src_ptr
+    LDA SSTTHISTK,Y
+    STA src_ptr + 1
+    LDA gap_start
+    STA dst_ptr
+    LDA gap_start + 1
+    STA dst_ptr + 1
+    CLC
+    LDA SCNTLOSTK,Y
+    TAX
+    ADC gap_start
+    STA gap_start
+    LDA SCNTHISTK,Y
+    TAY
+    ADC gap_start + 1
+    STA gap_start + 1
+    JSR copy_backward
+    JMP CHNRLP
 .CHNREX
-        RTS
+    RTS

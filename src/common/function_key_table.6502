@@ -1,85 +1,85 @@
 .command_table
-        EQUW    goto_line       ; f0
-        EQUW    star_prompt    ; f1
-        EQUW    load_command    ; f2
-        EQUW    save_command    ; f3
-        EQUW    FINDREPLACE     ; f4
-        EQUW    GLOBREPLACE     ; f5
-        EQUW    SETMARK         ; f6
-        EQUW    copy_marked     ; f7
-        EQUW    print           ; f8
-        EQUW    OLDTEXT         ; f9
-        EQUW    tabkey          ; f10
-        EQUW    delete_above    ; copy
-        EQUW    cursor_left     ; left
-        EQUW    cursor_right    ; right
-        EQUW    cursor_down     ; down
-        EQUW    cursor_up       ; up
-        ;
-        EQUW    toggle_show_cr  ; shift-f0
-        EQUW    toggle_insert_overwrite   ; shift-f1
-        EQUW    insert_file     ; shift-f2
-        EQUW    clear_scroll_margins ; shift-f3
-        EQUW    return_to_language ; shift-f4
-        EQUW    change_mode     ; shift-f5
-        EQUW    CLEARMARKS      ; shift-f6
-        EQUW    move_marked     ; shift-f7
-        EQUW    delete_marked   ; shift-f8
-        EQUW    new_text      ; shift-f9
-        EQUW    toggle_tab_mode ; shift-f10
-        EQUW    allow_cursor_editing ; shift-copy
-        EQUW    WORDLEFT        ; shift-left
-        EQUW    WORDRIGHT       ; shift-right
-        EQUW    page_down       ; shift-down
-        EQUW    page_up         ; shift-up
-        ;
-        EQUW    main_loop       ; ctrl-f0
-        EQUW    main_loop       ; ctrl-f1
-        EQUW    main_loop       ; ctrl-f2
-        EQUW    main_loop       ; ctrl-f3
-        EQUW    main_loop       ; ctrl-f4
-        EQUW    main_loop       ; ctrl-f5
-        EQUW    set_top_scroll_margin_to_cursor  ; ctrl-f6
-        EQUW    set_bottom_scroll_margin_to_cursor ; ctrl-f7
-        IF cF8key
-        EQUW    crlf_switch ; ctrl-f8
-        ELSE
-        EQUW    main_loop       ; ctrl-f8
-        ENDIF
-        EQUW    main_loop       ; ctrl-f9
-        EQUW    main_loop       ; ctrl-f10
-        EQUW    delete_line     ; ctrl-copy
-        EQUW    cursor_line_start ; ctrl-left
-        EQUW    cursor_line_end ; ctrl-right
-        EQUW    cursor_text_end ; ctrl-down
-        EQUW    cursor_text_start ; ctrl-up
+    EQUW goto_line              ; f0
+    EQUW star_prompt           ; f1
+    EQUW load_command           ; f2
+    EQUW save_command           ; f3
+    EQUW FINDREPLACE            ; f4
+    EQUW GLOBREPLACE            ; f5
+    EQUW SETMARK                ; f6
+    EQUW copy_marked            ; f7
+    EQUW print                  ; f8
+    EQUW OLDTEXT                ; f9
+    EQUW tabkey                 ; f10
+    EQUW delete_above           ; copy
+    EQUW cursor_left            ; left
+    EQUW cursor_right           ; right
+    EQUW cursor_down            ; down
+    EQUW cursor_up              ; up
+    ;
+    EQUW toggle_show_cr         ; shift-f0
+    EQUW toggle_insert_overwrite          ; shift-f1
+    EQUW insert_file            ; shift-f2
+    EQUW clear_scroll_margins        ; shift-f3
+    EQUW return_to_language        ; shift-f4
+    EQUW change_mode            ; shift-f5
+    EQUW CLEARMARKS             ; shift-f6
+    EQUW move_marked            ; shift-f7
+    EQUW delete_marked          ; shift-f8
+    EQUW new_text             ; shift-f9
+    EQUW toggle_tab_mode        ; shift-f10
+    EQUW allow_cursor_editing        ; shift-copy
+    EQUW WORDLEFT               ; shift-left
+    EQUW WORDRIGHT              ; shift-right
+    EQUW page_down              ; shift-down
+    EQUW page_up                ; shift-up
+    ;
+    EQUW main_loop              ; ctrl-f0
+    EQUW main_loop              ; ctrl-f1
+    EQUW main_loop              ; ctrl-f2
+    EQUW main_loop              ; ctrl-f3
+    EQUW main_loop              ; ctrl-f4
+    EQUW main_loop              ; ctrl-f5
+    EQUW set_top_scroll_margin_to_cursor         ; ctrl-f6
+    EQUW set_bottom_scroll_margin_to_cursor        ; ctrl-f7
+    IF cF8key
+    EQUW crlf_switch        ; ctrl-f8
+    ELSE
+    EQUW main_loop              ; ctrl-f8
+    ENDIF
+    EQUW main_loop              ; ctrl-f9
+    EQUW main_loop              ; ctrl-f10
+    EQUW delete_line            ; ctrl-copy
+    EQUW cursor_line_start        ; ctrl-left
+    EQUW cursor_line_end        ; ctrl-right
+    EQUW cursor_text_end        ; ctrl-down
+    EQUW cursor_text_start        ; ctrl-up
 
 .help_text_table
-        EQUW    f0
-        EQUW    f1
-        EQUW    f2
-        EQUW    f3
-        EQUW    f4
-        EQUW    f5
-        EQUW    f6
-        EQUW    f7
-        EQUW    f8
-        EQUW    f9
-        EQUW    f9
-        EQUW    f9
-        EQUW    f9
-        EQUW    f9
-        EQUW    f9
-        EQUW    f9
-        EQUW    shff0
-        EQUW    SHFF1
-        EQUW    SHFF2
-        EQUW    SHFF3
-        EQUW    SHFF4
-        EQUW    SHFF5
-        EQUW    SHFF6
-        EQUW    SHFF7
-        EQUW    SHFF8
-        EQUW    SHFF9
-        EQUW    SHFTAB
-        EQUW    SHFCOP
+    EQUW f0
+    EQUW f1
+    EQUW f2
+    EQUW f3
+    EQUW f4
+    EQUW f5
+    EQUW f6
+    EQUW f7
+    EQUW f8
+    EQUW f9
+    EQUW f9
+    EQUW f9
+    EQUW f9
+    EQUW f9
+    EQUW f9
+    EQUW f9
+    EQUW shff0
+    EQUW SHFF1
+    EQUW SHFF2
+    EQUW SHFF3
+    EQUW SHFF4
+    EQUW SHFF5
+    EQUW SHFF6
+    EQUW SHFF7
+    EQUW SHFF8
+    EQUW SHFF9
+    EQUW SHFTAB
+    EQUW SHFCOP

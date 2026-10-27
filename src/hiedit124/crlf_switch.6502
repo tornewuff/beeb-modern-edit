@@ -1,24 +1,24 @@
 .crlf_switch                    ; CR/LF switch
-        LDA     line_terminator
-        CMP     #cr
-        BEQ     setLF
-        LDA     #cr
-        STA     line_terminator
-        BRA     cont99
+    LDA line_terminator
+    CMP #cr
+    BEQ setLF
+    LDA #cr
+    STA line_terminator
+    BRA cont99
 .setLF
-        LDA     #lf
-        STA     line_terminator
+    LDA #lf
+    STA line_terminator
 .cont99
-        STZ     cursor_editing
-        STZ     key_queued_flag
-        STZ     num_marks_set
+    STZ cursor_editing
+    STZ key_queued_flag
+    STZ num_marks_set
 
-        LDA     line_terminator
-        STA     (oshwm)
-        STA     (text_end)
+    LDA line_terminator
+    STA (oshwm)
+    STA (text_end)
 
-        STZ     screen_x        ; STZ screen_y will be forced by screen_update
+    STZ screen_x                ; STZ screen_y will be forced by screen_update
 
-        JSR     cursor_text_start ; move the cursor to the top
+    JSR cursor_text_start       ; move the cursor to the top
                                 ; of the text
-        JMP     EDITcont        ; and continue editing
+    JMP EDITcont                ; and continue editing

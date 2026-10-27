@@ -7,27 +7,29 @@ abbreviation_max = &9f
 ; the null terminators) rather than in the expanded form, because some entries
 ; were not abbreviated optimally, so recompressing it "correctly" is awkward.
 abbreviation_list = stringify_all({
-        {" title", &92, ".en", &83},                                    ; &80
-        "   ",                                                          ; &81
-        {" n output CHR$(n)", &92, "printer "},                         ; &82
-        {cr, "."},                                                      ; &83
-        " line",                                                        ; &84
-        " page ",                                                       ; &85
-        " character ",                                                  ; &86
-        "shf-f",                                                        ; &87
-        " text ",                                                       ; &88
-        " marked ",                                                     ; &89
-        "RETURN",                                                       ; &8a
-        {".", cr, &8a, " uses", &93, "name at the start of", &88, "after a '>'",
-         cr, "COPY, ", &8a, &92, "use", &93, "current file name."},     ; &8b
-        "The ",                                                         ; &8c
-        {"2", cr, "A", &88, "file will be loaded"},                     ; &8d
-        "text",                                                         ; &8e
-        "even",                                                         ; &8f
-        " scroll margins ",                                             ; &90
-        {&90, "with ctrl-f"},                                           ; &91
-        " to ",                                                         ; &92
-        " the ",                                                        ; &93
+    {" title", &92, ".en", &83},                                        ; &80
+    "   ",                                                              ; &81
+    {" n output CHR$(n)", &92, "printer "},                             ; &82
+    {cr, "."},                                                          ; &83
+    " line",                                                            ; &84
+    " page ",                                                           ; &85
+    " character ",                                                      ; &86
+    "shf-f",                                                            ; &87
+    " text ",                                                           ; &88
+    " marked ",                                                         ; &89
+    "RETURN",                                                           ; &8a
+    {
+        ".", cr, &8a, " uses", &93, "name at the start of", &88, "after a '>'",
+        cr, "COPY, ", &8a, &92, "use", &93, "current file name."
+    },                                                                  ; &8b
+    "The ",                                                             ; &8c
+    {"2", cr, "A", &88, "file will be loaded"},                         ; &8d
+    "text",                                                             ; &8e
+    "even",                                                             ; &8f
+    " scroll margins ",                                                 ; &90
+    {&90, "with ctrl-f"},                                               ; &91
+    " to ",                                                             ; &92
+    " the ",                                                            ; &93
 })
 
 ; Recursively expands any abbreviations in the input string using the provided

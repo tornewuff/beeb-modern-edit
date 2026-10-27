@@ -1,46 +1,46 @@
 .default_config {
-        ; assemble with phil's version of "cursor editing"
-        phil = FALSE
-        ; assemble with mouse options
-        mouse = FALSE
-        ; assemble with long error box
-        lerror = TRUE
-        ; when to define fancy (box-drawing, etc) chars used in help text:
-        ;  startup      - define them once when the program starts
-        ;  temporary    - define them temporarily while printing help
-        ;  never        - assume they are already defined
-        define_fancy_chars = "startup"
-        ; which byte values should be used to represent fancy chars:
-        ;  true         - sequential values starting at &80
-        ;  false        - appropriate values for MOS 3.x default font
-        fancy_chars_at_80 = FALSE
-        ; 'A SYZYGY prog' displayed, was under EXTRAS
-        syzygy = TRUE
-        ; date stamping
-        stamp = FALSE
-        ; linefeed version
-        lfver = FALSE
-        ; ctrl-f8 toggle (cr/lf)
-        cF8key = TRUE
-        ; shorter messages
-        shortm = TRUE
-        ; different cursor types
-        curtyp = TRUE
-        ; linefeed arrow
-        lfarro = TRUE
-        ; extended FIND/REPLACE texts
-        extgf = FALSE
-        ; shuffle code around to build EDIT 1.50
-        edit150 = FALSE
-        ; apply size optimizations from EDIT 1.50 (non-behavior-changing)
-        edit150_size_opt = FALSE
-        ; use updated help texts from EDIT 1.50
-        ;
-        ; this is mostly capitalization changes, and updates to wording around
-        ; line endings.
-        edit150_updated_help = FALSE
-        ; omit the service handler to save space (formerly enabled by mouse=1)
-        omit_service = FALSE
+    ; assemble with phil's version of "cursor editing"
+    phil = FALSE
+    ; assemble with mouse options
+    mouse = FALSE
+    ; assemble with long error box
+    lerror = TRUE
+    ; when to define fancy (box-drawing, etc) chars used in help text:
+    ;  startup      - define them once when the program starts
+    ;  temporary    - define them temporarily while printing help
+    ;  never        - assume they are already defined
+    define_fancy_chars = "startup"
+    ; which byte values should be used to represent fancy chars:
+    ;  true         - sequential values starting at &80
+    ;  false        - appropriate values for MOS 3.x default font
+    fancy_chars_at_80 = FALSE
+    ; 'A SYZYGY prog' displayed, was under EXTRAS
+    syzygy = TRUE
+    ; date stamping
+    stamp = FALSE
+    ; linefeed version
+    lfver = FALSE
+    ; ctrl-f8 toggle (cr/lf)
+    cF8key = TRUE
+    ; shorter messages
+    shortm = TRUE
+    ; different cursor types
+    curtyp = TRUE
+    ; linefeed arrow
+    lfarro = TRUE
+    ; extended FIND/REPLACE texts
+    extgf = FALSE
+    ; shuffle code around to build EDIT 1.50
+    edit150 = FALSE
+    ; apply size optimizations from EDIT 1.50 (non-behavior-changing)
+    edit150_size_opt = FALSE
+    ; use updated help texts from EDIT 1.50
+    ;
+    ; this is mostly capitalization changes, and updates to wording around
+    ; line endings.
+    edit150_updated_help = FALSE
+    ; omit the service handler to save space (formerly enabled by mouse=1)
+    omit_service = FALSE
 }
 
 IF DEFINED(setconfig.phil) : phil = setconfig.phil : ELSE : phil = default_config.phil : ENDIF

@@ -1,178 +1,178 @@
 .set_modified
-        LDA     #1
-        LDX     modified
-        STA     modified
-        IF edit150
-        CPX     #1
-        BNE     update_status_line
-        ELSE
-        BEQ     update_status_line
-        ENDIF
-        RTS
-        IF edit150
+    LDA #1
+    LDX modified
+    STA modified
+    IF edit150
+    CPX #1
+    BNE update_status_line
+    ELSE
+    BEQ update_status_line
+    ENDIF
+    RTS
+    IF edit150
 .toggle_insert_overwrite        ; Insert/Over toggle
-        LDA     #bit4
-        BRA     modtog
+    LDA #bit4
+    BRA modtog
 .toggle_tab_mode
-        LDA     #bit3
+    LDA #bit3
 .modtog
-        JSR     toggle_options
-        ELSE
+    JSR toggle_options
+    ELSE
 .toggle_tab_mode
-        LDA     #8
-        EOR     options
-        JSR     write_options
-        ENDIF
+    LDA #8
+    EOR options
+    JSR write_options
+    ENDIF
 
 .CstatU
-        STZ     update_required ; update required
+    STZ update_required         ; update required
 .update_status_line
-        JSR     cursor_to_status  ; Output status on status line.
-        JSR     write_char.inverse_on      ; Start inverse
-        JSR     is_insert_mode
-        BEQ     STATSO
+    JSR cursor_to_status          ; Output status on status line.
+    JSR write_char.inverse_on              ; Start inverse
+    JSR is_insert_mode
+    BEQ STATSO
 
-        JSR     print_inline
-        EQUB    "Insert ",&EA
-        BRA     STATSI
+    JSR print_inline
+    EQUB "Insert ",&EA
+    BRA STATSI
 
 .STATSO
-        JSR     print_inline
-        EQUB    "Over   ",&EA
+    JSR print_inline
+    EQUB "Over   ",&EA
 
 .STATSI
-        LDX     cursor_editing
-        BEQ     STATSC
-        JSR     print_inline
+    LDX cursor_editing
+    BEQ STATSC
+    JSR print_inline
 
-        IF NOT(phil)
-        IF edit150
-        EQUB    "     Cursor Editing",&EA
-        ELSE
-        EQUB    "    Cursor Editing",&EA
-        ENDIF
-        ELSE
-        EQUB    "    Soft Key Entry",&EA
-        ENDIF
+    IF NOT(phil)
+    IF edit150
+    EQUB "     Cursor Editing",&EA
+    ELSE
+    EQUB "    Cursor Editing",&EA
+    ENDIF
+    ELSE
+    EQUB "    Soft Key Entry",&EA
+    ENDIF
 
-        BRA     STATSX
+    BRA STATSX
 
 .STATSC
-        LDA     num_marks_set
-        BEQ     STATST
-        DEA
-        BNE     STATSM
-        JSR     print_inline
-        EQUB    "One mark ",&EA
-        BRA     STATSS
+    LDA num_marks_set
+    BEQ STATST
+    DEA
+    BNE STATSM
+    JSR print_inline
+    EQUB "One mark ",&EA
+    BRA STATSS
 .STATSM
-        JSR     print_inline
-        EQUB    "Two marks",&EA
-        BRA     STATSS
+    JSR print_inline
+    EQUB "Two marks",&EA
+    BRA STATSS
 .STATST
-        LDA     #8
-        AND     options
-        BNE     STATTW
-        JSR     print_inline
-        EQUB    "TAB cols ",&EA
-        BRA     STATSS
+    LDA #8
+    AND options
+    BNE STATTW
+    JSR print_inline
+    EQUB "TAB cols ",&EA
+    BRA STATSS
 .STATTW
-        JSR     print_inline
-        EQUB    "TAB words",&EA
+    JSR print_inline
+    EQUB "TAB words",&EA
 .STATSS
-        IF edit150
-        LDA     modified        ; 0 original, 1 modified, else discarded
-        DEA
-        BMI     STATOR
-        BNE     STATDI
-        JSR     print_inline
-        EQUB    " Modified ",&EA
-        BRA     STATSX
+    IF edit150
+    LDA modified                ; 0 original, 1 modified, else discarded
+    DEA
+    BMI STATOR
+    BNE STATDI
+    JSR print_inline
+    EQUB " Modified ",&EA
+    BRA STATSX
 .STATDI
-        JSR     print_inline
-        EQUB    " Discarded",&EA
-        BRA     STATSX
+    JSR print_inline
+    EQUB " Discarded",&EA
+    BRA STATSX
 .STATOR
-        JSR     print_inline
-        EQUB    " Original ",&EA
-        ELSE
-        LDA     modified
-        BNE     STATMO
-        JSR     print_inline
-        EQUB    " Original",&EA
-        BRA     STATSX
+    JSR print_inline
+    EQUB " Original ",&EA
+    ELSE
+    LDA modified
+    BNE STATMO
+    JSR print_inline
+    EQUB " Original",&EA
+    BRA STATSX
 .STATMO
-        JSR     print_inline
-        EQUB    " Modified",&EA
-        ENDIF
+    JSR print_inline
+    EQUB " Modified",&EA
+    ENDIF
 .STATSX
-        IF cF8key
+    IF cF8key
 
-        IF edit150
-        LDA     options
-        AND     #bit6           ; LF line terminator selected
-        BEQ     STATcr
-        ELSE
-        LDA     line_terminator
-        CMP     #cr
-        BEQ     STATcr
-        ENDIF
+    IF edit150
+    LDA options
+    AND #bit6                   ; LF line terminator selected
+    BEQ STATcr
+    ELSE
+    LDA line_terminator
+    CMP #cr
+    BEQ STATcr
+    ENDIF
 
-        JSR     print_inline
-        EQUB    " LF",&EA
+    JSR print_inline
+    EQUB " LF",&EA
 
-        BRA     STATlf
+    BRA STATlf
 .STATcr
-        JSR     print_inline
-        EQUB    " CR",&EA
+    JSR print_inline
+    EQUB " CR",&EA
 
 .STATlf
-        ENDIF
+    ENDIF
 
-        IF stamp
-        LDA     flload + 1
-        AND     flload + 2
-        AND     flload + 3
-        INA
-        BNE     STATNS
+    IF stamp
+    LDA flload + 1
+    AND flload + 2
+    AND flload + 3
+    INA
+    BNE STATNS
 
-        JSR     print_inline
-        EQUB    " Date",&EA
-        BRA     STATNQ
+    JSR print_inline
+    EQUB " Date",&EA
+    BRA STATNQ
 .STATNS
 
-        JSR     print_inline
-        EQUB    " Exec",&EA
+    JSR print_inline
+    EQUB " Exec",&EA
 .STATNQ
-        ENDIF
+    ENDIF
 
-        IF edit150
-        LDX     #prmptl + prmod1 + prmod2 + 1
-        STX     prompt_column
-        ENDIF
-        JSR     write_char.inverse_off     ; stop inverse
-        LDY     page_length
-        INY
+    IF edit150
+    LDX #prmptl + prmod1 + prmod2 + 1
+    STX prompt_column
+    ENDIF
+    JSR write_char.inverse_off             ; stop inverse
+    LDY page_length
+    INY
 
-prmptl  =       25              ; Prompt position
+prmptl = 25                     ; Prompt position
 
 
-        IF cF8key
-prmod1  =       3               ; CR/LF text
-        ELSE
-prmod1  =       0
-        ENDIF
+    IF cF8key
+prmod1 = 3                      ; CR/LF text
+    ELSE
+prmod1 = 0
+    ENDIF
 
-        IF stamp
-prmod2  =       5               ; Date/Exec text
-        ELSE
-prmod2  =       0
-        ENDIF
+    IF stamp
+prmod2 = 5                      ; Date/Exec text
+    ELSE
+prmod2 = 0
+    ENDIF
 
-        IF edit150
-        LDA     #(prmptl + prmod1 + prmod2)     ; status texts are 1 longer
-        ELSE
-        LDA     #(prmptl - 1 + prmod1 + prmod2)  ; plus any modifications
-        ENDIF
+    IF edit150
+    LDA #(prmptl + prmod1 + prmod2)             ; status texts are 1 longer
+    ELSE
+    LDA #(prmptl - 1 + prmod1 + prmod2)          ; plus any modifications
+    ENDIF
 
-        JMP     wipe_tail               ; and clear the rest of the line
+    JMP wipe_tail                       ; and clear the rest of the line

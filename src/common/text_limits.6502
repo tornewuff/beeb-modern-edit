@@ -1,53 +1,53 @@
 .STARTTEST
-        ; Returns CS if on 1st line (gap_start = text_start), else CC.
-        LDA     text_start
-        CMP     gap_start
-        LDA     text_start + 1
-        SBC     gap_start + 1
-        RTS
+    ; Returns CS if on 1st line (gap_start = text_start), else CC.
+    LDA text_start
+    CMP gap_start
+    LDA text_start + 1
+    SBC gap_start + 1
+    RTS
 .ENDTEST
-        ; Returns CS if on last line (gap_end + scrimcreenY = text_end), else CC.
-        CLC
-        LDA     current_line_len
-        ADC     gap_end
-        TAX
-        LDA     #0
-        ADC     gap_end + 1
-        CPX     text_end
-        SBC     text_end + 1
-        RTS
+    ; Returns CS if on last line (gap_end + scrimcreenY = text_end), else CC.
+    CLC
+    LDA current_line_len
+    ADC gap_end
+    TAX
+    LDA #0
+    ADC gap_end + 1
+    CPX text_end
+    SBC text_end + 1
+    RTS
 .LENGTHCALC
-        ; Find length of current line. Exit - A = length - 1
-        LDY     #0
+    ; Find length of current line. Exit - A = length - 1
+    LDY #0
 .LECCLO
-        LDA     (gap_end),Y
-        cmp_line_terminator
-        BEQ     LECCRE
-        INY
-        CPY     page_width
-        BNE     LECCLO
+    LDA (gap_end),Y
+    cmp_line_terminator
+    BEQ LECCRE
+    INY
+    CPY page_width
+    BNE LECCLO
 .LECCRE
-        TYA
-        RTS
+    TYA
+    RTS
 .check_room
-        ; Check for space in edit buffer.
-        ; Entry - XY = required No. of bytes
-        ; Exit  - size = XY
-        ;         XY = temp = gap_end - XY
-        ;         Error if temp < gap_start
+    ; Check for space in edit buffer.
+    ; Entry - XY = required No. of bytes
+    ; Exit  - size = XY
+    ;         XY = temp = gap_end - XY
+    ;         Error if temp < gap_start
 
-        STX     size
-        STY     size + 1
-        SEC
-        LDA     gap_end
-        SBC     size
-        TAX
-        LDA     gap_end + 1
-        SBC     size + 1
-        TAY
-        STX     temp
-        STY     temp + 1
-        CPX     gap_start
-        SBC     gap_start + 1
-        BCS     VDU23X
-        JMP     CHNRRERR                ; 'No room'
+    STX size
+    STY size + 1
+    SEC
+    LDA gap_end
+    SBC size
+    TAX
+    LDA gap_end + 1
+    SBC size + 1
+    TAY
+    STX temp
+    STY temp + 1
+    CPX gap_start
+    SBC gap_start + 1
+    BCS VDU23X
+    JMP CHNRRERR                        ; 'No room'

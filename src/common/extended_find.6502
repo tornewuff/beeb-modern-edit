@@ -1,89 +1,89 @@
-                                ; extended search and replace texts
+                ; extended search and replace texts
 
-                                ; we will use the function and <Shift> function
-                                ; keys to insert the match characters
+                ; we will use the function and <Shift> function
+                ; keys to insert the match characters
 
-                                ; when these keys are pressed the relevant
-                                ; text will be displayed and the correct
-                                ; (existing) match character inserted into
-                                ; the text - if a normal existing character
-                                ; is entered it will be translated to "\c"
-                                ; and the existing routines called
+                ; when these keys are pressed the relevant
+                ; text will be displayed and the correct
+                ; (existing) match character inserted into
+                ; the text - if a normal existing character
+                ; is entered it will be translated to "\c"
+                ; and the existing routines called
 
-        ; KEYS       TWIN                 EDIT
-        ;
-        ;       f0 - newline            - "$"
-        ;       f1 - found section      - "%"
-        ;       f2 - found string       - "&"
-        ;       f3 - most items         - "^"
-        ;       f4 - many items         - "*"
-        ;       f5 - replace by         - "/"
-        ;       f6 - NOT item           - "~"
-        ;       f7 - any character      - "."
-        ;       f8 - alpha-numeric      - "@"
-        ;       f9 - digit              - "#"
-        ;
-        ; Shift f0 - start set          - "["
-        ;       f1 - end set            - "]"
-        ;       f2 - sub range          - "-"
-        ;       f3 - control character  - "|"
-        ;       f4 - set top bit        - "|!|"
-        ;       f5 - exactly            - "\"
-        ;       f6 - toggle case        - not supported
-        ;       f7 -                    -
-        ;       f8 -                    -
-        ;       f9 -                    -
-        ;
+    ; KEYS       TWIN                 EDIT
+    ;
+    ;       f0 - newline            - "$"
+    ;       f1 - found section      - "%"
+    ;       f2 - found string       - "&"
+    ;       f3 - most items         - "^"
+    ;       f4 - many items         - "*"
+    ;       f5 - replace by         - "/"
+    ;       f6 - NOT item           - "~"
+    ;       f7 - any character      - "."
+    ;       f8 - alpha-numeric      - "@"
+    ;       f9 - digit              - "#"
+    ;
+    ; Shift f0 - start set          - "["
+    ;       f1 - end set            - "]"
+    ;       f2 - sub range          - "-"
+    ;       f3 - control character  - "|"
+    ;       f4 - set top bit        - "|!|"
+    ;       f5 - exactly            - "\"
+    ;       f6 - toggle case        - not supported
+    ;       f7 -                    -
+    ;       f8 -                    -
+    ;       f9 -                    -
+    ;
 
-nlnc    =       &80
-fsnc    =       &81
-fstc    =       &82
-mstc    =       &83
-manc    =       &84
-rbyc    =       &85
-notc    =       &86
-anyc    =       &87
-alpc    =       &88
-digc    =       &89
+nlnc = &80
+fsnc = &81
+fstc = &82
+mstc = &83
+manc = &84
+rbyc = &85
+notc = &86
+anyc = &87
+alpc = &88
+digc = &89
 
-setc    =       &90
-stcc    =       &91
-subc    =       &92
-ctrc    =       &93
-stbc    =       &94
-exac    =       &95
-ntc1    =       &96
-ntc2    =       &97
-ntc3    =       &98
-ntc4    =       &99
+setc = &90
+stcc = &91
+subc = &92
+ctrc = &93
+stbc = &94
+exac = &95
+ntc1 = &96
+ntc2 = &97
+ntc3 = &98
+ntc4 = &99
 
 .kttab  ; key translation table
 
-        EQUB    nlnc,"newline",null           ; f0
-        EQUB    fsnc,"section",null           ; f1
-        EQUB    fstc,"match",null             ; f2
-        EQUB    mstc,"most",null              ; f3
-        EQUB    manc,"many",null              ; f4
-        EQUB    rbyc,"replace by",null        ; f5
-        EQUB    notc,"NOT",null               ; f6
-        EQUB    anyc,"any",null               ; f7
-        EQUB    alpc,"alpha",null             ; f8
-        EQUB    digc,"digit",null             ; f9
+    EQUB nlnc,"newline",null                  ; f0
+    EQUB fsnc,"section",null                  ; f1
+    EQUB fstc,"match",null                    ; f2
+    EQUB mstc,"most",null                     ; f3
+    EQUB manc,"many",null                     ; f4
+    EQUB rbyc,"replace by",null               ; f5
+    EQUB notc,"NOT",null                      ; f6
+    EQUB anyc,"any",null                      ; f7
+    EQUB alpc,"alpha",null                    ; f8
+    EQUB digc,"digit",null                    ; f9
 
-        EQUB    setc,"[",null                 ; s+f0
-        EQUB    stcc,"]",null                 ; s+f1
-        EQUB    subc,"-",null                 ; s+f2
-        EQUB    ctrc,"control",null           ; s+f3
-        EQUB    stbc,"set top bit",null       ; s+f4
-        EQUB    exac,"exactly",null           ; s+f5
-        EQUB    ntc1,"",null                  ; s+f6
-        EQUB    ntc2,"",null                  ; s+f7
-        EQUB    ntc3,"",null                  ; s+f8
-        EQUB    ntc4,"",null                  ; s+f9
+    EQUB setc,"[",null                        ; s+f0
+    EQUB stcc,"]",null                        ; s+f1
+    EQUB subc,"-",null                        ; s+f2
+    EQUB ctrc,"control",null                  ; s+f3
+    EQUB stbc,"set top bit",null              ; s+f4
+    EQUB exac,"exactly",null                  ; s+f5
+    EQUB ntc1,"",null                         ; s+f6
+    EQUB ntc2,"",null                         ; s+f7
+    EQUB ntc3,"",null                         ; s+f8
+    EQUB ntc4,"",null                         ; s+f9
 
 .kttabe ; end of table
 
-nktent  =       ( kttabe - kttab )
+nktent = ( kttabe - kttab )
 
 
 .readlf                         ; read line for find and replace
@@ -91,107 +91,107 @@ nktent  =       ( kttabe - kttab )
 
                                 ; text into 'line_buffer'
                                 ; Y = number of chars excluding cr
-        LDA     #space
-        JSR     oswrch
+    LDA #space
+    JSR oswrch
 
-        LDA     #thelot
-        STA     update_required
+    LDA #thelot
+    STA update_required
 
-        JSR     rdline
-        BCC     noESC
+    JSR rdline
+    BCC noESC
 
-        JSR     print_inline
-        EQUB    &03,&0F,&0D,&EA
+    JSR print_inline
+    EQUB &03,&0F,&0D,&EA
 
-        LDA     brk_action
-        CMP     #brk_action.close_index_continue_editing
-        BNE     ESCso
+    LDA brk_action
+    CMP #brk_action.close_index_continue_editing
+    BNE ESCso
 
-        JSR     close_index_file
-        JSR     cursor_text_start
+    JSR close_index_file
+    JSR cursor_text_start
 .ESCso
-        STZ     cursor_editing
-        JMP     ack_escape_continue_editing
+    STZ cursor_editing
+    JMP ack_escape_continue_editing
 
 .rdline
-        LDY     #&00            ; index into 'line_buffer'
+    LDY #&00                    ; index into 'line_buffer'
 .rdloop
-        LDA     #'r'
-        JSR     oswrch
+    LDA #'r'
+    JSR oswrch
 
-        JSR     osrdch
-        BCS     rdexit
+    JSR osrdch
+    BCS rdexit
 
-        STA     line_buffer,Y   ; store the relevant value
+    STA line_buffer,Y           ; store the relevant value
 
-        CMP     #&7F
-        BNE     rdlin2
+    CMP #&7F
+    BNE rdlin2
 
-        CPY     #&00
-        BEQ     rdloop
+    CPY #&00
+    BEQ rdloop
 
-        DEY
+    DEY
 
-        PHY
+    PHY
 
-        LDA     line_buffer,Y
+    LDA line_buffer,Y
 
-        JSR     sttadt          ; delete the character(s)
-        PLY
+    JSR sttadt                  ; delete the character(s)
+    PLY
 
-        BCC     rdloop
+    BCC rdloop
 
-        LDA     #&7F            ; then let us delete it ourselfs
-        JSR     oswrch
+    LDA #&7F                    ; then let us delete it ourselfs
+    JSR oswrch
 
-        BRA     rdloop
+    BRA rdloop
 
 .rdlin2
-        CMP     #&15
-        BNE     rdlin3
+    CMP #&15
+    BNE rdlin3
 .rdlind
-        TYA
-        BEQ     rdloop
+    TYA
+    BEQ rdloop
 
-        PHY
+    PHY
 
-        LDA     line_buffer - 1,Y
+    LDA line_buffer - 1,Y
 
-        JSR     sttadt          ; delete the character(s)
-        PLY
+    JSR sttadt                  ; delete the character(s)
+    PLY
 
-        BCC     decY
+    BCC decY
 
-        LDA     #&7F            ; then let us delete it ourselfs
-        JSR     oswrch
+    LDA #&7F                    ; then let us delete it ourselfs
+    JSR oswrch
 .decY
-        DEY
-        BRA     rdlind
+    DEY
+    BRA rdlind
 
 .rdlin3
-        INY
-        CMP     #cr
-        BEQ     rdlicr
+    INY
+    CMP #cr
+    BEQ rdlicr
 
-        JSR     sttapt
+    JSR sttapt
 
-        BCC     rdloop
+    BCC rdloop
 
-        JSR     write_char      ; write character after parsing
+    JSR write_char              ; write character after parsing
                                 ; ctrl chars - inverse
                                 ; delete     - inverse "?"
                                 ; any other character just echoed
-        BRA     rdloop
+    BRA rdloop
 
 .rdlicr
-        PHY
-        JSR     cursor_off
-        PLY
-        DEY
-        CLC
+    PHY
+    JSR cursor_off
+    PLY
+    DEY
+    CLC
 .rdexit
 .noESC
-        RTS
+    RTS
 
 
 .sttapt                         ; search through the table and print the text
@@ -199,41 +199,41 @@ nktent  =       ( kttabe - kttab )
                                 ; Exit...  A - character value
                                 ;         CC - found - text printed
                                 ;         CS - not found
-        LDX     #<kttab
-        LDY     #>kttab
-        STX     ctptr
-        STY     ctptr + 1
+    LDX #<kttab
+    LDY #>kttab
+    STX ctptr
+    STY ctptr + 1
 
 .nctest
-        PHA
+    PHA
 
-        CMP     (ctptr)
-        BEQ     gotit1
+    CMP (ctptr)
+    BEQ gotit1
 
-        JSR     nxtstr          ; no match so onto the next
-        BCC     nctest
+    JSR nxtstr                  ; no match so onto the next
+    BCC nctest
 
-        PLA
-        RTS                     ; well it wasn't one of ours
+    PLA
+    RTS                         ; well it wasn't one of ours
 
 .gotit1
-        JSR     write_char.inverse_on
+    JSR write_char.inverse_on
 
-        LDY     #&01            ; the index to the text
+    LDY #&01                    ; the index to the text
 .ncoutl
-        LDA     (ctptr),Y
-        BEQ     tdone
+    LDA (ctptr),Y
+    BEQ tdone
 
-        JSR     oswrch
+    JSR oswrch
 
-        INY
-        BRA     ncoutl
+    INY
+    BRA ncoutl
 .tdone
-        JSR     write_char.inverse_off
+    JSR write_char.inverse_off
 
-        PLA
-        CLC
-        RTS
+    PLA
+    CLC
+    RTS
 
 
 
@@ -244,36 +244,36 @@ nktent  =       ( kttabe - kttab )
                                 ; Entry.. A - character value
                                 ; Exit..  relevant number of &7F's printed
 
-        LDX     #<kttab
-        LDY     #>kttab
-        STX     ctptr
-        STY     ctptr + 1
+    LDX #<kttab
+    LDY #>kttab
+    STX ctptr
+    STY ctptr + 1
 .nctst2
-        LDA     (ctptr)
-        BEQ     gotit2
+    LDA (ctptr)
+    BEQ gotit2
 
-        JSR     nxtstr
-        BCC     nctst2
+    JSR nxtstr
+    BCC nctst2
 
-        RTS                     ; not matched - so delete manually
+    RTS                         ; not matched - so delete manually
 
 .gotit2
-                                ; it is one of ours
-        LDY     #&FF
+                ; it is one of ours
+    LDY #&FF
 .gndspc
-        INY
+    INY
 
-        LDA     (ctptr),Y
-        BNE     gndspc
+    LDA (ctptr),Y
+    BNE gndspc
 
-        LDA     #&7F
+    LDA #&7F
 .dndspc
-        JSR     oswrch          ; and delete the relevant number of characters
-        DEY
-        BPL     dndspc
+    JSR oswrch                  ; and delete the relevant number of characters
+    DEY
+    BPL dndspc
 
-        CLC
-        RTS
+    CLC
+    RTS
 
 
 .nxtstr                         ; pass onto the next string, checking
@@ -281,31 +281,31 @@ nktent  =       ( kttabe - kttab )
                                 ; table
                                 ; step to character after 'null'
                                 ; update 'ctptr' until = kttabe
-        LDA     (ctptr)
-        BEQ     outup
+    LDA (ctptr)
+    BEQ outup
 
-        INC     ctptr
-        BNE     nxtstr
-        INC     ctptr + 1
-        BRA     nxtstr
+    INC ctptr
+    BNE nxtstr
+    INC ctptr + 1
+    BRA nxtstr
 
 .outup
-        INC     ctptr
-        BNE     nihii2
-        INC     ctptr + 1
+    INC ctptr
+    BNE nihii2
+    INC ctptr + 1
 .nihii2
-        SEC
-        LDA     ctptr + 1
-        CMP     #>kttabe
-        BNE     maybe1
-        LDA     ctptr
-        CMP     #<kttabe
-        BCS     outdwn          ; and around for the next
+    SEC
+    LDA ctptr + 1
+    CMP #>kttabe
+    BNE maybe1
+    LDA ctptr
+    CMP #<kttabe
+    BCS outdwn                  ; and around for the next
 .maybe1
-        PLA
-        CLC
-        RTS
+    PLA
+    CLC
+    RTS
 .outdwn
-        PLA
-        SEC
-        RTS
+    PLA
+    SEC
+    RTS

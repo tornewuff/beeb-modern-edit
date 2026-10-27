@@ -1,42 +1,42 @@
 .mouse_read {
-        LDA     mousel
-        STA     mousel + 5
-        LDA     #&92
-        LDX     #<mouswi
-        JSR     osbyte
-        STY     mousel
-        LDX     #<mouxlo
-        JSR     osbyte
-        PHY
-        INX
-        JSR     osbyte
-        PLA
-        AND     #&F8
-        PHA
-        SBC     mousel + 1
-        STA     mousel + 6
-        TYA
-        SBC     mousel + 2
-        STA     mousel + 7
-        STY     mousel + 2
-        PLA
-        STA     mousel + 1
-        LDA     #&92
-        INX
-        JSR     osbyte
-        PHY
-        INX
-        JSR     osbyte
-        PLA
-        AND     #&F8
-        PHA
-        SBC     mousel + 3
-        STA     mousel + 8
-        TYA
-        SBC     mousel + 4
-        STA     mousel + 9      ; ychange
-        STY     mousel + 4
-        PLY
-        STY     mousel + 3
-        RTS
+    LDA mousel
+    STA mousel + 5
+    LDA #&92
+    LDX #<mouswi
+    JSR osbyte
+    STY mousel
+    LDX #<mouxlo
+    JSR osbyte
+    PHY
+    INX
+    JSR osbyte
+    PLA
+    AND #&F8
+    PHA
+    SBC mousel + 1
+    STA mousel + 6
+    TYA
+    SBC mousel + 2
+    STA mousel + 7
+    STY mousel + 2
+    PLA
+    STA mousel + 1
+    LDA #&92
+    INX
+    JSR osbyte
+    PHY
+    INX
+    JSR osbyte
+    PLA
+    AND #&F8
+    PHA
+    SBC mousel + 3
+    STA mousel + 8
+    TYA
+    SBC mousel + 4
+    STA mousel + 9              ; ychange
+    STY mousel + 4
+    PLY
+    STY mousel + 3
+    RTS
 }

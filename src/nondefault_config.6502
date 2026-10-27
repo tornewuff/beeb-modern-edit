@@ -3,41 +3,41 @@
 
 .build {
 if DEFINED(build_disc)
-        filename = "HIEDTND"
+    filename = "HIEDTND"
 ELSE
-        filename = "nondefault.rom"
+    filename = "nondefault.rom"
 ENDIF
-        relocation_model = "tube"
-        relocation_address = &b800
-        cmos_host = FALSE
+    relocation_model = "tube"
+    relocation_address = &b800
+    cmos_host = FALSE
 }
 
 .metadata {
-        title = "Edit"
-        copyright = "1984 Acorn"
-        copyright_year = "1984"
-        version_byte = &02
-        version_str = "1.24"
+    title = "Edit"
+    copyright = "1984 Acorn"
+    copyright_year = "1984"
+    version_byte = &02
+    version_str = "1.24"
 }
 
 .setconfig {
-        phil = TRUE
-        mouse = TRUE
-        lerror = FALSE
-        dchars = FALSE
-        syzygy = FALSE
-        stamp = TRUE
-        lfver = TRUE
-        cF8key = FALSE
-        shortm = FALSE
-        curtyp = FALSE
-        lfarro = FALSE
-        extgf = TRUE
+    phil = TRUE
+    mouse = TRUE
+    lerror = FALSE
+    dchars = FALSE
+    syzygy = FALSE
+    stamp = TRUE
+    lfver = TRUE
+    cF8key = FALSE
+    shortm = FALSE
+    curtyp = FALSE
+    lfarro = FALSE
+    extgf = TRUE
 
-        ; Also include nondefault options split out of edit150
-        edit150_size_opt = TRUE
-        edit150_updated_help = TRUE
-        define_fancy_chars = "never"
+    ; Also include nondefault options split out of edit150
+    edit150_size_opt = TRUE
+    edit150_updated_help = TRUE
+    define_fancy_chars = "never"
 }
 
 

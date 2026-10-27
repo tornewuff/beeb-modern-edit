@@ -42,15 +42,15 @@ ENDIF
 
 ; Action to take in brk_handler when a BRK occurs.
 .brk_action {   SKIP 1
-        ; Print error on status line, prompt for escape, continue editing.
-        continue_editing                = 0
-        ; Print error on a new line, return to star prompt.
-        continue_star_prompt            = 1
-        ; Close index file, return to start of file, then do `continue_editing`.
-        close_index_continue_editing    = 2
-        ; Move the text that was being relocated back to its original location,
-        ; then do `continue_editing`.
-        undo_return_to_language         = &FF
+    ; Print error on status line, prompt for escape, continue editing.
+    continue_editing                = 0
+    ; Print error on a new line, return to star prompt.
+    continue_star_prompt            = 1
+    ; Close index file, return to start of file, then do `continue_editing`.
+    close_index_continue_editing    = 2
+    ; Move the text that was being relocated back to its original location,
+    ; then do `continue_editing`.
+    undo_return_to_language         = &FF
 }
 
 .size           SKIP 2

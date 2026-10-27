@@ -1,54 +1,54 @@
 .star_prompt                    ; oscli processing
-        LDA     #brk_action.continue_star_prompt
-        STA     brk_action
-        JSR     restore_keys
-        JSR     prompt
-        EQUB    "Command line",&EA
+    LDA #brk_action.continue_star_prompt
+    STA brk_action
+    JSR restore_keys
+    JSR prompt
+    EQUB "Command line",&EA
 
-        IF curtyp
-        JSR     lsf             ; slow line flash
-        ENDIF
+    IF curtyp
+    JSR lsf                     ; slow line flash
+    ENDIF
 .starCN
-        JSR     osnewl
+    JSR osnewl
 .starloop
-        LDA     #'*'
-        JSR     oswrch
-        LDA     #&00
-        LDY     #>starCB
-        LDX     #<starCB
-        JSR     osword
-        BCS     stares
-        LDA     commandline
-        CMP     #cr
-        IF edit150
-        BEQ     starfx
-        ELSE
-        BEQ     starex
-        ENDIF
-        LDX     #<commandline
-        LDY     #>commandline
-        JSR     oscli
-        BRA     starloop
+    LDA #'*'
+    JSR oswrch
+    LDA #&00
+    LDY #>starCB
+    LDX #<starCB
+    JSR osword
+    BCS stares
+    LDA commandline
+    CMP #cr
+    IF edit150
+    BEQ starfx
+    ELSE
+    BEQ starex
+    ENDIF
+    LDX #<commandline
+    LDY #>commandline
+    JSR oscli
+    BRA starloop
 .starCB
-        EQUW    commandline
-        EQUB    238
-        EQUB    " "
-        EQUB    &FF
+    EQUW commandline
+    EQUB 238
+    EQUB " "
+    EQUB &FF
 .stares
-        acknowledge_escape
-        IF edit150
+    acknowledge_escape
+    IF edit150
 .starfx
-        LDA     #&DA            ; flush the VDU queue
-        LDX     #0
-        JSR     osbyte_y0
+    LDA #&DA                    ; flush the VDU queue
+    LDX #0
+    JSR osbyte_y0
 .starex
-        JSR     print_inline
-        EQUB    4,3,15,13,26,&EA
-        ELSE
+    JSR print_inline
+    EQUB 4,3,15,13,26,&EA
+    ELSE
 .starex
-        JSR     print_inline
-        EQUB    0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
-        ENDIF
-        JSR     check_screen_mode
-        JSR     init_edit_keys
-        JMP     EDITcont
+    JSR print_inline
+    EQUB 0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
+    ENDIF
+    JSR check_screen_mode
+    JSR init_edit_keys
+    JMP EDITcont

@@ -1,64 +1,64 @@
 ; Reads the next key pressed into A. Handles ESC.
 .read_char {
-        LDA     key_queued_flag
-        BEQ     read_from_os
-        LDA     queued_key
-        STZ     key_queued_flag
-        RTS
+    LDA key_queued_flag
+    BEQ read_from_os
+    LDA queued_key
+    STZ key_queued_flag
+    RTS
 .read_from_os
 IF mouse
-        PHX
-        PHY
-        ; Poll for either a keypress or mouse input
-.@      LDA     #osbyte_inkey
-        LDX     #0
-        LDY     #0
-        JSR     osbyte
-        TXA
-        CPY     #&FF
-        BNE     return
-        JSR     mouse_read
-        LDA     mousel + 8
-        ORA     mousel + 9
-        BNE     MOUSLY
-        LDA     mousel + 6
-        ORA     mousel + 7
-        BNE     MOUSLX
-        LDA     mousel
-        CMP     mousel + 5
-        BEQ     @-
-        AND     #&7
-        BIT     #&1
-        BNE     MOUSK1
-        BIT     #&2
-        BNE     MOUSK2
-        BIT     #&4
-        BEQ     @-
-        LDA     #&86
-        BRA     return
+    PHX
+    PHY
+    ; Poll for either a keypress or mouse input
+.@  LDA #osbyte_inkey
+    LDX #0
+    LDY #0
+    JSR osbyte
+    TXA
+    CPY #&FF
+    BNE return
+    JSR mouse_read
+    LDA mousel + 8
+    ORA mousel + 9
+    BNE MOUSLY
+    LDA mousel + 6
+    ORA mousel + 7
+    BNE MOUSLX
+    LDA mousel
+    CMP mousel + 5
+    BEQ @-
+    AND #&7
+    BIT #&1
+    BNE MOUSK1
+    BIT #&2
+    BNE MOUSK2
+    BIT #&4
+    BEQ @-
+    LDA #&86
+    BRA return
 .MOUSK1
-        LDA     #&98
-        BRA     return
+    LDA #&98
+    BRA return
 .MOUSK2
-        LDA     #&97
-        BRA     return
+    LDA #&97
+    BRA return
 .MOUSLX
-        LDA     #&8D
-        LDX     mousel + 7
-        BPL     return
-        LDA     #&8C
-        BNE     return
+    LDA #&8D
+    LDX mousel + 7
+    BPL return
+    LDA #&8C
+    BNE return
 .MOUSLY
-        LDA     #&8F
-        LDX     mousel + 9
-        BPL     return
-        LDA     #&8E
+    LDA #&8F
+    LDX mousel + 9
+    BPL return
+    LDA #&8E
 .return
-        PLX
-        PLY
+    PLX
+    PLY
 ELSE
-        JSR     osrdch
+    JSR osrdch
 ENDIF
 
-        JMP     test_escape
+    JMP test_escape
 }

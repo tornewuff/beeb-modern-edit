@@ -1,252 +1,252 @@
-        ; Search subroutine , called by find & replace routines.
-        ; 'Multiple occurence' matching is achieved by a general backtracking
-        ; algorithm, using a stack of records, one for each '*-match', holding
-        ; the following data -
-        ;  + - +
-        ; |0| linbufX of multsym concerned
-        ;  + - +
-        ; |1| lo }
-        ;  + - +     } Text address of match start
-        ; |2| hi }
-        ;  + - +
-        ; |3| lo }
-        ;  + - +     } Number of object accepted by match
-        ; |4| hi }
-        ;  + - +
-        ; The first record is reserved (by check_and_replace) for match-start pointer.
-        ; Entry - match_start   --> Search start position
-        ;        EOSP    --> Top bit set charcater at required end of search.
-        ;        Search-string in stracc, terminated by termch.
-        ; Exit  - CC  Occurence of findstring found.
-        ;            match_start  --> match
-        ;            match_end  --> matchend  +  1
-        ;        CS  Search failed.
+    ; Search subroutine , called by find & replace routines.
+    ; 'Multiple occurence' matching is achieved by a general backtracking
+    ; algorithm, using a stack of records, one for each '*-match', holding
+    ; the following data -
+    ;  + - +
+    ; |0| linbufX of multsym concerned
+    ;  + - +
+    ; |1| lo }
+    ;  + - +     } Text address of match start
+    ; |2| hi }
+    ;  + - +
+    ; |3| lo }
+    ;  + - +     } Number of object accepted by match
+    ; |4| hi }
+    ;  + - +
+    ; The first record is reserved (by check_and_replace) for match-start pointer.
+    ; Entry - match_start   --> Search start position
+    ;        EOSP    --> Top bit set charcater at required end of search.
+    ;        Search-string in stracc, terminated by termch.
+    ; Exit  - CC  Occurence of findstring found.
+    ;            match_start  --> match
+    ;            match_end  --> matchend  +  1
+    ;        CS  Search failed.
 .SEARCH
-        LDY     #0
-        STZ     search_stack_index
-        ; Start of attempted match. See if have reached search_end - either old
-        ; cursor position, or end of search block.
-        LDA     match_start
-        STA     match_end
-        CMP     search_end
-        LDA     match_start + 1
-        STA     match_end + 1
-        SBC     search_end + 1
-        BCC     SRCHCT
-        LDA     search_end_flag
-        BNE     SRCHFL
-        JSR     MOVETOFOUNDPOSITION
-        LDA     gap_start
-        STA     string
-        LDA     gap_start + 1
-        STA     string + 1
-        INC     search_end_flag
-        LDA     block_end
-        STA     search_end
-        LDA     block_end + 1
-        STA     search_end + 1
-        LDY     #0
-        BRA     SRCHCT
+    LDY #0
+    STZ search_stack_index
+    ; Start of attempted match. See if have reached search_end - either old
+    ; cursor position, or end of search block.
+    LDA match_start
+    STA match_end
+    CMP search_end
+    LDA match_start + 1
+    STA match_end + 1
+    SBC search_end + 1
+    BCC SRCHCT
+    LDA search_end_flag
+    BNE SRCHFL
+    JSR MOVETOFOUNDPOSITION
+    LDA gap_start
+    STA string
+    LDA gap_start + 1
+    STA string + 1
+    INC search_end_flag
+    LDA block_end
+    STA search_end
+    LDA block_end + 1
+    STA search_end + 1
+    LDY #0
+    BRA SRCHCT
 .SRCHFL
-        SEC
-        RTS
+    SEC
+    RTS
 .SRCHL1
-        INC     match_end
-        BNE     SRCHCT
-        INC     match_end + 1
+    INC match_end
+    BNE SRCHCT
+    INC match_end + 1
 .SRCHCT
-        ; Expects Y (= linbufX), match_end --> next char valid.
-        JSR     test_escape
-        LDA     stracc,Y
-        CMP     #termsym
-        BEQ     SRCHFD
-        CMP     #multsym
-        BEQ     SRCHMI
-        JSR     compare_match_object
-        BEQ     SRCHL1
+    ; Expects Y (= linbufX), match_end --> next char valid.
+    JSR test_escape
+    LDA stracc,Y
+    CMP #termsym
+    BEQ SRCHFD
+    CMP #multsym
+    BEQ SRCHMI
+    JSR compare_match_object
+    BEQ SRCHL1
 .SRCHIN
-        ; Increment current multiple match, or advance match_start if there
-        ; isn't one. Search fails when match_start reaches EOT.
-        LDX     search_stack_index
-        BNE     SRCHFM
-        INC     match_start
-        BNE     SEARCH
-        INC     match_start + 1
-        BRA     SEARCH
+    ; Increment current multiple match, or advance match_start if there
+    ; isn't one. Search fails when match_start reaches EOT.
+    LDX search_stack_index
+    BNE SRCHFM
+    INC match_start
+    BNE SEARCH
+    INC match_start + 1
+    BRA SEARCH
 .SRCHFD
-        LDA     match_start ; Match found. Set sstk[0] = match_start, (match_end-match_start).
-        STA     SSTTLOSTK
-        LDA     match_start + 1
-        STA     SSTTHISTK
-        SEC
-        LDA     match_end
-        SBC     match_start
-        STA     SCNTLOSTK
-        LDA     match_end + 1
-        SBC     match_start + 1
-        STA     SCNTHISTK
-        CLC
-        RTS
+    LDA match_start         ; Match found. Set sstk[0] = match_start, (match_end-match_start).
+    STA SSTTLOSTK
+    LDA match_start + 1
+    STA SSTTHISTK
+    SEC
+    LDA match_end
+    SBC match_start
+    STA SCNTLOSTK
+    LDA match_end + 1
+    SBC match_start + 1
+    STA SCNTHISTK
+    CLC
+    RTS
 .SRCHFM
-        ; Let most recent multiple match accept another occurence of
-        ; find-object, if one exists.
-        STY     BUTTFLAG
-        CLC
-        LDA     SSTTLOSTK,X
-        ADC     SCNTLOSTK,X
-        STA     match_end
-        LDA     SSTTHISTK,X
-        ADC     SCNTHISTK,X
-        STA     match_end + 1
-        LDA     SINDEXSTK,X
-        TAY
-        JSR     compare_match_object
-        BNE     SRCHBK
-        LDX     search_stack_index
-        INC     SCNTLOSTK,X
-        BNE     SRCHL1
-        INC     SCNTHISTK,X
-        BRA     SRCHL1
+    ; Let most recent multiple match accept another occurence of
+    ; find-object, if one exists.
+    STY BUTTFLAG
+    CLC
+    LDA SSTTLOSTK,X
+    ADC SCNTLOSTK,X
+    STA match_end
+    LDA SSTTHISTK,X
+    ADC SCNTHISTK,X
+    STA match_end + 1
+    LDA SINDEXSTK,X
+    TAY
+    JSR compare_match_object
+    BNE SRCHBK
+    LDX search_stack_index
+    INC SCNTLOSTK,X
+    BNE SRCHL1
+    INC SCNTHISTK,X
+    BRA SRCHL1
 .SRCHBK
-        ; Can't increment this multiple-match, so backtrack to the previous one.
-        ; unless its hit a ^ with count>0 in which case it continues
-        LDX     BUTTFLAG
-        LDA     stracc-1,X
-        CMP     #BUTTSYM
-        BNE     SRCHBC
-        INY
-        LDX     search_stack_index
-        LDA     SCNTLOSTK,X
-        ORA     SCNTHISTK,X
-        BNE     SRCHCT
+    ; Can't increment this multiple-match, so backtrack to the previous one.
+    ; unless its hit a ^ with count>0 in which case it continues
+    LDX BUTTFLAG
+    LDA stracc-1,X
+    CMP #BUTTSYM
+    BNE SRCHBC
+    INY
+    LDX search_stack_index
+    LDA SCNTLOSTK,X
+    ORA SCNTHISTK,X
+    BNE SRCHCT
 .SRCHBC
-        DEC     search_stack_index
-        BRA     SRCHIN
+    DEC search_stack_index
+    BRA SRCHIN
 .SRCHMI
-        ; 'Push' a new record onto backtrack-stack. Initially accept
-        ; 0 characters into multiple match.
-        INC     search_stack_index
-        LDX     search_stack_index
-        INY
-        TYA
-        STA     SINDEXSTK,X
-        LDA     match_end
-        STA     SSTTLOSTK,X
-        LDA     match_end + 1
-        STA     SSTTHISTK,X
-        STZ     SCNTLOSTK,X
-        STZ     SCNTHISTK,X
-        JSR     compare_match_object ; Cheap way to advance Y to next find-object.
-        JMP     SRCHCT
+    ; 'Push' a new record onto backtrack-stack. Initially accept
+    ; 0 characters into multiple match.
+    INC search_stack_index
+    LDX search_stack_index
+    INY
+    TYA
+    STA SINDEXSTK,X
+    LDA match_end
+    STA SSTTLOSTK,X
+    LDA match_end + 1
+    STA SSTTHISTK,X
+    STZ SCNTLOSTK,X
+    STZ SCNTHISTK,X
+    JSR compare_match_object         ; Cheap way to advance Y to next find-object.
+    JMP SRCHCT
 .COMOFS
-        PLP
+    PLP
 .COMOFL
-        ; Have hit end of search text, so fail match.
-        LDA     #1
-        RTS
+    ; Have hit end of search text, so fail match.
+    LDA #1
+    RTS
 .compare_match_object
-        ; Compares stracc,Y & (match_end).
-        ; Exit  - Y indexes next ssobj
-        ;        EQ  Objects match.
-        ;        NE  Objects don't match.
-        ; Match fails if have hit end of seach text.
-        LDA     match_end
-        CMP     block_end
-        BNE     COMOCO
-        LDA     match_end + 1
-        CMP     block_end + 1
-        BEQ     COMOFL
+    ; Compares stracc,Y & (match_end).
+    ; Exit  - Y indexes next ssobj
+    ;        EQ  Objects match.
+    ;        NE  Objects don't match.
+    ; Match fails if have hit end of seach text.
+    LDA match_end
+    CMP block_end
+    BNE COMOCO
+    LDA match_end + 1
+    CMP block_end + 1
+    BEQ COMOFL
 .COMOCO
-        ; Check for & store absence/presence of notsym, then branch depending
-        ; whether trying to match constant, wildcard, subrange or set item.
-        LDA     stracc,Y
-        CMP     #notsym
-        PHP
-        BNE     COMONN
-        INY
+    ; Check for & store absence/presence of notsym, then branch depending
+    ; whether trying to match constant, wildcard, subrange or set item.
+    LDA stracc,Y
+    CMP #notsym
+    PHP
+    BNE COMONN
+    INY
 .COMONN
-        INY
-        LDA     stracc-1,Y
-        BMI     COMOME
-        CMP     (match_end)
-        BNE     CMOPRN
-        BRA     CMOPRY
+    INY
+    LDA stracc-1,Y
+    BMI COMOME
+    CMP (match_end)
+    BNE CMOPRN
+    BRA CMOPRY
 .COMOME
-        CMP     #WILDSYM
-        BEQ     CMOPRY
-        CMP     #NSENSYM
-        BEQ     CMONSEN
-        CMP     #ALPHASYM
-        BEQ     COMOAL
-        CMP     #BUTTSYM
-        BEQ     COMOFS
-        CMP     #digsym
-        BEQ     CMODG1
-        CMP     #SUBRSYM
-        BEQ     CMOSUB
-        CMP     #setsym
-        BEQ     CMOSET
-        ;
-        ; Must be escsym ch
-        ;
-        INY
-        LDA     stracc-1,Y
-        CMP     (match_end)
-        BNE     CMOPRN
-        BEQ     CMOPRY
+    CMP #WILDSYM
+    BEQ CMOPRY
+    CMP #NSENSYM
+    BEQ CMONSEN
+    CMP #ALPHASYM
+    BEQ COMOAL
+    CMP #BUTTSYM
+    BEQ COMOFS
+    CMP #digsym
+    BEQ CMODG1
+    CMP #SUBRSYM
+    BEQ CMOSUB
+    CMP #setsym
+    BEQ CMOSET
+    ;
+    ; Must be escsym ch
+    ;
+    INY
+    LDA stracc-1,Y
+    CMP (match_end)
+    BNE CMOPRN
+    BEQ CMOPRY
 .CMOSUB
-        INY
-        INY
-        LDA     (match_end)
-        CMP     stracc-2,Y
-        BCC     CMOPRN
-        CMP     stracc-1,Y
-        BCC     CMOPRY
-        BNE     CMOPRN
-        BRA     CMOPRY
+    INY
+    INY
+    LDA (match_end)
+    CMP stracc-2,Y
+    BCC CMOPRN
+    CMP stracc-1,Y
+    BCC CMOPRY
+    BNE CMOPRN
+    BRA CMOPRY
 .CMONSEN
-        INY
-        LDA     (match_end)
-        ORA     #&20
-        CMP     stracc-1,Y
-        BNE     CMOPRN
-        BRA     CMOPRY
+    INY
+    LDA (match_end)
+    ORA #&20
+    CMP stracc-1,Y
+    BNE CMOPRN
+    BRA CMOPRY
 .COMOAL
-        LDA     (match_end)
-        CMP     #'_'
-        BEQ     CMOPRY
-        CMP     #'A'
-        BCC     CMODG2
-        CMP     #'z' + 1
-        BCS     CMOPRN
-        CMP     #'Z' + 1
-        BCC     CMOPRY
-        CMP     #'a'
-        BCC     CMOPRN
-        BRA     CMOPRY
+    LDA (match_end)
+    CMP #'_'
+    BEQ CMOPRY
+    CMP #'A'
+    BCC CMODG2
+    CMP #'z' + 1
+    BCS CMOPRN
+    CMP #'Z' + 1
+    BCC CMOPRY
+    CMP #'a'
+    BCC CMOPRN
+    BRA CMOPRY
 .CMODG1
-        LDA     (match_end)
+    LDA (match_end)
 .CMODG2
-        CMP     #'0'
-        BCC     CMOPRN
-        CMP     #'9' + 1
-        BCS     CMOPRN
-        BRA     CMOPRY
+    CMP #'0'
+    BCC CMOPRN
+    CMP #'9' + 1
+    BCS CMOPRN
+    BRA CMOPRY
 .CMOSET
-        LDA     stracc,Y
-        STA     nextX
-        INY
+    LDA stracc,Y
+    STA nextX
+    INY
 .CMOSEL
-        JSR     compare_match_object
-        BEQ     CMOSEY
-        CPY     nextX
-        BNE     CMOSEL
+    JSR compare_match_object
+    BEQ CMOSEY
+    CPY nextX
+    BNE CMOSEL
 .CMOPRN
-        PLP
-        RTS
+    PLP
+    RTS
 .CMOSEY
-        LDY     nextX
+    LDY nextX
 .CMOPRY
-        PLA
-        AND     #2
-        RTS
+    PLA
+    AND #2
+    RTS

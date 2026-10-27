@@ -1,80 +1,80 @@
 .add_virtual_spaces
-        JSR     count_virtual_spaces
-        BEQ     ADVSEX
-        PHA
-        TAX
-        LDA     current_line_len
-        JSR     INSRTX
-        ; Wipe possible visible TERMIN.
-        LDX     current_line_len
-        LDY     screen_y
-        JSR     cursor_to_xy
-        LDA     #space
-        JSR     oswrch
-        PLX     ;number spaces from count_virtual_spaces
-        LDY     screen_x
+    JSR count_virtual_spaces
+    BEQ ADVSEX
+    PHA
+    TAX
+    LDA current_line_len
+    JSR INSRTX
+    ; Wipe possible visible TERMIN.
+    LDX current_line_len
+    LDY screen_y
+    JSR cursor_to_xy
+    LDA #space
+    JSR oswrch
+    PLX         ;number spaces from count_virtual_spaces
+    LDY screen_x
 .ADVSLP
-        DEY
-        STA     (gap_end),Y
-        DEX
-        BNE     ADVSLP
+    DEY
+    STA (gap_end),Y
+    DEX
+    BNE ADVSLP
 .ADVSEX
-        JMP     cursor_to_screen_xy
+    JMP cursor_to_screen_xy
 .count_virtual_spaces
-        ; Exit - A(Z) = Number of virtual spaces.
-        SEC
-        LDA     screen_x
-        SBC     current_line_len
-        BCS     VSCTEX
-        LDA     #0
+    ; Exit - A(Z) = Number of virtual spaces.
+    SEC
+    LDA screen_x
+    SBC current_line_len
+    BCS VSCTEX
+    LDA #0
 .VSCTEX
-        RTS
+    RTS
 .INSRTX
-        ; Entry - Require gap of XY ( > 0) opening up after gap_end  +  A
-        ; Exit  - gap_end -= XY (checked against gap_start)
-        ;         A chars moved back to new gap_end, to open up gap
-        STA     temp_a
-        CLC
-        ADC     gap_end
-        PHA
-        LDA     gap_end + 1
-        ADC     #0
-        PHA
-        PHX
-        LDY     #0
-        JSR     check_room
-        LDY     #0
+    ; Entry - Require gap of XY ( > 0) opening up after gap_end  +  A
+    ; Exit  - gap_end -= XY (checked against gap_start)
+    ;         A chars moved back to new gap_end, to open up gap
+    STA temp_a
+    CLC
+    ADC gap_end
+    PHA
+    LDA gap_end + 1
+    ADC #0
+    PHA
+    PHX
+    LDY #0
+    JSR check_room
+    LDY #0
 .INSXLP
-        LDA     (gap_end),Y
-        STA     (temp),Y
-        INY
-        CPY     temp_a
-        BCC     INSXLP
-        STX     gap_end
-        LDA     temp + 1
-        STA     gap_end + 1
-        PLX
-        STX     count
-        PLA
-        STA     temp + 1
-        PLA
-        STA     temp
-        LDY     num_marks_set
+    LDA (gap_end),Y
+    STA (temp),Y
+    INY
+    CPY temp_a
+    BCC INSXLP
+    STX gap_end
+    LDA temp + 1
+    STA gap_end + 1
+    PLX
+    STX count
+    PLA
+    STA temp + 1
+    PLA
+    STA temp
+    LDY num_marks_set
 .INSXMK
-        DEY
-        BMI     INSXEX
-        LDX     set_marks_lo,Y
-        CPX     temp
-        LDA     set_marks_hi,Y
-        SBC     temp + 1
-        BCS     INSXMK
-        SEC
-        TXA
-        SBC     count
-        STA     set_marks_lo,Y
-        LDA     set_marks_hi,Y
-        SBC     #0
-        STA     set_marks_hi,Y
-        BRA     INSXMK
+    DEY
+    BMI INSXEX
+    LDX set_marks_lo,Y
+    CPX temp
+    LDA set_marks_hi,Y
+    SBC temp + 1
+    BCS INSXMK
+    SEC
+    TXA
+    SBC count
+    STA set_marks_lo,Y
+    LDA set_marks_hi,Y
+    SBC #0
+    STA set_marks_hi,Y
+    BRA INSXMK
 .INSXEX
-        RTS
+    RTS

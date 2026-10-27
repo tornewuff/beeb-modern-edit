@@ -1,10 +1,10 @@
 .allow_cursor_editing
-        ; Allow cursor editing & softkey use. Terminated by CR.
-        LDA     #&01
-        STA     cursor_editing
+    ; Allow cursor editing & softkey use. Terminated by CR.
+    LDA #&01
+    STA cursor_editing
 
-        IF NOT(phil)
-        JSR     restore_keys
-        ENDIF
+    IF NOT(phil)
+    JSR restore_keys
+    ENDIF
 
-        JMP     CstatU
+    JMP CstatU

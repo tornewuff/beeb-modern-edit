@@ -1,268 +1,268 @@
 .paslnm
-        IF edit150
-        PHP                     ; V set: use the name in place, don't copy it
-        ENDIF
-        SEC
-        SBC     addr
-        STA     max_size
-        TXA
-        SBC     addr + 1
-        STA     max_size + 1
-        IF edit150
-        PLP
-        ENDIF
+    IF edit150
+    PHP                         ; V set: use the name in place, don't copy it
+    ENDIF
+    SEC
+    SBC addr
+    STA max_size
+    TXA
+    SBC addr + 1
+    STA max_size + 1
+    IF edit150
+    PLP
+    ENDIF
 
 .filename
-        ; Entry - IY temp points to input name. Exit - scratch -> filename.
-        LDA     (temp),Y
-        CMP     #cr
-        BEQ     textna
-        CMP     #&8B
-        BEQ     oldnam
-        IF edit150
-        BVC     cpynam
-        CLC                     ; point scratch at temp + Y
-        TYA
-        ADC     temp
-        TAX
-        LDA     temp + 1
-        ADC     #&00
-        BRA     setnam
+    ; Entry - IY temp points to input name. Exit - scratch -> filename.
+    LDA (temp),Y
+    CMP #cr
+    BEQ textna
+    CMP #&8B
+    BEQ oldnam
+    IF edit150
+    BVC cpynam
+    CLC                         ; point scratch at temp + Y
+    TYA
+    ADC temp
+    TAX
+    LDA temp + 1
+    ADC #&00
+    BRA setnam
 .cpynam
-        ENDIF
-        LDX     #&00
+    ENDIF
+    LDX #&00
 
 .memnam
-        LDA     (temp),Y
-        STA     filename_buffer,X
-        INY
-        INX
-        CPX     #52
-        BNE     memnam
+    LDA (temp),Y
+    STA filename_buffer,X
+    INY
+    INX
+    CPX #52
+    BNE memnam
 
 .oldnam
-        LDA     filename_buffer
-        CMP     #cr
-        BEQ     nonam
-        IF edit150
-        LDX     #<filename_buffer
-        LDA     #>filename_buffer
+    LDA filename_buffer
+    CMP #cr
+    BEQ nonam
+    IF edit150
+    LDX #<filename_buffer
+    LDA #>filename_buffer
 .setnam
-        STX     scratch
-        STA     scratch + 1
-        ELSE
-        LDA     #<filename_buffer
-        STA     scratch
-        LDA     #>filename_buffer
-        STA     scratch + 1
-        ENDIF
-        RTS
+    STX scratch
+    STA scratch + 1
+    ELSE
+    LDA #<filename_buffer
+    STA scratch
+    LDA #>filename_buffer
+    STA scratch + 1
+    ENDIF
+    RTS
 
 .textna
-        LDX     gap_end
-        LDY     gap_end + 1
-        PHX
-        PHY
-        LDX     text_start
-        LDY     text_start + 1
-        JSR     gap_back_to_xy
-        LDY     #&00
+    LDX gap_end
+    LDY gap_end + 1
+    PHX
+    PHY
+    LDX text_start
+    LDY text_start + 1
+    JSR gap_back_to_xy
+    LDY #&00
 
 .MVIC
-        LDA     (gap_end),Y
-        STA     stracc,Y
-        INY
-        BNE     MVIC
-        PLY
-        PLX
-        JSR     gap_forward_to_xy
-        LDY     #&FF
+    LDA (gap_end),Y
+    STA stracc,Y
+    INY
+    BNE MVIC
+    PLY
+    PLX
+    JSR gap_forward_to_xy
+    LDY #&FF
 .namsrc
-        INY
-        BMI     nonam
-        LDA     stracc,Y
-        cmp_line_terminator
-        BEQ     nonam
-        CMP     #'>'
-        BNE     namsrc
-        INY
-        STY     scratch
+    INY
+    BMI nonam
+    LDA stracc,Y
+    cmp_line_terminator
+    BEQ nonam
+    CMP #'>'
+    BNE namsrc
+    INY
+    STY scratch
 .namsr3
-        LDA     stracc,Y
-        cmp_line_terminator
-        BEQ     namfnd
-        INY
-        BPL     namsr3
+    LDA stracc,Y
+    cmp_line_terminator
+    BEQ namfnd
+    INY
+    BPL namsr3
 .nonam
-        TYA
-        BEQ     namsrc
-        BRK
-        EQUB    &01,"No name found",null
+    TYA
+    BEQ namsrc
+    BRK
+    EQUB &01,"No name found",null
 
 .namfnd
 
-        IF cF8key
-        LDA     #cr
-        STA     stracc,Y
-        ELSE
-        IF termin<>cr
-        LDA     #cr
-        STA     stracc,Y
-        ENDIF
-        ENDIF
+    IF cF8key
+    LDA #cr
+    STA stracc,Y
+    ELSE
+    IF termin<>cr
+    LDA #cr
+    STA stracc,Y
+    ENDIF
+    ENDIF
 
-        LDA     #>stracc
-        STA     scratch + 1
-        RTS
+    LDA #>stracc
+    STA scratch + 1
+    RTS
 
 .write_filename
-        JSR     write_char.inverse_on
-        LDY     #&FF
+    JSR write_char.inverse_on
+    LDY #&FF
 .wrispc
-        INY
-        LDA     (scratch),Y
-        CMP     #' '
-        BEQ     wrispc
+    INY
+    LDA (scratch),Y
+    CMP #' '
+    BEQ wrispc
 .wrilop
-        LDA     (scratch),Y
-        CMP     #' ' + 1
-        BCC     wriex
-        JSR     oswrch
-        INY
-        BRA     wrilop
+    LDA (scratch),Y
+    CMP #' ' + 1
+    BCC wriex
+    JSR oswrch
+    INY
+    BRA wrilop
 .wriex
-        JMP     write_char.inverse_off
+    JMP write_char.inverse_off
 
 .load_text
-        LDA     text_start
-        STA     addr
-        LDA     text_start + 1
-        STA     addr + 1
-        LDA     text_end
-        LDX     text_end + 1
+    LDA text_start
+    STA addr
+    LDA text_start + 1
+    STA addr + 1
+    LDA text_end
+    LDX text_end + 1
 
-        IF stamp
-        JSR     load_file
-        PHX
-        PHY
-        LDX     #flload
-        LDY     #&02
-        JSR     frscra
-        LDX     #flexec
-        JSR     frscra
-        PLY
-        PLX
-        RTS
-        ENDIF
+    IF stamp
+    JSR load_file
+    PHX
+    PHY
+    LDX #flload
+    LDY #&02
+    JSR frscra
+    LDX #flexec
+    JSR frscra
+    PLY
+    PLX
+    RTS
+    ENDIF
 
-        IF edit150
-        CLV                     ; copy the name into filename_buffer
-        ENDIF
+    IF edit150
+    CLV                         ; copy the name into filename_buffer
+    ENDIF
 .load_file
-        ; Entry - IY temp -> name, addr = load address, AX = max free address
-        ; Exit - File checked for size (not on slow FS's)
-        ; File loaded to addr, with XY = top of file
-        JSR     paslnm
-        JSR     prompt
-        EQUB    "Loading ",&EA
-        JSR     write_filename
+    ; Entry - IY temp -> name, addr = load address, AX = max free address
+    ; Exit - File checked for size (not on slow FS's)
+    ; File loaded to addr, with XY = top of file
+    JSR paslnm
+    JSR prompt
+    EQUB "Loading ",&EA
+    JSR write_filename
 
 .pasGO
-        LDY     #&00
-        TYA
-        JSR     osargs
-        CMP     #&04
-        BCC     nosize
-        ; Using a random access filing system,
-        ; so can quickly check size of file.
-        LDA     #&05
-        JSR     XYSCRATCH
-        JSR     osfile
-        CMP     #&01
-        BNE     nosize          ; Let FS generate 'Directory/not found' error.
-        LDA     scratch + &0C
-        ORA     scratch + &0D
-        BNE     paslhu
-        LDA     max_size
-        CMP     scratch + &0A
-        LDA     max_size + 1
-        SBC     scratch + &0B
-        BCC     paslhu
+    LDY #&00
+    TYA
+    JSR osargs
+    CMP #&04
+    BCC nosize
+    ; Using a random access filing system,
+    ; so can quickly check size of file.
+    LDA #&05
+    JSR XYSCRATCH
+    JSR osfile
+    CMP #&01
+    BNE nosize                  ; Let FS generate 'Directory/not found' error.
+    LDA scratch + &0C
+    ORA scratch + &0D
+    BNE paslhu
+    LDA max_size
+    CMP scratch + &0A
+    LDA max_size + 1
+    SBC scratch + &0B
+    BCC paslhu
 
 .nosize
-        ; Load file to addr, & set XY --> top of loaded file.
-        LDA     addr
-        STA     scratch + 2
-        LDA     addr + 1
-        STA     scratch + 3
-        STZ     scratch + 4
-        STZ     scratch + 5
-        STZ     scratch + 6
-        LDA     #&FF
-        JSR     XYSCRATCH
-        JSR     osfile
-        STZ     old_text_bounds + 3 ; make old impossible
-        CLC
-        LDA     addr
-        ADC     scratch + &0A
-        TAX
-        LDA     addr + 1
-        ADC     scratch + &0B
-        TAY
-        RTS
+    ; Load file to addr, & set XY --> top of loaded file.
+    LDA addr
+    STA scratch + 2
+    LDA addr + 1
+    STA scratch + 3
+    STZ scratch + 4
+    STZ scratch + 5
+    STZ scratch + 6
+    LDA #&FF
+    JSR XYSCRATCH
+    JSR osfile
+    STZ old_text_bounds + 3         ; make old impossible
+    CLC
+    LDA addr
+    ADC scratch + &0A
+    TAX
+    LDA addr + 1
+    ADC scratch + &0B
+    TAY
+    RTS
 
 .paslhu
-        BRK
-        EQUB    &02,"File too big",null
+    BRK
+    EQUB &02,"File too big",null
 
 .save_text
-        ; Save (defaulting) marked block of text.
-        ; Entry - (temp),Y points to input name.
-        ; gap_end = Start of block
-        ; block_end = End of block
-        ; Exit - specified memory saved as filename.
-        IF edit150
-        CLV                     ; copy the name into filename_buffer
-        ENDIF
-        JSR     filename
+    ; Save (defaulting) marked block of text.
+    ; Entry - (temp),Y points to input name.
+    ; gap_end = Start of block
+    ; block_end = End of block
+    ; Exit - specified memory saved as filename.
+    IF edit150
+    CLV                         ; copy the name into filename_buffer
+    ENDIF
+    JSR filename
 
 .inSAVE
-        JSR     prompt
-        EQUB    "Saving to ",&EA
-        JSR     write_filename
-        LDX     #&0F
+    JSR prompt
+    EQUB "Saving to ",&EA
+    JSR write_filename
+    LDX #&0F
 .pasacl
-        STZ     scratch + 2,X
-        DEX
-        BPL     pasacl
+    STZ scratch + 2,X
+    DEX
+    BPL pasacl
 
-        IF stamp
-        JSR     dstamp
-        LDX     #flload
-        LDY     #&02
-        JSR     toscra
-        LDX     #flexec
-        JSR     toscra
-        LDX     #gap_end
-        JSR     toscr2
-        LDY     #&0E
-        LDX     #block_end
-        JSR     toscr2
-        ELSE
-        DEC     scratch + 6
-        DEC     scratch + 7
-        DEC     scratch + 8
-        DEC     scratch + 9
-        LDA     gap_end
-        STA     scratch + &0A
-        LDA     gap_end + 1
-        STA     scratch + &0B
-        LDA     block_end
-        STA     scratch + &0E
-        LDA     block_end + 1
-        STA     scratch + &0F
-        ENDIF
+    IF stamp
+    JSR dstamp
+    LDX #flload
+    LDY #&02
+    JSR toscra
+    LDX #flexec
+    JSR toscra
+    LDX #gap_end
+    JSR toscr2
+    LDY #&0E
+    LDX #block_end
+    JSR toscr2
+    ELSE
+    DEC scratch + 6
+    DEC scratch + 7
+    DEC scratch + 8
+    DEC scratch + 9
+    LDA gap_end
+    STA scratch + &0A
+    LDA gap_end + 1
+    STA scratch + &0B
+    LDA block_end
+    STA scratch + &0E
+    LDA block_end + 1
+    STA scratch + &0F
+    ENDIF
 
-        LDA     #&00
-        JSR     XYSCRATCH
-        JMP     osfile
+    LDA #&00
+    JSR XYSCRATCH
+    JMP osfile

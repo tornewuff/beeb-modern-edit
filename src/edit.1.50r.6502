@@ -1,35 +1,35 @@
 .build {
 IF DEFINED(build_disc)
-        filename = "EDIT"
+    filename = "EDIT"
 ELIF DEFINED(build_relocated)
-        filename = "edit.1.50r.relocated"
+    filename = "edit.1.50r.relocated"
 ELSE
-        filename = "edit.1.50r.rom"
+    filename = "edit.1.50r.rom"
 ENDIF
-        relocation_model = "mos350"
-        relocation_address = &b800
-        relocation_bitmap = &bd80
-        relocation_bitmap_rom = &83
-        cmos_host = TRUE
+    relocation_model = "mos350"
+    relocation_address = &b800
+    relocation_bitmap = &bd80
+    relocation_bitmap_rom = &83
+    cmos_host = TRUE
 }
 
 .metadata {
-        title = "EDIT"
-        copyright = CONCAT("1989 Acorn", lf, cr)
-        copyright_year = "1989"
-        version_byte = &0a
-        version_str = "1.50r"
+    title = "EDIT"
+    copyright = CONCAT("1989 Acorn", lf, cr)
+    copyright_year = "1989"
+    version_byte = &0a
+    version_str = "1.50r"
 }
 
 .setconfig {
-        edit150 = TRUE
-        edit150_size_opt = TRUE
-        edit150_updated_help = TRUE
-        define_fancy_chars = "temporary"
-        fancy_chars_at_80 = TRUE
-        curtyp = FALSE
-        lfarro = FALSE
-        syzygy = FALSE
+    edit150 = TRUE
+    edit150_size_opt = TRUE
+    edit150_updated_help = TRUE
+    define_fancy_chars = "temporary"
+    fancy_chars_at_80 = TRUE
+    curtyp = FALSE
+    lfarro = FALSE
+    syzygy = FALSE
 }
 
 INCLUDE "main.6502"

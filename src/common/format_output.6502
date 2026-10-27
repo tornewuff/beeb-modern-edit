@@ -1,178 +1,178 @@
 .VDUBIT
-        TAY
-        LDA     translate_table,Y
-        STA     scratch
-        JSR     XYSCRATCH
-        LDA     #10
-        JMP     osword
+    TAY
+    LDA translate_table,Y
+    STA scratch
+    JSR XYSCRATCH
+    LDA #10
+    JMP osword
 .DOVDU
-        BIT     bold
-        BPL     VDUNBL
+    BIT bold
+    BPL VDUNBL
 ; bold character
-        PHY
-        PHX
-        JSR     VDUBIT
-        LDX     #7
+    PHY
+    PHX
+    JSR VDUBIT
+    LDX #7
 .VDUBLD
-        LDA     scratch+1,X
-        LSR     A
-        ORA     scratch+1,X
-        STA     scratch+1,X
-        DEX
-        BPL     VDUBLD
-        BIT     underline
-        BPL     VDUDON
+    LDA scratch+1,X
+    LSR A
+    ORA scratch+1,X
+    STA scratch+1,X
+    DEX
+    BPL VDUBLD
+    BIT underline
+    BPL VDUDON
 ; both bold and underline
-        BRA     VDUUND
+    BRA VDUUND
 .VDUNBL
-        BIT     underline
-        BPL     WRCHA
+    BIT underline
+    BPL WRCHA
 ; underline character
-        PHY
-        PHX
-        JSR     VDUBIT
+    PHY
+    PHX
+    JSR VDUBIT
 .VDUUND
-        LDA     scratch+8
-        LSR     A
-        ROR     A
-        ORA     scratch+8
-        ROL     A
-        EOR     #&FF
-        TSB     scratch+8
+    LDA scratch+8
+    LSR A
+    ROR A
+    ORA scratch+8
+    ROL A
+    EOR #&FF
+    TSB scratch+8
 .VDUDON
-        write_two_chars 23, 32
-        LDX     #1
+    write_two_chars 23, 32
+    LDX #1
 .VDUPRG
-        LDA     scratch,X
-        JSR     oswrch
-        INX
-        CPX     #9
-        BNE     VDUPRG
-        JSR     print_inline
-        EQUB    32,23,32,0,0,0,0,0,0,0,0,&EA
-        PLX
-        PLY
-        RTS
+    LDA scratch,X
+    JSR oswrch
+    INX
+    CPX #9
+    BNE VDUPRG
+    JSR print_inline
+    EQUB 32,23,32,0,0,0,0,0,0,0,0,&EA
+    PLX
+    PLY
+    RTS
 .ESCAP
-        acknowledge_escape
-        JMP     DODWN
+    acknowledge_escape
+    JMP DODWN
 
 .format_write_char
-        BIT     escflg
-        BMI     ESCAP        ; must not go via SENTRY,
-                             ; because of marked mode (SWOPCH)
-        BIT     index_output
-        BMI     DOINDE
+    BIT escflg
+    BMI ESCAP                   ; must not go via SENTRY,
+                                ; because of marked mode (SWOPCH)
+    BIT index_output
+    BMI DOINDE
 
-        cmp_line_terminator
-        BEQ     wrchen
+    cmp_line_terminator
+    BEQ wrchen
 
-        BIT     print_flags
-        BMI     DOVDU
-        BVS     NOULA
+    BIT print_flags
+    BMI DOVDU
+    BVS NOULA
 
-        LDA     #' '
-        BIT     underline
-        BPL     NOULA
-        LDA     #'_'
+    LDA #' '
+    BIT underline
+    BPL NOULA
+    LDA #'_'
 .NOULA
-        PHA
+    PHA
 
-        LDA     #&20
-        BIT     print_flags
-        BNE     NOBBLE
-        BIT     bold
-        BMI     NOBBLE
+    LDA #&20
+    BIT print_flags
+    BNE NOBBLE
+    BIT bold
+    BMI NOBBLE
 
-        LDA     #' '
-        JSR     oswrch
-        PLA
-        RTS
+    LDA #' '
+    JSR oswrch
+    PLA
+    RTS
 
 .NOBBLE
-        PLA
+    PLA
 .WRCHA
-        PHY
-        TAY
-        LDA     translate_table,Y
-        PLY
-        IF cF8key
+    PHY
+    TAY
+    LDA translate_table,Y
+    PLY
+    IF cF8key
 .wrch
-        JMP     (&020E)
+    JMP (&020E)
 .wrchen
-        LDA     #cr
-        BRA     wrch
-        ELSE
-        IF termin=cr
+    LDA #cr
+    BRA wrch
+    ELSE
+    IF termin=cr
 .wrchen
 .wrch
-        JMP     (&20E)
-        ELSE
+    JMP (&20E)
+    ELSE
 .wrch
-        JMP     (&20E)
+    JMP (&20E)
 .wrchen
-        LDA     #cr
-        BRA     wrch
-        ENDIF
-        ENDIF
+    LDA #cr
+    BRA wrch
+    ENDIF
+    ENDIF
 .DOINDE
-        PHY
-        TAY
-        LDA     translate_table,Y
-        LDY     index_handle
-        BEQ     DOINDF
-        JSR     osbput
+    PHY
+    TAY
+    LDA translate_table,Y
+    LDY index_handle
+    BEQ DOINDF
+    JSR osbput
 .DOINDF
-        PLY
-        RTS
+    PLY
+    RTS
 
 .lfwrch
-        BIT     index_output
-        BMI     writeX
-        LDA     #lf       ; write a real line feed
-        INC     lineno
-        BNE     fmwrca
-        INC     lineno + 1
+    BIT index_output
+    BMI writeX
+    LDA #lf               ; write a real line feed
+    INC lineno
+    BNE fmwrca
+    INC lineno + 1
 .fmwrca
-        DEC     lineot
-        BNE     wrch
-        JSR     oswrch
-        PHX
-        PHY
-        LDX     even_footer
-        LDY     even_footer + 1
-        LDA     page
-        LSR     A
-        BCC     doftr1
-        LDX     odd_footer
-        LDY     odd_footer + 1
+    DEC lineot
+    BNE wrch
+    JSR oswrch
+    PHX
+    PHY
+    LDX even_footer
+    LDY even_footer + 1
+    LDA page
+    LSR A
+    BCC doftr1
+    LDX odd_footer
+    LDY odd_footer + 1
 .doftr1
-        DEC     lineot
-        DEC     lineot
-        JSR     macro
-        LDA     #&FF
-        STA     lineot        ; set needs header
-        INC     page
-        BNE     hi
-        INC     page + 1
+    DEC lineot
+    DEC lineot
+    JSR macro
+    LDA #&FF
+    STA lineot                ; set needs header
+    INC page
+    BNE hi
+    INC page + 1
 .hi
-        PLY
-        PLX
+    PLY
+    PLX
 .writeX
-        RTS
+    RTS
 .write
-        LDA     #&20
-        TSB     print_flags
-        LDA     bold
-        PHA
-        JSR     DOSCRE
-        PLA
-        STA     bold
-        BIT     bold_required
-        BPL     writeX
-        LDA     #&20
-        TRB     print_flags
-        JSR     DOSCRE
-        LDA     #&20
-        TSB     print_flags
-        RTS
+    LDA #&20
+    TSB print_flags
+    LDA bold
+    PHA
+    JSR DOSCRE
+    PLA
+    STA bold
+    BIT bold_required
+    BPL writeX
+    LDA #&20
+    TRB print_flags
+    JSR DOSCRE
+    LDA #&20
+    TSB print_flags
+    RTS

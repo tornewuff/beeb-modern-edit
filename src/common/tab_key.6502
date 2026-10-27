@@ -1,44 +1,44 @@
 .tabkey
-        LDA     #8
-        BIT     options
-        BNE     TABSTR
+    LDA #8
+    BIT options
+    BNE TABSTR
 .TABPOS
-        INC screen_x
-        LDA     screen_x
-        AND     #7
-        BNE     TABPOS
-        LDA     screen_x
-        CMP     page_width
-        BCC     TABX
-        STZ     screen_x
-        BRA     TABX
+    INC screen_x
+    LDA screen_x
+    AND #7
+    BNE TABPOS
+    LDA screen_x
+    CMP page_width
+    BCC TABX
+    STZ screen_x
+    BRA TABX
 .TABSTR
-        LDA     #1
-        JSR     TPGSBK
-        CMP     #1
-        BNE     INSXEX
-        LDY     screen_x
-        DEY
+    LDA #1
+    JSR TPGSBK
+    CMP #1
+    BNE INSXEX
+    LDY screen_x
+    DEY
 .TABS1
-        INY
-        CPY     page_width
-        BCS     TABSSP
-        LDA     (text_ptr),Y
-        cmp_line_terminator
-        BEQ     TABSSP
-        CMP     #' '
-        BNE     TABS1
-        BRA     TABS2
+    INY
+    CPY page_width
+    BCS TABSSP
+    LDA (text_ptr),Y
+    cmp_line_terminator
+    BEQ TABSSP
+    CMP #' '
+    BNE TABS1
+    BRA TABS2
 .TABSSP
-        LDY     #&FF
+    LDY #&FF
 .TABS2
-        INY
-        CPY     page_width
-        BCS     TABSEX
-        LDA     (text_ptr),Y
-        CMP     #' '
-        BEQ     TABS2
+    INY
+    CPY page_width
+    BCS TABSEX
+    LDA (text_ptr),Y
+    CMP #' '
+    BEQ TABS2
 .TABSEX
-        STY     screen_x
+    STY screen_x
 .TABX
-        STZ     update_required
+    STZ update_required

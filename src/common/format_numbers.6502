@@ -1,155 +1,155 @@
 .DECCON
-        PHX            ; reg in A to print buff. INX by # chars
-        PHY
-        AND     #15
-        ASL     A
-        TAX
-        LDA     number_registers,X
-        STA     temp
-        LDA     number_registers+1,X
-        TAX
-        AND     #15
-        STA     temp+1
-        ORA     temp
-        PHP
-        TXA
-        LSR     A
-        LSR     A
-        LSR     A
-        LSR     A
-        PLP
-        BNE     NMLTST
-        CMP     #8
-        BCC     DECANY
-        LDA     #0
-        BRA     DECANY
+    PHX                ; reg in A to print buff. INX by # chars
+    PHY
+    AND #15
+    ASL A
+    TAX
+    LDA number_registers,X
+    STA temp
+    LDA number_registers+1,X
+    TAX
+    AND #15
+    STA temp+1
+    ORA temp
+    PHP
+    TXA
+    LSR A
+    LSR A
+    LSR A
+    LSR A
+    PLP
+    BNE NMLTST
+    CMP #8
+    BCC DECANY
+    LDA #0
+    BRA DECANY
 .NMLTST
-        CMP     #8
-        BCS     ROMAN
+    CMP #8
+    BCS ROMAN
 .DECANY
-        PHA
-        LDX     #4
-        LDA     #'0'
-        STA     buff+5
-        STA     buff+6
-        STA     buff+7
+    PHA
+    LDX #4
+    LDA #'0'
+    STA buff+5
+    STA buff+6
+    STA buff+7
 .NUMLAP
-        LDA     #'0'
-        STA     buff,X
-        SEC
+    LDA #'0'
+    STA buff,X
+    SEC
 .NUMLP
-        LDA     temp
-        SBC     WOPTBL,X
-        TAY
-        LDA     temp+1
-        SBC     WOPTBH,X
-        BCC     OUTNUM
-        STY     temp
-        STA     temp+1
-        INC     buff,X
-        BNE     NUMLP
+    LDA temp
+    SBC WOPTBL,X
+    TAY
+    LDA temp+1
+    SBC WOPTBH,X
+    BCC OUTNUM
+    STY temp
+    STA temp+1
+    INC buff,X
+    BNE NUMLP
 .OUTNUM
-        DEX
-        BPL     NUMLAP
-        PLA
-        STA     temp
-        LDX     #8
+    DEX
+    BPL NUMLAP
+    PLA
+    STA temp
+    LDX #8
 .LZB
-        DEX
-        CPX     temp
-        BEQ     LASTZ
-        LDA     buff,X
-        AND     #15
-        BEQ     LZB
+    DEX
+    CPX temp
+    BEQ LASTZ
+    LDA buff,X
+    AND #15
+    BEQ LZB
 .LASTZ
-        STX     temp
-        PLY
-        PLA
-        SEC
-        ADC     temp
-        TAX
-        RTS
+    STX temp
+    PLY
+    PLA
+    SEC
+    ADC temp
+    TAX
+    RTS
 .ROMAN
-        PHA
-        CMP     #10
-        BCS     AAA
-        LDA     #&FF
-        PHA
-        LDX     #12
+    PHA
+    CMP #10
+    BCS AAA
+    LDA #&FF
+    PHA
+    LDX #12
 .ROMANL
-        SEC
-        LDA     temp
-        SBC     NUMERL,X
-        TAY
-        LDA     temp+1
-        SBC     NUMERH,X
-        BCC     ROMANO
-        STY     temp
-        STA     temp+1
-        TXA
-        ASL     A
-        TAY
-        LDA     chars,Y
-        PHA
-        LDA     chars+1,Y
-        CMP     #' '
-        BEQ     ROMANL
-        PHA
-        BRA     ROMANL
+    SEC
+    LDA temp
+    SBC NUMERL,X
+    TAY
+    LDA temp+1
+    SBC NUMERH,X
+    BCC ROMANO
+    STY temp
+    STA temp+1
+    TXA
+    ASL A
+    TAY
+    LDA chars,Y
+    PHA
+    LDA chars+1,Y
+    CMP #' '
+    BEQ ROMANL
+    PHA
+    BRA ROMANL
 .ROMANO
-        DEX
-        BPL     ROMANL
+    DEX
+    BPL ROMANL
 .ROMANG
-        PLA
-        INX
-        STA     buff,X
-        CMP     #&FF
-        BNE     ROMANG
-        DEX
+    PLA
+    INX
+    STA buff,X
+    CMP #&FF
+    BNE ROMANG
+    DEX
 .CASECH
-        PLA
-        AND     #1
-        BEQ     LASTZ
-        STX     temp
+    PLA
+    AND #1
+    BEQ LASTZ
+    STX temp
 .CASELP
-        LDA     buff,X
-        ORA     #&20
-        STA     buff,X
-        DEX
-        BPL     CASELP
-        LDX     temp
-        BRA     LASTZ
+    LDA buff,X
+    ORA #&20
+    STA buff,X
+    DEX
+    BPL CASELP
+    LDX temp
+    BRA LASTZ
 .AAA
-        LDA     temp
-        BNE     AAADEC
-        DEC     temp+1
+    LDA temp
+    BNE AAADEC
+    DEC temp+1
 .AAADEC
-        DEC     temp
-        LDY     #0
+    DEC temp
+    LDY #0
 .AAALOP
-        LDA     temp
-        SEC
+    LDA temp
+    SEC
 .AAALOQ
-        INY
-        SBC     #26
-        BCS     AAALOQ
-        STA     temp
-        LDA     temp+1
-        BEQ     AAAGOT
-        DEC     temp+1
-        BRA     AAALOP
+    INY
+    SBC #26
+    BCS AAALOQ
+    STA temp
+    LDA temp+1
+    BEQ AAAGOT
+    DEC temp+1
+    BRA AAALOP
 .AAAGOT
-        LDA     temp
-        ADC     #26+'A'
-        LDX     #0
+    LDA temp
+    ADC #26+'A'
+    LDX #0
 .AAALON
-        STA     buff,X
-        INX
-        DEY
-        BNE     AAALON
-        DEX
-        BRA     CASECH
+    STA buff,X
+    INX
+    DEY
+    BNE AAALON
+    DEX
+    BRA CASECH
 .NUMERL
-        EQUB    LO({1,4,5,9,10,40,50,90,100,400,500,900,1000})
+    EQUB LO({1,4,5,9,10,40,50,90,100,400,500,900,1000})
 .NUMERH
-        EQUB    HI({1,4,5,9,10,40,50,90,100,400,500,900,1000})
+    EQUB HI({1,4,5,9,10,40,50,90,100,400,500,900,1000})

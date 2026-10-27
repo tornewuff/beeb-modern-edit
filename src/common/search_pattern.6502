@@ -1,338 +1,338 @@
-        ; Find replace section
-        ; Use recursive descent to check syntax ;
-        ; F_str ::= find_part CR
-        ; find_part ::= { ['*'] (simple_item | set_item) }
-        ; set_item  ::= ['~'] ( '[' simple_item { simple_item } ']' )
-        ; simple_item ::= ['~'] ( character_specifier | subrange_specifier |
-        ;                         wildcard_specifier )
-        ; character_specifier ::= ['|!'] (non_meta | '\' non_eoln
-        ;                                               | '$' | '|' non_eoln)
-        ; subrange_specifier ::= character_specifier '-' character_specifier
-        ; wildcard_specifier ::= '.' | '@' | '#'
-        ; R_str ::= find_part '/' repl_part CR
-        ; repl_part ::= { ( field_item | character_specifier ) }
-        ; field_item ::= '&' | '%' digit
-        ; non_meta ::= NOT < ~ * [ ] , \ $ | - . @ # & % / eoln >
-        ; Subranges should translate into subrange_sym <ch> <ch>
-        ; Set constructs should translate into :
-        ; set_sym <nextX> ... <next item>
-        ;                     ^
-        ;                     nextX
-        ; Matching of subranges & sets should be internal to compare_match_object. nextX is
-        ; used to step on to the next find item after successfully matching one
-        ; of the set alternatives (set match fails when hit tes_sym).
+    ; Find replace section
+    ; Use recursive descent to check syntax ;
+    ; F_str ::= find_part CR
+    ; find_part ::= { ['*'] (simple_item | set_item) }
+    ; set_item  ::= ['~'] ( '[' simple_item { simple_item } ']' )
+    ; simple_item ::= ['~'] ( character_specifier | subrange_specifier |
+    ;                         wildcard_specifier )
+    ; character_specifier ::= ['|!'] (non_meta | '\' non_eoln
+    ;                                               | '$' | '|' non_eoln)
+    ; subrange_specifier ::= character_specifier '-' character_specifier
+    ; wildcard_specifier ::= '.' | '@' | '#'
+    ; R_str ::= find_part '/' repl_part CR
+    ; repl_part ::= { ( field_item | character_specifier ) }
+    ; field_item ::= '&' | '%' digit
+    ; non_meta ::= NOT < ~ * [ ] , \ $ | - . @ # & % / eoln >
+    ; Subranges should translate into subrange_sym <ch> <ch>
+    ; Set constructs should translate into :
+    ; set_sym <nextX> ... <next item>
+    ;                     ^
+    ;                     nextX
+    ; Matching of subranges & sets should be internal to compare_match_object. nextX is
+    ; used to step on to the next find item after successfully matching one
+    ; of the set alternatives (set match fails when hit tes_sym).
 
 .init_find_replace
-        ; Exit  -  Y = 0
-        STZ     output_index
-        STZ     replace_flag
-        STZ     field_index
-        STZ     mmx
-        STZ     page_offset
-        STZ     SENSFLAG
+    ; Exit  -  Y = 0
+    STZ output_index
+    STZ replace_flag
+    STZ field_index
+    STZ mmx
+    STZ page_offset
+    STZ SENSFLAG
 .MININIT
-        STZ     input_index
-        BRA     NEXTCH
+    STZ input_index
+    BRA NEXTCH
 .GENNEXTCH
-        JSR     GENBYTE
+    JSR GENBYTE
 .NEXTCH
-        ; A,temp_a = line_buffer,input_index +  + . Exit - Z = (A = CR)
-        LDY     input_index
-        LDA     line_buffer,Y
-        STA     temp_a
-        INC     input_index
-        CMP     #cr
-        RTS
-        ; Translate & store FR string into stracc.
-        ; Exit  - Find part translated into stracc, replace_index holds start of
-        ;        replace string (when translated) in stracc.
-        ;      - field_index = No. of fields (max 10) in find string.
-        ;      - For each field n (n> 0) -
-        ;        'mulf' (* ..)  -  fieldmmxtab,n = (mmx :OR: &80)
-        ;        'conf' (?)     -  fieldmmxtab,n = mmx of previous mulf
-        ;                          fieldofftab,n = offset from above
-        ;      - replace_index = stracc index of replace part (when translated)
-        ;      - replace_flag = 0  No replace part supplied
-        ;                   1  Replace part supplied
+    ; A,temp_a = line_buffer,input_index +  + . Exit - Z = (A = CR)
+    LDY input_index
+    LDA line_buffer,Y
+    STA temp_a
+    INC input_index
+    CMP #cr
+    RTS
+    ; Translate & store FR string into stracc.
+    ; Exit  - Find part translated into stracc, replace_index holds start of
+    ;        replace string (when translated) in stracc.
+    ;      - field_index = No. of fields (max 10) in find string.
+    ;      - For each field n (n> 0) -
+    ;        'mulf' (* ..)  -  fieldmmxtab,n = (mmx :OR: &80)
+    ;        'conf' (?)     -  fieldmmxtab,n = mmx of previous mulf
+    ;                          fieldofftab,n = offset from above
+    ;      - replace_index = stracc index of replace part (when translated)
+    ;      - replace_flag = 0  No replace part supplied
+    ;                   1  Replace part supplied
 .FINDTRANS
-        JSR     init_find_replace
+    JSR init_find_replace
 .FINDPART
-        STZ     MULFFLAG ; Don't yet know whether next object is either a
-        STZ     metaflag ; star or wildcard field.
-        STZ     BUTTFLAG ; or ^
-        LDA     temp_a
-        CMP     #cr
-        BEQ     FIPAEXIT
-        CMP     #'/'
-        BEQ     FIPAEND
-        CMP     #'^'
-        BNE     FIPANHA
-        INC     BUTTFLAG
-        BRA     FIPAMUL
+    STZ MULFFLAG         ; Don't yet know whether next object is either a
+    STZ metaflag         ; star or wildcard field.
+    STZ BUTTFLAG         ; or ^
+    LDA temp_a
+    CMP #cr
+    BEQ FIPAEXIT
+    CMP #'/'
+    BEQ FIPAEND
+    CMP #'^'
+    BNE FIPANHA
+    INC BUTTFLAG
+    BRA FIPAMUL
 .FIPANHA
-        CMP     #'*'
-        BNE     FIPANMUL
+    CMP #'*'
+    BNE FIPANMUL
 .FIPAMUL
-        INC     MULFFLAG
-        LDX     #multsym
-        JSR     GENNEXTCH
+    INC MULFFLAG
+    LDX #multsym
+    JSR GENNEXTCH
 .FIPANMUL
-        CMP     #'~'
-        BNE     FIPANNOT
-        LDX     #notsym
-        JSR     GENNEXTCH
+    CMP #'~'
+    BNE FIPANNOT
+    LDX #notsym
+    JSR GENNEXTCH
 .FIPANNOT
-        CMP     #'['
-        BNE     FIPASIMP
-        INC     SENSFLAG
-        LDX     #setsym
-        JSR     GENBYTE
-        JSR     GENBYTE ; Leave room for nextX, and remember position.
-        STY     nextX
-        JSR     NEXTCH
+    CMP #'['
+    BNE FIPASIMP
+    INC SENSFLAG
+    LDX #setsym
+    JSR GENBYTE
+    JSR GENBYTE         ; Leave room for nextX, and remember position.
+    STY nextX
+    JSR NEXTCH
 .FIPASELT
-        JSR     SIMPLEITEM
-        LDA     temp_a
-        CMP     #']'
-        BNE     FIPASELT
-        DEC     SENSFLAG
-        LDA     output_index ; End of set construct. Store nextX
-        LDY     nextX
-        STA     stracc,Y
-        JSR     NEXTCH
-        BRA     FIFIFEEL
+    JSR SIMPLEITEM
+    LDA temp_a
+    CMP #']'
+    BNE FIPASELT
+    DEC SENSFLAG
+    LDA output_index         ; End of set construct. Store nextX
+    LDY nextX
+    STA stracc,Y
+    JSR NEXTCH
+    BRA FIFIFEEL
 .FIPAEND
-        INC     replace_flag
+    INC replace_flag
 .FIPAEXIT
-        JSR     TERMGEN
-        JSR     NEXTCH
-        LDA     output_index
-        STA     replace_index
-        LDA     replace_flag
-        BNE     REPLPART
-        RTS
+    JSR TERMGEN
+    JSR NEXTCH
+    LDA output_index
+    STA replace_index
+    LDA replace_flag
+    BNE REPLPART
+    RTS
 .FIPASIMP
-        JSR     SIMPLEITEM
+    JSR SIMPLEITEM
 .FIFIFEEL
-        ; If last object was a field of some sort, then store the
-        ; relevant info, and update indeces as required.
-        LDA     BUTTFLAG
-        BEQ     FIFICO
-        LDX     #BUTTSYM
-        JSR     GENBYTE
+    ; If last object was a field of some sort, then store the
+    ; relevant info, and update indeces as required.
+    LDA BUTTFLAG
+    BEQ FIFICO
+    LDX #BUTTSYM
+    JSR GENBYTE
 .FIFICO
-        LDA     metaflag
-        BEQ     FIFIOFFI ; No meta-chars => not a field
-        LDX     field_index
-        CPX     #10
-        BCS     FINDPART ; That's enough fields.
-        INC     field_index
-        LDA     page_offset
-        STA     fieldofftab,X
-        LDA     MULFFLAG
-        BNE     FIFIMULF
-        LDA     mmx
-        STA     fieldmmxtab,X
+    LDA metaflag
+    BEQ FIFIOFFI         ; No meta-chars => not a field
+    LDX field_index
+    CPX #10
+    BCS FINDPART         ; That's enough fields.
+    INC field_index
+    LDA page_offset
+    STA fieldofftab,X
+    LDA MULFFLAG
+    BNE FIFIMULF
+    LDA mmx
+    STA fieldmmxtab,X
 .FIFIOFFI
-        INC     page_offset
+    INC page_offset
 .FINDPCH
-        JMP     FINDPART
+    JMP FINDPART
 .FIFIMULF
-        INC     mmx
-        LDA     mmx
-        CMP     #5
-        BCS     FRSTERR
-        ORA     #&80
-        STA     fieldmmxtab,X
-        STZ     page_offset
-        BRA     FINDPCH
+    INC mmx
+    LDA mmx
+    CMP #5
+    BCS FRSTERR
+    ORA #&80
+    STA fieldmmxtab,X
+    STZ page_offset
+    BRA FINDPCH
 .FRSTERR
-        BRK
-        EQUB    1,"Too many find multiples",0
+    BRK
+    EQUB 1,"Too many find multiples",0
 .REPANXCH
-        JSR     NEXTCH
+    JSR NEXTCH
 .REPAGENBYTE
-        JSR     GENBYTE
+    JSR GENBYTE
 .REPLPART
-        LDA     #&FF
-        STA     SENSFLAG
-        LDA     temp_a ; Translate replace part of FR string.
-        CMP     #cr
-        BEQ     TERMGEN
-        LDX     #FOUNDSYM
-        CMP     #'&'
-        BEQ     REPANXCH
-        CMP     #'\'
-        BNE     REPANS
-        JSR     NEXTCH
-        TAX
-        BRA     REPANXCH
+    LDA #&FF
+    STA SENSFLAG
+    LDA temp_a         ; Translate replace part of FR string.
+    CMP #cr
+    BEQ TERMGEN
+    LDX #FOUNDSYM
+    CMP #'&'
+    BEQ REPANXCH
+    CMP #'\'
+    BNE REPANS
+    JSR NEXTCH
+    TAX
+    BRA REPANXCH
 .REPANS
-        LDX     #FIELDSYM
-        CMP     #'%'
-        BNE     RPNFLD
-        JSR     GENBYTE
-        JSR     NEXTCH
-        SEC
-        SBC     #'0'
-        BCC     FIELDERR
-        CMP     field_index
-        BCS     FIELDERR
-        TAX
-        BPL     REPANXCH
+    LDX #FIELDSYM
+    CMP #'%'
+    BNE RPNFLD
+    JSR GENBYTE
+    JSR NEXTCH
+    SEC
+    SBC #'0'
+    BCC FIELDERR
+    CMP field_index
+    BCS FIELDERR
+    TAX
+    BPL REPANXCH
 .RPNFLD
-        JSR     CHARACTERSPECIFIER
-        STX     simple_char
-        TXA
-        BPL     REPAGENBYTE
-        LDX     #escsym
-        JSR     GENBYTE
-        LDX     simple_char
-        BRA     REPAGENBYTE
+    JSR CHARACTERSPECIFIER
+    STX simple_char
+    TXA
+    BPL REPAGENBYTE
+    LDX #escsym
+    JSR GENBYTE
+    LDX simple_char
+    BRA REPAGENBYTE
 .FIELDERR
-        BRK
-        EQUB    1,"Bad replace field number",0
+    BRK
+    EQUB 1,"Bad replace field number",0
 .TERMGEN
-        LDX     #termsym; Generate termsym.
+    LDX #termsym        ; Generate termsym.
 .GENBYTE
-        ; stracc,output_index +  +  = X
-        ; Exit - metaflag set (incremented) if meta-character (field) generated.
-        LDY     output_index
-        LDA     SENSFLAG
-        BNE     GENBSNS
-        CPX     #'A'
-        BCC     GENBSNS
-        CPX     #'z' + 1
-        BCS     GENBSNS
-        CPX     #'Z' + 1
-        BCC     GENBNSN
-        CPX     #'a'
-        BCC     GENBSNS
+    ; stracc,output_index +  +  = X
+    ; Exit - metaflag set (incremented) if meta-character (field) generated.
+    LDY output_index
+    LDA SENSFLAG
+    BNE GENBSNS
+    CPX #'A'
+    BCC GENBSNS
+    CPX #'z' + 1
+    BCS GENBSNS
+    CPX #'Z' + 1
+    BCC GENBNSN
+    CPX #'a'
+    BCC GENBSNS
 .GENBNSN
-        TXA
-        ORA     #&20
-        TAX
-        LDA     #NSENSYM
-        STA     stracc,Y
-        INY
-        INC     output_index
-        BEQ     GENBERR
+    TXA
+    ORA #&20
+    TAX
+    LDA #NSENSYM
+    STA stracc,Y
+    INY
+    INC output_index
+    BEQ GENBERR
 .GENBSNS
-        TXA
-        STA     stracc,Y
-        BPL     GENBNMET
-        INC     metaflag
+    TXA
+    STA stracc,Y
+    BPL GENBNMET
+    INC metaflag
 .GENBNMET
-        INC     output_index
-        BEQ     GENBERR
-        RTS
+    INC output_index
+    BEQ GENBERR
+    RTS
 .GENBERR
-        BRK
-        EQUB    1,"Syntax incorrect",0
+    BRK
+    EQUB 1,"Syntax incorrect",0
 .SIMPLEITEM
-        LDA     temp_a
-        CMP     #'~'
-        BNE     SIITNNOT
-        LDX     #notsym
-        JSR     GENBYTE
-        JSR     NEXTCH
-        BNE     SIITNNOT
-        BRK
-        EQUB    1,"Error with ~",0
+    LDA temp_a
+    CMP #'~'
+    BNE SIITNNOT
+    LDX #notsym
+    JSR GENBYTE
+    JSR NEXTCH
+    BNE SIITNNOT
+    BRK
+    EQUB 1,"Error with ~",0
 .SIITNNOT
-        CMP     #'\'
-        BNE     SIITNS
-        INC     SENSFLAG
-        JSR     NEXTCH
-        BNE     SIITNM
-        BRK
-        EQUB    1,"Error with \",0
+    CMP #'\'
+    BNE SIITNS
+    INC SENSFLAG
+    JSR NEXTCH
+    BNE SIITNM
+    BRK
+    EQUB 1,"Error with \",0
 .SIITNM
-        TAX
-        JSR     NEXTCH
-        JSR     GENBYTE
-        DEC     SENSFLAG
-        RTS
+    TAX
+    JSR NEXTCH
+    JSR GENBYTE
+    DEC SENSFLAG
+    RTS
 .SIITNS
-        LDX     #WILDSYM
-        CMP     #'.'
-        BEQ     SIITWILD
-        LDX     #ALPHASYM
-        CMP     #'@'
-        BEQ     SIITWILD
-        LDX     #digsym
-        CMP     #'#'
-        BNE     SIITNWIL
+    LDX #WILDSYM
+    CMP #'.'
+    BEQ SIITWILD
+    LDX #ALPHASYM
+    CMP #'@'
+    BEQ SIITWILD
+    LDX #digsym
+    CMP #'#'
+    BNE SIITNWIL
 .SIITWILD
-        JSR     NEXTCH ; Preserves X
-        JMP     GENBYTE
+    JSR NEXTCH         ; Preserves X
+    JMP GENBYTE
 .SIITNWIL
-        JSR     CHARACTERSPECIFIER
-        STX     simple_char
-        LDA     temp_a
-        CMP     #'-'
-        BNE     SIITCGEN
-        INC     SENSFLAG
-        LDX     #SUBRSYM
-        JSR     GENBYTE
-        JSR     NEXTCH
-        LDX     simple_char
-        JSR     GENBYTE
-        JSR     CHARACTERSPECIFIER
-        JSR     GENBYTE
-        DEC     SENSFLAG
-        RTS
+    JSR CHARACTERSPECIFIER
+    STX simple_char
+    LDA temp_a
+    CMP #'-'
+    BNE SIITCGEN
+    INC SENSFLAG
+    LDX #SUBRSYM
+    JSR GENBYTE
+    JSR NEXTCH
+    LDX simple_char
+    JSR GENBYTE
+    JSR CHARACTERSPECIFIER
+    JSR GENBYTE
+    DEC SENSFLAG
+    RTS
 .SIITCGEN
-        ; Output character as escsym ch if >= &80
-        TXA
-        BPL     GENBYJ
-        LDX     #escsym
-        JSR     GENBYTE
-        LDX     simple_char
+    ; Output character as escsym ch if >= &80
+    TXA
+    BPL GENBYJ
+    LDX #escsym
+    JSR GENBYTE
+    LDX simple_char
 .GENBYJ
-        JMP     GENBYTE
+    JMP GENBYTE
 .CHARACTERSPECIFIER
-        ; Exit  -  X = Character
-        STZ     count ; Add 128 count
-        LDA     temp_a
-        BMI     CHSPBY
-        CMP     #'|'
-        BNE     CHRSCO
-        JSR     NEXTCH
-        BEQ     CHRSER
-        CMP     #'!'
-        BNE     CHRSSO
-        INC     count
-        JSR     NEXTCH
+    ; Exit  -  X = Character
+    STZ count         ; Add 128 count
+    LDA temp_a
+    BMI CHSPBY
+    CMP #'|'
+    BNE CHRSCO
+    JSR NEXTCH
+    BEQ CHRSER
+    CMP #'!'
+    BNE CHRSSO
+    INC count
+    JSR NEXTCH
 .CHRSCO
-        CMP     #'$'
-        BEQ     CHSPCR
-        CMP     #'|'
-        BNE     CHSPBY
-        JSR     NEXTCH
-        BEQ     CHRSER
+    CMP #'$'
+    BEQ CHSPCR
+    CMP #'|'
+    BNE CHSPBY
+    JSR NEXTCH
+    BEQ CHRSER
 .CHRSSO
-        CMP     #'?'
-        BNE     NOTQUE
-        LDA     #&7F
-        BRA     CHSPBY
+    CMP #'?'
+    BNE NOTQUE
+    LDA #&7F
+    BRA CHSPBY
 .NOTQUE
-        BCC     CHSPBY
-        AND     #&DF
-        SBC     #'@'
-        BRA     CHSPBY
+    BCC CHSPBY
+    AND #&DF
+    SBC #'@'
+    BRA CHSPBY
 .CHSPCR
-        lda_line_terminator
+    lda_line_terminator
 .CHSPBY
-        PHA
-        JSR     NEXTCH
-        PLA
-        LDY     count
-        BEQ     CHRSEX
-        ORA     #&80
+    PHA
+    JSR NEXTCH
+    PLA
+    LDY count
+    BEQ CHRSEX
+    ORA #&80
 .CHRSEX
-        TAX
-        RTS
+    TAX
+    RTS
 .CHRSER
-        BRK
-        EQUB    1,"Error with |",0
+    BRK
+    EQUB 1,"Error with |",0

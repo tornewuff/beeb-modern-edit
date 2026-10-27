@@ -1,28 +1,28 @@
-        ; ------------------------------------------------------------ ;
+    ; ------------------------------------------------------------ ;
 
-        ; The editor keeps a byte in the CMOS RAM.
-        ; It is copied into options on startup.
-        ;
-        ; Bits 0 to 2 define the current mode with the following relationship
-        ;       Value   Mode
-        ;        0   -   0 ( 80x31 )
-        ;        1   -   1 ( 40x31 )
-        ;        2   -   K ( 80x24 ) Function key display (Mode 0)
-        ;        3   -   3 ( 80x24 )
-        ;        4   -   4 ( 40x31 )
-        ;        5   -   D ( 80x17 ) Full HELP display    (Mode 0)
-        ;        6   -   6 ( 40x24 )
-        ;        7   -   7 ( 40x24 )
-        ;
-        ; Bit 3 - indicates TABKEY mode
-        ; Bit 4 - indicates Insert/Overtype
-        ; Bit 5 - indicates display CR
-        ; Bit 6 - has been given to the network
-        ; Bit 7 - obey format controls
-        ;
-        ; one should be taken over for LF/CR as newline maybe
+    ; The editor keeps a byte in the CMOS RAM.
+    ; It is copied into options on startup.
+    ;
+    ; Bits 0 to 2 define the current mode with the following relationship
+    ;       Value   Mode
+    ;        0   -   0 ( 80x31 )
+    ;        1   -   1 ( 40x31 )
+    ;        2   -   K ( 80x24 ) Function key display (Mode 0)
+    ;        3   -   3 ( 80x24 )
+    ;        4   -   4 ( 40x31 )
+    ;        5   -   D ( 80x17 ) Full HELP display    (Mode 0)
+    ;        6   -   6 ( 40x24 )
+    ;        7   -   7 ( 40x24 )
+    ;
+    ; Bit 3 - indicates TABKEY mode
+    ; Bit 4 - indicates Insert/Overtype
+    ; Bit 5 - indicates display CR
+    ; Bit 6 - has been given to the network
+    ; Bit 7 - obey format controls
+    ;
+    ; one should be taken over for LF/CR as newline maybe
 
-        ; ------------------------------------------------------------ ;
+    ; ------------------------------------------------------------ ;
 
 null    =       &00
 lf      =       &0A
@@ -50,7 +50,7 @@ bit2    =       &04
 bit1    =       &02
 bit0    =       &01
 
-        ; ------------------------------------------------------------ ;
+    ; ------------------------------------------------------------ ;
 
 blink   =       bit6
 fblink  =       bit5
@@ -58,7 +58,7 @@ fblink  =       bit5
 fcstrt  =       &00             ; Full cursor start line
 ncstrt  =       &07             ; Normal start line
 
-        ; ------------------------------------------------------------ ;
+    ; ------------------------------------------------------------ ;
 
 moureg  =       &FC50
 mouxlo  =       moureg + 2
@@ -68,7 +68,7 @@ IF lfarro
 nlfarr  =       &FE
 ENDIF
 
-        ; EDIT symbolic constants
+    ; EDIT symbolic constants
 
 escflg  =       &FF
 BRKv    =       &0202

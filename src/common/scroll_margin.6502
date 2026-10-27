@@ -1,21 +1,21 @@
 .set_top_scroll_margin_to_cursor
-        ; Set Top Scroll Margin to current cursor line.
-        LDA     screen_y
-        STA     top_scroll_margin
-        BRA     noupda
+    ; Set Top Scroll Margin to current cursor line.
+    LDA screen_y
+    STA top_scroll_margin
+    BRA noupda
 
 .set_bottom_scroll_margin_to_cursor
-        ; Set Bottom Scroll Margin to current cursor line.
-        LDA     screen_y
-        STA     bottom_scroll_margin
-        BRA     noupda
+    ; Set Bottom Scroll Margin to current cursor line.
+    LDA screen_y
+    STA bottom_scroll_margin
+    BRA noupda
 
 .clear_scroll_margins
-        ; Clear Scroll Margins.
-        STZ     top_scroll_margin
-        LDA     page_length
-        STA     bottom_scroll_margin
+    ; Clear Scroll Margins.
+    STZ top_scroll_margin
+    LDA page_length
+    STA bottom_scroll_margin
 
 .noupda
-        STZ     update_required
-        RTS
+    STZ update_required
+    RTS

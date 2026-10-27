@@ -3,7 +3,7 @@ INCLUDE "include/functions.6502"
 INCLUDE "include/utf8.6502"
 INCLUDE "include/fancy_char_definitions.6502"
 IF edit150
-        INCLUDE "include/text_abbreviation.6502"
+    INCLUDE "include/text_abbreviation.6502"
 ENDIF
 INCLUDE "include/mos.6502"
 INCLUDE "include/relocation.6502"
@@ -21,28 +21,28 @@ SECTION Main, cmos = TRUE, org = origin, filename = build.filename
 ; EDIT01
 INCLUDE "common/rom_header.6502"
 IF edit150
-        INCLUDE "edit150/service_entry.6502"
-        INCLUDE "common/brk_handler.6502"
+    INCLUDE "edit150/service_entry.6502"
+    INCLUDE "common/brk_handler.6502"
 ELSE
-        INCLUDE "common/brk_handler.6502"
-        INCLUDE "hiedit124/service_entry.6502"
+    INCLUDE "common/brk_handler.6502"
+    INCLUDE "hiedit124/service_entry.6502"
 ENDIF
 IF edit150
-        INCLUDE "edit150/language_entry.6502"
+    INCLUDE "edit150/language_entry.6502"
 ELSE
-        INCLUDE "hiedit124/language_entry.6502"
+    INCLUDE "hiedit124/language_entry.6502"
 ENDIF
 INCLUDE "common/iomem_read.6502"
 INCLUDE "common/file_io.6502"
 IF stamp
-        INCLUDE "common/datestamp.6502"
+    INCLUDE "common/datestamp.6502"
 ENDIF
 INCLUDE "common/read_line.6502"
 INCLUDE "common/memory.6502"
 INCLUDE "common/inline_strings.6502"
 INCLUDE "common/mode_flags.6502"
 IF mouse
-        INCLUDE "common/mouse.6502"
+    INCLUDE "common/mouse.6502"
 ENDIF
 
 ; EDIT02
@@ -51,27 +51,27 @@ INCLUDE "common/text_entry.6502"
 INCLUDE "common/function_key_table.6502"
 INCLUDE "common/descriptive_mode.6502"
 IF define_fancy_chars == "temporary"
-        INCLUDE "optional/fancy_chars_temporary.6502"
+    INCLUDE "optional/fancy_chars_temporary.6502"
 ENDIF
 IF edit150
-        INCLUDE "edit150/help_text.6502"
+    INCLUDE "edit150/help_text.6502"
 ELSE
-        INCLUDE "hiedit124/help_text.6502"
+    INCLUDE "hiedit124/help_text.6502"
 ENDIF
 
 ; EDIT03
 IF edit150
-        INCLUDE "edit150/softkeys.6502"
+    INCLUDE "edit150/softkeys.6502"
 ELSE
-        INCLUDE "hiedit124/softkeys.6502"
+    INCLUDE "hiedit124/softkeys.6502"
 ENDIF
 INCLUDE "common/text_limits.6502"
 INCLUDE "common/cursor_shape.6502"
 INCLUDE "common/screen_layout.6502"
 IF edit150
-        INCLUDE "edit150/read_char.6502"
+    INCLUDE "edit150/read_char.6502"
 ELSE
-        INCLUDE "hiedit124/read_char.6502"
+    INCLUDE "hiedit124/read_char.6502"
 ENDIF
 INCLUDE "common/status_line.6502"
 INCLUDE "common/prompt.6502"
@@ -81,10 +81,10 @@ INCLUDE "common/insert_text.6502"
 INCLUDE "common/tab_key.6502"
 INCLUDE "common/return_to_language.6502"
 IF edit150
-        INCLUDE "edit150/format_help.6502"
-        INCLUDE "edit150/compressed_text.6502"
+    INCLUDE "edit150/format_help.6502"
+    INCLUDE "edit150/compressed_text.6502"
 ELSE
-        INCLUDE "hiedit124/format_help.6502"
+    INCLUDE "hiedit124/format_help.6502"
 ENDIF
 
 ; EDIT04 (format_commands continues into EDIT05)
@@ -114,7 +114,7 @@ INCLUDE "common/mode_change.6502"
 INCLUDE "common/old_text.6502"
 INCLUDE "common/goto_line.6502"
 IF cF8key AND NOT(edit150)
-        INCLUDE "hiedit124/crlf_switch.6502"
+    INCLUDE "hiedit124/crlf_switch.6502"
 ENDIF
 
 ; EDIT07
@@ -128,30 +128,30 @@ INCLUDE "common/write_lineno.6502"
 INCLUDE "common/marks.6502"
 INCLUDE "common/block_ops.6502"
 IF edit150
-        INCLUDE "edit150/find_replace_prompts.6502"
+    INCLUDE "edit150/find_replace_prompts.6502"
 ENDIF
 IF curtyp
-        INCLUDE "common/cursor_type.6502"
+    INCLUDE "common/cursor_type.6502"
 ENDIF
 IF extgf
-        INCLUDE "common/extended_find.6502"
+    INCLUDE "common/extended_find.6502"
 ENDIF
 IF edit150
-        INCLUDE "edit150/default_headers.6502"
+    INCLUDE "edit150/default_headers.6502"
 ENDIF
 
-        IF origin=&8000
+    IF origin=&8000
 .theend
-        ELSE
-        EQUB    "Roger Wilson",null
+    ELSE
+    EQUB "Roger Wilson",null
 .theend
-        ENDIF
+    ENDIF
 
-romlen  =       (theend - origin)
+romlen = (theend - origin)
 
 IF edit150 AND origin == &8000 AND NOT(DEFINED(build_disc))
-        ; the ROM image is padded out to 16K
-        EQUB    REPEATED(&C000 - *, &FF)
+    ; the ROM image is padded out to 16K
+    EQUB REPEATED(&C000 - *, &FF)
 ENDIF
 
 ENDSECTION

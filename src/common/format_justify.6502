@@ -1,132 +1,132 @@
 .DOSCRE
-        LDA     page_offset
-        JSR     SCMVTO
-        STZ     diff
-        LDA     xeff
-        BNE     SCREEA
-        SEC
-        LDA     juslen
-        SBC     count
-        STA     diff
+    LDA page_offset
+    JSR SCMVTO
+    STZ diff
+    LDA xeff
+    BNE SCREEA
+    SEC
+    LDA juslen
+    SBC count
+    STA diff
 .SCREEA
-        LDA     temp_indent
-        CMP     #&FF
-        BNE     SCREEB
-        LDA     indent
+    LDA temp_indent
+    CMP #&FF
+    BNE SCREEB
+    LDA indent
 .SCREEB
-        JSR     SCMVTO
-        LDA     centre
-        BPL     SCREED
-        SEC
-        LDA     juslen
-        INA
-        SBC     count
-        JSR     MOVE
+    JSR SCMVTO
+    LDA centre
+    BPL SCREED
+    SEC
+    LDA juslen
+    INA
+    SBC count
+    JSR MOVE
 .SCREED
-        BIT     right_flush
-        BPL     SCREEQ
-        SEC
-        LDA     juslen
-        ADC     #1
-        SBC     count
-        JSR     SCMVTO
+    BIT right_flush
+    BPL SCREEQ
+    SEC
+    LDA juslen
+    ADC #1
+    SBC count
+    JSR SCMVTO
 .SCREEQ
-        LDY     #0
-        LDX     #0
-        LDA     spaces
-        BEQ     SCREEE
-        LSR     A
-        STA     l
-        LDA     #0
-        BIT     fill
-        BMI     SENA
-        LDA     diff
+    LDY #0
+    LDX #0
+    LDA spaces
+    BEQ SCREEE
+    LSR A
+    STA l
+    LDA #0
+    BIT fill
+    BMI SENA
+    LDA diff
 .SENA
-        LDX     #1
+    LDX #1
 .DODIV
-        CMP     spaces
-        BCC     DONDIV
-        INX
-        SBC     spaces
-        BCS     DODIV
+    CMP spaces
+    BCC DONDIV
+    INX
+    SBC spaces
+    BCS DODIV
 .DONDIV
-        STX     Q
-        STA     diff
-        LDX     #0
+    STX Q
+    STA diff
+    LDX #0
 .SCREEE
-        JSR     CHKCTL
+    JSR CHKCTL
 
-        IF edit150
-        CMP     line_terminator
-        ELSE
-        CMP     #cr             ; ++++
-        ENDIF
-        BEQ     screeG
+    IF edit150
+    CMP line_terminator
+    ELSE
+    CMP #cr                     ; ++++
+    ENDIF
+    BEQ screeG
 
-        CMP     tab_char
-        BNE     SCREES
-        TXA
-        LDX     #&FF
+    CMP tab_char
+    BNE SCREES
+    TXA
+    LDX #&FF
 .SCRTAB
-        INX
-        PHA
-        LDA     tab_list,X
-        BEQ     SCRNTB
-        PLA
-        CMP     tab_list,X
-        BCS     SCRTAB
-        SEC
-        SBC     tab_list,X
-        EOR     #&FF
-        INA
-        PHX
-        JSR     SCMVTO
-        PLX
-        LDA     tab_list,X
-        TAX
-        DEX
-        BRA     NOUL
+    INX
+    PHA
+    LDA tab_list,X
+    BEQ SCRNTB
+    PLA
+    CMP tab_list,X
+    BCS SCRTAB
+    SEC
+    SBC tab_list,X
+    EOR #&FF
+    INA
+    PHX
+    JSR SCMVTO
+    PLX
+    LDA tab_list,X
+    TAX
+    DEX
+    BRA NOUL
 .SCRNTB
-        PLX
-        LDA     #' '
+    PLX
+    LDA #' '
 .SCREES
-        CMP     #' '
-        BNE     SCREEF
-        CPX     last_tab
-        BCC     SCREEF
-        PHX
-        LDX     Q
+    CMP #' '
+    BNE SCREEF
+    CPX last_tab
+    BCC SCREEF
+    PHX
+    LDX Q
 .SCRJUS
-        DEX
-        BEQ     NOMOV
-        LDA     #' '
-        JSR     format_write_char
-        BRA     SCRJUS
+    DEX
+    BEQ NOMOV
+    LDA #' '
+    JSR format_write_char
+    BRA SCRJUS
 .NOMOV
-        PLX
-        SEC
-        LDA     l
-        SBC     diff
-        STA     l
-        BCS     ENDJUS
-        ADC     spaces
-        STA     l
-        LDA     #' '
-        JSR     format_write_char
+    PLX
+    SEC
+    LDA l
+    SBC diff
+    STA l
+    BCS ENDJUS
+    ADC spaces
+    STA l
+    LDA #' '
+    JSR format_write_char
 .ENDJUS
-        LDA     #' '
+    LDA #' '
 .SCREEF
-        JSR     format_write_char
+    JSR format_write_char
 .NOUL
-        INY
-        INX
-        CPX     count
-        BCC     SCREEE
+    INY
+    INX
+    CPX count
+    BCC SCREEE
 
-        IF edit150
-        LDA     line_terminator
-        ELSE
-        LDA     #cr             ; ++++
-        ENDIF
+    IF edit150
+    LDA line_terminator
+    ELSE
+    LDA #cr                     ; ++++
+    ENDIF
 .screeG
-        JMP     format_write_char
+    JMP format_write_char

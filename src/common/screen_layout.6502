@@ -1,87 +1,87 @@
 .init_page
-        LDA     options
-        AND     #7
-        CMP     #2
-        BEQ     KEYONL
-        CMP     #5
-        BEQ     KEYONL
-        BRA     NOTTUT
+    LDA options
+    AND #7
+    CMP #2
+    BEQ KEYONL
+    CMP #5
+    BEQ KEYONL
+    BRA NOTTUT
 .CLEARSCREEN
-        LDA     options
-        AND     #7
-        CMP     #2
-        BEQ     DOTUT
-        CMP     #5
-        BNE     NOTTUT
+    LDA options
+    AND #7
+    CMP #2
+    BEQ DOTUT
+    CMP #5
+    BNE NOTTUT
 .DOTUT
-        PHA
-        JSR     print_inline
-        EQUB    26,home,&EA
-        JSR     write_char.inverse_on
+    PHA
+    JSR print_inline
+    EQUB 26,home,&EA
+    JSR write_char.inverse_on
 IF define_fancy_chars == "temporary"
-        JSR     fancy_chars.define
+    JSR fancy_chars.define
 ENDIF
-        JSR     print_key_strip
-        PLA
-        CMP     #2
-        BEQ     skip_descriptive
-        JSR     print_descriptive_help
+    JSR print_key_strip
+    PLA
+    CMP #2
+    BEQ skip_descriptive
+    JSR print_descriptive_help
 .skip_descriptive
 IF define_fancy_chars == "temporary"
-        JSR     fancy_chars.restore_previous
+    JSR fancy_chars.restore_previous
 ENDIF
 .KEYONL
-        JSR     write_char.inverse_off
-        JSR     get_text_window     ; get size of total screen
-        STA     screen_height ; page_length in A
-        JSR     setup_text_window
+    JSR write_char.inverse_off
+    JSR get_text_window             ; get size of total screen
+    STA screen_height         ; page_length in A
+    JSR setup_text_window
 .NOTTUT
-        JSR     get_text_window     ; get size of working area
-        TAX                     ; page_length again in A
-        INX                     ; Initialize screen_image.
-        LDA     page_width
+    JSR get_text_window             ; get size of working area
+    TAX                         ; page_length again in A
+    INX                         ; Initialize screen_image.
+    LDA page_width
 .SCMILO
-        STA     screen_image,X
-        DEX
-        BPL     SCMILO
-        JSR     update_status_line
-        STZ     pending_update
-        RTS
+    STA screen_image,X
+    DEX
+    BPL SCMILO
+    JSR update_status_line
+    STZ pending_update
+    RTS
 .get_text_window
-        LDA     #160
-        LDX     #10
-        JSR     osbyte
-        STX     page_width
-        STY     page_length
-        LDX     #8
-        JSR     osbyte
-        TYA
-        CLC
-        SBC     page_length
-        STA     page_length
-        RTS
+    LDA #160
+    LDX #10
+    JSR osbyte
+    STX page_width
+    STY page_length
+    LDX #8
+    JSR osbyte
+    TYA
+    CLC
+    SBC page_length
+    STA page_length
+    RTS
 .setup_text_window
-        LDA     options
-        AND     #7
-        LDY     #14
-        CMP     #5
-        BEQ     WINDOW
-        LDY     #7
-        CMP     #2
-        BNE     NOWIND
+    LDA options
+    AND #7
+    LDY #14
+    CMP #5
+    BEQ WINDOW
+    LDY #7
+    CMP #2
+    BNE NOWIND
 .WINDOW
-        write_two_chars 28, 0
-        LDA     screen_height
-        INA
-        JSR     oswrch
-        LDA     page_width
+    write_two_chars 28, 0
+    LDA screen_height
+    INA
+    JSR oswrch
+    LDA page_width
 IF edit150_size_opt
-        JMP     vdu_ay
+    JMP vdu_ay
 ELSE
-        JSR     oswrch
-        TYA
-        JMP     oswrch
+    JSR oswrch
+    TYA
+    JMP oswrch
 ENDIF
 .NOWIND
-        LDA     #26
-        JMP     oswrch
+    LDA #26
+    JMP oswrch

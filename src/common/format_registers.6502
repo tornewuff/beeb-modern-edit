@@ -1,71 +1,71 @@
 .add_y_to_addr
-        TYA
-        ADC     addr
-        STA     addr
-        BCC     ENDADD
-        INC     addr+1
+    TYA
+    ADC addr
+    STA addr
+    BCC ENDADD
+    INC addr+1
 .ENDADD
-        RTS
+    RTS
 .modify_number_register
-        JSR     SPACEY
-        CMP     #'-'
-        BEQ     SUBNO
-        CMP     #'+'
-        BEQ     ADDNO
-        DEY
-        LDX     #0
+    JSR SPACEY
+    CMP #'-'
+    BEQ SUBNO
+    CMP #'+'
+    BEQ ADDNO
+    DEY
+    LDX #0
 .ADDNO
-        PHX
-        JSR     get_number_register
-        PLX
-        CLC
-        STX     temp
-        ADC     temp
-        BCC     ADDNOX
-        LDA     #0
+    PHX
+    JSR get_number_register
+    PLX
+    CLC
+    STX temp
+    ADC temp
+    BCC ADDNOX
+    LDA #0
 .ADDNOX
-        TAX
-        RTS
+    TAX
+    RTS
 .SUBNO
-        PHX
-        JSR     get_number_register
-        STA     temp
-        PLA
-        SEC
-        SBC     temp
-        BCS     ADDNOX
-        LDA     #0
-        TAX
-        RTS
+    PHX
+    JSR get_number_register
+    STA temp
+    PLA
+    SEC
+    SBC temp
+    BCS ADDNOX
+    LDA #0
+    TAX
+    RTS
 .get_number_register
-        LDX     #0
-        JSR     SPACEY
-        DEY
+    LDX #0
+    JSR SPACEY
+    DEY
 .NUMLOP
-        LDA     (addr),Y
-        CMP     #'0'
-        BCC     ENDNO
-        CMP     #&3A
-        BCS     ENDNUM        ; not a decimal digit
-        AND     #&0F
-        PHA
-        TXA
-        ASL     A
-        ASL     A
-        STA     temp
-        TXA
-        CLC
-        ADC     temp
-        ASL     A
-        STA     temp
-        PLA
-        CLC
-        ADC     temp
-        TAX
-        INY
-        BRA     NUMLOP
+    LDA (addr),Y
+    CMP #'0'
+    BCC ENDNO
+    CMP #&3A
+    BCS ENDNUM                ; not a decimal digit
+    AND #&0F
+    PHA
+    TXA
+    ASL A
+    ASL A
+    STA temp
+    TXA
+    CLC
+    ADC temp
+    ASL A
+    STA temp
+    PLA
+    CLC
+    ADC temp
+    TAX
+    INY
+    BRA NUMLOP
 .ENDNUM
-        CLC
+    CLC
 .ENDNO
-        TXA
-        RTS
+    TXA
+    RTS

@@ -1,451 +1,451 @@
 .ROUTAF
-        JSR     get_number_register
-        AND     #15
-        ASL     A
-        TAX
-        LDA     number_registers+1,X
-        AND     #15
-        STA     number_registers+1,X
-        INY            ; skip some delimter
-        PHX
-        JSR     get_number_register
-        PLX
-        ASL     A
-        ASL     A
-        ASL     A
-        ASL     A
-        ORA     number_registers+1,X
-        STA     number_registers+1,X
-        RTS
+    JSR get_number_register
+    AND #15
+    ASL A
+    TAX
+    LDA number_registers+1,X
+    AND #15
+    STA number_registers+1,X
+    INY                ; skip some delimter
+    PHX
+    JSR get_number_register
+    PLX
+    ASL A
+    ASL A
+    ASL A
+    ASL A
+    ORA number_registers+1,X
+    STA number_registers+1,X
+    RTS
 .ROUTAN
-        JSR     get_number_register
-        AND     #15
-        ASL     A
-        PHA
-        LDA     (addr),Y
-        INY            ; skip delimter
-        PHA
-        JSR     get_number_register
-        PLA
-        CMP     #'+'
-        BEQ     ADDREG
-        CMP     #'-'
-        BEQ     SUBREG
-        CMP     #'='
-        BEQ     MOVREG
-        TXA
-        PLX
-        STA     number_registers,X
-        LDA     number_registers+1,X
-        AND     #&F0
-        STA     number_registers+1,X
-        RTS
+    JSR get_number_register
+    AND #15
+    ASL A
+    PHA
+    LDA (addr),Y
+    INY                ; skip delimter
+    PHA
+    JSR get_number_register
+    PLA
+    CMP #'+'
+    BEQ ADDREG
+    CMP #'-'
+    BEQ SUBREG
+    CMP #'='
+    BEQ MOVREG
+    TXA
+    PLX
+    STA number_registers,X
+    LDA number_registers+1,X
+    AND #&F0
+    STA number_registers+1,X
+    RTS
 .ADDREG
-        CLC
-        STX     buff
-        PLX
-        LDA     number_registers,X
-        ADC     buff
-        STA     number_registers,X
-        LDA     number_registers+1,X
-        ADC     #0
-        STA     number_registers+1,X
-        RTS
+    CLC
+    STX buff
+    PLX
+    LDA number_registers,X
+    ADC buff
+    STA number_registers,X
+    LDA number_registers+1,X
+    ADC #0
+    STA number_registers+1,X
+    RTS
 .SUBREG
-        STX     buff
-        PLX
-        LDA     number_registers,X
-        SBC     buff
-        STA     number_registers,X
-        LDA     number_registers+1,X
-        SBC     #0
-        STA     number_registers+1,X
-        RTS
+    STX buff
+    PLX
+    LDA number_registers,X
+    SBC buff
+    STA number_registers,X
+    LDA number_registers+1,X
+    SBC #0
+    STA number_registers+1,X
+    RTS
 .MOVREG
-        TXA
-        AND     #15
-        ASL     A
-        TAX
-        LDA     number_registers+1,X
-        AND     #15
-        STA     buff
-        LDA     number_registers,X
-        PLX
-        STA     number_registers,X
-        LDA     number_registers+1,X
-        AND     #&F0
-        ORA     buff
-        STA     number_registers+1,X
-        RTS
+    TXA
+    AND #15
+    ASL A
+    TAX
+    LDA number_registers+1,X
+    AND #15
+    STA buff
+    LDA number_registers,X
+    PLX
+    STA number_registers,X
+    LDA number_registers+1,X
+    AND #&F0
+    ORA buff
+    STA number_registers+1,X
+    RTS
 .ROUTBL
-        STA     bold
-        STA     bold_required
-        RTS
+    STA bold
+    STA bold_required
+    RTS
 .ROUTCC
-        LDA     (addr),Y
-        STA     control_char
-        INY
-        RTS
+    LDA (addr),Y
+    STA control_char
+    INY
+    RTS
 .ROUTCE
-        STA     centre
-        STZ     right_flush   ; can't have both
-        RTS
+    STA centre
+    STZ right_flush           ; can't have both
+    RTS
 .ROUTCH
-        LDA     addr
-        STA     temp
-        LDA     addr+1
-        STA     temp+1        ; move filename pointer
-        LDA     text_start
-        STA     addr
-        LDA     text_start+1
-        STA     addr+1
-        LDA     text_end
-        LDX     text_end+1
-        JSR     paslnm
-        JSR     pasGO
-        STX     gap_start
-        STY     gap_start+1
-        LDX     #&FF
-        TXS
-        JMP     CHAINB
+    LDA addr
+    STA temp
+    LDA addr+1
+    STA temp+1                ; move filename pointer
+    LDA text_start
+    STA addr
+    LDA text_start+1
+    STA addr+1
+    LDA text_end
+    LDX text_end+1
+    JSR paslnm
+    JSR pasGO
+    STX gap_start
+    STY gap_start+1
+    LDX #&FF
+    TXS
+    JMP CHAINB
 .MACCHK
-        STA     temp        ; check for macro: A=lo, temp+1=hi
-        LDX     #-2
+    STA temp                ; check for macro: A=lo, temp+1=hi
+    LDX #-2
 .MACCHL
-        INX
-        INX
-        CPX     #maxMAC
-        BCS     MACCHX
-        LDA     macro_list,X
-        STA     buff
-        LDA     macro_list+1,X
-        STA     buff+1
-        BEQ     MACCHZ
-        PHY
-        LDY     #3
+    INX
+    INX
+    CPX #maxMAC
+    BCS MACCHX
+    LDA macro_list,X
+    STA buff
+    LDA macro_list+1,X
+    STA buff+1
+    BEQ MACCHZ
+    PHY
+    LDY #3
 .MACSPC
-        LDA     (buff),Y
-        INY
-        CMP     #' '
-        BEQ     MACSPC
-        STA     buff+2
-        LDA     (buff),Y
-        PLY
-        CMP     temp+1
-        BNE     MACCHL
-        LDA     buff+2
-        CMP     temp
-        BNE     MACCHL
-        RTS            ; found CS,EQ
+    LDA (buff),Y
+    INY
+    CMP #' '
+    BEQ MACSPC
+    STA buff+2
+    LDA (buff),Y
+    PLY
+    CMP temp+1
+    BNE MACCHL
+    LDA buff+2
+    CMP temp
+    BNE MACCHL
+    RTS                ; found CS,EQ
 .MACCHX
-        CLC            ; not found, no space CC,NE
-        TXA
+    CLC                ; not found, no space CC,NE
+    TXA
 .MACCHZ
-        RTS            ; not found, at space CC,EQ
+    RTS                ; not found, at space CC,EQ
 .DMEXIT
-        DEY
-        RTS
+    DEY
+    RTS
 .ROUTDM
-        JSR     SPACEY
-        cmp_line_terminator
-        BEQ     DMEXIT
-        CMP     control_char
-        BEQ     DMEXIT
-        STA     temp+1
-        LDA     (addr),Y
-        cmp_line_terminator
-        BEQ     DMEXIT
-        JSR     MACCHK
-        BNE     DMEXIT
-        LDA     addr
-        STA     macro_list,X
-        LDA     addr+1
-        STA     macro_list+1,X
-        BRA     SKIPEN
+    JSR SPACEY
+    cmp_line_terminator
+    BEQ DMEXIT
+    CMP control_char
+    BEQ DMEXIT
+    STA temp+1
+    LDA (addr),Y
+    cmp_line_terminator
+    BEQ DMEXIT
+    JSR MACCHK
+    BNE DMEXIT
+    LDA addr
+    STA macro_list,X
+    LDA addr+1
+    STA macro_list+1,X
+    BRA SKIPEN
 .ROUTDS
-        LDA     #2
-        STA     vspace
-        RTS
+    LDA #2
+    STA vspace
+    RTS
 .ROUTOF
-        LDA     addr
-        STA     odd_footer
-        LDA     addr+1
-        STA     odd_footer+1
-        BRA     SKIPEN
+    LDA addr
+    STA odd_footer
+    LDA addr+1
+    STA odd_footer+1
+    BRA SKIPEN
 .ROUTOH
-        LDA     addr
-        STA     odd_header
-        LDA     addr+1
-        STA     odd_header+1
-        BRA     SKIPEN
+    LDA addr
+    STA odd_header
+    LDA addr+1
+    STA odd_header+1
+    BRA SKIPEN
 .ROUTFO
-        LDA     addr
-        STA     odd_footer
-        LDA     addr+1
-        STA     odd_footer+1
+    LDA addr
+    STA odd_footer
+    LDA addr+1
+    STA odd_footer+1
 .ROUTEF
-        LDA     addr
-        STA     even_footer
-        LDA     addr+1
-        STA     even_footer+1
+    LDA addr
+    STA even_footer
+    LDA addr+1
+    STA even_footer+1
 .ROUTIG
-        BRA     SKIPEN
+    BRA SKIPEN
 .ROUTHE
-        LDA     addr
-        STA     odd_header
-        LDA     addr+1
-        STA     odd_header+1
+    LDA addr
+    STA odd_header
+    LDA addr+1
+    STA odd_header+1
 .ROUTEH
-        LDA     addr
-        STA     even_header
-        LDA     addr+1
-        STA     even_header+1
+    LDA addr
+    STA even_header
+    LDA addr+1
+    STA even_header+1
 .SKIPEN
-        CLC
-        JSR     add_y_to_addr
+    CLC
+    JSR add_y_to_addr
 .SKIPEM
-        LDA     (addr)
-        INC     addr
-        BNE     SKIPEK
-        PHA
-        INC     addr+1
-        LDA     addr
-        CMP     gap_start
-        LDA     addr+1
-        SBC     gap_start+1
-        BCS     SKIPEX
-        PLA
+    LDA (addr)
+    INC addr
+    BNE SKIPEK
+    PHA
+    INC addr+1
+    LDA addr
+    CMP gap_start
+    LDA addr+1
+    SBC gap_start+1
+    BCS SKIPEX
+    PLA
 .SKIPEK
-        CMP     control_char
-        BNE     SKIPEM
-        LDA     (addr)
-        CMP     #'e'
-        BNE     SKIPEM
-        LDY     #1
-        LDA     (addr),Y
-        CMP     #'n'
-        BNE     SKIPEM
-        INY
+    CMP control_char
+    BNE SKIPEM
+    LDA (addr)
+    CMP #'e'
+    BNE SKIPEM
+    LDY #1
+    LDA (addr),Y
+    CMP #'n'
+    BNE SKIPEM
+    INY
 .SKIPEX
-        RTS
+    RTS
 .ROUTEN
-        TSX
-        CPX     #&FD
-        BCS     SKIPEX        ; check for possible to do it
-        PLA
-        PLA
-        RTS            ; return a macro level
+    TSX
+    CPX #&FD
+    BCS SKIPEX                ; check for possible to do it
+    PLA
+    PLA
+    RTS                ; return a macro level
 .ROUTEP
-        JSR     ROUTBP
-        LDA     page
-        LSR     A
-        BCS     ROUTEP
-        RTS
+    JSR ROUTBP
+    LDA page
+    LSR A
+    BCS ROUTEP
+    RTS
 .ROUTFF
-        LDA     page_wait_flag
-        BMI     NOWAIT
-        LDA     print_flags
-        BPL     PRTWAT
-        JSR     wait_shift
+    LDA page_wait_flag
+    BMI NOWAIT
+    LDA print_flags
+    BPL PRTWAT
+    JSR wait_shift
 .NOWAIT
-        LDA     #12
-        JMP     oswrch
+    LDA #12
+    JMP oswrch
 .PRTWAT
-        JSR     NOWAIT
-        JMP     wait_shift
+    JSR NOWAIT
+    JMP wait_shift
 .ROUTIC
-        PHY
-        JSR     close_index_file
-        PLY
-        RTS
+    PHY
+    JSR close_index_file
+    PLY
+    RTS
 .ROUTIN
-        LDX     indent
-        JSR     modify_number_register
-        STX     indent
-        RTS
+    LDX indent
+    JSR modify_number_register
+    STX indent
+    RTS
 .ROUTIO
-        CLC
-        JSR     add_y_to_addr
-        JSR     close_index_file
-        LDX     addr
-        LDY     addr+1
-        LDA     #&80
-        JSR     osfind
-        STA     index_handle
-        LDY     #0
+    CLC
+    JSR add_y_to_addr
+    JSR close_index_file
+    LDX addr
+    LDY addr+1
+    LDA #&80
+    JSR osfind
+    STA index_handle
+    LDY #0
 .ROUTCO
-        lda_line_terminator
-        BRA     SKIPL1
+    lda_line_terminator
+    BRA SKIPL1
 .SKIPLP
-        INY
-        BNE     SKIPL1
-        INC     addr+1
+    INY
+    BNE SKIPL1
+    INC addr+1
 .SKIPL1
-        CMP     (addr),Y
-        BNE     SKIPLP
-        RTS
+    CMP (addr),Y
+    BNE SKIPLP
+    RTS
 .ROUTIX
-        STA     index_output
-        CLC
-        JSR     add_y_to_addr
-        LDA     lineot
-        PHA
-        LDA     #&FD
-        STA     lineot
-        JSR     CTLIN
-        PLA
-        STA     lineot
-        STZ     index_output
-        RTS
+    STA index_output
+    CLC
+    JSR add_y_to_addr
+    LDA lineot
+    PHA
+    LDA #&FD
+    STA lineot
+    JSR CTLIN
+    PLA
+    STA lineot
+    STZ index_output
+    RTS
 .ROUTJU
-        STZ     fill
-        RTS
+    STZ fill
+    RTS
 .ROUTLL
-        LDX     len
-        JSR     modify_number_register
-        STA     len
-        RTS
+    LDX len
+    JSR modify_number_register
+    STA len
+    RTS
 .ROUTLS
-        LDX     vspace
-        JSR     modify_number_register
-        STX     vspace
-        RTS
+    LDX vspace
+    JSR modify_number_register
+    STX vspace
+    RTS
 .ROUTLV
-        JSR     get_number_register
-        CMP     lineot
-        BEQ     OKAYLV
-        BCC     OKAYLV
-        PHA
-        JSR     ROUTBP
-        PLA
+    JSR get_number_register
+    CMP lineot
+    BEQ OKAYLV
+    BCC OKAYLV
+    PHA
+    JSR ROUTBP
+    PLA
 .OKAYLV
-        JMP     ALINES
+    JMP ALINES
 
 .ROUTNE
-        JSR     get_number_register
-        CMP     lineot
-        BEQ     OKAY
-        BCC     OKAY
+    JSR get_number_register
+    CMP lineot
+    BEQ OKAY
+    BCC OKAY
 .ROUTBP
-        LDA     lineot
-        BRA     ALINES
+    LDA lineot
+    BRA ALINES
 .ROUTNJ
-        STA     fill
+    STA fill
 .OKAY
-        RTS
+    RTS
 .ROUTNN
-        STA     linfed
-        RTS
+    STA linfed
+    RTS
 .ROUTOP
-        JSR     ROUTBP
-        LDA     page
-        LSR     A
-        BCC     ROUTOP
-        RTS
+    JSR ROUTBP
+    LDA page
+    LSR A
+    BCC ROUTOP
+    RTS
 .ROUTOS
-        CLC
-        JSR     add_y_to_addr
-        LDX     addr
-        LDY     addr+1
-        JSR     oscli
-        LDY     #0
-        JMP     ROUTCO
+    CLC
+    JSR add_y_to_addr
+    LDX addr
+    LDY addr+1
+    JSR oscli
+    LDY #0
+    JMP ROUTCO
 .ROUTPL
-        LDX     lines_per_page
-        JSR     modify_number_register
-        TXA
-        BEQ     WZERO
-        STA     lines_per_page
-        LDX     lineot
-        INX
-        BEQ     WZERO
-        STA     lineot
+    LDX lines_per_page
+    JSR modify_number_register
+    TXA
+    BEQ WZERO
+    STA lines_per_page
+    LDX lineot
+    INX
+    BEQ WZERO
+    STA lineot
 .WZERO
-        RTS
+    RTS
 .ROUTPO
-        LDX     page_offset
-        JSR     modify_number_register
-        STA     page_offset
-        RTS
+    LDX page_offset
+    JSR modify_number_register
+    STA page_offset
+    RTS
 .ROUTRF
-        STA     right_flush
-        STZ     centre        ; can't have both
-        RTS
+    STA right_flush
+    STZ centre                ; can't have both
+    RTS
 .ROUTSP
-        JSR     get_number_register
+    JSR get_number_register
 .ALINES
-        TAX
-        BEQ     ALINEX
-        PHY
-        CMP     #&FF
-        BNE     ALINEL
-        JSR     DOHDR
-        LDX     lineot
+    TAX
+    BEQ ALINEX
+    PHY
+    CMP #&FF
+    BNE ALINEL
+    JSR DOHDR
+    LDX lineot
 .ALINEL
-        LDA     lineot
-        INA
-        BNE     ALINET
-        PHX
-        JSR     DOHDR
-        PLX
+    LDA lineot
+    INA
+    BNE ALINET
+    PHX
+    JSR DOHDR
+    PLX
 .ALINET
 
-        LDA     #cr             ; ++++
-        JSR     oswrch
-        JSR     lfwrch
+    LDA #cr                     ; ++++
+    JSR oswrch
+    JSR lfwrch
 
-        DEX
-        BNE     ALINEL
-        PLY
+    DEX
+    BNE ALINEL
+    PLY
 .ALINEX
-        RTS
+    RTS
 .ROUTSS
-        LDA     #1
-        STA     vspace
-        RTS
+    LDA #1
+    STA vspace
+    RTS
 .ROUTTA
-        STZ     last_tab
+    STZ last_tab
 .SETTAB
-        JSR     get_number_register
-        LDX     last_tab
-        STA     tab_list,X
-        STZ     tab_list+1,X
-        INC     last_tab
-        JSR     SPACEY
-        CMP     #','
-        BEQ     SETTAB
-        DEY
-        RTS
+    JSR get_number_register
+    LDX last_tab
+    STA tab_list,X
+    STZ tab_list+1,X
+    INC last_tab
+    JSR SPACEY
+    CMP #','
+    BEQ SETTAB
+    DEY
+    RTS
 .ROUTTC
-        LDA     (addr),Y
-        STA     tab_char
-        INY
-        RTS
+    LDA (addr),Y
+    STA tab_char
+    INY
+    RTS
 .ROUTTI
-        LDX     temp_indent
-        CPX     #&FF
-        BNE     ROUSTI
-        LDX     indent        ; if no temp indent then use indent as base
+    LDX temp_indent
+    CPX #&FF
+    BNE ROUSTI
+    LDX indent                ; if no temp indent then use indent as base
 .ROUSTI
-        JSR     modify_number_register
-        STX     temp_indent
-        RTS
+    JSR modify_number_register
+    STX temp_indent
+    RTS
 .ROUTTR
-        LDA     (addr),Y
-        cmp_line_terminator
-        BEQ     SETTRX
-        TAX
-        INY
-        LDA     (addr),Y
-        DEY
-        cmp_line_terminator
-        BEQ     SETTRX
-        INY
-        INY
-        STA     translate_table,X
+    LDA (addr),Y
+    cmp_line_terminator
+    BEQ SETTRX
+    TAX
+    INY
+    LDA (addr),Y
+    DEY
+    cmp_line_terminator
+    BEQ SETTRX
+    INY
+    INY
+    STA translate_table,X
 .SETTRX
-        RTS
+    RTS
 .ROUTUL
-        STA     underline
-        STA     underline_required
-        RTS
+    STA underline
+    STA underline_required
+    RTS

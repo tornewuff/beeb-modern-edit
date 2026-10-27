@@ -1,6 +1,6 @@
 {
   "[baron]": {
-    "editor.tabSize": 8
+    "editor.tabSize": 4
   },
   "baron.sourceFiles": [
     "src/edit.1.50r.6502",

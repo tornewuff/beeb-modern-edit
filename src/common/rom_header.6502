@@ -2,41 +2,41 @@ SECTION Header, org = header_origin
 
 .rom_header {
 
-        JMP     language_entry
+    JMP language_entry
 
 IF omit_service
-        RTS
-        EQUW    0
+    RTS
+    EQUW 0
 ELSE
-        JMP     service_entry
+    JMP service_entry
 ENDIF
 
 IF build.relocation_model == "none"
-        EQUB    &C2             ; service + language, 6502 code
+    EQUB &C2                    ; service + language, 6502 code
 ELSE
-        EQUB    &E2             ; relocation address provided
+    EQUB &E2                    ; relocation address provided
 ENDIF
 
-        EQUB    copyright - rom_header
-        EQUB    metadata.version_byte
+    EQUB copyright - rom_header
+    EQUB metadata.version_byte
 .title
-        EQUB    metadata.title
+    EQUB metadata.title
 .title_end
-        EQUB    null, metadata.version_str
+    EQUB null, metadata.version_str
 .copyright
-        EQUB    null, "(C)", metadata.copyright, null
+    EQUB null, "(C)", metadata.copyright, null
 
 IF build.relocation_model != "none"
-        EQUW    build.relocation_address
-        IF build.relocation_model == "mos350"
-                EQUW    bitmap_descriptor
-                .bitmap_descriptor {
-                        EQUW    build.relocation_bitmap
-                        EQUB    build.relocation_bitmap_rom, 0
-                }
-        ELSE
-                EQUW    &0000
-        ENDIF
+    EQUW build.relocation_address
+    IF build.relocation_model == "mos350"
+        EQUW bitmap_descriptor
+        .bitmap_descriptor {
+            EQUW build.relocation_bitmap
+            EQUB build.relocation_bitmap_rom, 0
+        }
+    ELSE
+        EQUW &0000
+    ENDIF
 ENDIF
 
 }

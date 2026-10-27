@@ -1,18 +1,18 @@
 .cursor_to_screen_xy
-        LDX screen_x
-        LDY     screen_y
-        BPL     cursor_to_xy
+    LDX screen_x
+    LDY screen_y
+    BPL cursor_to_xy
 .cursor_to_status
-        LDY page_length
-        INY
+    LDY page_length
+    INY
 .cursor_to_0y
-        LDX     #0
+    LDX #0
 .cursor_to_xy
-        LDA     #31
+    LDA #31
 .vdu_axy                        ; VDU A,X,Y
-        JSR     oswrch
-        TXA
+    JSR oswrch
+    TXA
 .vdu_ay                         ; VDU A,Y
-        JSR     oswrch
-        TYA
-        JMP     oswrch
+    JSR oswrch
+    TYA
+    JMP oswrch

@@ -1,52 +1,52 @@
 .close_index_file
-        LDY     index_handle
-        BEQ     closee
-        STZ     index_handle
-        LDA     #&00
-        JSR     osfind        ; close index file
+    LDY index_handle
+    BEQ closee
+    STZ index_handle
+    LDA #&00
+    JSR osfind                ; close index file
 .closee
-        RTS
+    RTS
 
 .SCMVTO
-        ASL     A
+    ASL A
 .MOVE
-        LSR     A
-        BEQ     MOVEX
-        TAX
-        LDA     #9
-        BIT     print_flags
-        BMI     MLOOP
-        LDA     #' '
+    LSR A
+    BEQ MOVEX
+    TAX
+    LDA #9
+    BIT print_flags
+    BMI MLOOP
+    LDA #' '
 .MLOOP
-        BIT     index_output
-        BPL     MLOOPA
-        LDA     #' '
-        JSR     DOINDE
-        BRA     MLOOPB
+    BIT index_output
+    BPL MLOOPA
+    LDA #' '
+    JSR DOINDE
+    BRA MLOOPB
 .MLOOPA
-        JSR     oswrch
+    JSR oswrch
 .MLOOPB
-        DEX
-        BNE     MLOOP
+    DEX
+    BNE MLOOP
 .MOVEX
-        RTS
+    RTS
 .wait_shift_prompt
-        JSR     print_inline_inverse
-        EQUB    "Press SHIFT to continue",&EA
+    JSR print_inline_inverse
+    EQUB "Press SHIFT to continue",&EA
 .wait_shift
-        PHX
-        PHY
+    PHX
+    PHY
 .INKEYL
-        JSR     test_escape
-        LDX     #&FF
-        LDY     #&FF
-        LDA     #&81
-        JSR     osbyte
-        CPX     #&FF
-        BNE     INKEYL
-        LDA     #15
-        LDX     #&FF
-        JSR     osbyte
-        PLY
-        PLX
-        RTS
+    JSR test_escape
+    LDX #&FF
+    LDY #&FF
+    LDA #&81
+    JSR osbyte
+    CPX #&FF
+    BNE INKEYL
+    LDA #15
+    LDX #&FF
+    JSR osbyte
+    PLY
+    PLX
+    RTS

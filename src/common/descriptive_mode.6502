@@ -1,133 +1,133 @@
 .print_key_strip {
 
-        edit150_key_strip = SUM({
-                remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐"),
-                remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │"),
-                remap("│Returns│Over   │ File  │Margins│Languag│ Mode  │ Marks │Move   │Delete │Text  │"),
-                remap("├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤"),
-                remap("│ Goto  │Command│ Load  │ Save  │ Find  │Global │ Mark  │Marked │ Print │ Old  │"),
-                remap("│ Line  │Line   │ File  │ File  │String │Replace│ Place │Copy   │ Text  │ Text │"),
-        })
+    edit150_key_strip = SUM({
+        remap("┌shf-f0─┬shf-f1─┬shf-f2─┬shf-f3─┬shf-f4─┬shf-f5─┬shf-f6─┬shf-f7─┬shf-f8─┬shf-f9┐"),
+        remap("│Display│Insert/│Insert │Remove │Return │ Set   │ Clear │Marked │Marked │Clear │"),
+        remap("│Returns│Over   │ File  │Margins│Languag│ Mode  │ Marks │Move   │Delete │Text  │"),
+        remap("├──f0───┼──f1───┼──f2───┼──f3───┼──f4───┼──f5───┼──f6───┼──f7───┼──f8───┼──f9──┤"),
+        remap("│ Goto  │Command│ Load  │ Save  │ Find  │Global │ Mark  │Marked │ Print │ Old  │"),
+        remap("│ Line  │Line   │ File  │ File  │String │Replace│ Place │Copy   │ Text  │ Text │"),
+    })
 
 IF edit150_updated_help
-        key_strip = edit150_key_strip
+    key_strip = edit150_key_strip
 ELSE
-        ; HiEdit used different casing and a differently placed space.
-        key_strip = multi_replace(edit150_key_strip, {
-                {"File", "file"},
-                {"Line", "line"},
-                {"Text", "text"},
-                {" Find", "Find "},
-        })
+    ; HiEdit used different casing and a differently placed space.
+    key_strip = multi_replace(edit150_key_strip, {
+        {"File", "file"},
+        {"Line", "line"},
+        {"Text", "text"},
+        {" Find", "Find "},
+    })
 ENDIF
 
-        JSR     print_inline
-        EQUB    key_strip
+    JSR print_inline
+    EQUB key_strip
 IF edit150_size_opt
-        EQUB    remap("└"),&EA
-        LDX     #8
-.@      JSR     print_inline
-        EQUB    remap("───────┴"),&EA
-        DEX
-        BPL     @-
-        JSR     print_inline
-        EQUB    remap("──────┘"),&EA
+    EQUB remap("└"),&EA
+    LDX #8
+.@  JSR print_inline
+    EQUB remap("───────┴"),&EA
+    DEX
+    BPL @-
+    JSR print_inline
+    EQUB remap("──────┘"),&EA
 ELSE
-        EQUB    remap("└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┘")
-        NOP
+    EQUB remap("└───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴───────┴──────┘")
+    NOP
 ENDIF
-        RTS
+    RTS
 }
 
 .print_descriptive_help {
-        ; construct the first line of text (excluding the diagram part)
+    ; construct the first line of text (excluding the diagram part)
 IF LEN(metadata.version_str) == 4
-        version_prefix = "Ver "
+    version_prefix = "Ver "
 ELIF LEN(metadata.version_str) == 5
-        version_prefix = "Vn "
+    version_prefix = "Vn "
 ELSE
-        ERROR   "version_str must be 4 or 5 bytes"
+    ERROR "version_str must be 4 or 5 bytes"
 ENDIF
 
 IF mouse
-        version_suffix = "m"
+    version_suffix = "m"
 ELSE
-        version_suffix = " "
+    version_suffix = " "
 ENDIF
 
-        line1 = SUM({
-                remap("The Acorn Screen Editor © "),
-                metadata.copyright_year,
-                " Acorn Computers ",
-                version_prefix,
-                metadata.version_str,
-                version_suffix,
-        })
-        ASSERT LEN(line1) == 56, "descriptive help line 1 length bad: ", LEN(line1)
+    line1 = SUM({
+        remap("The Acorn Screen Editor © "),
+        metadata.copyright_year,
+        " Acorn Computers ",
+        version_prefix,
+        metadata.version_str,
+        version_suffix,
+    })
+    ASSERT LEN(line1) == 56, "descriptive help line 1 length bad: ", LEN(line1)
 
-        ; construct the second line of text (excluding the diagram part)
+    ; construct the second line of text (excluding the diagram part)
 IF syzygy       ; "a SYZYGY prog"
-        line2_prefix = CHR(FLATTEN({
-                CODES("      a"),
-                23,32,&00,&01,&01,&01,&00,&01,&01,&01,32,
-                23,32,&F4,&14,&04,&F3,&10,&10,&10,&E7,32,
-                23,32,&5F,&41,&42,&C4,&48,&50,&50,&9F,32,
-                23,32,&44,&45,&45,&3C,&04,&04,&04,&79,32,
-                23,32,&F4,&14,&14,&F3,&10,&10,&10,&E7,32,
-                23,32,&40,&40,&40,&C0,&40,&40,&40,&80,32,
-                23,32,&00,&00,&00,&00,&00,&00,&00,&00,
-                CODES("prog "),
-        }))
-        line2_prefix_len = 18
-        line2_invisible_bytes = 70
+    line2_prefix = CHR(FLATTEN({
+        CODES("      a"),
+        23,32,&00,&01,&01,&01,&00,&01,&01,&01,32,
+        23,32,&F4,&14,&04,&F3,&10,&10,&10,&E7,32,
+        23,32,&5F,&41,&42,&C4,&48,&50,&50,&9F,32,
+        23,32,&44,&45,&45,&3C,&04,&04,&04,&79,32,
+        23,32,&F4,&14,&14,&F3,&10,&10,&10,&E7,32,
+        23,32,&40,&40,&40,&C0,&40,&40,&40,&80,32,
+        23,32,&00,&00,&00,&00,&00,&00,&00,&00,
+        CODES("prog "),
+    }))
+    line2_prefix_len = 18
+    line2_invisible_bytes = 70
 ELSE
-        line2_prefix = ""
-        line2_prefix_len = 0
-        line2_invisible_bytes = 0
+    line2_prefix = ""
+    line2_prefix_len = 0
+    line2_invisible_bytes = 0
 ENDIF
-        line2_filler = CHR(REPEATED(31 - line2_prefix_len, ' '))
+    line2_filler = CHR(REPEATED(31 - line2_prefix_len, ' '))
 
 IF cF8key AND NOT(edit150_updated_help)
-        ; not in Edit 1.50 presumably because it's now a standard feature
-        line2_crlfmode = "CR/LF"
+    ; not in Edit 1.50 presumably because it's now a standard feature
+    line2_crlfmode = "CR/LF"
 ELIF termin=lf
-        line2_crlfmode = "(LF) "
+    line2_crlfmode = "(LF) "
 ELSE
-        line2_crlfmode = "     "
+    line2_crlfmode = "     "
 ENDIF
 
-        line2 = SUM({
-                line2_prefix,
-                line2_filler,
-                "Descriptive Mode ",
-                line2_crlfmode,
-        })
-        ASSERT LEN(line2) - line2_invisible_bytes == 53, "descriptive help line 2 length bad: ", LEN(line2)
+    line2 = SUM({
+        line2_prefix,
+        line2_filler,
+        "Descriptive Mode ",
+        line2_crlfmode,
+    })
+    ASSERT LEN(line2) - line2_invisible_bytes == 53, "descriptive help line 2 length bad: ", LEN(line2)
 
-        edit150_descriptive_help = SUM({
-                line1,                                                  remap("┌───┐Shift: screen up   "),
-                line2,                                               remap("   │ ⭡ │Control: text start"),
-                remap("TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  "),
-                remap("COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         "),
-                remap("Shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  "),
-                remap("       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down "),
-                remap("Control COPY deletes the current line (to next RETURN)  └───┘Control: text end  "),
-        })
+    edit150_descriptive_help = SUM({
+        line1,                                                  remap("┌───┐Shift: screen up   "),
+        line2,                                               remap("   │ ⭡ │Control: text start"),
+        remap("TAB performs tabulation controlled by shift TAB.      ┌─┴─┬─┴─┐Shift: word l/r  "),
+        remap("COPY deletes the character above the cursor.          │ ⯇╴│╶⯈ │Control:         "),
+        remap("Shift COPY provides normal soft keys and cursor       └─┬─┴─┬─┘    l/r of line  "),
+        remap("       copying (ESCAPE to leave this mode).             │ ⭣ │Shift: screen down "),
+        remap("Control COPY deletes the current line (to next RETURN)  └───┘Control: text end  "),
+    })
 
 IF edit150_updated_help
-        descriptive_help = edit150_descriptive_help
+    descriptive_help = edit150_descriptive_help
 ELSE
-        ; HiEdit used different casing and wording around newline.
-        descriptive_help = multi_replace(edit150_descriptive_help, {
-                {"Shift COPY", "shift COPY"},
-                {"Control COPY", "control COPY"},
-                {"(to next RETURN)", "to next new line"},
-        })
+    ; HiEdit used different casing and wording around newline.
+    descriptive_help = multi_replace(edit150_descriptive_help, {
+        {"Shift COPY", "shift COPY"},
+        {"Control COPY", "control COPY"},
+        {"(to next RETURN)", "to next new line"},
+    })
 ENDIF
 
-        ; actually print the lines
-        JSR     print_inline
-        EQUB    descriptive_help
-        NOP
-        RTS
+    ; actually print the lines
+    JSR print_inline
+    EQUB descriptive_help
+    NOP
+    RTS
 }

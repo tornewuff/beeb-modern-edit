@@ -1,37 +1,37 @@
 .init_edit_keys
-        ; Set up edit keys as softkeys, and set softkeys to have
-        ; following bases -
-        ; plain = &80
-        ; shift = &90
-        ; ctrl  = &A0
-        LDA     #4
-        LDX     #2
-        JSR     osbyte
-        LDA     #&DB
-        LDX     #128 + 10
-        LDY     #0
-        JSR     osbyte          ; tab key pretends to be soft key 10
-        LDA     #&E3
-        LDX     #&A0
-        LDY     #0
-        JSR     osbyte
-        LDA     #&E2
-        LDX     #&90
-        LDY     #0
-        JSR     osbyte
-        LDX     #&80
+    ; Set up edit keys as softkeys, and set softkeys to have
+    ; following bases -
+    ; plain = &80
+    ; shift = &90
+    ; ctrl  = &A0
+    LDA #4
+    LDX #2
+    JSR osbyte
+    LDA #&DB
+    LDX #128 + 10
+    LDY #0
+    JSR osbyte                  ; tab key pretends to be soft key 10
+    LDA #&E3
+    LDX #&A0
+    LDY #0
+    JSR osbyte
+    LDA #&E2
+    LDX #&90
+    LDY #0
+    JSR osbyte
+    LDX #&80
 .INITEX
-        LDA     #&E1
-        LDY     #0
-        JMP     osbyte
+    LDA #&E1
+    LDY #0
+    JMP osbyte
 .restore_keys
-        ; Return cursor-keys & softkeys to 'normal' state.
-        LDA     #&DB
-        LDX     #9
-        LDY     #0
-        JSR     osbyte          ; tab key emits 9
-        LDA     #4
-        LDX     #0
-        JSR     osbyte
-        LDX     #1
-        BRA     INITEX
+    ; Return cursor-keys & softkeys to 'normal' state.
+    LDA #&DB
+    LDX #9
+    LDY #0
+    JSR osbyte                  ; tab key emits 9
+    LDA #4
+    LDX #0
+    JSR osbyte
+    LDX #1
+    BRA INITEX

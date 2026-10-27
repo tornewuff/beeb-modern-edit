@@ -1,103 +1,103 @@
 .clear_buffer
-        LDX     text_start
-        LDY     text_start + 1
+    LDX text_start
+    LDY text_start + 1
 
 .EDITtd
-        STX     gap_start
-        STY     gap_start + 1
-        LDA     text_end
-        STA     gap_end
-        LDA     text_end + 1
-        STA     gap_end + 1
+    STX gap_start
+    STY gap_start + 1
+    LDA text_end
+    STA gap_end
+    LDA text_end + 1
+    STA gap_end + 1
 .EDITxx
-        STZ     cursor_editing
-        STZ     key_queued_flag
-        STZ     num_marks_set
-        lda_line_terminator
-        STA     (oshwm)
-        STA     (text_end)
+    STZ cursor_editing
+    STZ key_queued_flag
+    STZ num_marks_set
+    lda_line_terminator
+    STA (oshwm)
+    STA (text_end)
 .cursor_text_start
-        LDX     text_start
-        LDY     text_start + 1
-        JSR     gap_back_to_xy
-        STZ     screen_x ; STZ screen_y will be forced by screen_update
+    LDX text_start
+    LDY text_start + 1
+    JSR gap_back_to_xy
+    STZ screen_x         ; STZ screen_y will be forced by screen_update
 .STFILX
-        RTS
+    RTS
 
 .cursor_text_end
-        LDA     bottom_scroll_margin ; Try to glue bottom of file to bottom_scroll_margin.
-        STA     screen_y
-        LDX     text_end
-        LDY     text_end + 1
-        JSR     gap_forward_to_xy
-        JMP     normalize_x
+    LDA bottom_scroll_margin         ; Try to glue bottom of file to bottom_scroll_margin.
+    STA screen_y
+    LDX text_end
+    LDY text_end + 1
+    JSR gap_forward_to_xy
+    JMP normalize_x
 
-        IF NOT(edit150)
+    IF NOT(edit150)
 .toggle_insert_overwrite          ; Insert/Over toggle
-        LDA     options
-        EOR     #bit4   ; the correct bit
-        JSR     write_options
-        JMP     CstatU
-        ENDIF
+    LDA options
+    EOR #bit4           ; the correct bit
+    JSR write_options
+    JMP CstatU
+    ENDIF
 
 .check_screen_mode
-        LDA     #&87    ; select mode if options and screen mode NOT the same
-        JSR     osbyte
-        LDA     options
-        AND     #&07
-        TAX
-        LDA     MODEtb,X
-        STY     string
-        EOR     string
-        AND     #&07
-        BEQ     STFILX  ; same ok
+    LDA #&87            ; select mode if options and screen mode NOT the same
+    JSR osbyte
+    LDA options
+    AND #&07
+    TAX
+    LDA MODEtb,X
+    STY string
+    EOR string
+    AND #&07
+    BEQ STFILX          ; same ok
 .select_screen_mode
-        LDA     #22     ; select the right screen mode
-        JSR     oswrch
-        LDA     options
-        AND     #&07
-        TAY
-        LDA     MODEtb,Y
-        ORA     #&80    ; select any shadow around
-        JMP     oswrch
+    LDA #22             ; select the right screen mode
+    JSR oswrch
+    LDA options
+    AND #&07
+    TAY
+    LDA MODEtb,Y
+    ORA #&80            ; select any shadow around
+    JMP oswrch
 
 
 .setup_editor           ; Set up 'EDIT'
-        JSR     select_screen_mode
+    JSR select_screen_mode
 .read_memory_limits
-        LDA     #osbyte_read_oshwm
-        JSR     osbyte
-        STX     oshwm
-        STY     oshwm + 1
+    LDA #osbyte_read_oshwm
+    JSR osbyte
+    STX oshwm
+    STY oshwm + 1
 IF edit150_size_opt
-        ASSERT  osbyte_read_oshwm + 1 == osbyte_read_himem
-        INA
+    ASSERT osbyte_read_oshwm + 1 == osbyte_read_himem
+    INA
 ELSE
-        LDA     #osbyte_read_himem
+    LDA #osbyte_read_himem
 ENDIF
-        JSR     osbyte
-        STX     himem
-        STY     himem + 1
+    JSR osbyte
+    STX himem
+    STY himem + 1
 
-        ; Set up edit (text) buffer delimiting pointers.
-        CLC
-        LDA     oshwm
-        ADC     #1
-        STA     text_start
-        LDA     oshwm + 1
-        ADC     #0
-        STA     text_start + 1
-        LDA     himem
-        SBC     #0              ; CC gives -1
-        STA     text_end
-        LDA     himem + 1
-        SBC     #0
-        STA     text_end + 1
-        JSR     init_page       ; initialise page_length and width
-        LDA     page_length
-        SEC
-        SBC     #4
-        STA     bottom_scroll_margin
-        LDA     #4
-        STA     top_scroll_margin
-        RTS
+    ; Set up edit (text) buffer delimiting pointers.
+    CLC
+    LDA oshwm
+    ADC #1
+    STA text_start
+    LDA oshwm + 1
+    ADC #0
+    STA text_start + 1
+    LDA himem
+    SBC #0                      ; CC gives -1
+    STA text_end
+    LDA himem + 1
+    SBC #0
+    STA text_end + 1
+    JSR init_page               ; initialise page_length and width
+    LDA page_length
+    SEC
+    SBC #4
+    STA bottom_scroll_margin
+    LDA #4
+    STA top_scroll_margin
+    RTS

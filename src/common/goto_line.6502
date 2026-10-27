@@ -1,136 +1,136 @@
 .parse_number
-        STZ     index
-        STZ     line
-        STZ     line + 1
+    STZ index
+    STZ line
+    STZ line + 1
 .EDLIRE
-        LDY     index
-        LDA     (temp),Y
-        CMP     #cr
-        BEQ     EDLIMV
-        CMP     #'9' + 1
-        BCS     EDLIBN
-        SBC     #'0' - 1
-        BCC     EDLIBN
-        STA     temp_a
-        LDA     #10; line = line * 10 + temp_a
-        LDX     #0
-        LDY     #0
-        CLC
+    LDY index
+    LDA (temp),Y
+    CMP #cr
+    BEQ EDLIMV
+    CMP #'9' + 1
+    BCS EDLIBN
+    SBC #'0' - 1
+    BCC EDLIBN
+    STA temp_a
+    LDA #10        ; line = line * 10 + temp_a
+    LDX #0
+    LDY #0
+    CLC
 
 .EDLI10
-        PHA
-        TXA
-        ADC     line
-        TAX
-        TYA
-        ADC     line + 1
-        TAY
-        BCS     EDLIBN
-        PLA
-        DEA
-        BNE     EDLI10
-        TXA
-        ADC     temp_a
-        STA     line
-        BCC     EDLNHI
-        INY
-        BEQ     EDLIBN
+    PHA
+    TXA
+    ADC line
+    TAX
+    TYA
+    ADC line + 1
+    TAY
+    BCS EDLIBN
+    PLA
+    DEA
+    BNE EDLI10
+    TXA
+    ADC temp_a
+    STA line
+    BCC EDLNHI
+    INY
+    BEQ EDLIBN
 .EDLNHI
-        STY     line + 1
-        INC     index
-        BNE     EDLIRE
+    STY line + 1
+    INC index
+    BNE EDLIRE
 .EDLIMV
-        RTS
+    RTS
 
 .goto_line
-        LDA     #1              ; Move to specified line number.
-        STA     line
-        STZ     line + 1
-        LDA     text_start
-        STA     string
-        LDA     text_start + 1
-        STA     string + 1
+    LDA #1                      ; Move to specified line number.
+    STA line
+    STZ line + 1
+    LDA text_start
+    STA string
+    LDA text_start + 1
+    STA string + 1
 .LOKLINE
-        LDA     (string)
-        cmp_line_terminator
-        BNE     LOKLI2
-        INC     line
-        BNE     LOKLI2
-        INC     line + 1
+    LDA (string)
+    cmp_line_terminator
+    BNE LOKLI2
+    INC line
+    BNE LOKLI2
+    INC line + 1
 .LOKLI2
-        INC     string
-        BNE     LOKLI3
-        INC     string + 1
+    INC string
+    BNE LOKLI3
+    INC string + 1
 .LOKLI3
-        LDA     string
-        CMP     gap_start
-        LDA     string + 1
-        SBC     gap_start+1
-        BCC     LOKLINE
-        JSR     prompt
-        EQUB    "At line ",&EA
-        JSR     write_lineno
-        JSR     print_inline
-        EQUB    ", new line:",&EA
-        JSR     write_char.inverse_off
-        JSR     read_trimmed_line
-        BNE     LOLI4
+    LDA string
+    CMP gap_start
+    LDA string + 1
+    SBC gap_start+1
+    BCC LOKLINE
+    JSR prompt
+    EQUB "At line ",&EA
+    JSR write_lineno
+    JSR print_inline
+    EQUB ", new line:",&EA
+    JSR write_char.inverse_off
+    JSR read_trimmed_line
+    BNE LOLI4
 
 .EDLIBN
-        BRK
-        EQUB    1,"Bad number"
+    BRK
+    EQUB 1,"Bad number"
 
 .EDLIBL
-        BRK
-        EQUB    2,"Line not found",0
+    BRK
+    EQUB 2,"Line not found",0
 
 .LOLI4
-        JSR     parse_number
-        ; Number is held in line. Numbers start at 1 ...
-        SEC
-        LDA     line
-        SBC     #1
-        STA     line
-        LDA     line + 1
-        SBC     #0
-        STA     line+1
-        BCC     EDLIBN
-        JSR     cursor_text_start
-        IF edit150
-        JSR     set_text_ptr_to_gap_end
-        ELSE
-        LDA     gap_end
-        STA     text_ptr
-        LDA     gap_end + 1
-        STA     text_ptr + 1
+    JSR parse_number
+    ; Number is held in line. Numbers start at 1 ...
+    SEC
+    LDA line
+    SBC #1
+    STA line
+    LDA line + 1
+    SBC #0
+    STA line+1
+    BCC EDLIBN
+    JSR cursor_text_start
+    IF edit150
+    JSR set_text_ptr_to_gap_end
+    ELSE
+    LDA gap_end
+    STA text_ptr
+    LDA gap_end + 1
+    STA text_ptr + 1
 
-        ENDIF
+    ENDIF
 .EDLIFW
-        LDA     line
-        ORA     line + 1
-        BEQ     EDLIGO
+    LDA line
+    ORA line + 1
+    BEQ EDLIGO
 
 .EDLICR
-        LDA     #1
-        JSR     text_ptr_forward_a
-        BCS     EDLIBL
-        LDA     temp_a
-        cmp_line_terminator
-        BNE     EDLICR
-        LDA     line
-        BNE     EDLNHD
-        DEC     line+1
+    LDA #1
+    JSR text_ptr_forward_a
+    BCS EDLIBL
+    LDA temp_a
+    cmp_line_terminator
+    BNE EDLICR
+    LDA line
+    BNE EDLNHD
+    DEC line+1
 
 .EDLNHD
-        DEC     line
-        BRA     EDLIFW
+    DEC line
+    BRA EDLIFW
 
 .EDLIGO
-        ; Move to bottom_scroll_margin.
-        LDA     top_scroll_margin
-        BNE     EDLIGJ
-        LDA     #4
+    ; Move to bottom_scroll_margin.
+    LDA top_scroll_margin
+    BNE EDLIGJ
+    LDA #4
 
 .EDLIGJ
-        STA     screen_y
-        JMP     gap_forward_to_text_ptr
+    STA screen_y
+    JMP gap_forward_to_text_ptr

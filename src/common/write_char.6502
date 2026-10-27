@@ -1,56 +1,56 @@
 .write_char {
-        ; Entry - A = char to output.
-        ; Exit  - Y preserved
-        ;        ctrl ch     --> inverted or chr(255) depending on mode
-        ;        delete      --> inv ?
-        ;        other chars --> echoed
-        CMP     #space
-        BCC     PASWNC
-        CMP     #delete
-        BNE     PASWOS
-        LDA     #'?'
-        BRA     inverse
+    ; Entry - A = char to output.
+    ; Exit  - Y preserved
+    ;        ctrl ch     --> inverted or chr(255) depending on mode
+    ;        delete      --> inv ?
+    ;        other chars --> echoed
+    CMP #space
+    BCC PASWNC
+    CMP #delete
+    BNE PASWOS
+    LDA #'?'
+    BRA inverse
 .PASWOS
-        JMP     oswrch
+    JMP oswrch
 .line_end
-        LDA     #&20
-        BIT     options
-        BEQ     PASWOS
-        IF lfarro
-        LDA     #nlfarr
-        ELSE
-        LDA     #'$'      ; **
-        ENDIF
-        BRA     inverse   ; **
+    LDA #&20
+    BIT options
+    BEQ PASWOS
+    IF lfarro
+    LDA #nlfarr
+    ELSE
+    LDA #'$'              ; **
+    ENDIF
+    BRA inverse           ; **
 .PASWNC
-        ORA     #&40; Output control character as inverted keytop.
+    ORA #&40        ; Output control character as inverted keytop.
 .inverse
-        ; Output character in inverse video (blob in mode 7).
-        ; Entry - A = character
-        ;        mode IN [0..7]
-        PHA
-        LDA     options
-        AND     #7
-        CMP     #7
-        BNE     INVWN7
-        PLA
-        LDA     #255
-        BRA     PASWOS
+    ; Output character in inverse video (blob in mode 7).
+    ; Entry - A = character
+    ;        mode IN [0..7]
+    PHA
+    LDA options
+    AND #7
+    CMP #7
+    BNE INVWN7
+    PLA
+    LDA #255
+    BRA PASWOS
 .INVWN7
-        JSR     inverse_on
-        PLA
-        JSR     oswrch
+    JSR inverse_on
+    PLA
+    JSR oswrch
 .inverse_off
-        LDA     #17
-        JSR     oswrch
-        LDA     #128
-        JSR     oswrch
-        LDA     #17
-        JSR     oswrch
-        LDA     #7
-        JMP     oswrch
+    LDA #17
+    JSR oswrch
+    LDA #128
+    JSR oswrch
+    LDA #17
+    JSR oswrch
+    LDA #7
+    JMP oswrch
 .inverse_on
-        JSR     print_inline
-        EQUB    17,135,17,0,&EA
-        RTS
+    JSR print_inline
+    EQUB 17,135,17,0,&EA
+    RTS
 }

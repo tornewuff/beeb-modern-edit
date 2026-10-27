@@ -1,11 +1,11 @@
-        ; Default header and footer texts, for each line terminator. The
-        ; header texts run on into the footers, which they share.
+    ; Default header and footer texts, for each line terminator. The
+    ; header texts run on into the footers, which they share.
 .defhdr
-        EQUB    ".he",cr,".en",cr
+    EQUB ".he",cr,".en",cr
 .defftr
-        EQUB    ".fo",cr,".ce",cr,"Page .r0",cr,".ff.en",cr
+    EQUB ".fo",cr,".ce",cr,"Page .r0",cr,".ff.en",cr
 .defhdl
-        EQUB    ".he",lf,".en",lf
+    EQUB ".he",lf,".en",lf
 .defftl
-        EQUB    ".fo",lf,".ce",lf,"Page .r0",lf,".ff.en",lf
-        ASSERT  HI(defhdr) == HI(defftl)
+    EQUB ".fo",lf,".ce",lf,"Page .r0",lf,".ff.en",lf
+    ASSERT HI(defhdr) == HI(defftl)

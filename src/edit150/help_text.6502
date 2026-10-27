@@ -1,149 +1,149 @@
-        ; Help texts, printed by prinHM. Bytes &80 to &9F are
-        ; abbreviations for common words, see prhdic in format_help_150.
+    ; Help texts, printed by prinHM. Bytes &80 to &9F are
+    ; abbreviations for common words, see prhdic in format_help_150.
 
 .f0
-        EQUB    "f0", &0d, &8c, "cursor can b"
-        EQUB    "e moved", &92, "a new line."
-        EQUB    &0d, "For this operation line"
-        EQUB    "s are", &86, "sequences", &0d
-        EQUB    "ended by ", &8a, ".", &ea
+    EQUB "f0", &0d, &8c, "cursor can b"
+    EQUB "e moved", &92, "a new line."
+    EQUB &0d, "For this operation line"
+    EQUB "s are", &86, "sequences", &0d
+    EQUB "ended by ", &8a, ".", &ea
 .shff0
-        EQUB    &87, "0", &0d, &8c, "ends of "
-        EQUB    "lines can be shown as a spec"
-        EQUB    "ial", &0d, "character so tha"
-        EQUB    "t they can be seen clearly."
-        EQUB    &0d, "This alters with each p"
-        EQUB    "ress of ", &87, "0.", &ea
+    EQUB &87, "0", &0d, &8c, "ends of "
+    EQUB "lines can be shown as a spec"
+    EQUB "ial", &0d, "character so tha"
+    EQUB "t they can be seen clearly."
+    EQUB &0d, "This alters with each p"
+    EQUB "ress of ", &87, "0.", &ea
 .f1
-        EQUB    "f1", &0d, "Commands", &92
-        EQUB    "the computer's operating sys"
-        EQUB    "tem can be", &0d, "given. "
-        EQUB    &8c, "result is seen at once."
-        EQUB    " Extra commands", &0d, "can "
-        EQUB    "be entered until ", &8a, " b"
-        EQUB    "y itself is typed.", &ea
+    EQUB "f1", &0d, "Commands", &92
+    EQUB "the computer's operating sys"
+    EQUB "tem can be", &0d, "given. "
+    EQUB &8c, "result is seen at once."
+    EQUB " Extra commands", &0d, "can "
+    EQUB "be entered until ", &8a, " b"
+    EQUB "y itself is typed.", &ea
 .SHFF1
-        EQUB    &87, "1", &0d, "Changes betwe"
-        EQUB    "en Insert and Over. In Inser"
-        EQUB    "t mode the", &0d, &8e, " typ"
-        EQUB    "ed is inserted causing", &93
-        EQUB    "existing", &88, "to", &0d
-        EQUB    "move. In Over mode the", &88
-        EQUB    "is typed over old ", &8e, "."
-        EQUB    &ea
+    EQUB &87, "1", &0d, "Changes betwe"
+    EQUB "en Insert and Over. In Inser"
+    EQUB "t mode the", &0d, &8e, " typ"
+    EQUB "ed is inserted causing", &93
+    EQUB "existing", &88, "to", &0d
+    EQUB "move. In Over mode the", &88
+    EQUB "is typed over old ", &8e, "."
+    EQUB &ea
 .f2
-        EQUB    "f", &8d, ", erasing", &93
-        EQUB    "current ", &8e, &8b, &ea
+    EQUB "f", &8d, ", erasing", &93
+    EQUB "current ", &8e, &8b, &ea
 .SHFF2
-        EQUB    &87, &8d, " at", &93, "curren"
-        EQUB    "t cursor", &8b, &ea
+    EQUB &87, &8d, " at", &93, "curren"
+    EQUB "t cursor", &8b, &ea
 .f3
-        EQUB    "f3", &0d, "All or 'mark", &92
-        EQUB    "cursor'", &88, "will be save"
-        EQUB    "d", &92, "a file", &8b, &ea
+    EQUB "f3", &0d, "All or 'mark", &92
+    EQUB "cursor'", &88, "will be save"
+    EQUB "d", &92, "a file", &8b, &ea
 .SHFF3
-        EQUB    &87, "3", &0d, &8c, "top and "
-        EQUB    "bottom", &90, "have been rem"
-        EQUB    "oved.", &0d, "Set Top", &91
-        EQUB    "6", &0d, "Set Bottom", &91
-        EQUB    "7", &ea
+    EQUB &87, "3", &0d, &8c, "top and "
+    EQUB "bottom", &90, "have been rem"
+    EQUB "oved.", &0d, "Set Top", &91
+    EQUB "6", &0d, "Set Bottom", &91
+    EQUB "7", &ea
 .f4
-        EQUB    "f4:- Interactive Find and Re"
-        EQUB    "place Function.", &0d, &8a
-        EQUB    &92, "use last f4. Special se"
-        EQUB    "arch characters are:", &0d
-        EQUB    "# digit, $ ", &8a, ", . any,"
-        EQUB    " [ ] set of char, a-z a", &92
-        EQUB    "z", &0d, "~ not, * many, ^ m"
-        EQUB    "any, | control, @ alpha, \ l"
-        EQUB    "iteral.", &ea
+    EQUB "f4:- Interactive Find and Re"
+    EQUB "place Function.", &0d, &8a
+    EQUB &92, "use last f4. Special se"
+    EQUB "arch characters are:", &0d
+    EQUB "# digit, $ ", &8a, ", . any,"
+    EQUB " [ ] set of char, a-z a", &92
+    EQUB "z", &0d, "~ not, * many, ^ m"
+    EQUB "any, | control, @ alpha, \ l"
+    EQUB "iteral.", &ea
 .SHFF4
-        EQUB    &87, "4", &0d, "Return", &92
-        EQUB    "specified language.", &0d
-        EQUB    "The", &88, "in", &93, "buffe"
-        EQUB    "r will be 'transferred' into"
-        EQUB    " the", &0d, "language.", &ea
+    EQUB &87, "4", &0d, "Return", &92
+    EQUB "specified language.", &0d
+    EQUB "The", &88, "in", &93, "buffe"
+    EQUB "r will be 'transferred' into"
+    EQUB " the", &0d, "language.", &ea
 .f5
-        EQUB    "f5:- Global replace.        "
-        EQUB    "      All, or", &89, &8e, "."
-        EQUB    &8a, &92, "use last f5. Speci"
-        EQUB    "al replace characters are:/"
-        EQUB    &92, "begin", &93, "replace s"
-        EQUB    "ection; & is", &93, "found s"
-        EQUB    "tring", &0d, "%n found wild "
-        EQUB    "section n. See f4 for find c"
-        EQUB    "haracters.", &ea
+    EQUB "f5:- Global replace.        "
+    EQUB "      All, or", &89, &8e, "."
+    EQUB &8a, &92, "use last f5. Speci"
+    EQUB "al replace characters are:/"
+    EQUB &92, "begin", &93, "replace s"
+    EQUB "ection; & is", &93, "found s"
+    EQUB "tring", &0d, "%n found wild "
+    EQUB "section n. See f4 for find c"
+    EQUB "haracters.", &ea
 .SHFF5
-        EQUB    &87, "5", &0d, &8c, "screen m"
-        EQUB    "ode may be set", &92, "a spe"
-        EQUB    "cific mode. Also", &0d, "Des"
-        EQUB    "criptive (D), or Key legend "
-        EQUB    "(K) modes may be set.", &0d
-        EQUB    "D and K use mode 0.", &ea
+    EQUB &87, "5", &0d, &8c, "screen m"
+    EQUB "ode may be set", &92, "a spe"
+    EQUB "cific mode. Also", &0d, "Des"
+    EQUB "criptive (D), or Key legend "
+    EQUB "(K) modes may be set.", &0d
+    EQUB "D and K use mode 0.", &ea
 .f6
-        EQUB    "f6", &0d, &8c, "current posi"
-        EQUB    "tion of", &93, "cursor (_) i"
-        EQUB    "s remembered.", &0d, &8c, "s"
-        EQUB    "tatus line will show", &93
-        EQUB    "number of marks in use", &0d
-        EQUB    "(if any).", &ea
+    EQUB "f6", &0d, &8c, "current posi"
+    EQUB "tion of", &93, "cursor (_) i"
+    EQUB "s remembered.", &0d, &8c, "s"
+    EQUB "tatus line will show", &93
+    EQUB "number of marks in use", &0d
+    EQUB "(if any).", &ea
 .SHFF6
-        EQUB    &87, "6", &0d, "All place mar"
-        EQUB    "ks are cleared.", &0d, &0d
-        EQUB    &ea
+    EQUB &87, "6", &0d, "All place mar"
+    EQUB "ks are cleared.", &0d, &0d
+    EQUB &ea
 .f7
-        EQUB    "f7", &0d, "The", &88, "betwe"
-        EQUB    "en two", &89, "places is cop"
-        EQUB    "ied to", &0d, "the current c"
-        EQUB    "ursor position.", &0d, &8c
-        EQUB    "marks are NOT cleared.", &ea
+    EQUB "f7", &0d, "The", &88, "betwe"
+    EQUB "en two", &89, "places is cop"
+    EQUB "ied to", &0d, "the current c"
+    EQUB "ursor position.", &0d, &8c
+    EQUB "marks are NOT cleared.", &ea
 .SHFF7
-        EQUB    &87, "7", &0d, "The", &88, "b"
-        EQUB    "etween two", &89, "places is"
-        EQUB    " moved to", &0d, "the curren"
-        EQUB    "t cursor position.", &0d, &8c
-        EQUB    "marks are then cleared.", &ea
+    EQUB &87, "7", &0d, "The", &88, "b"
+    EQUB "etween two", &89, "places is"
+    EQUB " moved to", &0d, "the curren"
+    EQUB "t cursor position.", &0d, &8c
+    EQUB "marks are then cleared.", &ea
 .f8
-        EQUB    "f8", &0d, &8c, "whole", &88
-        EQUB    "is printed out", &92, "the s"
-        EQUB    "creen or printerusing", &93
-        EQUB    "built-in formatter/paginator"
-        EQUB    ".", &0d, &ea
+    EQUB "f8", &0d, &8c, "whole", &88
+    EQUB "is printed out", &92, "the s"
+    EQUB "creen or printerusing", &93
+    EQUB "built-in formatter/paginator"
+    EQUB ".", &0d, &ea
 .SHFF8
-        EQUB    &87, "8", &0d, "The", &88, "b"
-        EQUB    "etween", &93, "cursor and th"
-        EQUB    "e", &89, "place", &0d, "is d"
-        EQUB    "eleted.", &0d, &8c, "mark is"
-        EQUB    " then cleared.", &ea
+    EQUB &87, "8", &0d, "The", &88, "b"
+    EQUB "etween", &93, "cursor and th"
+    EQUB "e", &89, "place", &0d, "is d"
+    EQUB "eleted.", &0d, &8c, "mark is"
+    EQUB " then cleared.", &ea
 .f9
-        EQUB    "f9", &0d, &8c, "old", &88
-        EQUB    "in", &93, "buffer is recover"
-        EQUB    "ed after a BREAK", &0d, "or "
-        EQUB    "immediately after a Clear Te"
-        EQUB    "xt (by ", &87, "9).", &0d
-        EQUB    &ea
+    EQUB "f9", &0d, &8c, "old", &88
+    EQUB "in", &93, "buffer is recover"
+    EQUB "ed after a BREAK", &0d, "or "
+    EQUB "immediately after a Clear Te"
+    EQUB "xt (by ", &87, "9).", &0d
+    EQUB &ea
 .SHFF9
-        EQUB    &87, "9 (ESCAPE to abandon)"
-        EQUB    &0d, "All", &88, "in", &93
-        EQUB    "buffer is deleted.", &0d, "U"
-        EQUB    "se ", &87, "9 twice", &92
-        EQUB    "remove the", &88, "beyond ho"
-        EQUB    "pe of a", &0d, "recovery by "
-        EQUB    "f9.", &ea
+    EQUB &87, "9 (ESCAPE to abandon)"
+    EQUB &0d, "All", &88, "in", &93
+    EQUB "buffer is deleted.", &0d, "U"
+    EQUB "se ", &87, "9 twice", &92
+    EQUB "remove the", &88, "beyond ho"
+    EQUB "pe of a", &0d, "recovery by "
+    EQUB "f9.", &ea
 .SHFTAB
-        EQUB    "shf-TAB", &0d, &8c, "TAB key"
-        EQUB    " may be used", &92, "move"
-        EQUB    &92, "zones of eight", &0d
-        EQUB    "characters across", &93, "sc"
-        EQUB    "reen, or", &92, "position un"
-        EQUB    "der", &0d, "the first", &86
-        EQUB    "of", &93, "line immediately "
-        EQUB    "above.", &ea
+    EQUB "shf-TAB", &0d, &8c, "TAB key"
+    EQUB " may be used", &92, "move"
+    EQUB &92, "zones of eight", &0d
+    EQUB "characters across", &93, "sc"
+    EQUB "reen, or", &92, "position un"
+    EQUB "der", &0d, "the first", &86
+    EQUB "of", &93, "line immediately "
+    EQUB "above.", &ea
 .SHFCOP
-        EQUB    "shf-COPY", &0d, "Cursor edit"
-        EQUB    "ing with", &93, "cursor keys"
-        EQUB    " & COPY is enabled.User defi"
-        EQUB    "ned soft keys are available "
-        EQUB    "as normal.", &0d, "All chara"
-        EQUB    "cters except ESCAPE are put "
-        EQUB    "into ", &8e, ".", &ea
+    EQUB "shf-COPY", &0d, "Cursor edit"
+    EQUB "ing with", &93, "cursor keys"
+    EQUB " & COPY is enabled.User defi"
+    EQUB "ned soft keys are available "
+    EQUB "as normal.", &0d, "All chara"
+    EQUB "cters except ESCAPE are put "
+    EQUB "into ", &8e, ".", &ea

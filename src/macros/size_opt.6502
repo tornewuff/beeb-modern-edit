@@ -1,20 +1,20 @@
 MACRO acknowledge_escape
-        IF edit150_size_opt
-                JSR     acknowledge_escape_impl
-        ELSE
-                LDA     #osbyte_acknowledge_escape
-                JSR     osbyte
-        ENDIF
+    IF edit150_size_opt
+        JSR acknowledge_escape_impl
+    ELSE
+        LDA #osbyte_acknowledge_escape
+        JSR osbyte
+    ENDIF
 ENDMACRO
 
 MACRO write_two_chars first, second
-        IF edit150_size_opt
-                JSR     print_inline
-                EQUB    first, second, &EA
-        ELSE
-                LDA     #first
-                JSR     oswrch
-                LDA     #second
-                JSR     oswrch
-        ENDIF
+    IF edit150_size_opt
+        JSR print_inline
+        EQUB first, second, &EA
+    ELSE
+        LDA #first
+        JSR oswrch
+        LDA #second
+        JSR oswrch
+    ENDIF
 ENDMACRO

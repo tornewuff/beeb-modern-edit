@@ -1,159 +1,159 @@
-        ;                                      current
-        ;                                      line
-        ; oshwm                                                 himem
-        ;  v                                   <......>          v
-        ; +-+-------------+-------------------+---------------+-+
-        ; |$|.............|                   |...............|$|
-        ; +-+-------------+-------------------+---------------+-+
-        ;    ^             ^                   ^               ^
-        ; text_start           gap_start                  gap_end            text_end
-        ; scrnXAs is X coord of cursor. (gap_end)creenX is char under cursor,
-        ; unless $ isA0 in (gap_end) .. (gap_end),screen_x (when it is that $).
-        ; screen_y is Y coord of current line on screen, and may be forced by the
-        ; screen update routine.
-        ; Screen update types:-
-        ;  none   ; Simple cursor movements
-        ;  csronwards ; Character insert/delete
-        ;  fullscreen ; Find,replace etc
-        ;  thelot ; Clears screen first. After load_text etc
-        ;  hardup ; Special case, for cursor movevents
-        ;  harddown ; Special case, for cursor movevents
-        ;  pagewidth ; is max X-coord of screen, and page_length is max Y-coord of
-        ;           screen (thus Y-coord of status line is page_length + 1).
-        ;  screen_image  (screen image) holds maximum cursorX position written to each
-        ;         line on the screen (including the CR, if any)
+    ;                                      current
+    ;                                      line
+    ; oshwm                                                 himem
+    ;  v                                   <......>          v
+    ; +-+-------------+-------------------+---------------+-+
+    ; |$|.............|                   |...............|$|
+    ; +-+-------------+-------------------+---------------+-+
+    ;    ^             ^                   ^               ^
+    ; text_start           gap_start                  gap_end            text_end
+    ; scrnXAs is X coord of cursor. (gap_end)creenX is char under cursor,
+    ; unless $ isA0 in (gap_end) .. (gap_end),screen_x (when it is that $).
+    ; screen_y is Y coord of current line on screen, and may be forced by the
+    ; screen update routine.
+    ; Screen update types:-
+    ;  none   ; Simple cursor movements
+    ;  csronwards ; Character insert/delete
+    ;  fullscreen ; Find,replace etc
+    ;  thelot ; Clears screen first. After load_text etc
+    ;  hardup ; Special case, for cursor movevents
+    ;  harddown ; Special case, for cursor movevents
+    ;  pagewidth ; is max X-coord of screen, and page_length is max Y-coord of
+    ;           screen (thus Y-coord of status line is page_length + 1).
+    ;  screen_image  (screen image) holds maximum cursorX position written to each
+    ;         line on the screen (including the CR, if any)
 .EDIT
-        JSR     setup_editor
+    JSR setup_editor
 
-        IF stamp
-        JSR     nstamp
-        ENDIF
+    IF stamp
+    JSR nstamp
+    ENDIF
 .EDITin
-        LDX     text_start      ; Initialize pointers to reflect empty buffer.
-        LDY     text_start + 1
+    LDX text_start              ; Initialize pointers to reflect empty buffer.
+    LDY text_start + 1
 .EDITgt
-        STZ     modified        ; Re-entry point for load_text. XY = End of file.
+    STZ modified                ; Re-entry point for load_text. XY = End of file.
 .EDITgs
-        JSR     EDITtd          ; Re-entry from old_text_bounds, newmode
+    JSR EDITtd                  ; Re-entry from old_text_bounds, newmode
 .EDITcont
-        LDX     #&FF            ; Re-entry point for brk-handler.
-        TXS
-        STZ     brk_action      ; brk_action.continue_editing
-        JSR     init_edit_keys
+    LDX #&FF                    ; Re-entry point for brk-handler.
+    TXS
+    STZ brk_action              ; brk_action.continue_editing
+    JSR init_edit_keys
 .EDITth                         ; redraw everything
-        LDA     #thelot
-        STA     update_required
+    LDA #thelot
+    STA update_required
 
 .main_loop                      ; Update screen to reflect previous command.
 
-        JSR     screen_update
-        JSR     cursor_to_screen_xy
-        JSR     cursor_on
+    JSR screen_update
+    JSR cursor_to_screen_xy
+    JSR cursor_on
 
-        IF curtyp
-        JSR     curupd          ; update the cursor to relevant state
-        ENDIF
+    IF curtyp
+    JSR curupd                  ; update the cursor to relevant state
+    ENDIF
 
-        LDA     #fullscreen
-        STA     update_required
-        ; Read a char, and branch depending on its value
-        ;   &00 - &7F     is ASCII input to be entered as text
-        ;   &80 - &8F     are softkey values       }
-        ;   &90 - &9F     are shift-softkey values } Editor commands
-        ;   &A0 - &AF     are ctrl-sofkkey values  }
-        ;   &8A, &9A, &AA is the TAB key
-        ;   &B0 - &FF     are entered into text (e.g. icelandics)
-        JSR     read_char
-        IF edit150
-        BNE     EDITTE          ; read_char classifies the key, NE for text
-        TAX
-        ELSE
-        TAX
-        BPL     EDITTE
-        CMP     #&B0
-        BCS     EDITTE
-        ENDIF
+    LDA #fullscreen
+    STA update_required
+    ; Read a char, and branch depending on its value
+    ;   &00 - &7F     is ASCII input to be entered as text
+    ;   &80 - &8F     are softkey values       }
+    ;   &90 - &9F     are shift-softkey values } Editor commands
+    ;   &A0 - &AF     are ctrl-sofkkey values  }
+    ;   &8A, &9A, &AA is the TAB key
+    ;   &B0 - &FF     are entered into text (e.g. icelandics)
+    JSR read_char
+    IF edit150
+    BNE EDITTE                  ; read_char classifies the key, NE for text
+    TAX
+    ELSE
+    TAX
+    BPL EDITTE
+    CMP #&B0
+    BCS EDITTE
+    ENDIF
 
-        IF NOT(phil)
-        LDX     cursor_editing
-        BNE     EDITTE
-        TAX
-        ELSE
-        TAX
-        LDA     cursor_editing
-        BEQ     phil1
-        TXA
-        AND     #&F
-        CMP     #&A
-        TXA
-        BCC     EDITTE
+    IF NOT(phil)
+    LDX cursor_editing
+    BNE EDITTE
+    TAX
+    ELSE
+    TAX
+    LDA cursor_editing
+    BEQ phil1
+    TXA
+    AND #&F
+    CMP #&A
+    TXA
+    BCC EDITTE
 .phil1
-        ENDIF
+    ENDIF
 
-        LDA     options
-        AND     #7
-        CMP     #5
-        BNE     GOMAN
-        CPX     #&9C
-        BCS     GOMAN
-        CPX     #&90
-        BCS     DEFVAL
-        CPX     #&8A
-        BCS     GOMAN
+    LDA options
+    AND #7
+    CMP #5
+    BNE GOMAN
+    CPX #&9C
+    BCS GOMAN
+    CPX #&90
+    BCS DEFVAL
+    CPX #&8A
+    BCS GOMAN
 .DEFVAL
-        TXA
-        PHA
-        ASL     A
-        TAY
-        JSR     print_inline
-        IF edit150
-        EQUB    28,0,12,53,9,12,&EA     ; text window for the help text
-        LDA     help_text_table,Y
-        STA     compressed_string
-        LDA     help_text_table + 1,Y
-        STA     compressed_string + 1
-        JSR     compressed_text.print_string
-        BRA     TUTDON
-        ELSE
-        EQUB    26,30,31,0,8,&EA
-        LDA     help_text_table,Y
-        STA     string
-        LDA     help_text_table + 1,Y
-        STA     string + 1
-        ENDIF
+    TXA
+    PHA
+    ASL A
+    TAY
+    JSR print_inline
+    IF edit150
+    EQUB 28,0,12,53,9,12,&EA            ; text window for the help text
+    LDA help_text_table,Y
+    STA compressed_string
+    LDA help_text_table + 1,Y
+    STA compressed_string + 1
+    JSR compressed_text.print_string
+    BRA TUTDON
+    ELSE
+    EQUB 26,30,31,0,8,&EA
+    LDA help_text_table,Y
+    STA string
+    LDA help_text_table + 1,Y
+    STA string + 1
+    ENDIF
 .TUTLIN                         ; (unused in 1.50r)
-        LDY     #&00
-        JSR     osnewl
+    LDY #&00
+    JSR osnewl
 .TUTOUT
-        LDA     (string)
-        INC     string
-        BNE     TUTINC
-        INC     string + 1
+    LDA (string)
+    INC string
+    BNE TUTINC
+    INC string + 1
 .TUTINC
-        CMP     #cr
-        BEQ     NEEDWP
-        CMP     #&EA
-        BEQ     TUTDON
-        JSR     oswrch
-        INY
-        BRA     TUTOUT
+    CMP #cr
+    BEQ NEEDWP
+    CMP #&EA
+    BEQ TUTDON
+    JSR oswrch
+    INY
+    BRA TUTOUT
 .NEEDWP
-        LDA     #' '
+    LDA #' '
 .TUTWIP
-        CPY     #54
-        BCS     TUTLIN
-        JSR     oswrch
-        INY
-        BRA     TUTWIP
+    CPY #54
+    BCS TUTLIN
+    JSR oswrch
+    INY
+    BRA TUTWIP
 .TUTDON
-        JSR     setup_text_window
-        JSR     cursor_to_screen_xy
-        PLX
+    JSR setup_text_window
+    JSR cursor_to_screen_xy
+    PLX
 .GOMAN
-        TXA
-        ASL     A
-        TAX
-        JSR     IADDRS
-        JMP     main_loop
+    TXA
+    ASL A
+    TAX
+    JSR IADDRS
+    JMP main_loop
 .IADDRS
-        JMP     (command_table,X)
+    JMP (command_table,X)
