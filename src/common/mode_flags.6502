@@ -17,9 +17,7 @@
     ENDIF
 .toggle_show_cr
     LDA #&20
-    IF edit150
 .toggle_options                 ; toggle the bits in A in options
-    ENDIF
     EOR options
 .write_options
     STA options
