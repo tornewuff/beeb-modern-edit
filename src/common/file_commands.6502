@@ -1,7 +1,7 @@
 .new_text                       ; Clear text
     JSR prompt
 IF stamp
-    EQUB "Clear text [Y (dated),shf-f9 (exec)]",&EA
+    EQUB "Clear text [Y (dated),shf-f9 (exec)]",&ea
     LDA #&81
     TAX
     LDY #&03
@@ -23,7 +23,7 @@ IF stamp
     JSR save_text_bounds
     JMP EDITin
 ELIF edit150
-    EQUB "Clear text [Y,shf-f9 (exec),D (discard)]",&EA
+    EQUB "Clear text [Y,shf-f9 (exec),D (discard)]",&ea
     JSR read_char.with_timeout
     BNE newtk
     TAX
@@ -47,7 +47,7 @@ ELIF edit150
     JSR save_text_bounds
     JMP EDITin
 ELSE
-    EQUB "Text will be cleared if a key is hit",&EA
+    EQUB "Text will be cleared if a key is hit",&ea
     LDA #&81
     TAX
     LDY #3
@@ -74,7 +74,7 @@ IF edit150
     CMP #1                      ; only ask if modified
     BNE LOADF2
     JSR prompt
-    EQUB "Overwrite text [Y,f2]:",7,&EA
+    EQUB "Overwrite text [Y,f2]:",7,&ea
     JSR read_char.with_timeout
     BNE LOADky
     TAX
@@ -83,17 +83,17 @@ IF edit150
 ELSE
     BEQ LOADF2
     JSR prompt
-    EQUB "Overwrite text [Y,f2]:",&EA
+    EQUB "Overwrite text [Y,f2]:",&ea
     JSR osrdch
 ENDIF
     CMP #128+2
     BEQ LOADF2
-    AND #&DF
+    AND #&df
     CMP #'Y'
     BNE newtn
 .LOADF2
     JSR prompt
-    EQUB "Type filename to load:",&EA
+    EQUB "Type filename to load:",&ea
     JSR read_trimmed_line
     LDY #0
     JSR load_text
@@ -109,7 +109,7 @@ ENDIF
     BEQ marksa
 
     JSR prompt_filename
-    EQUB "to save:",&07,&EA
+    EQUB "to save:",&07,&ea
 
     JSR read_trimmed_line
     JSR dfblok
@@ -125,14 +125,14 @@ ENDIF
 
 .marksa
     JSR prompt_filename
-    EQUB "for MARK TO CURSOR save:",&07,&EA
+    EQUB "for MARK TO CURSOR save:",&07,&ea
     JSR read_trimmed_line
     JSR dfblok
     LDY #&00
     LDA (temp)
     cmp_line_terminator
     BEQ msbad
-    CMP #&8B
+    CMP #&8b
     BEQ msbad
     LDA temp
     STA scratch
@@ -155,7 +155,7 @@ ENDIF
     JSR refuse_if_marked
     JSR FINEPOSITIONGAP
     JSR prompt_filename
-    EQUB "to insert:",&EA
+    EQUB "to insert:",&ea
     JSR read_trimmed_line
     LDA gap_start
     STA addr
@@ -165,7 +165,7 @@ ENDIF
     LDX gap_end + 1
     LDY #0
 IF edit150
-    BIT brk_handler + 1         ; (&FF) sets V: use the name in place
+    BIT brk_handler + 1         ; (&ff) sets V: use the name in place
 ENDIF
     JSR load_file
     STX gap_start

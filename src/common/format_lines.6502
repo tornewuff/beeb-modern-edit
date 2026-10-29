@@ -100,7 +100,7 @@
     CMP tab_char
     BNE NOTTAB
     TXA
-    LDX #&FF
+    LDX #&ff
 .LOKTAB
     INX
     PHA
@@ -242,7 +242,7 @@
     LDA (addr),Y
     CMP #'0'
     BCC NORECF
-    CMP #&3A
+    CMP #&3a
     BCS NORECF
     JSR DECCON
     BRA WSCTRL
@@ -289,13 +289,13 @@
     BEQ WASCTA
     CMP #'u'
     BNE NORECF
-    LDA #&FF
+    LDA #&ff
     STA underline
     STA pundrl
     STA underline_required
     BRA WASCTL
 .WASCTA
-    LDA #&FF
+    LDA #&ff
     STA pbold
     STA bold_required
     STA bold
@@ -323,7 +323,7 @@
     LDA (addr),Y
     CMP #'0'
     BCC NORECF
-    CMP #&3A
+    CMP #&3a
     BCS NORECF
     JSR DECCON
     PHX
@@ -336,5 +336,5 @@
     PLX
     JMP WASCTL
 .CTLLDO
-    LDA #&FF
+    LDA #&ff
     JMP (CMDS+2,X)

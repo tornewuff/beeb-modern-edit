@@ -16,7 +16,7 @@
 .DOTUT
     PHA
     JSR print_inline
-    EQUB 26,home,&EA
+    EQUB 26,home,&ea
     JSR write_char.inverse_on
 IF define_fancy_chars == "temporary"
     JSR fancy_chars.define

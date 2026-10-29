@@ -2,7 +2,7 @@
     RTS
 .return_to_language
     JSR prompt
-    EQUB "Type language name:",&EA
+    EQUB "Type language name:",&ea
     JSR read_line
     BEQ RELANX
     LDY #0
@@ -53,7 +53,7 @@
     BNE RELLOP
     JSR cursor_on
     JSR print_inline
-    EQUB 26,12,&EA
+    EQUB 26,12,&ea
     JSR restore_keys
     LDA oshwm + 1
     INA

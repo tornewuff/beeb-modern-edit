@@ -25,14 +25,14 @@
     ; ------------------------------------------------------------ ;
 
 null    =       &00
-lf      =       &0A
-cr      =       &0D
+lf      =       &0a
+cr      =       &0d
 tab     =       &09
 down    =       lf
-up      =       &0B
-home    =       &1E
+up      =       &0b
+home    =       &1e
 space   =       ' '
-delete  =       &7F
+delete  =       &7f
 
 IF NOT(lfver)
 termin  =       cr      ; line terminator
@@ -60,17 +60,17 @@ ncstrt  =       &07             ; Normal start line
 
     ; ------------------------------------------------------------ ;
 
-moureg  =       &FC50
+moureg  =       &fc50
 mouxlo  =       moureg + 2
 mouswi  =       moureg + 6
 
 IF lfarro
-nlfarr  =       &FE
+nlfarr  =       &fe
 ENDIF
 
     ; EDIT symbolic constants
 
-escflg  =       &FF
+escflg  =       &ff
 BRKv    =       &0202
 
 CSRTOCR =       &01
@@ -90,6 +90,6 @@ setsym  =       &86
 FIELDSYM =      &87
 FOUNDSYM =      &88
 escsym  =       &89
-NSENSYM =       &8A
-BUTTSYM =       &8B
-termsym =       &8C
+NSENSYM =       &8a
+BUTTSYM =       &8b
+termsym =       &8c

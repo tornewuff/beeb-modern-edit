@@ -25,6 +25,6 @@ ENDIF
     INC string + 1
 .STRINOT
     LDA (string)                ; enter here for normal string
-    CMP #&EA
+    CMP #&ea
     BNE VSTRLM
     RTS

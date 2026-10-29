@@ -42,7 +42,7 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
 .@  LDA (os_text_ptr),Y
     CMP #'.'
     BEQ edit_command
-    AND #&DF                    ; convert to uppercase
+    AND #&df                    ; convert to uppercase
     CMP help_message_edit,X
     BNE command_return
     INY

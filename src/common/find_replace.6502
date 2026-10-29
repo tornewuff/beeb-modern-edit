@@ -15,7 +15,7 @@
 .GLOBREPLACE
     JSR dfinit
     JSR prompt
-    EQUB "Global replace:",&EA
+    EQUB "Global replace:",&ea
 IF extgf
     JSR readlf
 ELSE
@@ -78,17 +78,17 @@ ELSE
     LDX #prmptl
 ENDIF
     JSR prompt_at_x
-    EQUB " ",&EA
+    EQUB " ",&ea
     JSR write_lineno
     JSR prompt_at_x
-    EQUB " found",&EA
+    EQUB " found",&ea
     RTS
 .NOBUFF
     BRK
     EQUB 1,"No previous string",0
 .FINDREPLACE
     JSR prompt
-    EQUB "Find and replace:",&EA
+    EQUB "Find and replace:",&ea
 IF edit150
     STZ replace_all
 ENDIF
@@ -157,7 +157,7 @@ IF edit150
     JSR prompt_replace_action
 ELSE
     JSR prompt
-    EQUB "R(eplace), C(ontinue) or ESCAPE",&EA
+    EQUB "R(eplace), C(ontinue) or ESCAPE",&ea
 ENDIF
 
     JSR cursor_to_screen_xy
@@ -196,7 +196,7 @@ IF edit150
     JSR read_replacement
 ELSE
     JSR prompt
-    EQUB "Replace by:",&EA
+    EQUB "Replace by:",&ea
 
     IF extgf
         JSR readlf
@@ -229,5 +229,5 @@ ELSE
     LDX #prmptl
 ENDIF
     JSR prompt_at_x
-    EQUB " Not found",&EA
+    EQUB " Not found",&ea
     RTS

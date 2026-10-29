@@ -156,7 +156,7 @@
     BCC WORDCX
     CMP #'9' + 1
     BCC WORDCR
-    AND #&DF
+    AND #&df
     CMP #'A'
     BCC WORDCX
     CMP #'Z' + 1

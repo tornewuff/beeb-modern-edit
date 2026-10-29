@@ -73,7 +73,7 @@
     PHA
     CMP #10
     BCS AAA
-    LDA #&FF
+    LDA #&ff
     PHA
     LDX #12
 .ROMANL
@@ -103,7 +103,7 @@
     PLA
     INX
     STA buff,X
-    CMP #&FF
+    CMP #&ff
     BNE ROMANG
     DEX
 .CASECH

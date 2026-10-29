@@ -37,7 +37,7 @@
     PLX
     STA number_registers,X
     LDA number_registers+1,X
-    AND #&F0
+    AND #&f0
     STA number_registers+1,X
     RTS
 .ADDREG
@@ -73,7 +73,7 @@
     PLX
     STA number_registers,X
     LDA number_registers+1,X
-    AND #&F0
+    AND #&f0
     ORA buff
     STA number_registers+1,X
     RTS
@@ -105,7 +105,7 @@
     JSR pasGO
     STX gap_start
     STY gap_start+1
-    LDX #&FF
+    LDX #&ff
     TXS
     JMP CHAINB
 .MACCHK
@@ -230,7 +230,7 @@
     RTS
 .ROUTEN
     TSX
-    CPX #&FD
+    CPX #&fd
     BCS SKIPEX                ; check for possible to do it
     PLA
     PLA
@@ -290,7 +290,7 @@
     JSR add_y_to_addr
     LDA lineot
     PHA
-    LDA #&FD
+    LDA #&fd
     STA lineot
     JSR CTLIN
     PLA
@@ -377,7 +377,7 @@
     TAX
     BEQ ALINEX
     PHY
-    CMP #&FF
+    CMP #&ff
     BNE ALINEL
     JSR DOHDR
     LDX lineot
@@ -423,7 +423,7 @@
     RTS
 .ROUTTI
     LDX temp_indent
-    CPX #&FF
+    CPX #&ff
     BNE ROUSTI
     LDX indent                ; if no temp indent then use indent as base
 .ROUSTI

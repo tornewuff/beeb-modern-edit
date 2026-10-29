@@ -12,9 +12,9 @@ ELSE
 ENDIF
 
 IF build.relocation_model == "none"
-    EQUB &C2                    ; service + language, 6502 code
+    EQUB &c2                    ; service + language, 6502 code
 ELSE
-    EQUB &E2                    ; relocation address provided
+    EQUB &e2                    ; relocation address provided
 ENDIF
 
     EQUB copyright - rom_header

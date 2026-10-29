@@ -76,7 +76,7 @@
     JSR oswrch
     LDA #&00
     JSR oswrch
-    LDA #&0A                    ; cursor control register
+    LDA #&0a                    ; cursor control register
     JSR oswrch
     TXA
     JSR oswrch

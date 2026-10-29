@@ -1,6 +1,6 @@
 .prompt_filename
     JSR prompt
-    EQUB "Type filename ",&EA
+    EQUB "Type filename ",&ea
 IF edit150_size_opt
     BRA PRMPT1
 ELSE

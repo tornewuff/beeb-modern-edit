@@ -1,5 +1,5 @@
 ; Various help text is compressed with a simple abbreviation dictionary.
-; Bytes &80 to &9F expand to entry n - &80 of the zero terminated entries in
+; Bytes &80 to &9f expand to entry n - &80 of the zero terminated entries in
 ; abbreviation_data, which may contain further abbreviations.
 .compressed_text {
 
@@ -20,13 +20,13 @@
 ; Decompress and print text at (compressed_string)
 .print_string
     LDA (compressed_string)
-    CMP #&EA
+    CMP #&ea
     BNE @-
     RTS
 
     ; print a character or abbreviation
     .print_byte {
-        CMP #&A0
+        CMP #&a0
         BCS ascii
         CMP #&80
         BCS abbreviation
@@ -36,7 +36,7 @@
     .abbreviation
         PHY
         PHX
-        LDY #&FF
+        LDY #&ff
         EOR #&80
         TAX
         BEQ print_entry

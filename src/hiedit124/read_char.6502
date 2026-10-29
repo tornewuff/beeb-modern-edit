@@ -15,7 +15,7 @@ IF mouse
     LDY #0
     JSR osbyte
     TXA
-    CPY #&FF
+    CPY #&ff
     BNE return
     JSR mouse_read
     LDA mousel + 8
@@ -43,16 +43,16 @@ IF mouse
     LDA #&97
     BRA return
 .MOUSLX
-    LDA #&8D
+    LDA #&8d
     LDX mousel + 7
     BPL return
-    LDA #&8C
+    LDA #&8c
     BNE return
 .MOUSLY
-    LDA #&8F
+    LDA #&8f
     LDX mousel + 9
     BPL return
-    LDA #&8E
+    LDA #&8e
 .return
     PLX
     PLY

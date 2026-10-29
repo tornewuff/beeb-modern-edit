@@ -45,9 +45,9 @@
     LDA (addr),Y
     CMP #'0'
     BCC ENDNO
-    CMP #&3A
+    CMP #&3a
     BCS ENDNUM                ; not a decimal digit
-    AND #&0F
+    AND #&0f
     PHA
     TXA
     ASL A

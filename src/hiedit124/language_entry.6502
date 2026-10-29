@@ -1,14 +1,14 @@
 .language_entry {
     CLI
     CLD
-    LDX #&FF
+    LDX #&ff
     TXS
     LDA #<brk_handler
     STA BRKv
     LDA #>brk_handler
     STA BRKv + 1
     STZ old_text_bounds + 3
-    LDA #&F2
+    LDA #&f2
     STA scratch
     STZ scratch + 1
     JSR read_io_byte
@@ -32,12 +32,12 @@
 .EDITgb
     JSR read_io_byte
     JSR next_cmdline_byte
-    STA &01A0,X
+    STA &01a0,X
     INX
     CPX #'@'
     BNE EDITgb
     LDA #cr
-    STA &01A0 - 1,X
+    STA &01a0 - 1,X
     STA filename_buffer
     LDY #&00
     JSR read_hex
@@ -60,16 +60,16 @@
     STZ cursor_editing
     BRA EDIToy
 .EDITon
-    LDX #&FF
+    LDX #&ff
 .EDITn1
     INX
-    LDA &01A0,X
+    LDA &01a0,X
     CMP #' '
     BEQ EDITn1
     CMP #cr
     BEQ EDIToz
 .EDITn2
-    LDA &01A0,X
+    LDA &01a0,X
     CMP #cr
     BEQ EDITn3
     CMP #' '
@@ -87,7 +87,7 @@
     BRA EDIToy
 
 .EDIToz
-    LDX #&FF
+    LDX #&ff
     STX cursor_editing
     LDA #cr
     STA filename_buffer
@@ -133,10 +133,10 @@ IF define_fancy_chars == "startup"
     NEXT
 
     IF lfarro
-        EQUB 23, nlfarr, &00,&18,&38,&7F,&38,&18,&00,&00
+        EQUB 23, nlfarr, &00,&18,&38,&7f,&38,&18,&00,&00
     ENDIF
 ENDIF
-    EQUB &EA
+    EQUB &ea
 
     LDA cursor_editing
     BEQ zippo

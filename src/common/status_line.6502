@@ -33,12 +33,12 @@ ENDIF
     BEQ STATSO
 
     JSR print_inline
-    EQUB "Insert ",&EA
+    EQUB "Insert ",&ea
     BRA STATSI
 
 .STATSO
     JSR print_inline
-    EQUB "Over   ",&EA
+    EQUB "Over   ",&ea
 
 .STATSI
     LDX cursor_editing
@@ -47,12 +47,12 @@ ENDIF
 
 IF NOT(phil)
     IF edit150
-        EQUB "     Cursor Editing",&EA
+        EQUB "     Cursor Editing",&ea
     ELSE
-        EQUB "    Cursor Editing",&EA
+        EQUB "    Cursor Editing",&ea
     ENDIF
 ELSE
-    EQUB "    Soft Key Entry",&EA
+    EQUB "    Soft Key Entry",&ea
 ENDIF
 
     BRA STATSX
@@ -63,22 +63,22 @@ ENDIF
     DEA
     BNE STATSM
     JSR print_inline
-    EQUB "One mark ",&EA
+    EQUB "One mark ",&ea
     BRA STATSS
 .STATSM
     JSR print_inline
-    EQUB "Two marks",&EA
+    EQUB "Two marks",&ea
     BRA STATSS
 .STATST
     LDA #8
     AND options
     BNE STATTW
     JSR print_inline
-    EQUB "TAB cols ",&EA
+    EQUB "TAB cols ",&ea
     BRA STATSS
 .STATTW
     JSR print_inline
-    EQUB "TAB words",&EA
+    EQUB "TAB words",&ea
 .STATSS
 IF edit150
     LDA modified                ; 0 original, 1 modified, else discarded
@@ -86,24 +86,24 @@ IF edit150
     BMI STATOR
     BNE STATDI
     JSR print_inline
-    EQUB " Modified ",&EA
+    EQUB " Modified ",&ea
     BRA STATSX
 .STATDI
     JSR print_inline
-    EQUB " Discarded",&EA
+    EQUB " Discarded",&ea
     BRA STATSX
 .STATOR
     JSR print_inline
-    EQUB " Original ",&EA
+    EQUB " Original ",&ea
 ELSE
     LDA modified
     BNE STATMO
     JSR print_inline
-    EQUB " Original",&EA
+    EQUB " Original",&ea
     BRA STATSX
 .STATMO
     JSR print_inline
-    EQUB " Modified",&EA
+    EQUB " Modified",&ea
 ENDIF
 .STATSX
 IF cF8key
@@ -119,12 +119,12 @@ IF cF8key
     ENDIF
 
     JSR print_inline
-    EQUB " LF",&EA
+    EQUB " LF",&ea
 
     BRA STATlf
 .STATcr
     JSR print_inline
-    EQUB " CR",&EA
+    EQUB " CR",&ea
 
 .STATlf
 ENDIF
@@ -137,12 +137,12 @@ IF stamp
     BNE STATNS
 
     JSR print_inline
-    EQUB " Date",&EA
+    EQUB " Date",&ea
     BRA STATNQ
 .STATNS
 
     JSR print_inline
-    EQUB " Exec",&EA
+    EQUB " Exec",&ea
 .STATNQ
 ENDIF
 

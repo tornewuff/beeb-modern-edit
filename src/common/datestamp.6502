@@ -28,13 +28,13 @@
     STA flexec,X
     CPX #&04
     BNE nstmp2
-    LDA #&FF
+    LDA #&ff
 .nstmp2
     DEX
     BPL nstmp1
     RTS
 .mstamp
-    LDA #&FF
+    LDA #&ff
     STA flload + 1
     STA flload + 2
     STA flload + 3

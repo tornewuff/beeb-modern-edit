@@ -58,7 +58,7 @@
     STX count
     BEQ TPTPEX
 .TPTPLP
-    LDY #&FF
+    LDY #&ff
 .TPTPSE
     INY
     LDA (text_ptr),Y
@@ -200,7 +200,7 @@
     STA (dst_ptr),Y
 .CPFDL2
     DEY
-    CPY #&FF
+    CPY #&ff
     BNE CPFDLP
     DEX
     BEQ CPFDEX

@@ -14,7 +14,7 @@
     LDX #0
     STZ scratch + 5
 .tsthex
-    LDA &01A0,Y
+    LDA &01a0,Y
     CMP #'0'
     BCC hexend
     CMP #'9' + 1
@@ -29,7 +29,7 @@
     ASL scratch + 5
     ASL scratch + 5
     ASL scratch + 5
-    AND #&0F
+    AND #&0f
     TSB scratch + 5
     INY
     INX

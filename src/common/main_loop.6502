@@ -36,7 +36,7 @@ ENDIF
 .EDITgs
     JSR EDITtd                  ; Re-entry from old_text_bounds, newmode
 .EDITcont
-    LDX #&FF                    ; Re-entry point for brk-handler.
+    LDX #&ff                    ; Re-entry point for brk-handler.
     TXS
     STZ brk_action              ; brk_action.continue_editing
     JSR init_edit_keys
@@ -57,12 +57,12 @@ ENDIF
     LDA #fullscreen
     STA update_required
     ; Read a char, and branch depending on its value
-    ;   &00 - &7F     is ASCII input to be entered as text
-    ;   &80 - &8F     are softkey values       }
-    ;   &90 - &9F     are shift-softkey values } Editor commands
-    ;   &A0 - &AF     are ctrl-sofkkey values  }
-    ;   &8A, &9A, &AA is the TAB key
-    ;   &B0 - &FF     are entered into text (e.g. icelandics)
+    ;   &00 - &7f     is ASCII input to be entered as text
+    ;   &80 - &8f     are softkey values       }
+    ;   &90 - &9f     are shift-softkey values } Editor commands
+    ;   &a0 - &af     are ctrl-sofkkey values  }
+    ;   &8a, &9a, &aa is the TAB key
+    ;   &b0 - &ff     are entered into text (e.g. icelandics)
     JSR read_char
 IF edit150
     BNE EDITTE                  ; read_char classifies the key, NE for text
@@ -70,7 +70,7 @@ IF edit150
 ELSE
     TAX
     BPL EDITTE
-    CMP #&B0
+    CMP #&b0
     BCS EDITTE
 ENDIF
 
@@ -83,8 +83,8 @@ ELSE
     LDA cursor_editing
     BEQ phil1
     TXA
-    AND #&F
-    CMP #&A
+    AND #&f
+    CMP #&a
     TXA
     BCC EDITTE
 .phil1
@@ -94,11 +94,11 @@ ENDIF
     AND #7
     CMP #5
     BNE GOMAN
-    CPX #&9C
+    CPX #&9c
     BCS GOMAN
     CPX #&90
     BCS DEFVAL
-    CPX #&8A
+    CPX #&8a
     BCS GOMAN
 .DEFVAL
     TXA
@@ -107,7 +107,7 @@ ENDIF
     TAY
     JSR print_inline
 IF edit150
-    EQUB 28,0,12,53,9,12,&EA            ; text window for the help text
+    EQUB 28,0,12,53,9,12,&ea            ; text window for the help text
     LDA help_text_table,Y
     STA compressed_string
     LDA help_text_table + 1,Y
@@ -115,7 +115,7 @@ IF edit150
     JSR compressed_text.print_string
     BRA TUTDON
 ELSE
-    EQUB 26,30,31,0,8,&EA
+    EQUB 26,30,31,0,8,&ea
     LDA help_text_table,Y
     STA string
     LDA help_text_table + 1,Y
@@ -132,7 +132,7 @@ ENDIF
 .TUTINC
     CMP #cr
     BEQ NEEDWP
-    CMP #&EA
+    CMP #&ea
     BEQ TUTDON
     JSR oswrch
     INY

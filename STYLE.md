@@ -18,7 +18,7 @@ So, with those caveats in mind:
   - One-line directives like the EQU family and ASSERT are generally indented like instructions.
   - IF/ELIF/ELSE/ENDIF are at the same indentation level as labels and don't cause an additional level of indentation inside, unless nested, in which case they and their contents are both indented an additional level.
 
-- Baron keywords and functions are in CAPS as in the docs (and BBC BASIC).
+- Baron keywords and functions are in CAPS as in the docs (and BBC BASIC). Hex values use lowercase a-f.
 
 - Lines should generally be less than 80 characters, but Baron doesn't currently support [wrapping expressions], only list literals, and some things are more readable kept on a single line (e.g. strings that will be printed on a single line at runtime), so lines can be longer where it's reasonably needed.
 

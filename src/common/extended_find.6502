@@ -101,7 +101,7 @@ nktent = ( kttabe - kttab )
     BCC noESC
 
     JSR print_inline
-    EQUB &03,&0F,&0D,&EA
+    EQUB &03,&0f,&0d,&ea
 
     LDA brk_action
     CMP #brk_action.close_index_continue_editing
@@ -124,7 +124,7 @@ nktent = ( kttabe - kttab )
 
     STA line_buffer,Y           ; store the relevant value
 
-    CMP #&7F
+    CMP #&7f
     BNE rdlin2
 
     CPY #&00
@@ -141,7 +141,7 @@ nktent = ( kttabe - kttab )
 
     BCC rdloop
 
-    LDA #&7F                    ; then let us delete it ourselfs
+    LDA #&7f                    ; then let us delete it ourselfs
     JSR oswrch
 
     BRA rdloop
@@ -162,7 +162,7 @@ nktent = ( kttabe - kttab )
 
     BCC decY
 
-    LDA #&7F                    ; then let us delete it ourselfs
+    LDA #&7f                    ; then let us delete it ourselfs
     JSR oswrch
 .decY
     DEY
@@ -242,7 +242,7 @@ nktent = ( kttabe - kttab )
                                 ; then delete the relevant number of chars
                                 ;
                                 ; Entry.. A - character value
-                                ; Exit..  relevant number of &7F's printed
+                                ; Exit..  relevant number of &7f's printed
 
     LDX #<kttab
     LDY #>kttab
@@ -259,14 +259,14 @@ nktent = ( kttabe - kttab )
 
 .gotit2
                 ; it is one of ours
-    LDY #&FF
+    LDY #&ff
 .gndspc
     INY
 
     LDA (ctptr),Y
     BNE gndspc
 
-    LDA #&7F
+    LDA #&7f
 .dndspc
     JSR oswrch                  ; and delete the relevant number of characters
     DEY

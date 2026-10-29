@@ -18,7 +18,7 @@
 .renSCR
     LDA #cr
     STA commandline,Y
-    LDY #&FF
+    LDY #&ff
 .renSIG
     INY
     LDA commandline,Y
@@ -55,7 +55,7 @@
     BCC escCLR
 .escSET
     JSR print_inline
-    EQUB &03,&0F,&0D,&EA
+    EQUB &03,&0f,&0d,&ea
     LDA brk_action
     CMP #brk_action.close_index_continue_editing
     BNE escSIM
@@ -69,7 +69,7 @@ IF edit150
     JSR osrdch
 ENDIF
 .test_escape
-    BIT &FF
+    BIT &ff
     BMI escSET
     RTS
 
@@ -83,7 +83,7 @@ ELSE
     BCS RDLNEX
 ENDIF
     STA line_buffer,Y
-    CMP #&7F
+    CMP #&7f
     BNE RDLN2
     CPY #0
     BEQ RDLNLP
@@ -96,7 +96,7 @@ ENDIF
 .RDLNDL
     TYA
     BEQ RDLNLP
-    LDA #&7F
+    LDA #&7f
     JSR oswrch
     DEY
     BRA RDLNDL

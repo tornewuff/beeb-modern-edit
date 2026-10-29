@@ -30,7 +30,7 @@
     BNE TABS1
     BRA TABS2
 .TABSSP
-    LDY #&FF
+    LDY #&ff
 .TABS2
     INY
     CPY page_width

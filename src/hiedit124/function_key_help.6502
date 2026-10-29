@@ -3,7 +3,7 @@
 IF NOT(shortm)
     EQUB "The cursor can be moved to a new line.",cr
     EQUB "For this operation lines are character sequences",cr
-    EQUB "ended by RETURN (|M).",cr,&EA
+    EQUB "ended by RETURN (|M).",cr,&ea
 ELSE
     EQUB "Move the cursor to a new line",cr
     EQUB "Lines are character sequences ended by RETURN (|M)",cr
@@ -16,7 +16,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The ends of lines can be shown as a special",cr
     EQUB "character so that they can be seen clearly.",cr
-    EQUB "This alters with each press of shf-f0.",cr,&EA
+    EQUB "This alters with each press of shf-f0.",cr,&ea
 ELSE
     EQUB "Highlight the end of line character",cr
     EQUB "This is a toggled function",cr
@@ -29,7 +29,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "Commands to the computer's operating system can be",cr
     EQUB "given. The result is seen at once. Extra commands",cr
-    EQUB "can be entered until RETURN by itself is typed.",cr,&EA
+    EQUB "can be entered until RETURN by itself is typed.",cr,&ea
 ELSE
     EQUB "Commands can be sent to the Command Line Interpreter",cr
     EQUB "The function is terminated by RETURN only",cr
@@ -42,7 +42,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "Changes between Insert and Over. In Insert mode the",cr
     EQUB "text typed is inserted causing the existing text to",cr
-    EQUB "move. In Over mode the text is typed over old text.",cr,&EA
+    EQUB "move. In Over mode the text is typed over old text.",cr,&ea
 ELSE
     EQUB "Toggle Insert/Over mode",cr
     EQUB cr
@@ -55,7 +55,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "A text file will be loaded, erasing the current text.",cr
     EQUB "RETURN uses the name at the start of text after a '>'",cr
-    EQUB "COPY, RETURN to use the current file name.",cr,&EA
+    EQUB "COPY, RETURN to use the current file name.",cr,&ea
 ELSE
     EQUB "Load file, erasing the current text",cr
     EQUB "RETURN uses the name at the start of text after a '>'",cr
@@ -68,7 +68,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "A text file will be loaded at the current cursor.",cr
     EQUB "RETURN uses the name at the start of text after a '>'",cr
-    EQUB "COPY, RETURN to use the current file name.",cr,&EA
+    EQUB "COPY, RETURN to use the current file name.",cr,&ea
 ELSE
     EQUB "Insert file to current cursor position",cr
     EQUB "RETURN uses the name at the start of text after a '>'",cr
@@ -81,7 +81,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "All or 'mark to cursor' text will be saved to a file.",cr
     EQUB "RETURN uses the name at the start of text after a '>'",cr
-    EQUB "COPY, RETURN to use the current file name.",cr,&EA
+    EQUB "COPY, RETURN to use the current file name.",cr,&ea
 ELSE
     EQUB "Save text. All or 'mark to cursor' text will be saved",cr
     EQUB "RETURN uses the name at the start of text after a '>'",cr
@@ -94,7 +94,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The top and bottom scroll margins have been removed.",cr
     EQUB "Set Top scroll margin to cursor line with ctrl-f6",cr
-    EQUB "Set Bottom scroll margin to cursor line with ctrl-f7",cr,&EA
+    EQUB "Set Bottom scroll margin to cursor line with ctrl-f7",cr,&ea
 ELSE
     EQUB "Remove top and bottom scroll margins",cr
     EQUB "Set Top scroll margin to current line with ctrl-f6",cr
@@ -107,7 +107,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "RETURN to use last f4. Special search characters are:",cr
     EQUB "# digit, $ RETURN, . any, [ ] set of char, a-z a to z",cr
-    EQUB "~ not, * many, ^ many, | control, @ alpha, \ literal.",cr,&EA
+    EQUB "~ not, * many, ^ many, | control, @ alpha, \ literal.",cr,&ea
 ELSE
     EQUB "RETURN to use last f4. Special search characters are:",cr
     EQUB "# digit, $ RETURN, . any, [ ] set of char, a-z a to z",cr
@@ -120,7 +120,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "Return to specified language.",cr
     EQUB "The text in the buffer will be 'transferred' into the",cr
-    EQUB "language.",cr,&EA
+    EQUB "language.",cr,&ea
 ELSE
     EQUB "Return to specified language",cr
     EQUB "Text is transferred to the language",cr
@@ -133,7 +133,7 @@ IF NOT(shortm)
     EQUB "f5:- Global replace.              All, or marked text.",cr
     EQUB "RETURN to use last f5. Special replace characters are:",cr
     EQUB "/ to begin the replace section; & is the found string",cr
-    EQUB "%n found wild section n. See f4 for find characters.",cr,&EA
+    EQUB "%n found wild section n. See f4 for find characters.",cr,&ea
 ELSE
     EQUB "f5: Global replace. All or marked text",cr
     EQUB "RETURN to use last f5. Special replace characters are:",cr
@@ -147,7 +147,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The screen mode may be set to a specific mode. Also",cr
     EQUB "Descriptive (D), or Key legend (K) modes may be set.",cr
-    EQUB "D and K use mode 0.",cr,&EA
+    EQUB "D and K use mode 0.",cr,&ea
 ELSE
     EQUB "Set screen mode",cr
     EQUB "D - Descriptive",cr
@@ -160,7 +160,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The current position of the cursor (_) is remembered.",cr
     EQUB "The number at the bottom indicates how many (0,1,2)",cr
-    EQUB "marks (",255,") are being used.",cr,&EA
+    EQUB "marks (",255,") are being used.",cr,&ea
 ELSE
     EQUB "Set a marker",cr
     EQUB "The number (0,1,2) of marks (",255,") set is",cr
@@ -173,7 +173,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "All place marks are cleared.",cr
     EQUB "",cr
-    EQUB "",cr,&EA
+    EQUB "",cr,&ea
 ELSE
     EQUB "Clear markers",cr
     EQUB cr
@@ -186,7 +186,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The text between two marked places is copied to",cr
     EQUB "the current cursor position.",cr
-    EQUB "The marks are NOT cleared.",cr,&EA
+    EQUB "The marks are NOT cleared.",cr,&ea
 ELSE
     EQUB "Text is copied to the current position",cr
     EQUB "The marks are NOT cleared",cr
@@ -199,7 +199,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The text between two marked places is moved to",cr
     EQUB "the current cursor position.",cr
-    EQUB "The marks are then cleared.",cr,&EA
+    EQUB "The marks are then cleared.",cr,&ea
 ELSE
     EQUB "Text is moved to current position",cr
     EQUB "The marks are cleared",cr
@@ -212,7 +212,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The whole text is printed out to the screen or printer",cr
     EQUB "using the built-in formatter/paginator.",cr
-    EQUB "",cr,&EA
+    EQUB "",cr,&ea
 ELSE
     EQUB "Print text to screen or printer",cr
     EQUB cr
@@ -225,7 +225,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The text between the cursor and the marked place",cr
     EQUB "is deleted.",cr
-    EQUB "The mark is then cleared.",cr,&EA
+    EQUB "The mark is then cleared.",cr,&ea
 ELSE
     EQUB "Delete text between marker and current position",cr
     EQUB "The mark is then cleared",cr
@@ -238,7 +238,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The old text in the buffer is recovered after a BREAK",cr
     EQUB "or immediately after a Clear Text (by shf-f9).",cr
-    EQUB "",cr,&EA
+    EQUB "",cr,&ea
 ELSE
     EQUB "Recover old text",cr
     EQUB cr
@@ -251,7 +251,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "All text in the buffer is deleted.",cr
     EQUB "Use shf-f9 twice to remove the text beyond hope of a",cr
-    EQUB "recovery by f9.",cr,&EA
+    EQUB "recovery by f9.",cr,&ea
 ELSE
     EQUB "Delete text",cr
     IF NOT(stamp)
@@ -269,7 +269,7 @@ ENDIF
 IF NOT(shortm)
     EQUB "The TAB key may be used to move to zones of eight",cr
     EQUB "characters across the screen, or to position under",cr
-    EQUB "the first character of the line immediately above.",cr,&EA
+    EQUB "the first character of the line immediately above.",cr,&ea
 ELSE
     EQUB "TAB to columns of 8, or to the position under the",cr
     EQUB "first character of the previous line",cr
@@ -282,7 +282,7 @@ ENDIF
 IF NOT(shortm)
     EQUB remap("Cursor editing can be used with ⭡⯇╴╶⯈⭣ and COPY."),cr
     EQUB "User defined soft keys are available as normal.",cr
-    EQUB "All characters except ESCAPE are put into text.",cr,&EA
+    EQUB "All characters except ESCAPE are put into text.",cr,&ea
 ELSE
     EQUB remap("Cursor editing mode. ⭡⯇╴╶⯈⭣ and COPY and user"),cr
     EQUB "defined soft keys available as normal",cr

@@ -10,7 +10,7 @@
 
 .change_mode
     JSR prompt
-    EQUB "New Mode:",&EA
+    EQUB "New Mode:",&ea
 IF edit150
     JSR read_char_test_escape
     JSR oswrch
@@ -29,7 +29,7 @@ ENDIF
     BEQ BADMODE
     BRA SETMODE
 .SETKEY
-    AND #&DF
+    AND #&df
     CMP #'D'
     BEQ SETTUT
     CMP #'K'

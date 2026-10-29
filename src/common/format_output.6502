@@ -37,7 +37,7 @@
     ROR A
     ORA scratch+8
     ROL A
-    EOR #&FF
+    EOR #&ff
     TSB scratch+8
 .VDUDON
     write_two_chars 23, 32
@@ -49,7 +49,7 @@
     CPX #9
     BNE VDUPRG
     JSR print_inline
-    EQUB 32,23,32,0,0,0,0,0,0,0,0,&EA
+    EQUB 32,23,32,0,0,0,0,0,0,0,0,&ea
     PLX
     PLY
     RTS
@@ -98,17 +98,17 @@
     PLY
 IF cF8key
 .wrch
-    JMP (&020E)
+    JMP (&020e)
 .wrchen
     LDA #cr
     BRA wrch
 ELIF termin=cr
 .wrchen
 .wrch
-    JMP (&20E)
+    JMP (&20e)
 ELSE
 .wrch
-    JMP (&20E)
+    JMP (&20e)
 .wrchen
     LDA #cr
     BRA wrch
@@ -148,7 +148,7 @@ ENDIF
     DEC lineot
     DEC lineot
     JSR macro
-    LDA #&FF
+    LDA #&ff
     STA lineot                ; set needs header
     INC page
     BNE hi

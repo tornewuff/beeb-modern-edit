@@ -1,7 +1,7 @@
 .language_entry {
     CLI
     CLD
-    LDX #&FF
+    LDX #&ff
     TXS
 
     ; Remember the OS version, treating anything below MOS 3 as 0
@@ -34,7 +34,7 @@
     LDA #>brk_handler
     STA BRKv + 1
     STZ old_text_bounds + 3
-    LDA #&F2
+    LDA #&f2
     STA scratch
     STZ scratch + 1
     JSR read_io_byte
@@ -64,13 +64,13 @@
     BEQ EDITsp
     LDX #&00
 .EDITgb
-    STA &01A0,X
+    STA &01a0,X
     JSR read_next_io_byte
     INX
     CPX #'@'
     BNE EDITgb
     LDA #cr
-    STA &01A0 - 1,X
+    STA &01a0 - 1,X
     STA filename_buffer
     LDY #&00
     JSR read_hex
@@ -94,12 +94,12 @@
     BRA EDIToy
 .EDITon
     LDX #&00
-    LDA &01A0
+    LDA &01a0
     CMP #cr
 .EDITz2
     BEQ EDIToz
 .EDITn2
-    LDA &01A0,X
+    LDA &01a0,X
     CMP #cr
     BEQ EDITn3
     CMP #' '
@@ -117,7 +117,7 @@
     BRA EDIToy
 
 .EDIToz
-    LDX #&FF
+    LDX #&ff
     STX cursor_editing
     LDA #cr
     STA filename_buffer

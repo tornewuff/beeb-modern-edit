@@ -151,7 +151,7 @@ romlen = (theend - origin)
 
 IF edit150 AND origin == &8000 AND NOT(DEFINED(build_disc))
     ; the ROM image is padded out to 16K
-    EQUB REPEATED(&C000 - *, &FF)
+    EQUB REPEATED(&c000 - *, &ff)
 ENDIF
 
 ENDSECTION

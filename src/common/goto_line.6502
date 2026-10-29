@@ -68,10 +68,10 @@
     SBC gap_start+1
     BCC LOKLINE
     JSR prompt
-    EQUB "At line ",&EA
+    EQUB "At line ",&ea
     JSR write_lineno
     JSR print_inline
-    EQUB ", new line:",&EA
+    EQUB ", new line:",&ea
     JSR write_char.inverse_off
     JSR read_trimmed_line
     BNE LOLI4

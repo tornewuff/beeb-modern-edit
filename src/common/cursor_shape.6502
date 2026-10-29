@@ -24,7 +24,7 @@ ELSE
     TYA
     JSR oswrch
     JSR print_inline
-    EQUB &00,&00,&00,&00,&00,&00,&00,&EA
+    EQUB &00,&00,&00,&00,&00,&00,&00,&ea
 ENDIF
 .VDU23X
     RTS

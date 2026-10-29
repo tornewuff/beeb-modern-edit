@@ -32,20 +32,20 @@
     RTS
 .wait_shift_prompt
     JSR print_inline_inverse
-    EQUB "Press SHIFT to continue",&EA
+    EQUB "Press SHIFT to continue",&ea
 .wait_shift
     PHX
     PHY
 .INKEYL
     JSR test_escape
-    LDX #&FF
-    LDY #&FF
+    LDX #&ff
+    LDY #&ff
     LDA #&81
     JSR osbyte
-    CPX #&FF
+    CPX #&ff
     BNE INKEYL
     LDA #15
-    LDX #&FF
+    LDX #&ff
     JSR osbyte
     PLY
     PLX

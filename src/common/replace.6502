@@ -69,7 +69,7 @@
     BRK
     EQUB 2,"No room",0
 .CHNRMF
-    AND #&7F
+    AND #&7f
     TAY
 .CHNRAM
     LDA SSTTLOSTK,Y

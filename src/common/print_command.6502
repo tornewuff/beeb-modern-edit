@@ -8,7 +8,7 @@ IF edit150
     JSR print_hex_nibble
     PLA
 .print_hex_nibble
-    AND #&0F
+    AND #&0f
     SED
     CMP #10
     ADC #'0'
@@ -42,16 +42,16 @@ ENDIF
     JMP print_format_help
 .print
     JSR refuse_if_marked
-    LDX #&FF
+    LDX #&ff
     STX page_wait_flag
     STX print_flags           ; bit 7 printer, bit 6 pay attention to bold/underlining
     STX lineot                ; set needs header flag
     TXS
     JSR prompt
 IF edit150
-    EQUB "Screen, Printer, As is, Help ?",&EA
+    EQUB "Screen, Printer, As is, Help ?",&ea
 ELSE
-    EQUB "Screen, Printer, Help ?",&EA
+    EQUB "Screen, Printer, Help ?",&ea
 ENDIF
 .PRINTL
     JSR get_response
@@ -68,7 +68,7 @@ ENDIF
     STZ print_flags           ; 0 for printer
 .PRINTS
     JSR prompt
-    EQUB "Continuous, Paged ?",&EA
+    EQUB "Continuous, Paged ?",&ea
 .PRINTM
     JSR get_response
     CMP #'c'
@@ -94,7 +94,7 @@ ENDIF
 
 IF edit150
     LDA #' '                    ; hard space and the other line
-    STA translate_table + &A0         ; terminator print as spaces
+    STA translate_table + &a0         ; terminator print as spaces
     LDY line_terminator
     CPY #cr
     BNE trnlcr
@@ -154,7 +154,7 @@ ENDIF
     LDA #76
     STA len                ; characters per line
     JSR print_inline
-    EQUB 26,12,&EA
+    EQUB 26,12,&ea
     BIT print_flags
     BMI PATCHA
 IF edit150
@@ -264,7 +264,7 @@ ENDIF
 .fine
     STZ centre                ; turn centre off
     STZ right_flush           ; turn right-flush off
-    LDA #&FF
+    LDA #&ff
     STA temp_indent           ; no temp indent
     LDA pundrl
     STA underline
@@ -278,11 +278,11 @@ ENDIF
     BIT print_flags           ; print exit
     BPL DODWN
     JSR print_inline_inverse
-    EQUB "Print done. ",&EA
+    EQUB "Print done. ",&ea
     JSR wait_shift_prompt
 .DODWN
     JSR print_inline
-    EQUB 3,15,&EA
+    EQUB 3,15,&ea
     JSR close_index_file
     LDX gap_start
     LDY gap_start+1

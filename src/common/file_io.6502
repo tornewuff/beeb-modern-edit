@@ -17,7 +17,7 @@ ENDIF
     LDA (temp),Y
     CMP #cr
     BEQ textna
-    CMP #&8B
+    CMP #&8b
     BEQ oldnam
 IF edit150
     BVC cpynam
@@ -76,7 +76,7 @@ ENDIF
     PLY
     PLX
     JSR gap_forward_to_xy
-    LDY #&FF
+    LDY #&ff
 .namsrc
     INY
     BMI nonam
@@ -117,7 +117,7 @@ ENDIF
 
 .write_filename
     JSR write_char.inverse_on
-    LDY #&FF
+    LDY #&ff
 .wrispc
     INY
     LDA (scratch),Y
@@ -164,7 +164,7 @@ ENDIF
     ; File loaded to addr, with XY = top of file
     JSR paslnm
     JSR prompt
-    EQUB "Loading ",&EA
+    EQUB "Loading ",&ea
     JSR write_filename
 
 .pasGO
@@ -180,13 +180,13 @@ ENDIF
     JSR osfile
     CMP #&01
     BNE nosize                  ; Let FS generate 'Directory/not found' error.
-    LDA scratch + &0C
-    ORA scratch + &0D
+    LDA scratch + &0c
+    ORA scratch + &0d
     BNE paslhu
     LDA max_size
-    CMP scratch + &0A
+    CMP scratch + &0a
     LDA max_size + 1
-    SBC scratch + &0B
+    SBC scratch + &0b
     BCC paslhu
 
 .nosize
@@ -198,16 +198,16 @@ ENDIF
     STZ scratch + 4
     STZ scratch + 5
     STZ scratch + 6
-    LDA #&FF
+    LDA #&ff
     JSR XYSCRATCH
     JSR osfile
     STZ old_text_bounds + 3         ; make old impossible
     CLC
     LDA addr
-    ADC scratch + &0A
+    ADC scratch + &0a
     TAX
     LDA addr + 1
-    ADC scratch + &0B
+    ADC scratch + &0b
     TAY
     RTS
 
@@ -228,9 +228,9 @@ ENDIF
 
 .inSAVE
     JSR prompt
-    EQUB "Saving to ",&EA
+    EQUB "Saving to ",&ea
     JSR write_filename
-    LDX #&0F
+    LDX #&0f
 .pasacl
     STZ scratch + 2,X
     DEX
@@ -245,7 +245,7 @@ IF stamp
     JSR toscra
     LDX #gap_end
     JSR toscr2
-    LDY #&0E
+    LDY #&0e
     LDX #block_end
     JSR toscr2
 ELSE
@@ -254,13 +254,13 @@ ELSE
     DEC scratch + 8
     DEC scratch + 9
     LDA gap_end
-    STA scratch + &0A
+    STA scratch + &0a
     LDA gap_end + 1
-    STA scratch + &0B
+    STA scratch + &0b
     LDA block_end
-    STA scratch + &0E
+    STA scratch + &0e
     LDA block_end + 1
-    STA scratch + &0F
+    STA scratch + &0f
 ENDIF
 
     LDA #&00

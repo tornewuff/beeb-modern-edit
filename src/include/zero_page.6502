@@ -50,7 +50,7 @@ ENDIF
     close_index_continue_editing    = 2
     ; Move the text that was being relocated back to its original location,
     ; then do `continue_editing`.
-    undo_return_to_language         = &FF
+    undo_return_to_language         = &ff
 }
 
 .size           SKIP 2

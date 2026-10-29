@@ -11,7 +11,7 @@
     INX
     JSR osbyte
     PLA
-    AND #&F8
+    AND #&f8
     PHA
     SBC mousel + 1
     STA mousel + 6
@@ -28,7 +28,7 @@
     INX
     JSR osbyte
     PLA
-    AND #&F8
+    AND #&f8
     PHA
     SBC mousel + 3
     STA mousel + 8

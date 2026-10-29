@@ -10,7 +10,7 @@
     STA diff
 .SCREEA
     LDA temp_indent
-    CMP #&FF
+    CMP #&ff
     BNE SCREEB
     LDA indent
 .SCREEB
@@ -66,7 +66,7 @@ ENDIF
     CMP tab_char
     BNE SCREES
     TXA
-    LDX #&FF
+    LDX #&ff
 .SCRTAB
     INX
     PHA
@@ -77,7 +77,7 @@ ENDIF
     BCS SCRTAB
     SEC
     SBC tab_list,X
-    EOR #&FF
+    EOR #&ff
     INA
     PHX
     JSR SCMVTO

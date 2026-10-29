@@ -12,7 +12,7 @@ FUNCTION multi_replace(str, replacements)
 ; Turns a list of strings and numbers into a single string, assuming numbers are
 ; to be interpreted as character codes. If the input is already a string, not a
 ; list, it's returned unchanged. This can be used as a kind of escaping - e.g.
-; stringify({"hello", &0D, "world"}) will create a string with a CR embedded.
+; stringify({"hello", &0d, "world"}) will create a string with a CR embedded.
 FUNCTION stringify(in)
     IF IS_STRING(in)
         out = in

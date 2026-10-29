@@ -1,6 +1,6 @@
 IF DEFINED(build_disc)
 
-SECTION Boot, filename = "!BOOT", exec = &FFFFFFFF
+SECTION Boot, filename = "!BOOT", exec = &ffffffff
     EQUS "*RUN ", build_disc, 13
 ENDSECTION
 

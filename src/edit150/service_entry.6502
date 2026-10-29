@@ -49,7 +49,7 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
     .@  LDA (os_text_ptr),Y
         CMP #'.'
         BEQ edit_command
-        AND #&DF                    ; convert to uppercase
+        AND #&df                    ; convert to uppercase
         CMP rom_header.title - counter_start,X
         BNE return
         INY

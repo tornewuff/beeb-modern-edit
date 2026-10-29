@@ -3,7 +3,7 @@
     STA brk_action
     JSR restore_keys
     JSR prompt
-    EQUB "Command line",&EA
+    EQUB "Command line",&ea
 
 IF curtyp
     JSR lsf                     ; slow line flash
@@ -33,21 +33,21 @@ ENDIF
     EQUW commandline
     EQUB 238
     EQUB " "
-    EQUB &FF
+    EQUB &ff
 .stares
     acknowledge_escape
 IF edit150
 .starfx
-    LDA #&DA                    ; flush the VDU queue
+    LDA #&da                    ; flush the VDU queue
     LDX #0
     JSR osbyte_y0
 .starex
     JSR print_inline
-    EQUB 4,3,15,13,26,&EA
+    EQUB 4,3,15,13,26,&ea
 ELSE
 .starex
     JSR print_inline
-    EQUB 0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&EA
+    EQUB 0,0,0,0,0,0,0,0,0,0,4,3,15,13,26,&ea
 ENDIF
     JSR check_screen_mode
     JSR init_edit_keys

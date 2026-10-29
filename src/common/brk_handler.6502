@@ -1,6 +1,6 @@
 ; Handle BRK according to the current value of brk_action.
 .brk_handler {
-    LDX #&FF
+    LDX #&ff
     TXS                                 ; reset stack
     STZ cursor_editing
     acknowledge_escape
@@ -37,7 +37,7 @@
     JSR cursor_text_start
 .normal_break
     JSR print_inline
-    EQUB vdu_disable_printer, vdu_disable_paged_mode, &EA
+    EQUB vdu_disable_printer, vdu_disable_paged_mode, &ea
     JSR cursor_to_status
 
 IF lerror
@@ -45,19 +45,19 @@ IF lerror
         JSR fancy_chars.define
     ENDIF
     JSR print_inline
-    EQUB REPEATED(3, vdu_previous_line), remap("┌"), &EA
+    EQUB REPEATED(3, vdu_previous_line), remap("┌"), &ea
     LDX #remap_char("─")
     LDA #59-80
     JSR print_repeat_inline
-    EQUB remap("Shift f5 D for info┐│"),&EA
+    EQUB remap("Shift f5 D for info┐│"),&ea
     LDX #' '
     LDA #78-80
     JSR print_repeat_inline
-    EQUB remap("│└"),&EA
+    EQUB remap("│└"),&ea
     LDX #remap_char("─")
     LDA #54-80
     JSR print_repeat_inline
-    EQUB remap("Press ESCAPE to continue┘"),11,11,9,&EA
+    EQUB remap("Press ESCAPE to continue┘"),11,11,9,&ea
     JSR print_os_error
     IF define_fancy_chars == "temporary"
         JSR fancy_chars.restore_previous
@@ -69,23 +69,23 @@ ELSE
     AND #&07
     CMP #&05
     BEQ nomess
-    LDA (&FD)
+    LDA (&fd)
     CMP #&01
     BNE nomess
     JSR print_inline
     IF 1=0
-        EQUB lf,cr,"For help type: shf-f5 D",&EA
+        EQUB lf,cr,"For help type: shf-f5 D",&ea
     ELSE
-        EQUB lf,cr,"Shift f5 D for info",&EA            ; Slightly shorter
+        EQUB lf,cr,"Shift f5 D for info",&ea            ; Slightly shorter
     ENDIF
 .nomess
     JSR osnewl
     JSR print_inline_inverse
-    EQUB "Press ESCAPE to continue",&EA
+    EQUB "Press ESCAPE to continue",&ea
 ENDIF
 
 .@  JSR osrdch
-    CMP #&1B
+    CMP #&1b
     BNE @-
 }
 

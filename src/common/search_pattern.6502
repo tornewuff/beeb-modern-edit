@@ -154,7 +154,7 @@
 .REPAGENBYTE
     JSR GENBYTE
 .REPLPART
-    LDA #&FF
+    LDA #&ff
     STA SENSFLAG
     LDA temp_a         ; Translate replace part of FR string.
     CMP #cr
@@ -314,11 +314,11 @@
 .CHRSSO
     CMP #'?'
     BNE NOTQUE
-    LDA #&7F
+    LDA #&7f
     BRA CHSPBY
 .NOTQUE
     BCC CHSPBY
-    AND #&DF
+    AND #&df
     SBC #'@'
     BRA CHSPBY
 .CHSPCR

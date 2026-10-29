@@ -1,11 +1,11 @@
 .prompt_replace_action          ; prompt for the find and replace action
     JSR prompt
-    EQUB "C(ontinue), E(nd of file replace), R(eplace) or ESCAPE",&EA
+    EQUB "C(ontinue), E(nd of file replace), R(eplace) or ESCAPE",&ea
     RTS
 
 .read_replacement               ; read the replacement
     JSR prompt
-    EQUB "Replace by:",&EA
+    EQUB "Replace by:",&ea
     JSR read_line
     JSR READINIT
     JSR MININIT
