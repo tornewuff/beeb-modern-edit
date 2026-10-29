@@ -10,7 +10,8 @@ IF mouse
     PHX
     PHY
     ; Poll for either a keypress or mouse input
-.@  LDA #osbyte_inkey
+.loop
+    LDA #osbyte_inkey
     LDX #0
     LDY #0
     JSR osbyte
@@ -26,14 +27,14 @@ IF mouse
     BNE MOUSLX
     LDA mousel
     CMP mousel + 5
-    BEQ @-
+    BEQ loop
     AND #&7
     BIT #&1
     BNE MOUSK1
     BIT #&2
     BNE MOUSK2
     BIT #&4
-    BEQ @-
+    BEQ loop
     LDA #&86
     BRA return
 .MOUSK1

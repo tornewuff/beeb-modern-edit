@@ -24,13 +24,13 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
         ; print title and version from rom header, converting nul to space
         counter_start = &100 - (rom_header.copyright - rom_header.title)
         LDX #counter_start
-    .@  LDA rom_header.title - counter_start,X
-        BNE ascii
+    .loop
+        LDA rom_header.title - counter_start,X
+        BNE @+
         LDA #' '
-    .ascii
-        JSR osasci
+    .@  JSR osasci
         INX
-        BNE @-
+        BNE loop
         JSR osnewl
     }
 
@@ -46,7 +46,8 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
         ; Recognise *edit as command to enter language.
         counter_start = &100 - (rom_header.title_end - rom_header.title)
         LDX #counter_start
-    .@  LDA (os_text_ptr),Y
+    .loop
+        LDA (os_text_ptr),Y
         CMP #'.'
         BEQ edit_command
         AND #&df                    ; convert to uppercase
@@ -54,7 +55,7 @@ SECTION Service, cmos = build.cmos_host, org = service_origin
         BNE return
         INY
         INX
-        BNE @-
+        BNE loop
         LDA (os_text_ptr),Y
         CMP #space + 1
         BCS return                  ; not space or control char

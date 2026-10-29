@@ -12,7 +12,8 @@
     JSR increment
     JMP (compressed_string)
 
-.@  JSR print_byte
+.loop
+    JSR print_byte
 .increment
     INC compressed_string
     BNE print_string
@@ -21,7 +22,7 @@
 .print_string
     LDA (compressed_string)
     CMP #&ea
-    BNE @-
+    BNE loop
     RTS
 
     ; print a character or abbreviation
