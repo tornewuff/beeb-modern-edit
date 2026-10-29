@@ -104,11 +104,9 @@ ENDIF
 IF cF8key
     LDA #cr
     STA stracc,Y
-ELSE
-    IF termin<>cr
-        LDA #cr
-        STA stracc,Y
-    ENDIF
+ELIF termin<>cr
+    LDA #cr
+    STA stracc,Y
 ENDIF
 
     LDA #>stracc
