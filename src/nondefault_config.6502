@@ -29,14 +29,15 @@ ENDIF
     stamp = TRUE
     lfver = TRUE
     cF8key = FALSE
-    shortm = FALSE
     curtyp = FALSE
     lfarro = FALSE
     extgf = TRUE
 
+    help_text = "original"
+    compressed_help_text = TRUE
+
     ; Also include nondefault options split out of edit150
     edit150_size_opt = TRUE
-    edit150_updated_help = TRUE
     define_fancy_chars = "never"
 }
 

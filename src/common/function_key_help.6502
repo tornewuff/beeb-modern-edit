@@ -1,0 +1,483 @@
+; each entry is a tuple of (edit150, original, short) text
+
+function_key_help_f0_f9 = {
+    {
+        stringify({
+            "f0", cr,
+            "The cursor can be moved to a new line.", cr,
+            "For this operation lines are character sequences", cr,
+            "ended by RETURN.", &ea
+        }), stringify({
+            "f0", cr,
+            "The cursor can be moved to a new line.", cr,
+            "For this operation lines are character sequences", cr,
+            "ended by RETURN (|M).", cr, &ea
+        }), stringify({
+            "f0", cr,
+            "Move the cursor to a new line", cr,
+            "Lines are character sequences ended by RETURN (|M)", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f0", cr,
+            "The ends of lines can be shown as a special", cr,
+            "character so that they can be seen clearly.", cr,
+            "This alters with each press of shf-f0.", &ea
+        }), stringify({
+            "shf-f0", cr,
+            "The ends of lines can be shown as a special", cr,
+            "character so that they can be seen clearly.", cr,
+            "This alters with each press of shf-f0.", cr, &ea
+        }), stringify({
+            "shf-f0", cr,
+            "Highlight the end of line character", cr,
+            "This is a toggled function", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f1", cr,
+            "Commands to t!he computer's operating system can be", cr,
+            "given. The result is seen at once. Extra commands", cr,
+            "can be entered until RETURN by itself is typed.", &ea
+        }), stringify({
+            "f1", cr,
+            "Commands to the computer's operating system can be", cr,
+            "given. The result is seen at once. Extra commands", cr,
+            "can be entered until RETURN by itself is typed.", cr, &ea
+        }), stringify({
+            "f1", cr,
+            "Commands can be sent to the Command Line Interpreter", cr,
+            "The function is terminated by RETURN only", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f1", cr,
+            "Changes between Insert and Over. In Insert mode the", cr,
+            "text typed is inserted causing the existing text to", cr,
+            "move. In Over mode the text is typed over old text.", &ea
+        }), stringify({
+            "shf-f1", cr,
+            "Changes between Insert and Over. In Insert mode the", cr,
+            "text typed is inserted causing the existing text to", cr,
+            "move. In Over mode the text is typed over old text.", cr, &ea
+        }), stringify({
+            "shf-f1", cr,
+            "Toggle Insert/Over mode", cr,
+            cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f2", cr,
+            "A text file will be loaded, erasing the current text.", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY, RETURN to use the current file name.", &ea
+        }), stringify({
+            "f2", cr,
+            "A text file will be loaded, erasing the current text.", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY, RETURN to use the current file name.", cr, &ea
+        }), stringify({
+            "f2", cr,
+            "Load file, erasing the current text", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY RETURN to use the current file name", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f2", cr,
+            "A text file will be loaded at the current cursor.", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY, RETURN to use the current file name.", &ea
+        }), stringify({
+            "shf-f2", cr,
+            "A text file will be loaded at the current cursor.", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY, RETURN to use the current file name.", cr, &ea
+        }), stringify({
+            "shf-f2", cr,
+            "Insert file to current cursor position", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY RETURN to use the current file name", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f3", cr,
+            "All or 'mark to cursor' text will be saved to a file.", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY, RETURN to use the current file name.", &ea
+        }), stringify({
+            "f3", cr,
+            "All or 'mark to cursor' text will be saved to a file.", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY, RETURN to use the current file name.", cr, &ea
+        }), stringify({
+            "f3", cr,
+            "Save text. All or 'mark to cursor' text will be saved", cr,
+            "RETURN uses the name at the start of text after a '>'", cr,
+            "COPY RETURN to use the current file name", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f3", cr,
+            "The top and bottom scroll margins have been removed.", cr,
+            "Set Top scroll margins with ctrl-f6", cr,
+            "Set Bottom scroll margins with ctrl-f7", &ea
+        }), stringify({
+            "shf-f3", cr,
+            "The top and bottom scroll margins have been removed.", cr,
+            "Set Top scroll margin to cursor line with ctrl-f6", cr,
+            "Set Bottom scroll margin to cursor line with ctrl-f7", cr, &ea
+        }), stringify({
+            "shf-f3", cr,
+            "Remove top and bottom scroll margins", cr,
+            "Set Top scroll margin to current line with ctrl-f6", cr,
+            "Set Bottom scroll margin to current line with ctrl-f7", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f4:- Interactive Find and Replace Function.", cr,
+            "RETURN to use last f4. Special search characters are:", cr,
+            "# digit, $ RETURN, . any, [ ] set of char, a-z a to z", cr,
+            "~ not, * many, ^ many, | control, @ alpha, \ literal.", &ea
+        }), stringify({
+            "f4:- Interactive Find and Replace Function.", cr,
+            "RETURN to use last f4. Special search characters are:", cr,
+            "# digit, $ RETURN, . any, [ ] set of char, a-z a to z", cr,
+            "~ not, * many, ^ many, | control, @ alpha, \ literal.", cr, &ea
+        }), stringify({
+            "f4:- Interactive Find and Replace Function.", cr,
+            "RETURN to use last f4. Special search characters are:", cr,
+            "# digit, $ RETURN, . any, [ ] set of char, a-z a to z", cr,
+            "~ not, * many, ^ many, | control, @ alpha, \ literal.", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f4", cr,
+            "Return to specified language.", cr,
+            "The text in the buffer will be 'transferred' into the", cr,
+            "language.", &ea
+        }), stringify({
+            "shf-f4", cr,
+            "Return to specified language.", cr,
+            "The text in the buffer will be 'transferred' into the", cr,
+            "language.", cr, &ea
+        }), stringify({
+            "shf-f4", cr,
+            "Return to specified language", cr,
+            "Text is transferred to the language", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f5:- Global replace.              All, or marked text.",
+            "RETURN to use last f5. Special replace characters are:",
+            "/ to begin the replace section; & is the found string", cr,
+            "%n found wild section n. See f4 for find characters.", &ea
+        }), stringify({
+            "f5:- Global replace.              All, or marked text.", cr,
+            "RETURN to use last f5. Special replace characters are:", cr,
+            "/ to begin the replace section; & is the found string", cr,
+            "%n found wild section n. See f4 for find characters.", cr, &ea
+        }), stringify({
+            "f5: Global replace. All or marked text", cr,
+            "RETURN to use last f5. Special replace characters are:", cr,
+            "/ to begin the replace section; & is the found string", cr,
+            "%n found wild section n. See f4 for find characters.", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f5", cr,
+            "The screen mode may be set to a specific mode. Also", cr,
+            "Descriptive (D), or Key legend (K) modes may be set.", cr,
+            "D and K use mode 0.", &ea
+        }), stringify({
+            "shf-f5", cr,
+            "The screen mode may be set to a specific mode. Also", cr,
+            "Descriptive (D), or Key legend (K) modes may be set.", cr,
+            "D and K use mode 0.", cr, &ea
+        }), stringify({
+            "shf-f5", cr,
+            "Set screen mode", cr,
+            "D - Descriptive", cr,
+            "K - Key legend", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f6", cr,
+            "The current position of the cursor (_) is remembered.", cr,
+            "The status line will show the number of marks in use", cr,
+            "(if any).", &ea
+        }), stringify({
+            "f6", cr,
+            "The current position of the cursor (_) is remembered.", cr,
+            "The number at the bottom indicates how many (0,1,2)", cr,
+            "marks (",255,") are being used.", cr, &ea
+        }), stringify({
+            "f6", cr,
+            "Set a marker", cr,
+            "The number (0,1,2) of marks (",255,") set is", cr,
+            "given on the status line", cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f6", cr,
+            "All place marks are cleared.", cr,
+            cr, &ea
+        }), stringify({
+            "shf-f6", cr,
+            "All place marks are cleared.", cr,
+            "", cr,
+            "", cr, &ea
+        }), stringify({
+            "shf-f6", cr,
+            "Clear markers", cr,
+            cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f7", cr,
+            "The text between two marked places is copied to", cr,
+            "the current cursor position.", cr,
+            "The marks are NOT cleared.", &ea
+        }), stringify({
+            "f7", cr,
+            "The text between two marked places is copied to", cr,
+            "the current cursor position.", cr,
+            "The marks are NOT cleared.", cr, &ea
+        }), stringify({
+            "f7", cr,
+            "Text is copied to the current position", cr,
+            "The marks are NOT cleared", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f7", cr,
+            "The text between two marked places is moved to", cr,
+            "the current cursor position.", cr,
+            "The marks are then cleared.", &ea
+        }), stringify({
+            "shf-f7", cr,
+            "The text between two marked places is moved to", cr,
+            "the current cursor position.", cr,
+            "The marks are then cleared.", cr, &ea
+        }), stringify({
+            "shf-f7", cr,
+            "Text is moved to current position", cr,
+            "The marks are cleared", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f8", cr,
+            "The whole text is printed out to t!he screen or printer",
+            "using the built-in formatter/paginator.", cr, &ea
+        }), stringify({
+            "f8", cr,
+            "The whole text is printed out to the screen or printer", cr,
+            "using the built-in formatter/paginator.", cr,
+            "", cr, &ea
+        }), stringify({
+            "f8", cr,
+            "Print text to screen or printer", cr,
+            cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-f8", cr,
+            "The text between the cursor and the marked place", cr,
+            "is deleted.", cr,
+            "The mark is then cleared.", &ea
+        }), stringify({
+            "shf-f8", cr,
+            "The text between the cursor and the marked place", cr,
+            "is deleted.", cr,
+            "The mark is then cleared.", cr, &ea
+        }), stringify({
+            "shf-f8", cr,
+            "Delete text between marker and current position", cr,
+            "The mark is then cleared", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "f9", cr,
+            "The old text in the buffer is recovered after a BREAK", cr,
+            "or immediately after a Clear Text (by shf-f9).", cr, &ea
+        }), stringify({
+            "f9", cr,
+            "The old text in the buffer is recovered after a BREAK", cr,
+            "or immediately after a Clear Text (by shf-f9).", cr,
+            "", cr, &ea
+        }), stringify({
+            "f9", cr,
+            "Recover old text", cr,
+            cr,
+            cr, &ea
+        })
+    },
+}
+
+function_key_help_shff9_01 = {
+    stringify({
+        "shf-f9 (ESCAPE t!o abandon)", cr,
+        "All text in the buffer is deleted.", cr,
+        "Use shf-f9 twice to remove the text beyond hope of a", cr,
+        "recovery by f9.", &ea
+    }), stringify({
+        "shf-f9", cr,
+        "All text in the buffer is deleted.", cr,
+        "Use shf-f9 twice to remove the text beyond hope of a", cr,
+        "recovery by f9.", cr, &ea
+    })
+}
+
+IF stamp
+    function_key_help_shff9_2 = stringify({
+        "shf-f9", cr,
+        "Delete text", cr,
+        "shf-f9 Y will select time stamping", cr,
+        "shf-f9 shf-f9 selects 'EXEC' addresses", cr, &ea
+    })
+ELSE
+    function_key_help_shff9_2 = stringify({
+        "shf-f9", cr,
+        "Delete text", cr,
+        "shf-f9 twice will remove text beyond recovery by f9", cr,
+        cr, &ea
+    })
+ENDIF
+
+function_key_help_shff9 = CONCAT(function_key_help_shff9_01, function_key_help_shff9_2)
+
+function_key_help_tabcopy = {
+    {
+        stringify({
+            "shf-TAB", cr,
+            "The TAB key may be used to move to zones of eight", cr,
+            "characters across the screen, or to position under", cr,
+            "the first character of the line immediately above.", &ea
+        }), stringify({
+            "shf-TAB", cr,
+            "The TAB key may be used to move to zones of eight", cr,
+            "characters across the screen, or to position under", cr,
+            "the first character of the line immediately above.", cr, &ea
+        }), stringify({
+            "shf-TAB", cr,
+            "TAB to columns of 8, or to the position under the", cr,
+            "first character of the previous line", cr,
+            cr, &ea
+        })
+    },
+    {
+        stringify({
+            "shf-COPY", cr,
+            "Cursor editing with the cursor keys & COPY is enabled.",
+            "User defined soft keys are available as normal.", cr,
+            "All characters except ESCAPE are put into text.", &ea
+        }), stringify({
+            "shf-COPY", cr,
+            remap("Cursor editing can be used with ⭡⯇╴╶⯈⭣ and COPY."), cr,
+            "User defined soft keys are available as normal.", cr,
+            "All characters except ESCAPE are put into text.", cr, &ea
+        }), stringify({
+            "shf-COPY", cr,
+            remap("Cursor editing mode. ⭡⯇╴╶⯈⭣ and COPY and user"), cr,
+            "defined soft keys available as normal", cr,
+            "ESCAPE terminates this mode", cr, &ea
+        })
+    },
+}
+
+IF cF8key
+    function_key_help_cf8 = {{
+        "",
+        "",
+        stringify({
+            "Ctrl-f8", cr,
+            "Toggle newline character between LF(|J) and CR(|M)", cr,
+            cr,
+            cr, &ea
+        })
+    }}
+ELSE
+    function_key_help_cf8 = {}
+ENDIF
+
+function_key_help_all = CONCAT(function_key_help_f0_f9, {function_key_help_shff9}, function_key_help_tabcopy, function_key_help_cf8)
+
+IF help_text == "edit150"
+    function_key_help_uncompressed = function_key_help_all[.., 0]
+ELIF help_text == "original"
+    function_key_help_uncompressed = function_key_help_all[.., 1]
+ELIF help_text == "short"
+    function_key_help_uncompressed = function_key_help_all[.., 2]
+ELSE
+    ERROR "unknown help_text: ", help_text
+ENDIF
+
+IF compressed_help_text
+    ; The function key help text was not optimally abbreviated as it doesn't
+    ; make use of &81 and &84 even though it could. Exclude them from the table
+    ; to get matching results, but there are still a few inconvenient cases
+    ; where particular words were not abbreviated even in strings that contain
+    ; other occurrences that were - these are just broken up with an "!" which
+    ; does not appear in any of the text otherwise, and just gets removed.
+    function_key_help_mapping = CONCAT(build_abbreviation_mapping(without(abbreviation_table, {&81, &84} - abbreviation_base)), {{"!", ""}})
+ELSE
+    ; Just remove the "!" for correct uncompressed text.
+    function_key_help_mapping = {{"!", ""}}
+ENDIF
+
+function_key_help = multi_replace_all(function_key_help_uncompressed, function_key_help_mapping)
+
+.help_f0        : EQUB function_key_help[0]
+.help_shff0     : EQUB function_key_help[1]
+.help_f1        : EQUB function_key_help[2]
+.help_shff1     : EQUB function_key_help[3]
+.help_f2        : EQUB function_key_help[4]
+.help_shff2     : EQUB function_key_help[5]
+.help_f3        : EQUB function_key_help[6]
+.help_shff3     : EQUB function_key_help[7]
+.help_f4        : EQUB function_key_help[8]
+.help_shff4     : EQUB function_key_help[9]
+.help_f5        : EQUB function_key_help[10]
+.help_shff5     : EQUB function_key_help[11]
+.help_f6        : EQUB function_key_help[12]
+.help_shff6     : EQUB function_key_help[13]
+.help_f7        : EQUB function_key_help[14]
+.help_shff7     : EQUB function_key_help[15]
+.help_f8        : EQUB function_key_help[16]
+.help_shff8     : EQUB function_key_help[17]
+.help_f9        : EQUB function_key_help[18]
+.help_shff9     : EQUB function_key_help[19]
+.help_shftab    : EQUB function_key_help[20]
+.help_shfcopy   : EQUB function_key_help[21]
+
+IF cF8key
+    .help_cf8   : EQUB function_key_help[22]
+ENDIF

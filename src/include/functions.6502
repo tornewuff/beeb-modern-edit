@@ -9,6 +9,15 @@ FUNCTION multi_replace(str, replacements)
     NEXT
 = str
 
+; Mapped version of multi_replace
+FUNCTION multi_replace_all(in, replacements)
+    ASSERT RANK(in) > 0, "not a list: ", in
+    out = {}
+    FOR x = in
+        out = CONCAT(out, multi_replace(x, replacements))
+    NEXT
+= out
+
 ; Turns a list of strings and numbers into a single string, assuming numbers are
 ; to be interpreted as character codes. If the input is already a string, not a
 ; list, it's returned unchanged. This can be used as a kind of escaping - e.g.

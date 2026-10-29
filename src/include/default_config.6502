@@ -31,9 +31,6 @@
     ; ctrl-f8 toggle (cr/lf)
     cF8key = TRUE
 
-    ; shorter messages
-    shortm = TRUE
-
     ; different cursor types
     curtyp = TRUE
 
@@ -49,11 +46,14 @@
     ; apply size optimizations from EDIT 1.50 (non-behavior-changing)
     edit150_size_opt = FALSE
 
-    ; use updated help texts from EDIT 1.50
-    ;
-    ; this is mostly capitalization changes, and updates to wording around
-    ; line endings.
-    edit150_updated_help = FALSE
+    ; which version of the help text to use:
+    ;  original - the original texts as with shortm=0
+    ;  short    - shorter texts for function key help as with shortm=1
+    ;  edit150  - the updated texts from EDIT 1.50
+    help_text = "short"
+
+    ; compress help text with abbreviation table
+    compressed_help_text = FALSE
 
     ; omit the service handler to save space (formerly enabled by mouse=1)
     omit_service = FALSE
@@ -68,13 +68,13 @@ IF DEFINED(setconfig.syzygy) : syzygy = setconfig.syzygy : ELSE : syzygy = defau
 IF DEFINED(setconfig.stamp) : stamp = setconfig.stamp : ELSE : stamp = default_config.stamp : ENDIF
 IF DEFINED(setconfig.lfver) : lfver = setconfig.lfver : ELSE : lfver = default_config.lfver : ENDIF
 IF DEFINED(setconfig.cF8key) : cF8key = setconfig.cF8key : ELSE : cF8key = default_config.cF8key : ENDIF
-IF DEFINED(setconfig.shortm) : shortm = setconfig.shortm : ELSE : shortm = default_config.shortm : ENDIF
 IF DEFINED(setconfig.curtyp) : curtyp = setconfig.curtyp : ELSE : curtyp = default_config.curtyp : ENDIF
 IF DEFINED(setconfig.lfarro) : lfarro = setconfig.lfarro : ELSE : lfarro = default_config.lfarro : ENDIF
 IF DEFINED(setconfig.extgf) : extgf = setconfig.extgf : ELSE : extgf = default_config.extgf : ENDIF
 IF DEFINED(setconfig.edit150) : edit150 = setconfig.edit150 : ELSE : edit150 = default_config.edit150 : ENDIF
 IF DEFINED(setconfig.edit150_size_opt) : edit150_size_opt = setconfig.edit150_size_opt : ELSE : edit150_size_opt = default_config.edit150_size_opt : ENDIF
-IF DEFINED(setconfig.edit150_updated_help) : edit150_updated_help = setconfig.edit150_updated_help : ELSE : edit150_updated_help = default_config.edit150_size_opt : ENDIF
+IF DEFINED(setconfig.help_text) : help_text = setconfig.help_text : ELSE : help_text = default_config.help_text : ENDIF
+IF DEFINED(setconfig.compressed_help_text) : compressed_help_text = setconfig.compressed_help_text : ELSE : compressed_help_text = default_config.compressed_help_text : ENDIF
 IF DEFINED(setconfig.omit_service) : omit_service = setconfig.omit_service : ELSE : omit_service = default_config.omit_service : ENDIF
 
 ASSERT fancy_chars_at_80 OR define_fancy_chars != "temporary", "must use &80 font mapping when defining fancy chars temporarily"

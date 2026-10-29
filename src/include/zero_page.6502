@@ -146,8 +146,11 @@ flexec          = scratch + 18  ; 4 bytes
 flload          = scratch + 22  ; 4 bytes
 ENDIF
 
-IF edit150
+IF compressed_help_text
 .compressed_string SKIP 2
+ENDIF
+
+IF edit150
 .chardef_ptr SKIP 2
 .chardef_idx SKIP 1
 

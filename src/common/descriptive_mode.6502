@@ -9,7 +9,7 @@
         remap("│ Line  │Line   │ File  │ File  │String │Replace│ Place │Copy   │ Text  │ Text │"),
     })
 
-IF edit150_updated_help
+IF help_text == "edit150"
     key_strip = edit150_key_strip
 ELSE
     ; HiEdit used different casing and a differently placed space.
@@ -87,7 +87,7 @@ ELSE
 ENDIF
     line2_filler = CHR(REPEATED(31 - line2_prefix_len, ' '))
 
-IF cF8key AND NOT(edit150_updated_help)
+IF cF8key AND help_text != "edit150"
     ; not in Edit 1.50 presumably because it's now a standard feature
     line2_crlfmode = "CR/LF"
 ELIF termin=lf
@@ -114,7 +114,7 @@ ENDIF
         remap("Control COPY deletes the current line (to next RETURN)  └───┘Control: text end  "),
     })
 
-IF edit150_updated_help
+IF help_text == "edit150"
     descriptive_help = edit150_descriptive_help
 ELSE
     ; HiEdit used different casing and wording around newline.

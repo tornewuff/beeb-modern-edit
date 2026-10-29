@@ -2,9 +2,7 @@ INCLUDE "include/default_config.6502"
 INCLUDE "include/functions.6502"
 INCLUDE "include/utf8.6502"
 INCLUDE "include/fancy_char_definitions.6502"
-IF edit150
-    INCLUDE "include/text_abbreviation.6502"
-ENDIF
+INCLUDE "include/text_abbreviation.6502"
 INCLUDE "include/mos.6502"
 INCLUDE "include/relocation.6502"
 
@@ -53,11 +51,7 @@ INCLUDE "common/descriptive_mode.6502"
 IF define_fancy_chars == "temporary"
     INCLUDE "optional/fancy_chars_temporary.6502"
 ENDIF
-IF edit150
-    INCLUDE "edit150/function_key_help.6502"
-ELSE
-    INCLUDE "hiedit124/function_key_help.6502"
-ENDIF
+INCLUDE "common/function_key_help.6502"
 
 ; EDIT03
 IF edit150
@@ -82,9 +76,11 @@ INCLUDE "common/tab_key.6502"
 INCLUDE "common/return_to_language.6502"
 IF edit150
     INCLUDE "edit150/format_help.6502"
-    INCLUDE "edit150/compressed_text.6502"
 ELSE
     INCLUDE "hiedit124/format_help.6502"
+ENDIF
+IF compressed_help_text
+    INCLUDE "optional/compressed_text.6502"
 ENDIF
 
 ; EDIT04 (format_commands continues into EDIT05)
