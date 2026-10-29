@@ -1,0 +1,159 @@
+; The function key help text was not optimally abbreviated as it doesn't make
+; use of &81 and &84 even though it could. Exclude them from the table to get
+; matching results, but there are still a few inconvenient cases where
+; particular words were not abbreviated even in strings that contain other
+; occurrences that were - these are just broken up with an "!" which does not
+; appear in any of the text otherwise, and just gets removed.
+function_key_help_mapping = CONCAT(build_abbreviation_mapping(without(abbreviation_table, {&81, &84} - abbreviation_base)), {{"!", ""}})
+
+.f0
+    EQUB multi_replace(stringify({
+        "f0", cr,
+        "The cursor can be moved to a new line.", cr,
+        "For this operation lines are character sequences", cr,
+        "ended by RETURN.", &ea
+    }), function_key_help_mapping)
+.shff0
+    EQUB multi_replace(stringify({
+        "shf-f0", cr,
+        "The ends of lines can be shown as a special", cr,
+        "character so that they can be seen clearly.", cr,
+        "This alters with each press of shf-f0.", &ea
+    }), function_key_help_mapping)
+.f1
+    EQUB multi_replace(stringify({
+        "f1", cr,
+        "Commands to t!he computer's operating system can be", cr,
+        "given. The result is seen at once. Extra commands", cr,
+        "can be entered until RETURN by itself is typed.", &ea
+    }), function_key_help_mapping)
+.SHFF1
+    EQUB multi_replace(stringify({
+        "shf-f1", cr,
+        "Changes between Insert and Over. In Insert mode the", cr,
+        "text typed is inserted causing the existing text to", cr,
+        "move. In Over mode the text is typed over old text.", &ea
+    }), function_key_help_mapping)
+.f2
+    EQUB multi_replace(stringify({
+        "f2", cr,
+        "A text file will be loaded, erasing the current text.", cr,
+        "RETURN uses the name at the start of text after a '>'", cr,
+        "COPY, RETURN to use the current file name.", &ea
+    }), function_key_help_mapping)
+.SHFF2
+    EQUB multi_replace(stringify({
+        "shf-f2", cr,
+        "A text file will be loaded at the current cursor.", cr,
+        "RETURN uses the name at the start of text after a '>'", cr,
+        "COPY, RETURN to use the current file name.", &ea
+    }), function_key_help_mapping)
+.f3
+    EQUB multi_replace(stringify({
+        "f3", cr,
+        "All or 'mark to cursor' text will be saved to a file.", cr,
+        "RETURN uses the name at the start of text after a '>'", cr,
+        "COPY, RETURN to use the current file name.", &ea
+    }), function_key_help_mapping)
+.SHFF3
+    EQUB multi_replace(stringify({
+        "shf-f3", cr,
+        "The top and bottom scroll margins have been removed.", cr,
+        "Set Top scroll margins with ctrl-f6", cr,
+        "Set Bottom scroll margins with ctrl-f7", &ea
+    }), function_key_help_mapping)
+.f4
+    EQUB multi_replace(stringify({
+        "f4:- Interactive Find and Replace Function.", cr,
+        "RETURN to use last f4. Special search characters are:", cr,
+        "# digit, $ RETURN, . any, [ ] set of char, a-z a to z", cr,
+        "~ not, * many, ^ many, | control, @ alpha, \ literal.", &ea
+    }), function_key_help_mapping)
+.SHFF4
+    EQUB multi_replace(stringify({
+        "shf-f4", cr,
+        "Return to specified language.", cr,
+        "The text in the buffer will be 'transferred' into the", cr,
+        "language.", &ea
+    }), function_key_help_mapping)
+.f5
+    EQUB multi_replace(stringify({
+        "f5:- Global replace.              All, or marked text.",
+        "RETURN to use last f5. Special replace characters are:",
+        "/ to begin the replace section; & is the found string", cr,
+        "%n found wild section n. See f4 for find characters.", &ea
+    }), function_key_help_mapping)
+.SHFF5
+    EQUB multi_replace(stringify({
+        "shf-f5", cr,
+        "The screen mode may be set to a specific mode. Also", cr,
+        "Descriptive (D), or Key legend (K) modes may be set.", cr,
+        "D and K use mode 0.", &ea
+    }), function_key_help_mapping)
+.f6
+    EQUB multi_replace(stringify({
+        "f6", cr,
+        "The current position of the cursor (_) is remembered.", cr,
+        "The status line will show the number of marks in use", cr,
+        "(if any).", &ea
+    }), function_key_help_mapping)
+.SHFF6
+    EQUB multi_replace(stringify({
+        "shf-f6", cr,
+        "All place marks are cleared.", cr,
+        cr, &ea
+    }), function_key_help_mapping)
+.f7
+    EQUB multi_replace(stringify({
+        "f7", cr,
+        "The text between two marked places is copied to", cr,
+        "the current cursor position.", cr,
+        "The marks are NOT cleared.", &ea
+    }), function_key_help_mapping)
+.SHFF7
+    EQUB multi_replace(stringify({
+        "shf-f7", cr,
+        "The text between two marked places is moved to", cr,
+        "the current cursor position.", cr,
+        "The marks are then cleared.", &ea
+    }), function_key_help_mapping)
+.f8
+    EQUB multi_replace(stringify({
+        "f8", cr,
+        "The whole text is printed out to t!he screen or printer",
+        "using the built-in formatter/paginator.", cr, &ea
+    }), function_key_help_mapping)
+.SHFF8
+    EQUB multi_replace(stringify({
+        "shf-f8", cr,
+        "The text between the cursor and the marked place", cr,
+        "is deleted.", cr,
+        "The mark is then cleared.", &ea
+    }), function_key_help_mapping)
+.f9
+    EQUB multi_replace(stringify({
+        "f9", cr,
+        "The old text in the buffer is recovered after a BREAK", cr,
+        "or immediately after a Clear Text (by shf-f9).", cr, &ea
+    }), function_key_help_mapping)
+.SHFF9
+    EQUB multi_replace(stringify({
+        "shf-f9 (ESCAPE t!o abandon)", cr,
+        "All text in the buffer is deleted.", cr,
+        "Use shf-f9 twice to remove the text beyond hope of a", cr,
+        "recovery by f9.", &ea
+    }), function_key_help_mapping)
+.SHFTAB
+    EQUB multi_replace(stringify({
+        "shf-TAB", cr,
+        "The TAB key may be used to move to zones of eight", cr,
+        "characters across the screen, or to position under", cr,
+        "the first character of the line immediately above.", &ea
+    }), function_key_help_mapping)
+.SHFCOP
+    EQUB multi_replace(stringify({
+        "shf-COPY", cr,
+        "Cursor editing with the cursor keys & COPY is enabled.",
+        "User defined soft keys are available as normal.", cr,
+        "All characters except ESCAPE are put into text.", &ea
+    }), function_key_help_mapping)

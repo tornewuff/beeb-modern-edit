@@ -54,9 +54,9 @@ IF define_fancy_chars == "temporary"
     INCLUDE "optional/fancy_chars_temporary.6502"
 ENDIF
 IF edit150
-    INCLUDE "edit150/help_text.6502"
+    INCLUDE "edit150/function_key_help.6502"
 ELSE
-    INCLUDE "hiedit124/help_text.6502"
+    INCLUDE "hiedit124/function_key_help.6502"
 ENDIF
 
 ; EDIT03
