@@ -132,8 +132,8 @@ IF define_fancy_chars == "startup"
         EQUB 23, remap_codepoint(definition[0]), definition[2]
     NEXT
 
-    IF lfarro
-        EQUB 23, nlfarr, &00,&18,&38,&7f,&38,&18,&00,&00
+    IF newline_arrow != 0
+        EQUB 23, newline_arrow, &00,&18,&38,&7f,&38,&18,&00,&00
     ENDIF
 ENDIF
     EQUB &ea

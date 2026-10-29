@@ -31,7 +31,7 @@ ENDIF
     lfver = TRUE
     cF8key = FALSE
     curtyp = FALSE
-    lfarro = FALSE
+    newline_arrow = &88
     extgf = TRUE
     edit150 = FALSE                 ; not useful to test edit150
     edit150_size_opt = TRUE

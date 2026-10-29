@@ -26,7 +26,7 @@ ENDIF
     fancy_chars_at_80 = TRUE
     syzygy = FALSE
     curtyp = FALSE
-    lfarro = FALSE
+    newline_arrow = 0
     edit150 = TRUE
     edit150_size_opt = TRUE
     help_text = "edit150"

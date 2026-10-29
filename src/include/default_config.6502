@@ -34,8 +34,10 @@
     ; different cursor types
     curtyp = TRUE
 
-    ; linefeed arrow
-    lfarro = TRUE
+    ; byte value to use for the newline arrow; 0 to disable.
+    ; hiedit uses &fe for some reason even though the glyph is identical to the
+    ; one at &88 in the MOS 3.x font.
+    newline_arrow = &fe
 
     ; extended FIND/REPLACE texts
     extgf = FALSE
@@ -69,7 +71,7 @@ IF DEFINED(setconfig.stamp) : stamp = setconfig.stamp : ELSE : stamp = default_c
 IF DEFINED(setconfig.lfver) : lfver = setconfig.lfver : ELSE : lfver = default_config.lfver : ENDIF
 IF DEFINED(setconfig.cF8key) : cF8key = setconfig.cF8key : ELSE : cF8key = default_config.cF8key : ENDIF
 IF DEFINED(setconfig.curtyp) : curtyp = setconfig.curtyp : ELSE : curtyp = default_config.curtyp : ENDIF
-IF DEFINED(setconfig.lfarro) : lfarro = setconfig.lfarro : ELSE : lfarro = default_config.lfarro : ENDIF
+IF DEFINED(setconfig.newline_arrow) : newline_arrow = setconfig.newline_arrow : ELSE : newline_arrow = default_config.newline_arrow : ENDIF
 IF DEFINED(setconfig.extgf) : extgf = setconfig.extgf : ELSE : extgf = default_config.extgf : ENDIF
 IF DEFINED(setconfig.edit150) : edit150 = setconfig.edit150 : ELSE : edit150 = default_config.edit150 : ENDIF
 IF DEFINED(setconfig.edit150_size_opt) : edit150_size_opt = setconfig.edit150_size_opt : ELSE : edit150_size_opt = default_config.edit150_size_opt : ENDIF
@@ -79,5 +81,6 @@ IF DEFINED(setconfig.omit_service) : omit_service = setconfig.omit_service : ELS
 
 ASSERT fancy_chars_at_80 OR define_fancy_chars != "temporary", "must use &80 font mapping when defining fancy chars temporarily"
 ASSERT NOT(fancy_chars_at_80 AND define_fancy_chars == "never"), "must define fancy chars if not using MOS 3.x default font mapping"
+ASSERT newline_arrow == 0 OR define_fancy_chars == "startup" OR (newline_arrow == &88 AND define_fancy_chars == "never"), "must define fancy chars at startup when using newline arrow"
 ; TODO: unify language_entry to make this work
 ASSERT NOT(define_fancy_chars == "startup" AND edit150), "can't currently define chars at startup in edit150"

@@ -64,10 +64,6 @@ moureg  =       &fc50
 mouxlo  =       moureg + 2
 mouswi  =       moureg + 6
 
-IF lfarro
-nlfarr  =       &fe
-ENDIF
-
     ; EDIT symbolic constants
 
 escflg  =       &ff

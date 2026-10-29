@@ -16,8 +16,8 @@
     LDA #&20
     BIT options
     BEQ PASWOS
-IF lfarro
-    LDA #nlfarr
+IF newline_arrow != 0
+    LDA #newline_arrow
 ELSE
     LDA #'$'              ; **
 ENDIF
