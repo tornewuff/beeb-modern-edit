@@ -1,5 +1,5 @@
 ; Build configuration based on HiEdit 1.24 but using every non-default config
-; option from the original source, just to verify that it builds.
+; option, just to verify that it builds.
 
 .build {
 IF DEFINED(build_disc)
@@ -24,7 +24,8 @@ ENDIF
     phil = TRUE
     mouse = TRUE
     lerror = FALSE
-    dchars = FALSE
+    define_fancy_chars = "never"
+    fancy_chars_at_80 = FALSE       ; required for "never"
     syzygy = FALSE
     stamp = TRUE
     lfver = TRUE
@@ -32,13 +33,11 @@ ENDIF
     curtyp = FALSE
     lfarro = FALSE
     extgf = TRUE
-
+    edit150 = FALSE                 ; not useful to test edit150
+    edit150_size_opt = TRUE
     help_text = "original"
     compressed_help_text = TRUE
-
-    ; Also include nondefault options split out of edit150
-    edit150_size_opt = TRUE
-    define_fancy_chars = "never"
+    omit_service = TRUE
 }
 
 

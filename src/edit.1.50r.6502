@@ -22,15 +22,15 @@ ENDIF
 }
 
 .setconfig {
+    define_fancy_chars = "temporary"
+    fancy_chars_at_80 = TRUE
+    syzygy = FALSE
+    curtyp = FALSE
+    lfarro = FALSE
     edit150 = TRUE
     edit150_size_opt = TRUE
     help_text = "edit150"
     compressed_help_text = TRUE
-    define_fancy_chars = "temporary"
-    fancy_chars_at_80 = TRUE
-    curtyp = FALSE
-    lfarro = FALSE
-    syzygy = FALSE
 }
 
 INCLUDE "main.6502"
